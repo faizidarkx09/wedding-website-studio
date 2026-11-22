@@ -1,0 +1,74 @@
+import Link from "next/link";
+import RsvpForm from "@/components/RsvpForm";
+import { SiteUnavailable } from "@/components/SiteRenderer";
+import { getPublicSite } from "@/lib/store";
+
+export default async function RsvpPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ token?: string | string[] }>;
+}) {
+  const { slug } = await params;
+  const search = await searchParams;
+  const token = Array.isArray(search.token) ? search.token[0] : search.token;
+  const site = await getPublicSite(slug);
+
+  if (!site) {
+    return <SiteUnavailable />;
+  }
+
+  const deadline = site.settings.rsvpDeadline ? new Date(site.settings.rsvpDeadline) : null;
+  const deadlinePassed = deadline !== null && deadline.getTime() < Date.now();
+
+  if (!site.settings.rsvpEnabled || deadlinePassed) {
+    return (
+      <main className="mx-auto flex min-h-[70vh] w-full max-w-2xl flex-col items-center justify-center px-6 py-16 text-center">
+        <p className="text-sm font-semibold uppercase tracking-[0.25em] text-stone-500">
+          {site.content.partnerA} &amp; {site.content.partnerB}
+        </p>
+        <h1 className="mt-4 text-3xl font-semibold text-stone-900 sm:text-4xl">
+          RSVP is now closed
+        </h1>
+        <p className="mt-4 max-w-md leading-relaxed text-stone-600">
+          {deadlinePassed
+            ? `The RSVP deadline has passed${deadline ? ` (it was ${deadline.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })})` : ""}.`
+            : "The couple are no longer taking RSVPs for this wedding."}{" "}
+          If you already responded, your response is saved — you do not need to do anything,
+          and nothing you sent has been lost.
+        </p>
+        <Link
+          href={`/w/${site.slug}`}
+          className="mt-8 rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-700"
+        >
+          Back to the wedding website
+        </Link>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-full w-full bg-[#fdfbf7] px-5 py-12 text-stone-900 sm:py-16">
+      <div className="mx-auto mb-8 max-w-xl text-center">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-700">
+          {site.content.partnerA} &amp; {site.content.partnerB}
+        </p>
+        <h1 className="mt-3 text-3xl font-bold sm:text-4xl">RSVP</h1>
+        <p className="mt-3 leading-relaxed text-stone-600">
+          Please reply for yourself and your party
+          {site.settings.rsvpDeadline
+            ? ` by ${new Date(site.settings.rsvpDeadline).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`
+            : ""}
+          .
+        </p>
+      </div>
+      <RsvpForm site={site} token={token} />
+      <p className="mt-8 text-center">
+        <Link href={`/w/${site.slug}`} className="text-sm font-medium text-stone-500 hover:text-stone-900">
+          ← Back to the wedding website
+        </Link>
+      </p>
+    </main>
+  );
+}

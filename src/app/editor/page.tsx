@@ -1,0 +1,808 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import SiteRenderer from "@/components/SiteRenderer";
+import type { GalleryImage, RsvpQuestion, SiteEvent, WeddingSite } from "@/lib/types";
+
+type Tab = "details" | "events" | "gallery" | "design" | "settings";
+type PreviewWidth = "desktop" | "tablet" | "mobile";
+type SaveStatus = "idle" | "saving" | "saved" | "failed";
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: "details", label: "Details" },
+  { id: "events", label: "Events" },
+  { id: "gallery", label: "Gallery" },
+  { id: "design", label: "Design" },
+  { id: "settings", label: "Settings" },
+];
+
+const HEADING_FONTS = [
+  "Georgia, serif",
+  "Palatino Linotype, Palatino, Georgia, serif",
+  "Times New Roman, Times, Georgia, serif",
+  "Helvetica Neue, Arial, sans-serif",
+  "Trebuchet MS, Segoe UI, sans-serif",
+];
+
+const BODY_FONTS = [
+  "system-ui, sans-serif",
+  "Georgia, serif",
+  "Helvetica Neue, Arial, sans-serif",
+  "Trebuchet MS, Segoe UI, sans-serif",
+];
+
+const TIMEZONES = [
+  "America/New_York",
+  "America/Chicago",
+  "America/Denver",
+  "America/Los_Angeles",
+  "Europe/London",
+  "Europe/Paris",
+  "Asia/Dubai",
+  "Asia/Karachi",
+  "Asia/Kolkata",
+  "Australia/Sydney",
+];
+
+function uid(prefix: string): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
+/** ISO datetime → value for <input type="datetime-local">. */
+function toLocalInput(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function fromLocalInput(value: string): string | null {
+  if (!value) return null;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
+const inputCls =
+  "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 focus:border-stone-900 focus:outline-none";
+const labelCls = "block text-sm font-medium";
+
+export default function EditorPage() {
+  const router = useRouter();
+  const [site, setSite] = useState<WeddingSite | null>(null); // last saved version
+  const [draft, setDraft] = useState<WeddingSite | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [tab, setTab] = useState<Tab>("details");
+  const [previewWidth, setPreviewWidth] = useState<PreviewWidth>("desktop");
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [savedAt, setSavedAt] = useState<string>("");
+  const [saveError, setSaveError] = useState("");
+  const [notice, setNotice] = useState("");
+
+  const [newImageUrl, setNewImageUrl] = useState("");
+  const [uploadBusy, setUploadBusy] = useState(false);
+  const [newQuestionLabel, setNewQuestionLabel] = useState("");
+  const [newQuestionType, setNewQuestionType] = useState<"text" | "choice">("text");
+  const [newQuestionOptions, setNewQuestionOptions] = useState("");
+  const [guestPassword, setGuestPassword] = useState("");
+  const [pwBusy, setPwBusy] = useState(false);
+  const [pwMessage, setPwMessage] = useState("");
+  const [publishBusy, setPublishBusy] = useState(false);
+
+  const loadedRef = useRef(false);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const draftRef = useRef<WeddingSite | null>(null);
+  draftRef.current = draft;
+
+  const load = useCallback(async () => {
+    const res = await fetch("/api/sites/save");
+    if (res.status === 401) {
+      router.replace("/activate");
+      return;
+    }
+    const data = (await res.json()) as { ok: boolean; site?: WeddingSite; error?: string };
+    if (!res.ok || !data.site) {
+      setError(data.error || "Could not load your website.");
+      setLoading(false);
+      return;
+    }
+    setSite(data.site);
+    setDraft(data.site);
+    loadedRef.current = true;
+    setLoading(false);
+  }, [router]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const saveNow = useCallback(async () => {
+    const current = draftRef.current;
+    if (!current) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    setSaveStatus("saving");
+    setSaveError("");
+    try {
+      const res = await fetch("/api/sites/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ site: current }),
+      });
+      const data = (await res.json()) as { ok: boolean; updatedAt?: string; error?: string };
+      if (!res.ok || !data.ok) throw new Error(data.error || "Save failed");
+      setSite(current);
+      setSaveStatus("saved");
+      setSavedAt(new Date().toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+    } catch (e) {
+      setSaveStatus("failed");
+      setSaveError(e instanceof Error ? e.message : "Save failed");
+    }
+  }, []);
+
+  // Auto-save: debounce 800ms after any draft change (not on initial load).
+  useEffect(() => {
+    if (!loadedRef.current || !draft) return;
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    setSaveStatus("saving");
+    saveTimer.current = setTimeout(() => {
+      void saveNow();
+    }, 800);
+    return () => {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+    };
+  }, [draft, saveNow]);
+
+  function updateDraft(mutator: (d: WeddingSite) => WeddingSite) {
+    setDraft((prev) => (prev ? mutator(structuredClone(prev)) : prev));
+  }
+
+  async function togglePublish() {
+    if (!draft) return;
+    // Publish/unpublish always uses the last saved version.
+    if (saveStatus === "saving") await saveNow();
+    setPublishBusy(true);
+    setNotice("");
+    const next = draft.status === "published" ? "unpublished" : "published";
+    try {
+      const res = await fetch("/api/sites/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ siteId: draft.id, status: next }),
+      });
+      const data = (await res.json()) as { ok: boolean; error?: string };
+      if (!res.ok || !data.ok) throw new Error(data.error || "Could not change publishing status");
+      updateDraft((d) => ({ ...d, status: next }));
+      setSite((s) => (s ? { ...s, status: next } : s));
+      setNotice(next === "published" ? "Your website is now published." : "Your website is now unpublished.");
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : "Could not change publishing status");
+    } finally {
+      setPublishBusy(false);
+    }
+  }
+
+  async function uploadFile(file: File) {
+    if (!draft) return;
+    setUploadBusy(true);
+    setNotice("");
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("siteId", draft.id);
+      const res = await fetch("/api/upload", { method: "POST", body: form });
+      const data = (await res.json()) as { ok: boolean; url?: string; error?: string };
+      if (!res.ok || !data.ok || !data.url) throw new Error(data.error || "Upload failed");
+      const image: GalleryImage = { id: uid("g"), url: data.url, caption: file.name };
+      updateDraft((d) => ({ ...d, gallery: [...d.gallery, image] }));
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploadBusy(false);
+    }
+  }
+
+  async function saveGuestPassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!draft) return;
+    setPwBusy(true);
+    setPwMessage("");
+    try {
+      const res = await fetch("/api/sites/password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ siteId: draft.id, password: guestPassword }),
+      });
+      const data = (await res.json()) as { ok: boolean; error?: string };
+      if (!res.ok || !data.ok) throw new Error(data.error || "Could not set the password");
+      updateDraft((d) => ({ ...d, settings: { ...d.settings, passwordEnabled: true } }));
+      setGuestPassword("");
+      setPwMessage("Guest password saved. Your site is now password-protected.");
+    } catch (err) {
+      setPwMessage(err instanceof Error ? err.message : "Could not set the password");
+    } finally {
+      setPwBusy(false);
+    }
+  }
+
+  async function disableGuestPassword() {
+    if (!draft) return;
+    setPwBusy(true);
+    setPwMessage("");
+    try {
+      const res = await fetch("/api/sites/password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ siteId: draft.id, disable: true }),
+      });
+      const data = (await res.json()) as { ok: boolean; error?: string };
+      if (!res.ok || !data.ok) throw new Error(data.error || "Could not remove the password");
+      updateDraft((d) => ({ ...d, settings: { ...d.settings, passwordEnabled: false, passwordHash: null } }));
+      setPwMessage("Guest password removed.");
+    } catch (err) {
+      setPwMessage(err instanceof Error ? err.message : "Could not remove the password");
+    } finally {
+      setPwBusy(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <main className="mx-auto w-full max-w-7xl px-4 py-12">
+        <p className="text-stone-600">Loading your editor…</p>
+      </main>
+    );
+  }
+
+  if (error || !draft || !site) {
+    return (
+      <main className="mx-auto w-full max-w-7xl px-4 py-12">
+        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
+          {error || "Could not load your website."}
+        </p>
+        <Link href="/activate" className="mt-4 inline-block font-medium underline">
+          Go to activation
+        </Link>
+      </main>
+    );
+  }
+
+  const previewStyle: React.CSSProperties =
+    previewWidth === "desktop"
+      ? { width: "100%" }
+      : { width: previewWidth === "tablet" ? 768 : 390, maxWidth: "100%" };
+
+  const saveLabel =
+    saveStatus === "saving"
+      ? "Saving…"
+      : saveStatus === "saved"
+        ? `✓ Saved ${savedAt}`
+        : saveStatus === "failed"
+          ? "Save failed — retry"
+          : "All changes saved";
+
+  return (
+    <main className="mx-auto w-full max-w-7xl px-4 py-6">
+      {/* Top bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold">
+            {draft.content.partnerA} &amp; {draft.content.partnerB}
+          </h1>
+          <p className="text-sm text-stone-600">
+            <Link href="/dashboard" className="font-medium underline">
+              ← Dashboard
+            </Link>{" "}
+            · {draft.templateSnapshot.name} ·{" "}
+            <span className="capitalize">{draft.status}</span> ·{" "}
+            <Link href={`/w/${draft.slug}`} target="_blank" rel="noopener noreferrer" className="font-medium underline">
+              View live site
+            </Link>
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <p role="status" className="text-sm text-stone-600" aria-live="polite">
+            {saveLabel}
+            {saveStatus === "failed" && saveError ? ` — ${saveError}` : ""}
+          </p>
+          <button
+            type="button"
+            onClick={() => void saveNow()}
+            disabled={saveStatus === "saving"}
+            className="rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium disabled:opacity-50"
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            onClick={() => void togglePublish()}
+            disabled={publishBusy}
+            className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          >
+            {publishBusy ? "Working…" : draft.status === "published" ? "Unpublish" : "Publish"}
+          </button>
+        </div>
+      </div>
+
+      {notice ? (
+        <p role="status" className="mt-3 rounded-lg bg-stone-100 px-3 py-2 text-sm">
+          {notice}
+        </p>
+      ) : null}
+
+      <div className="mt-6 flex flex-col gap-6 lg:flex-row">
+        {/* Settings panel */}
+        <section aria-label="Editor settings" className="w-full shrink-0 lg:w-[420px]">
+          <div role="tablist" aria-label="Editor sections" className="flex flex-wrap gap-2">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={tab === t.id}
+                onClick={() => setTab(t.id)}
+                className={`rounded-full px-4 py-2 text-sm font-medium ${
+                  tab === t.id ? "bg-stone-900 text-white" : "border border-stone-300 bg-white"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-4 rounded-xl border border-stone-200 bg-white p-4">
+            {tab === "details" && (
+              <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label htmlFor="partner-a" className={labelCls}>Partner A</label>
+                    <input id="partner-a" value={draft.content.partnerA} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, partnerA: e.target.value } }))} className={inputCls} />
+                  </div>
+                  <div>
+                    <label htmlFor="partner-b" className={labelCls}>Partner B</label>
+                    <input id="partner-b" value={draft.content.partnerB} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, partnerB: e.target.value } }))} className={inputCls} />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="subtitle" className={labelCls}>Subtitle</label>
+                  <input id="subtitle" value={draft.content.subtitle} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, subtitle: e.target.value } }))} className={inputCls} />
+                </div>
+                <div>
+                  <label htmlFor="welcome" className={labelCls}>Welcome message</label>
+                  <textarea id="welcome" rows={3} value={draft.content.welcome} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, welcome: e.target.value } }))} className={inputCls} />
+                </div>
+                <div>
+                  <label htmlFor="story" className={labelCls}>Our story</label>
+                  <textarea id="story" rows={5} value={draft.content.story} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, story: e.target.value } }))} className={inputCls} />
+                </div>
+                <div>
+                  <label htmlFor="venue-name" className={labelCls}>Venue name</label>
+                  <input id="venue-name" value={draft.content.venueName} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, venueName: e.target.value } }))} className={inputCls} />
+                </div>
+                <div>
+                  <label htmlFor="venue-address" className={labelCls}>Venue address</label>
+                  <input id="venue-address" value={draft.content.venueAddress} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, venueAddress: e.target.value } }))} className={inputCls} />
+                </div>
+                <div>
+                  <label htmlFor="map-link" className={labelCls}>Map link</label>
+                  <input id="map-link" type="url" placeholder="https://maps.google.com/…" value={draft.content.mapLink} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, mapLink: e.target.value } }))} className={inputCls} />
+                </div>
+                <div>
+                  <label htmlFor="wedding-date" className={labelCls}>Wedding date &amp; time</label>
+                  <input
+                    id="wedding-date"
+                    type="datetime-local"
+                    value={toLocalInput(draft.weddingDate)}
+                    onChange={(e) => {
+                      const iso = fromLocalInput(e.target.value);
+                      if (iso) updateDraft((d) => ({ ...d, weddingDate: iso }));
+                    }}
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="timezone" className={labelCls}>Timezone</label>
+                  <input id="timezone" list="tz-list" value={draft.timezone} onChange={(e) => updateDraft((d) => ({ ...d, timezone: e.target.value, settings: { ...d.settings, timezone: e.target.value } }))} className={inputCls} />
+                  <datalist id="tz-list">
+                    {TIMEZONES.map((tz) => (
+                      <option key={tz} value={tz} />
+                    ))}
+                  </datalist>
+                </div>
+              </div>
+            )}
+
+            {tab === "events" && (
+              <div className="flex flex-col gap-4">
+                {draft.events.length === 0 ? (
+                  <p className="text-sm text-stone-600">No events yet. Add your ceremony, reception, or brunch below.</p>
+                ) : null}
+                {draft.events.map((ev, i) => (
+                  <fieldset key={ev.id} className="rounded-lg border border-stone-200 p-3">
+                    <legend className="px-1 text-sm font-medium">Event {i + 1}</legend>
+                    <div className="flex flex-col gap-2">
+                      <label className={labelCls}>
+                        Name
+                        <input value={ev.name} onChange={(e) => updateDraft((d) => ({ ...d, events: d.events.map((x) => (x.id === ev.id ? { ...x, name: e.target.value } : x)) }))} className={inputCls} />
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <label className={labelCls}>
+                          Date
+                          <input type="date" value={ev.date} onChange={(e) => updateDraft((d) => ({ ...d, events: d.events.map((x) => (x.id === ev.id ? { ...x, date: e.target.value } : x)) }))} className={inputCls} />
+                        </label>
+                        <label className={labelCls}>
+                          Time
+                          <input value={ev.time} placeholder="4:00 PM" onChange={(e) => updateDraft((d) => ({ ...d, events: d.events.map((x) => (x.id === ev.id ? { ...x, time: e.target.value } : x)) }))} className={inputCls} />
+                        </label>
+                      </div>
+                      <label className={labelCls}>
+                        Venue
+                        <input value={ev.venue} onChange={(e) => updateDraft((d) => ({ ...d, events: d.events.map((x) => (x.id === ev.id ? { ...x, venue: e.target.value } : x)) }))} className={inputCls} />
+                      </label>
+                      <label className={labelCls}>
+                        Address
+                        <input value={ev.address} onChange={(e) => updateDraft((d) => ({ ...d, events: d.events.map((x) => (x.id === ev.id ? { ...x, address: e.target.value } : x)) }))} className={inputCls} />
+                      </label>
+                      <label className={labelCls}>
+                        Description
+                        <textarea rows={2} value={ev.description} onChange={(e) => updateDraft((d) => ({ ...d, events: d.events.map((x) => (x.id === ev.id ? { ...x, description: e.target.value } : x)) }))} className={inputCls} />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => updateDraft((d) => ({ ...d, events: d.events.filter((x) => x.id !== ev.id) }))}
+                        className="self-start rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-700"
+                      >
+                        Delete event
+                      </button>
+                    </div>
+                  </fieldset>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const ev: SiteEvent = { id: uid("ev"), name: "New event", date: draft.weddingDate.slice(0, 10), time: "4:00 PM", venue: "", address: "", description: "" };
+                    updateDraft((d) => ({ ...d, events: [...d.events, ev] }));
+                  }}
+                  className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white"
+                >
+                  Add event
+                </button>
+              </div>
+            )}
+
+            {tab === "gallery" && (
+              <div className="flex flex-col gap-4">
+                {draft.gallery.length === 0 ? (
+                  <p className="text-sm text-stone-600">No photos yet. Add one by URL or upload a file (JPG, PNG or WebP, up to 5 MB).</p>
+                ) : null}
+                {draft.gallery.map((img) => (
+                  <div key={img.id} className="flex gap-3 rounded-lg border border-stone-200 p-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={img.url} alt={img.caption || "Gallery photo"} className="h-16 w-16 shrink-0 rounded object-cover" />
+                    <div className="min-w-0 flex-1">
+                      <label htmlFor={`caption-${img.id}`} className={labelCls}>Caption</label>
+                      <input
+                        id={`caption-${img.id}`}
+                        value={img.caption}
+                        onChange={(e) => updateDraft((d) => ({ ...d, gallery: d.gallery.map((x) => (x.id === img.id ? { ...x, caption: e.target.value } : x)) }))}
+                        className={inputCls}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => updateDraft((d) => ({ ...d, gallery: d.gallery.filter((x) => x.id !== img.id) }))}
+                        className="mt-2 rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-700"
+                      >
+                        Delete photo
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <div>
+                  <label htmlFor="new-image-url" className={labelCls}>Add by URL</label>
+                  <div className="mt-1 flex gap-2">
+                    <input
+                      id="new-image-url"
+                      type="url"
+                      placeholder="https://…"
+                      value={newImageUrl}
+                      onChange={(e) => setNewImageUrl(e.target.value)}
+                      className={`${inputCls} min-w-0 flex-1`}
+                    />
+                    <button
+                      type="button"
+                      disabled={!newImageUrl.trim()}
+                      onClick={() => {
+                        const image: GalleryImage = { id: uid("g"), url: newImageUrl.trim(), caption: "" };
+                        updateDraft((d) => ({ ...d, gallery: [...d.gallery, image] }));
+                        setNewImageUrl("");
+                      }}
+                      className="shrink-0 rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="gallery-upload" className={labelCls}>Upload a photo</label>
+                  <input
+                    id="gallery-upload"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    disabled={uploadBusy}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void uploadFile(file);
+                      e.target.value = "";
+                    }}
+                    className="mt-1 block w-full text-sm"
+                  />
+                  <p className="mt-1 text-xs text-stone-500">{uploadBusy ? "Uploading…" : "JPG, PNG or WebP, up to 5 MB. Stored as a data URL in demo mode."}</p>
+                </div>
+              </div>
+            )}
+
+            {tab === "design" && (
+              <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label htmlFor="color-primary" className={labelCls}>Primary</label>
+                    <input id="color-primary" type="color" value={draft.design.primary} onChange={(e) => updateDraft((d) => ({ ...d, design: { ...d.design, primary: e.target.value } }))} className="mt-1 h-10 w-full rounded border border-stone-300 bg-white" />
+                    <p className="mt-1 font-mono text-xs text-stone-500">{draft.design.primary}</p>
+                  </div>
+                  <div>
+                    <label htmlFor="color-accent" className={labelCls}>Accent</label>
+                    <input id="color-accent" type="color" value={draft.design.accent} onChange={(e) => updateDraft((d) => ({ ...d, design: { ...d.design, accent: e.target.value } }))} className="mt-1 h-10 w-full rounded border border-stone-300 bg-white" />
+                    <p className="mt-1 font-mono text-xs text-stone-500">{draft.design.accent}</p>
+                  </div>
+                  <div>
+                    <label htmlFor="color-bg" className={labelCls}>Background</label>
+                    <input id="color-bg" type="color" value={draft.design.background} onChange={(e) => updateDraft((d) => ({ ...d, design: { ...d.design, background: e.target.value } }))} className="mt-1 h-10 w-full rounded border border-stone-300 bg-white" />
+                    <p className="mt-1 font-mono text-xs text-stone-500">{draft.design.background}</p>
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="heading-font" className={labelCls}>Heading font</label>
+                  <select id="heading-font" value={draft.design.headingFont} onChange={(e) => updateDraft((d) => ({ ...d, design: { ...d.design, headingFont: e.target.value } }))} className={inputCls}>
+                    {HEADING_FONTS.map((f) => (
+                      <option key={f} value={f}>{f}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="body-font" className={labelCls}>Body font</label>
+                  <select id="body-font" value={draft.design.bodyFont} onChange={(e) => updateDraft((d) => ({ ...d, design: { ...d.design, bodyFont: e.target.value } }))} className={inputCls}>
+                    {BODY_FONTS.map((f) => (
+                      <option key={f} value={f}>{f}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="gallery-layout" className={labelCls}>Gallery layout</label>
+                  <select
+                    id="gallery-layout"
+                    value={draft.design.galleryLayout}
+                    onChange={(e) => updateDraft((d) => ({ ...d, design: { ...d.design, galleryLayout: e.target.value as WeddingSite["design"]["galleryLayout"] } }))}
+                    className={inputCls}
+                  >
+                    <option value="grid">Grid</option>
+                    <option value="masonry">Masonry</option>
+                    <option value="carousel">Carousel</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {tab === "settings" && (
+              <div className="flex flex-col gap-4">
+                <fieldset>
+                  <legend className="text-sm font-medium">Sections to show</legend>
+                  <div className="mt-2 flex flex-col gap-2">
+                    {(
+                      [
+                        ["showStory", "Our story"],
+                        ["showGallery", "Gallery"],
+                        ["showEvents", "Events"],
+                        ["showDressCode", "Dress code"],
+                        ["showCountdown", "Countdown"],
+                      ] as const
+                    ).map(([key, label]) => (
+                      <label key={key} className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={draft.settings[key]}
+                          onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, [key]: e.target.checked } }))}
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+                <div>
+                  <label htmlFor="countdown-style" className={labelCls}>Countdown style</label>
+                  <select
+                    id="countdown-style"
+                    value={draft.settings.countdownStyle}
+                    onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, countdownStyle: e.target.value as WeddingSite["settings"]["countdownStyle"], countdownEnabled: true } }))}
+                    className={inputCls}
+                  >
+                    <option value="classic">Classic</option>
+                    <option value="minimal">Minimal</option>
+                    <option value="bold">Bold</option>
+                  </select>
+                </div>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={draft.settings.countdownEnabled}
+                    onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, countdownEnabled: e.target.checked } }))}
+                  />
+                  Countdown enabled
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={draft.settings.rsvpEnabled}
+                    onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, rsvpEnabled: e.target.checked } }))}
+                  />
+                  RSVP enabled
+                </label>
+                <div>
+                  <label htmlFor="rsvp-deadline" className={labelCls}>RSVP deadline</label>
+                  <input
+                    id="rsvp-deadline"
+                    type="datetime-local"
+                    value={toLocalInput(draft.settings.rsvpDeadline)}
+                    onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, rsvpDeadline: fromLocalInput(e.target.value) } }))}
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="rsvp-timezone" className={labelCls}>RSVP timezone</label>
+                  <input
+                    id="rsvp-timezone"
+                    list="tz-list-2"
+                    value={draft.settings.timezone}
+                    onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, timezone: e.target.value } }))}
+                    className={inputCls}
+                  />
+                  <datalist id="tz-list-2">
+                    {TIMEZONES.map((tz) => (
+                      <option key={tz} value={tz} />
+                    ))}
+                  </datalist>
+                </div>
+
+                <div className="rounded-lg border border-stone-200 p-3">
+                  <h3 className="text-sm font-medium">Guest password</h3>
+                  <p className="mt-1 text-sm text-stone-600">
+                    {draft.settings.passwordEnabled
+                      ? "Password protection is on."
+                      : "Password protection is off."}
+                  </p>
+                  <form onSubmit={saveGuestPassword} className="mt-2 flex gap-2">
+                    <label htmlFor="editor-guest-password" className="sr-only">New guest password</label>
+                    <input
+                      id="editor-guest-password"
+                      type="password"
+                      autoComplete="new-password"
+                      placeholder="New password (min 4 characters)"
+                      value={guestPassword}
+                      onChange={(e) => setGuestPassword(e.target.value)}
+                      className={`${inputCls} min-w-0 flex-1`}
+                    />
+                    <button type="submit" disabled={pwBusy || guestPassword.length < 4} className="shrink-0 rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
+                      {pwBusy ? "Saving…" : "Set"}
+                    </button>
+                  </form>
+                  {draft.settings.passwordEnabled ? (
+                    <button type="button" onClick={() => void disableGuestPassword()} disabled={pwBusy} className="mt-2 rounded-full border border-stone-300 px-3 py-1.5 text-xs font-medium disabled:opacity-50">
+                      Remove password protection
+                    </button>
+                  ) : null}
+                  {pwMessage ? <p role="status" className="mt-2 text-sm text-stone-600">{pwMessage}</p> : null}
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium">Custom RSVP questions</h3>
+                  {draft.customQuestions.length === 0 ? (
+                    <p className="mt-1 text-sm text-stone-600">No extra questions. Guests will only be asked the standard RSVP details.</p>
+                  ) : (
+                    <ul className="mt-2 flex flex-col gap-2">
+                      {draft.customQuestions.map((q: RsvpQuestion) => (
+                        <li key={q.id} className="flex items-center justify-between gap-2 rounded-lg border border-stone-200 px-3 py-2 text-sm">
+                          <span>
+                            {q.label} <span className="text-stone-500">({q.type}{q.required ? ", required" : ""})</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateDraft((d) => ({ ...d, customQuestions: d.customQuestions.filter((x) => x.id !== q.id) }))}
+                            className="rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-700"
+                          >
+                            Remove
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <div className="mt-3 flex flex-col gap-2">
+                    <label htmlFor="new-question-label" className={labelCls}>New question</label>
+                    <input id="new-question-label" placeholder="e.g. What song should we play?" value={newQuestionLabel} onChange={(e) => setNewQuestionLabel(e.target.value)} className={inputCls} />
+                    <div className="flex gap-2">
+                      <label htmlFor="new-question-type" className="sr-only">Question type</label>
+                      <select id="new-question-type" value={newQuestionType} onChange={(e) => setNewQuestionType(e.target.value as "text" | "choice")} className={inputCls}>
+                        <option value="text">Free text</option>
+                        <option value="choice">Multiple choice</option>
+                      </select>
+                    </div>
+                    {newQuestionType === "choice" ? (
+                      <div>
+                        <label htmlFor="new-question-options" className={labelCls}>Options (one per line)</label>
+                        <textarea id="new-question-options" rows={3} value={newQuestionOptions} onChange={(e) => setNewQuestionOptions(e.target.value)} className={inputCls} />
+                      </div>
+                    ) : null}
+                    <button
+                      type="button"
+                      disabled={!newQuestionLabel.trim() || (newQuestionType === "choice" && newQuestionOptions.split("\n").map((s) => s.trim()).filter(Boolean).length < 2)}
+                      onClick={() => {
+                        const q: RsvpQuestion = {
+                          id: uid("q"),
+                          label: newQuestionLabel.trim(),
+                          type: newQuestionType,
+                          required: false,
+                          ...(newQuestionType === "choice"
+                            ? { options: newQuestionOptions.split("\n").map((s) => s.trim()).filter(Boolean) }
+                            : {}),
+                        };
+                        updateDraft((d) => ({ ...d, customQuestions: [...d.customQuestions, q] }));
+                        setNewQuestionLabel("");
+                        setNewQuestionOptions("");
+                      }}
+                      className="self-start rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                    >
+                      Add question
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Live preview */}
+        <section aria-label="Live preview" className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium">Preview:</span>
+            {(
+              [
+                ["desktop", "Desktop"],
+                ["tablet", "Tablet (768px)"],
+                ["mobile", "Mobile (390px)"],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                aria-pressed={previewWidth === id}
+                onClick={() => setPreviewWidth(id)}
+                className={`rounded-full px-3 py-1.5 text-sm font-medium ${
+                  previewWidth === id ? "bg-stone-900 text-white" : "border border-stone-300 bg-white"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+            <span className="ml-auto text-xs text-stone-500">Preview shows unsaved changes; publishing uses the last saved version.</span>
+          </div>
+          <div className="mt-3 overflow-x-auto rounded-xl border border-stone-200 bg-stone-100 p-3">
+            <div style={previewStyle} className="mx-auto overflow-hidden rounded-lg bg-white shadow-sm">
+              <SiteRenderer site={draft} preview />
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}

@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fdfbf7;
+  --foreground: #292524;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Distinct template font stacks (system fonts only — no build-time fetch). */
+.font-editorial {
+  font-family: Georgia, "Times New Roman", serif;
+}
+.font-romance {
+  font-family: "Palatino Linotype", Palatino, Georgia, serif;
+}
+.font-modern {
+  font-family: "Helvetica Neue", Arial, ui-sans-serif, sans-serif;
+}
+.font-countryside {
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+.font-classic {
+  font-family: "Times New Roman", Times, Georgia, serif;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}
