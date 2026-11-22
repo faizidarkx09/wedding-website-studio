@@ -87,18 +87,20 @@ export default async function AdminSettingsPage() {
 
           <section className="rounded-lg border border-stone-200 bg-white p-4">
             <div className="flex items-center justify-between gap-2">
-              <h2 className="text-base font-semibold text-stone-900">Email / Resend</h2>
-              <StatusPill connected={status.email} />
+              <h2 className="text-base font-semibold text-stone-900">Delivery</h2>
+              <span className="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-700">
+                PDF only
+              </span>
             </div>
             <p className="mt-2 text-sm text-stone-600">
-              {status.email
-                ? "Configured. Delivery emails (access codes, RSVP confirmations) can be sent."
-                : "Not connected. No emails are sent — deliver the access code via the PDF download on the order page instead."}
+              Delivery is by PDF only: the buyer downloads the delivery PDF from their Etsy
+              order (digital download). It has the template link and the access code. There is
+              no mail system by design — no delivery emails are sent.
             </p>
-            <p className="mt-3 text-sm font-medium text-stone-700">Environment variable needed:</p>
-            <ul className="mt-1 space-y-1 text-sm">
-              <li><code className="rounded bg-stone-100 px-1.5 py-0.5 font-mono text-xs">RESEND_API_KEY</code></li>
-            </ul>
+            <p className="mt-3 text-sm text-stone-600">
+              Upload the delivery PDF (download it from the order page) to the Etsy listing as
+              the digital download file, so the buyer gets it automatically after purchase.
+            </p>
           </section>
         </div>
 
@@ -131,7 +133,7 @@ export default async function AdminSettingsPage() {
               <li>Access codes are stored as SHA-256 hashes only. The plain code is shown once, to the admin, and never logged or shown on public pages.</li>
               <li>Guest lists and RSVP records are tenant-scoped by site — an admin sees them, a public visitor never does.</li>
               <li>Session cookies are httpOnly and sameSite=lax; the admin session lasts 30 days.</li>
-              <li>Service-role keys (Supabase) and API keys (Etsy, Resend) are server-side only and are never sent to the browser.</li>
+              <li>Service-role keys (Supabase) and API keys (Etsy) are server-side only and are never sent to the browser.</li>
               <li>Editing a master template never changes an existing site — each site keeps the template snapshot from provisioning time.</li>
             </ul>
           </section>

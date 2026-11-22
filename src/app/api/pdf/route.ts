@@ -53,6 +53,7 @@ export async function GET(req: NextRequest) {
     customerName: order.customerName,
     templateName: site.templateSnapshot.name,
     editorUrl: `${base}/editor?site=${site.slug}`,
+    activateUrl: `${base}/activate`,
     accessCode: order.displayCode,
     siteSlug: site.slug,
     publicUrl: `${base}/w/${site.slug}`,

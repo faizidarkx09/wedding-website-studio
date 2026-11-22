@@ -14,19 +14,13 @@ export function isEtsyConfigured(): boolean {
   return Boolean(process.env.ETSY_API_KEY && process.env.ETSY_SHOP_ID);
 }
 
-export function isEmailConfigured(): boolean {
-  return Boolean(process.env.RESEND_API_KEY);
-}
-
 export function supabaseStatus(): {
   supabase: boolean;
   etsy: boolean;
-  email: boolean;
 } {
   return {
     supabase: isSupabaseConfigured(),
     etsy: isEtsyConfigured(),
-    email: isEmailConfigured(),
   };
 }
 

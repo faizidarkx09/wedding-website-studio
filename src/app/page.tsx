@@ -11,7 +11,7 @@ const HOW_IT_WORKS = [
   {
     step: "2",
     title: "Get your access code",
-    text: "We email you a private access code with your order. It unlocks your own copy of the template — nobody else can use it.",
+    text: "After purchase, download the delivery PDF from your Etsy order — it has your template link and your private access code. It unlocks your own copy of the template — nobody else can use it.",
   },
   {
     step: "3",
@@ -224,8 +224,8 @@ export default async function HomePage() {
           <div className="mt-12 rounded-2xl bg-amber-50 p-8 text-center">
             <h3 className="text-xl font-bold">Already bought a template?</h3>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
-              Your access code is in your Etsy order email. Activate it to claim your website
-              and start customising.
+              Your access code is in the delivery PDF that came with your Etsy order.
+              Activate it to claim your website and start customising.
             </p>
             <Link
               href="/activate"

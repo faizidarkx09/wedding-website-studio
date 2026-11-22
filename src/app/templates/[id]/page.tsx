@@ -103,7 +103,7 @@ export default async function TemplateDetailPage({
                 ) : null}{" "}
                 and complete your purchase.
               </li>
-              <li>Check your email for your private access code — it arrives with your order.</li>
+              <li>Download the delivery PDF from your Etsy order — it has your template link and your private access code.</li>
               <li>
                 <Link href="/activate" className="font-semibold text-amber-800 underline">
                   Activate your code

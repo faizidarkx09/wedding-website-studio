@@ -7,6 +7,7 @@ export interface DeliveryPdfOptions {
   customerName: string;
   templateName: string;
   editorUrl: string;
+  activateUrl: string;
   accessCode: string;
   siteSlug: string;
   publicUrl: string;
@@ -84,9 +85,8 @@ export function deliveryPdf(opts: DeliveryPdfOptions): Buffer {
   // --- Setup instructions ---
   add("Getting started", 14, true, { gap: 4 });
   const steps = [
-    "Open your private editor link below. It is the only way into your editor - do not share it with guests.",
-    "Enter your access code when asked. Keep the code private - anyone with the code can edit your website.",
-    "Replace the demo names, story, photos and event details with your own.",
+    "Go to the Activate page below and enter your access code. This unlocks your website.",
+    "Open your private editor link to replace the demo names, story, photos and event details with your own. Do not share the editor link with guests.",
     "Check the RSVP settings and set your RSVP deadline before you share the site.",
     "Press Publish when you are happy, then share your public website address (or its QR code) with your guests.",
   ];
@@ -94,6 +94,18 @@ export function deliveryPdf(opts: DeliveryPdfOptions): Buffer {
     add(`${i + 1}. ${step}`, 11, false, { gap: 2 });
   });
   y -= 6;
+
+  // --- Activate URL (clickable) ---
+  add("Step 1 - Activate your website", 14, true, { gap: 4 });
+  const activateUrlY = y + 5; // y of the URL text line (baseline offset, see below)
+  lines.push({
+    text: opts.activateUrl,
+    size: 10,
+    bold: false,
+    y: activateUrlY,
+    color: [0.05, 0.25, 0.65],
+  });
+  y = activateUrlY - 10 - 8;
 
   // --- Private editor URL (clickable) ---
   add("Your private editor link", 14, true, { gap: 4 });
@@ -136,7 +148,7 @@ export function deliveryPdf(opts: DeliveryPdfOptions): Buffer {
   // --- Support ---
   add("Need help?", 14, true, { gap: 4 });
   add(
-    "Reply to your Etsy order message or email support@weddingwebsitestudio.example and include your order details. We are happy to help with setup, publishing and RSVP questions.",
+    "Reply to your Etsy order message and include your order details. We are happy to help with setup, publishing and RSVP questions.",
     11,
     false,
     { gap: 8 },
@@ -164,9 +176,11 @@ export function deliveryPdf(opts: DeliveryPdfOptions): Buffer {
   const stream = streamParts.join("\n");
   const streamBytes = Buffer.byteLength(stream, "latin1");
 
-  // Link annotation rectangle over the editor URL line (full text width).
+  // Link annotation rectangles over the URL lines (full text width).
   const urlWidth = Math.min(TEXT_W, opts.editorUrl.length * 5.2);
   const annotRect = `[${MARGIN} ${urlY - 3} ${MARGIN + Math.round(urlWidth)} ${urlY + 11}]`;
+  const activateUrlWidth = Math.min(TEXT_W, opts.activateUrl.length * 5.2);
+  const activateAnnotRect = `[${MARGIN} ${activateUrlY - 3} ${MARGIN + Math.round(activateUrlWidth)} ${activateUrlY + 11}]`;
 
   // --- Objects (1-based; offsets computed below) ---
   const objects: string[] = [
@@ -175,7 +189,7 @@ export function deliveryPdf(opts: DeliveryPdfOptions): Buffer {
     // 2: Pages
     "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
     // 3: Page
-    `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PAGE_W} ${PAGE_H}] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R /Annots [7 0 R] >>`,
+    `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PAGE_W} ${PAGE_H}] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R /Annots [7 0 R 8 0 R] >>`,
     // 4: Helvetica
     "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
     // 5: Helvetica-Bold
@@ -184,6 +198,8 @@ export function deliveryPdf(opts: DeliveryPdfOptions): Buffer {
     `<< /Length ${streamBytes} >>\nstream\n${stream}\nendstream`,
     // 7: Link annotation (clickable editor URL)
     `<< /Type /Annot /Subtype /Link /Rect ${annotRect} /Border [0 0 0] /A << /S /URI /URI (${pdfText(opts.editorUrl)}) >> >>`,
+    // 8: Link annotation (clickable activate URL)
+    `<< /Type /Annot /Subtype /Link /Rect ${activateAnnotRect} /Border [0 0 0] /A << /S /URI /URI (${pdfText(opts.activateUrl)}) >> >>`,
   ];
 
   // --- Assemble with computed byte offsets ---

@@ -507,7 +507,8 @@ export function OrderActions({ order, siteSlug }: { order: EtsyOrder; siteSlug: 
           <p className="text-sm font-semibold text-amber-900">One-time access code — shown once only</p>
           <p className="mt-1 font-mono text-2xl font-bold tracking-wider text-stone-900 break-all">{code}</p>
           <p className="mt-1 text-sm text-amber-800">
-            Copy it now and put it in the delivery PDF. It will <strong>not</strong> be shown again on this page.
+            The delivery PDF is generated from this code automatically — just download it
+            below. The code will <strong>not</strong> be shown again on this page.
           </p>
           <div className="mt-3">
             <CopyButton text={code} />
@@ -561,6 +562,11 @@ export function OrderActions({ order, siteSlug }: { order: EtsyOrder; siteSlug: 
           Download delivery PDF
         </a>
       </div>
+
+      <p className="text-sm text-stone-600">
+        Upload this PDF to the Etsy listing as the digital download file, so the buyer
+        receives it automatically after purchase. It has the template link and the access code.
+      </p>
 
       {flagStatuses.length > 0 ? (
         <div className="rounded-lg border border-stone-200 bg-white p-3">

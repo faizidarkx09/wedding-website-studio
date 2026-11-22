@@ -68,8 +68,9 @@ export default function FeaturesPage() {
 
         <section className="mx-auto w-full max-w-6xl px-5 pb-16 text-center">
           <p className="text-sm leading-relaxed text-stone-500">
-            This site is running in demo mode: the store is built in, and Supabase, Etsy and
-            email are not connected yet. Everything you see — templates, demo site, RSVP —
+            This site is running in demo mode: the store is built in, and Supabase and
+            Etsy are not connected yet. There is no mail system — delivery is the PDF
+            that comes with the Etsy order. Everything you see — templates, demo site, RSVP —
             works with the demo data.
           </p>
         </section>
