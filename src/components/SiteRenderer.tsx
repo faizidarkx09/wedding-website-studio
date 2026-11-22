@@ -59,6 +59,29 @@ function formatEventDate(date: string): string {
 
 /* ---------- per-template presentation ---------- */
 
+/** Demo RSVP page used by template previews.
+ * Preview sites (slug "preview-<template>") are never saved to the store,
+ * so /w/preview-<template>/rsvp would render SiteUnavailable. Point their
+ * RSVP buttons at the real demo site instead. Real sites keep their own slug. */
+export const DEMO_RSVP_HREF = "/w/sarah-and-james/rsvp";
+
+function rsvpHref(site: WeddingSite): string {
+  return site.slug.startsWith("preview-") ? DEMO_RSVP_HREF : `/w/${site.slug}/rsvp`;
+}
+
+function isPreviewSite(site: WeddingSite): boolean {
+  return site.slug.startsWith("preview-");
+}
+
+/** Small note shown under RSVP buttons on template previews only. */
+function PreviewRsvpNote() {
+  return (
+    <p className="mt-3 text-xs opacity-70">
+      Preview — try the RSVP form on the demo site.
+    </p>
+  );
+}
+
 function headingClass(templateId: TemplateId): string {
   switch (templateId) {
     case "the-editorial":
@@ -170,12 +193,13 @@ function Hero({ site }: { site: WeddingSite }) {
           <p className="mt-5 text-lg font-semibold uppercase tracking-widest">{dateLine}</p>
           <p className="mt-4 max-w-md leading-relaxed opacity-80">{content.welcome}</p>
           <Link
-            href={`/w/${site.slug}/rsvp`}
+            href={rsvpHref(site)}
             className="mt-8 inline-block rounded-none px-8 py-3.5 text-sm font-black uppercase tracking-widest text-white transition hover:opacity-85"
             style={{ backgroundColor: tpl.palette.accent }}
           >
             RSVP now
           </Link>
+          {isPreviewSite(site) ? <PreviewRsvpNote /> : null}
         </div>
         <div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -212,12 +236,13 @@ function Hero({ site }: { site: WeddingSite }) {
           <p className="mt-4 text-lg">{dateLine}</p>
           <p className="mt-4 leading-relaxed opacity-85">{content.welcome}</p>
           <Link
-            href={`/w/${site.slug}/rsvp`}
+            href={rsvpHref(site)}
             className="mt-7 inline-block rounded-full px-7 py-3 text-sm font-bold text-white transition hover:opacity-85"
             style={{ backgroundColor: tpl.palette.accent }}
           >
             Let us know you&apos;re coming
           </Link>
+          {isPreviewSite(site) ? <PreviewRsvpNote /> : null}
         </div>
       </section>
     );
@@ -488,12 +513,13 @@ function RsvpTeaser({ site }: { site: WeddingSite }) {
         {deadline && site.settings.rsvpEnabled ? ` Kindly reply by ${deadline}.` : ""}
       </p>
       <Link
-        href={`/w/${site.slug}/rsvp`}
+        href={rsvpHref(site)}
         className="mt-8 inline-block rounded-full px-9 py-3.5 text-sm font-bold text-white transition hover:opacity-85"
         style={{ backgroundColor: accent }}
       >
         RSVP
       </Link>
+      {isPreviewSite(site) ? <PreviewRsvpNote /> : null}
     </section>
   );
 }

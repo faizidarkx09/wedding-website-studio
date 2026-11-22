@@ -78,7 +78,7 @@ export default async function HomePage() {
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href="#templates"
+              href="/templates"
               className="rounded-full bg-stone-900 px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-stone-700"
             >
               Browse templates
@@ -116,6 +116,14 @@ export default async function HomePage() {
                 </li>
               ))}
             </ol>
+            <p className="mt-10 text-center">
+              <Link
+                href="/how-it-works"
+                className="inline-block rounded-full bg-stone-900 px-7 py-3 text-sm font-semibold text-white transition hover:bg-stone-700"
+              >
+                See how it works, step by step →
+              </Link>
+            </p>
           </div>
         </section>
 

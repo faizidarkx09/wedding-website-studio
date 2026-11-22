@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 
 const LINKS = [
-  { href: "/#templates", label: "Templates" },
-  { href: "/#how-it-works", label: "How it works" },
+  { href: "/templates", label: "Templates" },
+  { href: "/features", label: "Features" },
+  { href: "/how-it-works", label: "How it works" },
   { href: "/w/sarah-and-james", label: "Demo" },
   { href: "/admin", label: "Admin" },
   { href: "/activate", label: "Activate" },
@@ -31,7 +32,7 @@ export default function SiteNav() {
             </Link>
           ))}
           <Link
-            href="/#templates"
+            href="/templates"
             className="rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-700"
           >
             Browse templates
@@ -68,7 +69,7 @@ export default function SiteNav() {
             ))}
             <li>
               <Link
-                href="/#templates"
+                href="/templates"
                 className="mt-2 block rounded-full bg-stone-900 px-4 py-3 text-center text-sm font-semibold text-white"
                 onClick={() => setOpen(false)}
               >

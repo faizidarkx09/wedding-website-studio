@@ -33,7 +33,7 @@ export default async function TemplateDetailPage({
       <main className="flex-1">
         {/* Facts */}
         <section className="mx-auto w-full max-w-6xl px-5 pt-12 pb-8 sm:pt-16">
-          <Link href="/#templates" className="text-sm font-medium text-stone-500 hover:text-stone-900">
+          <Link href="/templates" className="text-sm font-medium text-stone-500 hover:text-stone-900">
             ← All templates
           </Link>
           <div className="mt-6 flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
