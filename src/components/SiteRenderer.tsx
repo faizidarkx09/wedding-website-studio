@@ -1,14 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import type { DetailBlock, WeddingSite } from "@/lib/types";
 import Countdown from "./Countdown";
+import EnvelopeIntro from "./EnvelopeIntro";
+import Reveal from "./Reveal";
 
 interface SiteRendererProps {
   site: WeddingSite;
   /** Preview renders bypass the published-only gate (template previews). */
   preview?: boolean;
+  /**
+   * Show the envelope intro ("Click to open") as the first screen.
+   * True on public wedding sites and template previews; false in the
+   * editor live preview (the envelope would block editing there).
+   */
+  envelope?: boolean;
 }
 
 /** Clean "not available" page shared by the renderer and the /w routes. */
@@ -232,11 +240,62 @@ function PrimaryButton({ site, href, children }: { site: WeddingSite; href: stri
 
 /* ---------- sections ---------- */
 
+/**
+ * Hero image with a graceful fallback: if the image file is missing
+ * (e.g. a theme image not yet uploaded), render a palette-gradient
+ * panel with the couple's monogram instead — never a broken image.
+ */
+function HeroImage({
+  site,
+  src,
+  alt,
+  className,
+}: {
+  site: WeddingSite;
+  src: string;
+  alt: string;
+  className?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  if (!src || failed) {
+    return (
+      <div
+        aria-hidden="true"
+        className={className}
+        style={{
+          background: `linear-gradient(150deg, ${site.templateSnapshot.palette.accentSoft}, ${site.templateSnapshot.palette.bg})`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <span
+          className="text-6xl font-bold opacity-40"
+          style={{ color: site.templateSnapshot.palette.accent }}
+        >
+          {initials(site)}
+        </span>
+      </div>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} alt={alt} className={className} loading="eager" onError={() => setFailed(true)} />
+  );
+}
+
 function Hero({ site }: { site: WeddingSite }) {
   const { content, templateSnapshot: tpl } = site;
   const comp = composition(site);
   const names = `${content.partnerA} & ${content.partnerB}`;
   const dateLine = formatDate(site.weddingDate, site.timezone);
+
+  // The site's own hero photo wins when the couple set one. Until then
+  // (the default placeholder), use the theme's AI-generated hero image.
+  const heroSrc =
+    !content.heroImage || content.heroImage.includes("picsum.photos")
+      ? (site.templateSnapshot.heroImage ?? content.heroImage)
+      : content.heroImage;
 
   const rsvpCta = (
     <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -257,12 +316,11 @@ function Hero({ site }: { site: WeddingSite }) {
   if (comp === "midnight") {
     return (
       <section className="relative w-full overflow-hidden text-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={content.heroImage}
+        <HeroImage
+          site={site}
+          src={heroSrc}
           alt={`${names} — wedding photo`}
           className="hero-img-midnight aspect-[4/5] w-full object-cover sm:aspect-[16/9]"
-          loading="eager"
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/55 px-5 py-16 text-[#F1E8DA]">
           <div className="hero-enter">
@@ -288,12 +346,11 @@ function Hero({ site }: { site: WeddingSite }) {
   if (comp === "blue") {
     return (
       <section className="w-full text-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={content.heroImage}
+        <HeroImage
+          site={site}
+          src={heroSrc}
           alt={`${names} — wedding photo`}
           className="aspect-[21/9] w-full object-cover"
-          loading="eager"
         />
         <div className="sig-blue mx-auto -mt-10 w-full max-w-3xl px-5 py-10 sm:px-8" style={{ backgroundColor: tpl.palette.accentSoft }}>
           <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: tpl.palette.accent }}>
@@ -319,12 +376,11 @@ function Hero({ site }: { site: WeddingSite }) {
           {content.subtitle}
         </p>
         <div className="sig-mediterranean mx-auto mt-8 w-full max-w-md">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={content.heroImage}
+          <HeroImage
+            site={site}
+            src={heroSrc}
             alt={`${names} — wedding photo`}
             className="arch-frame aspect-[3/4] w-full object-cover"
-            loading="eager"
           />
         </div>
         <h1 className="hero-enter mt-8 text-5xl leading-tight font-bold sm:text-7xl">
@@ -351,12 +407,11 @@ function Hero({ site }: { site: WeddingSite }) {
         <ThemeDivider comp={comp} />
         <p className="mt-5 text-lg sm:text-xl">{dateLine}</p>
         <div className="mx-auto mt-8 w-full max-w-3xl" style={{ color: tpl.palette.accent }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={content.heroImage}
+          <HeroImage
+            site={site}
+            src={heroSrc}
             alt={`${names} — wedding photo`}
             className="frame-sage aspect-[16/10] w-full object-cover"
-            loading="eager"
           />
         </div>
         <p className="mx-auto mt-8 max-w-2xl leading-relaxed opacity-85">{content.welcome}</p>
@@ -379,12 +434,11 @@ function Hero({ site }: { site: WeddingSite }) {
           <ThemeDivider comp={comp} />
           <p className="mt-5 text-lg sm:text-xl">{dateLine}</p>
           <div className="mx-auto mt-8 w-full max-w-xl" style={{ color: tpl.palette.accent }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={content.heroImage}
+            <HeroImage
+              site={site}
+              src={heroSrc}
               alt={`${names} — wedding photo`}
               className="frame-lavender aspect-[4/3] w-full object-cover"
-              loading="eager"
             />
           </div>
           <p className="mx-auto mt-8 max-w-2xl leading-relaxed opacity-85">{content.welcome}</p>
@@ -407,12 +461,11 @@ function Hero({ site }: { site: WeddingSite }) {
       <p className="mt-5 text-lg sm:text-xl">{dateLine}</p>
       <p className="mx-auto mt-4 max-w-2xl leading-relaxed opacity-85">{content.welcome}</p>
       <div className="mx-auto mt-10 w-full max-w-4xl" style={{ color: tpl.palette.accent }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={content.heroImage}
+        <HeroImage
+          site={site}
+          src={heroSrc}
           alt={`${names} — wedding photo`}
           className={comp === "champagne" ? "frame-champagne aspect-[16/9] w-full object-cover" : "aspect-[16/9] w-full object-cover"}
-          loading="eager"
         />
       </div>
       {rsvpCta}
@@ -1288,7 +1341,7 @@ const NAV_LABELS: Record<string, string> = {
   rsvp: "RSVP",
 };
 
-export default function SiteRenderer({ site, preview = false }: SiteRendererProps) {
+export default function SiteRenderer({ site, preview = false, envelope = false }: SiteRendererProps) {
   if (site.status !== "published" && !preview) {
     return <SiteUnavailable />;
   }
@@ -1333,6 +1386,7 @@ export default function SiteRenderer({ site, preview = false }: SiteRendererProp
       className={`theme-${comp} min-h-full w-full`}
       style={{ backgroundColor: palette.bg, color: palette.ink }}
     >
+      {envelope ? <EnvelopeIntro site={site} /> : null}
       {preview ? (
         <p className="bg-stone-900 px-4 py-2 text-center text-xs font-semibold uppercase tracking-[0.2em] text-white">
           Template preview — placeholder content
@@ -1358,20 +1412,29 @@ export default function SiteRenderer({ site, preview = false }: SiteRendererProp
           </div>
         </nav>
       ) : null}
-      {sections.map(renderSection)}
-      <footer className="border-t px-5 py-12 text-center" style={{ borderColor: palette.accent }}>
-        <p className="text-sm font-semibold uppercase tracking-[0.3em]" style={{ color: palette.accent }}>
-          {initials(site)}
-        </p>
-        <p className="mt-4 text-lg font-semibold">
-          {site.content.partnerA} &amp; {site.content.partnerB}
-        </p>
-        <p className="mx-auto mt-3 max-w-xl leading-relaxed opacity-80">{site.content.footerMessage}</p>
-        <ThemeDivider comp={comp} />
-        <p className="mt-6 text-xs uppercase tracking-[0.25em] opacity-60">
-          {formatDate(site.weddingDate, site.timezone)}
-        </p>
-      </footer>
+      {sections.map((key) => {
+        const node = renderSection(key);
+        if (!node) return null;
+        // The hero is above the fold and already has its own entrance
+        // animation; every other section scroll-reveals into view.
+        if (key === "hero") return <Fragment key={key}>{node}</Fragment>;
+        return <Reveal key={key}>{node}</Reveal>;
+      })}
+      <Reveal>
+        <footer className="border-t px-5 py-12 text-center" style={{ borderColor: palette.accent }}>
+          <p className="text-sm font-semibold uppercase tracking-[0.3em]" style={{ color: palette.accent }}>
+            {initials(site)}
+          </p>
+          <p className="mt-4 text-lg font-semibold">
+            {site.content.partnerA} &amp; {site.content.partnerB}
+          </p>
+          <p className="mx-auto mt-3 max-w-xl leading-relaxed opacity-80">{site.content.footerMessage}</p>
+          <ThemeDivider comp={comp} />
+          <p className="mt-6 text-xs uppercase tracking-[0.25em] opacity-60">
+            {formatDate(site.weddingDate, site.timezone)}
+          </p>
+        </footer>
+      </Reveal>
     </div>
   );
 }

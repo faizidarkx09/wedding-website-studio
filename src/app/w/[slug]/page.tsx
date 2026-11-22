@@ -31,5 +31,5 @@ export default async function GuestSitePage({
     }
   }
 
-  return <SiteRenderer site={site} />;
+  return <SiteRenderer site={site} envelope />;
 }

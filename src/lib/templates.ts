@@ -24,6 +24,7 @@ export const TEMPLATES: TemplateMeta[] = [
     etsyListingId: null,
     active: true,
     accessCode: "WWS-CHAMPAGNE-2026",
+    heroImage: "/images/themes/champagne-elegance.jpg",
     palette: { bg: "#F7F3EA", ink: "#302820", accent: "#A98A58", accentSoft: "#F1E9D8" },
     fontClass: "font-champagne",
     layout:
@@ -51,6 +52,7 @@ export const TEMPLATES: TemplateMeta[] = [
     etsyListingId: null,
     active: true,
     accessCode: "WWS-BLUE-2026",
+    heroImage: "/images/themes/blue-serenity.jpg",
     palette: { bg: "#F8F8F4", ink: "#202B33", accent: "#7893A8", accentSoft: "#E3EBF0" },
     fontClass: "font-blue",
     layout:
@@ -78,6 +80,7 @@ export const TEMPLATES: TemplateMeta[] = [
     etsyListingId: null,
     active: true,
     accessCode: "WWS-MIDNIGHT-2026",
+    heroImage: "/images/themes/midnight-romance.jpg",
     palette: { bg: "#171717", ink: "#F1E8DA", accent: "#B08B56", accentSoft: "#2A2524" },
     fontClass: "font-midnight",
     layout:
@@ -105,6 +108,7 @@ export const TEMPLATES: TemplateMeta[] = [
     etsyListingId: null,
     active: true,
     accessCode: "WWS-SAGE-2026",
+    heroImage: "/images/themes/sage-botanical.jpg",
     palette: { bg: "#F5F1E7", ink: "#3E5141", accent: "#8C9A7A", accentSoft: "#E6E9DC" },
     fontClass: "font-sage",
     layout:
@@ -132,6 +136,7 @@ export const TEMPLATES: TemplateMeta[] = [
     etsyListingId: null,
     active: true,
     accessCode: "WWS-MEDITERRANEAN-2026",
+    heroImage: "/images/themes/mediterranean-sunset.jpg",
     palette: { bg: "#F4EDE2", ink: "#46342C", accent: "#B9674E", accentSoft: "#EFE0D2" },
     fontClass: "font-mediterranean",
     layout:
@@ -159,6 +164,7 @@ export const TEMPLATES: TemplateMeta[] = [
     etsyListingId: null,
     active: true,
     accessCode: "WWS-LAVENDER-2026",
+    heroImage: "/images/themes/lavender-dreams.jpg",
     palette: { bg: "#FAF8F6", ink: "#514353", accent: "#B9A9C9", accentSoft: "#EFEAF3" },
     fontClass: "font-lavender",
     layout:

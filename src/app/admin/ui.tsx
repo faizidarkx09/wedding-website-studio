@@ -230,6 +230,7 @@ export function TemplateEditForm({ template }: { template: TemplateMeta }) {
   const [accentSoft, setAccentSoft] = useState(template.palette.accentSoft);
   const [layout, setLayout] = useState(template.layout);
   const [fontClass, setFontClass] = useState(template.fontClass);
+  const [heroImage, setHeroImage] = useState(template.heroImage ?? "");
   const [sections, setSections] = useState(template.sections.join(", "));
   const [active, setActive] = useState(template.active);
   const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
@@ -256,6 +257,9 @@ export function TemplateEditForm({ template }: { template: TemplateMeta }) {
       fontClass: fontClass.trim(),
       sections: sections.split(",").map((s) => s.trim()).filter(Boolean),
     };
+    // Optional hero image (e.g. /images/themes/<id>.jpg). Blank removes it.
+    if (heroImage.trim()) updated.heroImage = heroImage.trim();
+    else delete updated.heroImage;
     setBusy(true);
     try {
       const { ok, data } = await postJson("/api/admin/templates", { action: "save", template: updated });
@@ -302,6 +306,10 @@ export function TemplateEditForm({ template }: { template: TemplateMeta }) {
         <div>
           <label className={label} htmlFor={`font-${template.id}`}>Font class</label>
           <input id={`font-${template.id}`} value={fontClass} onChange={(e) => setFontClass(e.target.value)} className={`${input} mt-1`} />
+        </div>
+        <div>
+          <label className={label} htmlFor={`hero-${template.id}`}>Hero image URL</label>
+          <input id={`hero-${template.id}`} value={heroImage} onChange={(e) => setHeroImage(e.target.value)} placeholder="/images/themes/<id>.jpg" className={`${input} mt-1`} />
         </div>
         <div className="sm:col-span-2">
           <label className={label} htmlFor={`sections-${template.id}`}>Sections (comma-separated)</label>

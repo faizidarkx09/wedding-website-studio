@@ -128,7 +128,7 @@ export default async function TemplateDetailPage({
 
         {/* Live preview */}
         <section aria-label={`Live preview of ${template.name}`} className="border-t border-stone-200">
-          <SiteRenderer site={previewSite} preview />
+          <SiteRenderer site={previewSite} preview envelope />
         </section>
 
         <section className="mx-auto w-full max-w-6xl px-5 py-12 text-center">

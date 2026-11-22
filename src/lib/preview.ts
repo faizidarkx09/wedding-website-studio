@@ -12,6 +12,13 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
   const weddingDate = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000);
   const weddingDay = weddingDate.toISOString().slice(0, 10);
 
+  // The template's own AI-generated artwork (original, made for this
+  // theme). Templates without one fall back to the old placeholder seeds.
+  const themeHero = template.heroImage ?? "https://picsum.photos/seed/wedding-preview/1600/1000";
+  const themeDetail = template.heroImage
+    ? `/images/themes/${template.id}-detail.jpg`
+    : "https://picsum.photos/seed/wedding-preview-1/1200/800";
+
   return {
     id: `site-preview-${template.id}`,
     slug: `preview-${template.id}`,
@@ -34,7 +41,7 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
         "Your story goes here — replace this text in the editor with the story of how you met.",
       dressCode: "Your dress code goes here — for example, semi-formal.",
       footerMessage: "Thank you for being part of our day.",
-      heroImage: "https://picsum.photos/seed/wedding-preview/1600/1000",
+      heroImage: themeHero,
       venueName: "Your venue",
       venueAddress: "Your venue address goes here",
       mapLink: "",
@@ -113,9 +120,10 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
       },
     ],
     gallery: [
-      { id: "g1", url: "https://picsum.photos/seed/wedding-preview-1/1200/800", caption: "Your photo 1" },
-      { id: "g2", url: "https://picsum.photos/seed/wedding-preview-2/1200/800", caption: "Your photo 2" },
-      { id: "g3", url: "https://picsum.photos/seed/wedding-preview-3/1200/800", caption: "Your photo 3" },
+      // Detail shot first, so the story section uses it and the hero
+      // image is not repeated three times on the preview page.
+      { id: "g1", url: themeDetail, caption: "Your photo 1" },
+      { id: "g2", url: themeHero, caption: "Your photo 2" },
     ],
     customQuestions: [],
     settings: {

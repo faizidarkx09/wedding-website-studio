@@ -176,7 +176,7 @@ export async function createSiteFromTemplate(
       story: "Our story begins here — edit this text in your editor.",
       dressCode: "Semi-formal.",
       footerMessage: "Thank you for being part of our day.",
-      heroImage: "https://picsum.photos/seed/wedding-hero/1600/1000",
+      heroImage: template.heroImage ?? "https://picsum.photos/seed/wedding-hero/1600/1000",
       venueName: "Venue to be confirmed",
       venueAddress: "",
       mapLink: "",

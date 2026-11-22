@@ -29,6 +29,14 @@ export interface TemplateMeta {
    * an existing site.
    */
   accessCode: string;
+  /**
+   * AI-generated hero image for this template, served from
+   * `/images/themes/<id>.jpg` (original artwork, generated for this
+   * theme). Optional — templates created in the admin panel may not
+   * have one; the renderer and cards fall back to the site's own hero
+   * image / palette colour block when it is missing.
+   */
+  heroImage?: string;
   palette: { bg: string; ink: string; accent: string; accentSoft: string };
   fontClass: string;
   layout: string;

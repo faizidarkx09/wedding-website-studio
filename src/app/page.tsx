@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SiteNav, { SiteFooter } from "@/components/SiteNav";
+import TemplateCover from "@/components/TemplateCover";
 import { listTemplates } from "@/lib/store";
 
 const HOW_IT_WORKS = [
@@ -154,19 +155,7 @@ export default async function HomePage() {
                 key={t.id}
                 className="flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition hover:shadow-md"
               >
-                <div className="h-36 w-full" style={{ backgroundColor: t.palette.bg }}>
-                  <div className="flex h-full flex-col items-start justify-between p-5">
-                    <span
-                      className="rounded-full px-3 py-1 text-xs font-bold"
-                      style={{ backgroundColor: t.palette.accentSoft, color: t.palette.ink }}
-                    >
-                      {t.tagline}
-                    </span>
-                    <p className={`text-2xl font-bold ${t.fontClass}`} style={{ color: t.palette.ink }}>
-                      {t.name}
-                    </p>
-                  </div>
-                </div>
+                <TemplateCover template={t} />
                 <div className="flex flex-1 flex-col p-6">
                   <p className="text-sm leading-relaxed text-stone-600">{t.description}</p>
                   <div className="mt-4 flex items-center gap-2" aria-label="Template colours">
