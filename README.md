@@ -1,8 +1,9 @@
 # Wedding Website Studio
 
 Multi-template wedding website builder and RSVP manager. Customers buy a
-template on Etsy, receive a personalised PDF with a private editor link and
-a one-time access code, customise their site, publish it, and share the
+template on Etsy, receive a delivery PDF with the template link and the
+template's fixed access code, activate it with their names to create their
+own private website, customise their site, publish it, and share the
 public URL (or its QR code) with guests. Guests RSVP online; the couple
 exports responses as CSV.
 
@@ -20,14 +21,14 @@ npm start          # serve the production build
 ```
 
 Copy `.env.example` to `.env.local` and fill in the values you have — the
-app runs fully in **demo mode** with no keys at all (see below).
+app runs fully in **local mode** with no keys at all (see below).
 
-## Demo mode vs Supabase
+## Local mode vs Supabase
 
-**Demo mode (default, no keys needed).** When `NEXT_PUBLIC_SUPABASE_URL`
+**Local mode (default, no keys needed).** When `NEXT_PUBLIC_SUPABASE_URL`
 / `NEXT_PUBLIC_SUPABASE_ANON_KEY` are absent, the app runs on an in-memory
-store (`src/lib/store.ts`) seeded with the Sarah & James demo site
-(`sarah-and-james`, published) and 3 sample RSVPs.
+store (`src/lib/store.ts`) that starts empty — no demo content, no sample
+sites. The 6 real themes are the only built-in data.
 Everything works — editor, RSVP, QR, PDF, CSV — but data resets on every
 redeploy / cold start.
 
@@ -40,7 +41,7 @@ redeploy / cold start.
 3. Open the **SQL Editor** and run, in order:
    - `supabase/migrations/0001_init.sql` (schema)
    - `supabase/migrations/0002_rls.sql` (row level security)
-   - `supabase/seed.sql` (5 templates + Sarah & James demo site — optional)
+   - `supabase/seed.sql` (6 themes — optional)
 4. Set the env vars in `.env.local` (or in Vercel → Project → Settings →
    Environment Variables):
    `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
@@ -49,17 +50,18 @@ redeploy / cold start.
 
 ## Etsy delivery model — one static PDF per template
 
-There is no per-order provisioning and no mail system. Each of the 5
-templates has ONE fixed access code (baked into `src/lib/templates.ts` —
+There is no per-order provisioning and no mail system. Each of the 6
+themes has ONE fixed access code (baked into `src/lib/templates.ts` —
 never change it after the PDF is on Etsy):
 
 | Template | Access code |
 | --- | --- |
-| The Editorial | `WWS-EDITORIAL-2026` |
-| The Romance | `WWS-ROMANCE-2026` |
-| The Modern | `WWS-MODERN-2026` |
-| The Countryside | `WWS-COUNTRYSIDE-2026` |
-| The Classic | `WWS-CLASSIC-2026` |
+| Champagne Elegance | `WWS-CHAMPAGNE-2026` |
+| Blue Serenity | `WWS-BLUE-2026` |
+| Midnight Romance | `WWS-MIDNIGHT-2026` |
+| Sage Botanical | `WWS-SAGE-2026` |
+| Mediterranean Sunset | `WWS-MEDITERRANEAN-2026` |
+| Lavender Dreams | `WWS-LAVENDER-2026` |
 
 1. **PDF** — admin downloads the template's delivery PDF from
    **Admin → Templates** (`GET /api/pdf/template?templateId=…`, admin
@@ -77,9 +79,6 @@ never change it after the PDF is on Etsy):
    customises in the editor, presses Publish, and shares the link/QR code
    with guests.
 
-The demo code `WWS-DEMO-2026` is the one exception: it opens the
-pre-built Sarah & James demo site instead of creating a new one.
-
 ## Vercel deploy
 
 ```bash
@@ -94,14 +93,14 @@ trailing slash), `ADMIN_PASSWORD`, `SESSION_SECRET`, and optionally
 `ETSY_API_KEY`, `ETSY_SHOP_ID`. Then redeploy. Use the
 domain in `NEXT_PUBLIC_SITE_URL` — it is what QR codes and PDF links encode.
 
-## Demo credentials (DEMO ONLY — change before going live)
+## Admin credentials (change before going live)
 
 | Who | How | Value |
 | --- | --- | --- |
 | Admin | Admin login password | `admin123` (set `ADMIN_PASSWORD` in production) |
-| Demo customer | Access code for the Sarah & James demo site | `WWS-DEMO-2026` |
 
-Both are demo-only placeholders. Never use them for a real customer.
+The admin password is a default placeholder. Never use it for a real
+customer-facing setup without changing it.
 
 ## Routes
 
@@ -120,14 +119,14 @@ Both are demo-only placeholders. Never use them for a real customer.
 
 ## Known limitations
 
-- **Demo mode is in-memory**: data resets on redeploy / cold start. Use
+- **Local mode is in-memory**: data resets on redeploy / cold start. Use
   Supabase for anything real.
 - **Email is not connected**: there is no mail system by design — delivery
   happens through the Etsy digital-download PDF (see delivery model above).
 - **Etsy API is not connected**: there is no automatic order sync; delivery
   is one static PDF per listing (see delivery model above).
   `ETSY_API_KEY` / `ETSY_SHOP_ID` are reserved for a future sync.
-- **Uploads are stored as data URLs in demo mode** (no object storage yet).
+- **Uploads are stored as data URLs in local mode** (no object storage yet).
 - **Rate limiting is in-memory per process** (10 RSVP submissions /
   minute per IP + site); use Upstash / a gateway for multi-instance
   production.
@@ -136,9 +135,8 @@ Both are demo-only placeholders. Never use them for a real customer.
 
 - **Access codes**: template codes are fixed strings in source
   (`src/lib/templates.ts`) — they ship in the static Etsy PDF, so they
-  must never change after the PDF is listed. The demo code is the only
-  stored code, kept as a SHA-256 hash (`access_codes.code_hash`); its plain
-  form is never stored, logged or returned by any API.
+  must never change after the PDF is listed. Their plain form is never
+  stored, logged or returned by any API.
 - **Row Level Security**: every customer-owned table has RLS
   (`supabase/migrations/0002_rls.sql`). Anonymous users can read published
   sites and their public content only; owners see only their own rows;

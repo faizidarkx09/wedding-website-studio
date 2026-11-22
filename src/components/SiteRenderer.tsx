@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import type { TemplateId, WeddingSite } from "@/lib/types";
+import { useCallback, useEffect, useState } from "react";
+import type { DetailBlock, WeddingSite } from "@/lib/types";
 import Countdown from "./Countdown";
 
 interface SiteRendererProps {
@@ -57,16 +60,34 @@ function formatEventDate(date: string): string {
   }).format(new Date(parsed));
 }
 
-/* ---------- per-template presentation ---------- */
+/* ---------- presentation (composition-driven) ---------- */
 
-/** Demo RSVP page used by template previews.
+// The design comes from the site's own template snapshot (palette +
+// composition key) — never from a hardcoded template id. Each composition
+// ("champagne", "blue", "midnight", "sage", "mediterranean", "lavender")
+// gets its own hero, divider, timeline, gallery and motion treatment.
+// Unknown compositions fall back to the generic "classic" presentation.
+
+function composition(site: WeddingSite): string {
+  return site.templateSnapshot.composition || "classic";
+}
+
+function initials(site: WeddingSite): string {
+  const a = site.content.partnerA.trim().charAt(0);
+  const b = site.content.partnerB.trim().charAt(0);
+  return `${a}${b}`.toUpperCase() || "W";
+}
+
+/** Activate page used by template previews.
  * Preview sites (slug "preview-<template>") are never saved to the store,
  * so /w/preview-<template>/rsvp would render SiteUnavailable. Point their
- * RSVP buttons at the real demo site instead. Real sites keep their own slug. */
-export const DEMO_RSVP_HREF = "/w/sarah-and-james/rsvp";
+ * RSVP buttons at the activate page instead, where a buyer with a template
+ * code can create their own site and try the RSVP form there. Real sites
+ * keep their own slug. */
+export const PREVIEW_RSVP_HREF = "/activate";
 
 function rsvpHref(site: WeddingSite): string {
-  return site.slug.startsWith("preview-") ? DEMO_RSVP_HREF : `/w/${site.slug}/rsvp`;
+  return site.slug.startsWith("preview-") ? PREVIEW_RSVP_HREF : `/w/${site.slug}/rsvp`;
 }
 
 function isPreviewSite(site: WeddingSite): boolean {
@@ -77,59 +98,89 @@ function isPreviewSite(site: WeddingSite): boolean {
 function PreviewRsvpNote() {
   return (
     <p className="mt-3 text-xs opacity-70">
-      Preview — try the RSVP form on the demo site.
+      Preview — activate a template code to try the RSVP form on your own site.
     </p>
   );
 }
 
-function headingClass(templateId: TemplateId): string {
-  switch (templateId) {
-    case "the-editorial":
-      return "text-xs font-semibold uppercase tracking-[0.3em]";
-    case "the-romance":
-      return "text-2xl italic";
-    case "the-modern":
-      return "text-sm font-black uppercase tracking-[0.25em]";
-    case "the-countryside":
-      return "text-sm font-bold uppercase tracking-[0.2em]";
-    case "the-classic":
-      return "text-xs font-semibold uppercase tracking-[0.35em]";
+/* ---------- theme ornaments (original SVG/CSS, no copied assets) ---------- */
+
+/** Per-composition section divider. */
+function ThemeDivider({ comp, className }: { comp: string; className?: string }) {
+  const color = "currentColor";
+  if (comp === "blue") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 120 12" className={`mx-auto mt-3 block h-3 w-28 ${className ?? ""}`}>
+        <path d="M0 6 Q 15 1, 30 6 T 60 6 T 90 6 T 120 6" fill="none" stroke={color} strokeWidth="1" />
+      </svg>
+    );
   }
+  if (comp === "sage") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 120 24" className={`mx-auto mt-3 block h-6 w-28 ${className ?? ""}`}>
+        <path d="M8 12 H46 M74 12 H112" stroke={color} strokeWidth="1" />
+        <path
+          className="sig-sage-draw"
+          d="M60 12 C 54 4, 46 5, 47 12 C 52 14, 58 14, 60 12 Z M60 12 C 66 4, 74 5, 73 12 C 68 14, 62 14, 60 12 Z"
+          fill="none"
+          stroke={color}
+          strokeWidth="1"
+        />
+      </svg>
+    );
+  }
+  if (comp === "midnight") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 120 12" className={`mx-auto mt-3 block h-3 w-28 ${className ?? ""}`}>
+        <path d="M8 6 H48 M72 6 H112" stroke={color} strokeWidth="1" />
+        <circle cx="60" cy="6" r="4" fill={color} />
+      </svg>
+    );
+  }
+  if (comp === "mediterranean") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 120 24" className={`mx-auto mt-3 block h-6 w-28 ${className ?? ""}`}>
+        <path d="M8 20 H44 M76 20 H112" stroke={color} strokeWidth="1" />
+        <path d="M50 20 V12 A10 10 0 0 1 70 20 Z" fill="none" stroke={color} strokeWidth="1" />
+      </svg>
+    );
+  }
+  if (comp === "lavender") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 120 12" className={`mx-auto mt-3 block h-3 w-28 ${className ?? ""}`}>
+        <path d="M8 6 H44 M76 6 H112" stroke={color} strokeWidth="1" />
+        <circle cx="54" cy="6" r="2" fill={color} />
+        <circle cx="60" cy="6" r="2.5" fill={color} />
+        <circle cx="66" cy="6" r="2" fill={color} />
+      </svg>
+    );
+  }
+  if (comp === "champagne") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 120 12" className={`mx-auto mt-3 block h-3 w-28 ${className ?? ""}`}>
+        <path d="M8 6 H50 M70 6 H112" stroke={color} strokeWidth="1" />
+        <rect x="56" y="2" width="8" height="8" transform="rotate(45 60 6)" fill="none" stroke={color} strokeWidth="1" />
+      </svg>
+    );
+  }
+  return <span aria-hidden="true" className="mx-auto mt-3 block h-px w-16 bg-current opacity-40" />;
 }
 
-function divider(templateId: TemplateId, accent: string): React.ReactNode {
-  switch (templateId) {
-    case "the-romance":
-      return (
-        <p aria-hidden="true" className="mt-2 text-xl" style={{ color: accent }}>
-          ❦
-        </p>
-      );
-    case "the-modern":
-      return (
-        <span
-          aria-hidden="true"
-          className="mt-3 block h-1.5 w-16"
-          style={{ backgroundColor: accent }}
-        />
-      );
-    case "the-classic":
-      return (
-        <div aria-hidden="true" className="mt-3 flex items-center justify-center gap-2">
-          <span className="h-px w-16" style={{ backgroundColor: accent }} />
-          <span className="inline-block h-1.5 w-1.5 rotate-45" style={{ backgroundColor: accent }} />
-          <span className="h-px w-16" style={{ backgroundColor: accent }} />
-        </div>
-      );
-    case "the-countryside":
-      return (
-        <p aria-hidden="true" className="mt-2 text-lg" style={{ color: accent }}>
-          ~ ✿ ~
-        </p>
-      );
-    default:
-      return <span aria-hidden="true" className="mx-auto mt-3 block h-px w-16 bg-current opacity-40" />;
-  }
+/** Wax-seal ornament (Midnight Romance): initials inside a brass ring. */
+function WaxSeal({ site }: { site: WeddingSite }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="sig-midnight mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 text-lg font-bold"
+      style={{ borderColor: "#B08B56", backgroundColor: "#6E263B", color: "#F1E8DA" }}
+    >
+      {initials(site)}
+    </div>
+  );
+}
+
+function headingClass(): string {
+  return "text-xs font-semibold uppercase tracking-[0.3em]";
 }
 
 function SectionHeading({
@@ -141,166 +192,231 @@ function SectionHeading({
   title: string;
   intro?: string;
 }) {
-  const align =
-    site.templateId === "the-modern" ? "text-left" : "text-center";
+  const comp = composition(site);
   return (
-    <div className={align}>
-      <h2 className={headingClass(site.templateId)} style={{ color: site.templateSnapshot.palette.accent }}>
+    <div className="text-center">
+      <h2 className={headingClass()} style={{ color: site.templateSnapshot.palette.accent }}>
         {title}
       </h2>
-      {divider(site.templateId, site.templateSnapshot.palette.accent)}
-      {intro ? <p className="mt-3 max-w-xl leading-relaxed opacity-80">{intro}</p> : null}
+      <ThemeDivider comp={comp} />
+      {intro ? <p className="mx-auto mt-3 max-w-xl leading-relaxed opacity-80">{intro}</p> : null}
     </div>
   );
 }
 
-function sectionSpacing(templateId: TemplateId): string {
-  switch (templateId) {
-    case "the-editorial":
-      return "py-16 sm:py-20";
-    case "the-romance":
-      return "py-14 sm:py-16";
-    case "the-modern":
-      return "py-14 sm:py-20";
-    case "the-countryside":
-      return "py-14 sm:py-16";
-    case "the-classic":
-      return "py-16 sm:py-20";
-  }
+function sectionSpacing(): string {
+  return "py-16 sm:py-20";
+}
+
+function PrimaryButton({ site, href, children }: { site: WeddingSite; href: string; children: React.ReactNode }) {
+  const comp = composition(site);
+  const shape =
+    comp === "champagne"
+      ? "rounded-none uppercase tracking-[0.15em]"
+      : comp === "mediterranean"
+        ? "rounded-md"
+        : comp === "sage"
+          ? "rounded-lg"
+          : "rounded-full";
+  const bg = comp === "midnight" ? "#6E263B" : site.templateSnapshot.palette.accent;
+  return (
+    <Link
+      href={href}
+      className={`inline-block px-9 py-3.5 text-sm font-bold text-white transition hover:opacity-85 ${shape}`}
+      style={{ backgroundColor: bg }}
+    >
+      {children}
+    </Link>
+  );
 }
 
 /* ---------- sections ---------- */
 
 function Hero({ site }: { site: WeddingSite }) {
   const { content, templateSnapshot: tpl } = site;
+  const comp = composition(site);
   const names = `${content.partnerA} & ${content.partnerB}`;
   const dateLine = formatDate(site.weddingDate, site.timezone);
 
-  if (site.templateId === "the-modern") {
-    return (
-      <section className="mx-auto grid w-full max-w-6xl items-center gap-8 px-5 pt-10 pb-14 sm:pt-16 md:grid-cols-2">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.3em]" style={{ color: tpl.palette.accent }}>
-            We&apos;re getting married
-          </p>
-          <h1 className="mt-4 text-5xl leading-[0.95] font-black uppercase sm:text-7xl">
-            {content.partnerA}
-            <span className="block" style={{ color: tpl.palette.accent }}>
-              &amp;
-            </span>
-            {content.partnerB}
-          </h1>
-          <p className="mt-5 text-lg font-semibold uppercase tracking-widest">{dateLine}</p>
-          <p className="mt-4 max-w-md leading-relaxed opacity-80">{content.welcome}</p>
-          <Link
-            href={rsvpHref(site)}
-            className="mt-8 inline-block rounded-none px-8 py-3.5 text-sm font-black uppercase tracking-widest text-white transition hover:opacity-85"
-            style={{ backgroundColor: tpl.palette.accent }}
-          >
-            RSVP now
-          </Link>
-          {isPreviewSite(site) ? <PreviewRsvpNote /> : null}
-        </div>
-        <div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={content.heroImage}
-            alt={`${names} — wedding photo`}
-            className="aspect-[4/5] w-full object-cover"
-            loading="eager"
-          />
-        </div>
-      </section>
-    );
-  }
-
-  if (site.templateId === "the-countryside") {
-    return (
-      <section className="mx-auto grid w-full max-w-6xl items-center gap-8 px-5 pt-10 pb-14 sm:pt-14 md:grid-cols-2">
-        <div className="order-2 md:order-1">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={content.heroImage}
-            alt={`${names} — wedding photo`}
-            className="aspect-[4/3] w-full rounded-2xl object-cover"
-            loading="eager"
-          />
-        </div>
-        <div className="order-1 md:order-2">
-          <p className="text-sm font-bold uppercase tracking-[0.2em]" style={{ color: tpl.palette.accent }}>
-            {content.subtitle}
-          </p>
-          <h1 className="mt-3 text-5xl leading-tight font-bold sm:text-6xl">
-            {content.partnerA} <span style={{ color: tpl.palette.accent }}>&amp;</span> {content.partnerB}
-          </h1>
-          <p className="mt-4 text-lg">{dateLine}</p>
-          <p className="mt-4 leading-relaxed opacity-85">{content.welcome}</p>
-          <Link
-            href={rsvpHref(site)}
-            className="mt-7 inline-block rounded-full px-7 py-3 text-sm font-bold text-white transition hover:opacity-85"
-            style={{ backgroundColor: tpl.palette.accent }}
-          >
-            Let us know you&apos;re coming
-          </Link>
-          {isPreviewSite(site) ? <PreviewRsvpNote /> : null}
-        </div>
-      </section>
-    );
-  }
-
-  // Editorial, Romance, Classic: centred hero (each with its own flavour).
-  return (
-    <section className="mx-auto w-full max-w-5xl px-5 pt-12 pb-14 text-center sm:pt-16">
-      <p
-        className={
-          site.templateId === "the-romance"
-            ? "text-base italic"
-            : "text-xs font-semibold uppercase tracking-[0.3em]"
-        }
+  const rsvpCta = (
+    <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <PrimaryButton site={site} href={rsvpHref(site)}>
+        RSVP
+      </PrimaryButton>
+      <Link
+        href="#details"
+        className="inline-block px-6 py-3.5 text-sm font-semibold transition hover:opacity-75"
         style={{ color: tpl.palette.accent }}
       >
+        View details →
+      </Link>
+    </div>
+  );
+
+  // Midnight: dark full-screen photo, ivory names, burgundy date detail.
+  if (comp === "midnight") {
+    return (
+      <section className="relative w-full overflow-hidden text-center">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={content.heroImage}
+          alt={`${names} — wedding photo`}
+          className="hero-img-midnight aspect-[4/5] w-full object-cover sm:aspect-[16/9]"
+          loading="eager"
+        />
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/55 px-5 py-16 text-[#F1E8DA]">
+          <div className="hero-enter">
+            <WaxSeal site={site} />
+            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.3em] text-[#B08B56]">
+              {content.subtitle}
+            </p>
+            <h1 className="mt-4 text-5xl leading-tight sm:text-7xl">
+              {content.partnerA} <span className="text-[#B08B56]">&amp;</span> {content.partnerB}
+            </h1>
+            <p className="mt-5 inline-block rounded-full px-5 py-2 text-sm font-semibold" style={{ backgroundColor: "#6E263B" }}>
+              {dateLine}
+            </p>
+            <p className="mx-auto mt-4 max-w-2xl leading-relaxed opacity-90">{content.welcome}</p>
+            {rsvpCta}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Blue Serenity: wide image first, then a pale-blue title block.
+  if (comp === "blue") {
+    return (
+      <section className="w-full text-center">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={content.heroImage}
+          alt={`${names} — wedding photo`}
+          className="aspect-[21/9] w-full object-cover"
+          loading="eager"
+        />
+        <div className="sig-blue mx-auto -mt-10 w-full max-w-3xl px-5 py-10 sm:px-8" style={{ backgroundColor: tpl.palette.accentSoft }}>
+          <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: tpl.palette.accent }}>
+            {content.subtitle}
+          </p>
+          <h1 className="mt-4 text-5xl leading-tight sm:text-7xl">
+            {content.partnerA} <span style={{ color: tpl.palette.accent }}>&amp;</span> {content.partnerB}
+          </h1>
+          <ThemeDivider comp={comp} />
+          <p className="mt-5 text-lg sm:text-xl">{dateLine}</p>
+          <p className="mx-auto mt-4 max-w-2xl leading-relaxed opacity-85">{content.welcome}</p>
+          {rsvpCta}
+        </div>
+      </section>
+    );
+  }
+
+  // Mediterranean: arch-framed image with bold names below.
+  if (comp === "mediterranean") {
+    return (
+      <section className="mx-auto w-full max-w-5xl px-5 pt-12 pb-14 text-center sm:pt-16">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: tpl.palette.accent }}>
+          {content.subtitle}
+        </p>
+        <div className="sig-mediterranean mx-auto mt-8 w-full max-w-md">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={content.heroImage}
+            alt={`${names} — wedding photo`}
+            className="arch-frame aspect-[3/4] w-full object-cover"
+            loading="eager"
+          />
+        </div>
+        <h1 className="hero-enter mt-8 text-5xl leading-tight font-bold sm:text-7xl">
+          {content.partnerA} <span style={{ color: tpl.palette.accent }}>&amp;</span> {content.partnerB}
+        </h1>
+        <ThemeDivider comp={comp} />
+        <p className="mt-5 text-lg font-semibold sm:text-xl">{dateLine}</p>
+        <p className="mx-auto mt-4 max-w-2xl leading-relaxed opacity-85">{content.welcome}</p>
+        {rsvpCta}
+      </section>
+    );
+  }
+
+  // Sage: botanical-framed portrait.
+  if (comp === "sage") {
+    return (
+      <section className="mx-auto w-full max-w-5xl px-5 pt-12 pb-14 text-center sm:pt-16">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: tpl.palette.accent }}>
+          {content.subtitle}
+        </p>
+        <h1 className="hero-enter mt-4 text-5xl leading-tight sm:text-7xl">
+          {content.partnerA} <span style={{ color: tpl.palette.accent }}>&amp;</span> {content.partnerB}
+        </h1>
+        <ThemeDivider comp={comp} />
+        <p className="mt-5 text-lg sm:text-xl">{dateLine}</p>
+        <div className="mx-auto mt-8 w-full max-w-3xl" style={{ color: tpl.palette.accent }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={content.heroImage}
+            alt={`${names} — wedding photo`}
+            className="frame-sage aspect-[16/10] w-full object-cover"
+            loading="eager"
+          />
+        </div>
+        <p className="mx-auto mt-8 max-w-2xl leading-relaxed opacity-85">{content.welcome}</p>
+        {rsvpCta}
+      </section>
+    );
+  }
+
+  // Lavender: pearl hero with a framed portrait inside a translucent card.
+  if (comp === "lavender") {
+    return (
+      <section className="mx-auto w-full max-w-5xl px-5 pt-12 pb-14 text-center sm:pt-16">
+        <div className="sig-lavender mx-auto w-full max-w-3xl rounded-2xl bg-white/60 px-5 py-10 shadow-sm sm:px-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: tpl.palette.accent }}>
+            {content.subtitle}
+          </p>
+          <h1 className="mt-4 text-5xl leading-tight sm:text-7xl">
+            {content.partnerA} <span style={{ color: tpl.palette.accent }}>&amp;</span> {content.partnerB}
+          </h1>
+          <ThemeDivider comp={comp} />
+          <p className="mt-5 text-lg sm:text-xl">{dateLine}</p>
+          <div className="mx-auto mt-8 w-full max-w-xl" style={{ color: tpl.palette.accent }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={content.heroImage}
+              alt={`${names} — wedding photo`}
+              className="frame-lavender aspect-[4/3] w-full object-cover"
+              loading="eager"
+            />
+          </div>
+          <p className="mx-auto mt-8 max-w-2xl leading-relaxed opacity-85">{content.welcome}</p>
+          {rsvpCta}
+        </div>
+      </section>
+    );
+  }
+
+  // Champagne + classic: framed portrait, centred names, thin rules.
+  return (
+    <section className="mx-auto w-full max-w-5xl px-5 pt-12 pb-14 text-center sm:pt-16">
+      <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: tpl.palette.accent }}>
         {content.subtitle}
       </p>
-      <h1
-        className={
-          site.templateId === "the-romance"
-            ? "mt-4 text-6xl leading-tight sm:text-7xl"
-            : site.templateId === "the-classic"
-              ? "mt-4 text-5xl leading-tight tracking-wide sm:text-7xl"
-              : "mt-4 text-5xl leading-tight sm:text-7xl"
-        }
-      >
+      <h1 className="hero-enter mt-4 text-5xl leading-tight sm:text-7xl">
         {content.partnerA} <span style={{ color: tpl.palette.accent }}>&amp;</span> {content.partnerB}
       </h1>
-      {site.templateId === "the-classic" ? (
-        <div aria-hidden="true" className="mt-5 flex items-center justify-center gap-2">
-          <span className="h-px w-20" style={{ backgroundColor: tpl.palette.accent }} />
-          <span className="inline-block h-2 w-2 rotate-45" style={{ backgroundColor: tpl.palette.accent }} />
-          <span className="h-px w-20" style={{ backgroundColor: tpl.palette.accent }} />
-        </div>
-      ) : site.templateId === "the-romance" ? (
-        <p aria-hidden="true" className="mt-3 text-2xl" style={{ color: tpl.palette.accent }}>
-          ❦ ❦ ❦
-        </p>
-      ) : (
-        <span aria-hidden="true" className="mx-auto mt-5 block h-px w-20 bg-current opacity-40" />
-      )}
+      <ThemeDivider comp={comp} />
       <p className="mt-5 text-lg sm:text-xl">{dateLine}</p>
       <p className="mx-auto mt-4 max-w-2xl leading-relaxed opacity-85">{content.welcome}</p>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={content.heroImage}
-        alt={`${names} — wedding photo`}
-        className={
-          site.templateId === "the-romance"
-            ? "mx-auto mt-10 aspect-[16/9] w-full rounded-[2rem] object-cover"
-            : site.templateId === "the-classic"
-              ? "mx-auto mt-10 aspect-[16/9] w-full border-4 object-cover"
-              : "mx-auto mt-10 aspect-[16/9] w-full object-cover"
-        }
-        style={site.templateId === "the-classic" ? { borderColor: tpl.palette.accent } : undefined}
-        loading="eager"
-      />
+      <div className="mx-auto mt-10 w-full max-w-4xl" style={{ color: tpl.palette.accent }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={content.heroImage}
+          alt={`${names} — wedding photo`}
+          className={comp === "champagne" ? "frame-champagne aspect-[16/9] w-full object-cover" : "aspect-[16/9] w-full object-cover"}
+          loading="eager"
+        />
+      </div>
+      {rsvpCta}
+      {isPreviewSite(site) ? <PreviewRsvpNote /> : null}
     </section>
   );
 }
@@ -310,19 +426,11 @@ function CountdownSection({ site }: { site: WeddingSite }) {
   const soft = site.templateSnapshot.palette.accentSoft;
   return (
     <section
-      className={`mx-auto w-full max-w-5xl px-5 ${sectionSpacing(site.templateId)}`}
+      id="countdown"
+      className={`mx-auto w-full max-w-5xl px-5 ${sectionSpacing()}`}
       aria-label="Countdown to the wedding"
     >
-      <div
-        className={
-          site.templateId === "the-romance"
-            ? "rounded-[2rem] px-6 py-10"
-            : site.templateId === "the-modern"
-              ? "border-2 border-current px-6 py-10"
-              : "rounded-xl px-6 py-10"
-        }
-        style={{ backgroundColor: soft }}
-      >
+      <div className="rounded-xl px-6 py-10" style={{ backgroundColor: soft }}>
         <SectionHeading site={site} title="Counting down" />
         <div className="mt-8">
           <Countdown
@@ -337,34 +445,210 @@ function CountdownSection({ site }: { site: WeddingSite }) {
   );
 }
 
-function StorySection({ site }: { site: WeddingSite }) {
-  if (!site.settings.showStory) return null;
-  if (site.templateId === "the-countryside") {
+function InvitationSection({ site }: { site: WeddingSite }) {
+  if (site.settings.showInvitation === false) return null;
+  const comp = composition(site);
+  const tpl = site.templateSnapshot;
+  const text = (site.content.invitationText ?? "").trim();
+  if (!text) return null;
+  const dateLine = formatDate(site.weddingDate, site.timezone);
+  const names = `${site.content.partnerA} & ${site.content.partnerB}`;
+
+  const body = (
+    <>
+      <SectionHeading site={site} title="You are invited" />
+      <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed whitespace-pre-line opacity-90">{text}</p>
+      <p className="mt-8 text-lg font-semibold">{names}</p>
+      <p className="mt-1 opacity-80">{dateLine}</p>
+      {site.content.venueName ? <p className="mt-1 opacity-80">{site.content.venueName}</p> : null}
+    </>
+  );
+
+  // Midnight: ivory invitation sheet emerging over charcoal.
+  if (comp === "midnight") {
     return (
-      <section className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing(site.templateId)}`}>
-        <div className="grid gap-8 md:grid-cols-2">
-          <div>
-            <SectionHeading site={site} title="Our story" />
-            <p className="mt-6 leading-relaxed whitespace-pre-line opacity-90">{site.content.story}</p>
+      <section id="invitation" className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing()}`}>
+        <div
+          className="sig-midnight rounded-sm px-6 py-10 sm:px-12"
+          style={{ backgroundColor: "#F1E8DA", color: "#171717" }}
+        >
+          <WaxSeal site={site} />
+          <div className="mt-6">{body}</div>
+        </div>
+      </section>
+    );
+  }
+
+  // Blue: open letter with a narrow blue side rule.
+  if (comp === "blue") {
+    return (
+      <section id="invitation" className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing()}`}>
+        <div
+          className="sig-blue rounded-r-xl border-l-4 bg-white px-6 py-10 text-left sm:px-10"
+          style={{ borderLeftColor: tpl.palette.accent }}
+        >
+          <div className="text-center">{body}</div>
+        </div>
+      </section>
+    );
+  }
+
+  // Mediterranean: terracotta / ivory split.
+  if (comp === "mediterranean") {
+    return (
+      <section id="invitation" className={`mx-auto w-full max-w-5xl px-5 ${sectionSpacing()}`}>
+        <div className="sig-mediterranean grid overflow-hidden rounded-xl sm:grid-cols-2" style={{ border: `1px solid ${tpl.palette.accent}` }}>
+          <div className="flex flex-col items-center justify-center px-6 py-10 text-center text-white" style={{ backgroundColor: tpl.palette.accent }}>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em]">You are invited</p>
+            <p className="mt-4 text-3xl font-bold">{names}</p>
+            <p className="mt-2">{dateLine}</p>
           </div>
-          <div
-            className="rounded-2xl p-8"
-            style={{ backgroundColor: site.templateSnapshot.palette.accentSoft }}
-          >
-            <p className="text-sm font-bold uppercase tracking-[0.2em]" style={{ color: site.templateSnapshot.palette.accent }}>
-              The day
-            </p>
-            <p className="mt-3 text-2xl font-semibold">{formatDate(site.weddingDate, site.timezone)}</p>
-            <p className="mt-2 leading-relaxed opacity-85">
-              {site.content.venueName} — {site.content.venueAddress}
-            </p>
+          <div className="px-6 py-10 text-center sm:px-10">
+            <p className="text-lg leading-relaxed whitespace-pre-line opacity-90">{text}</p>
+            {site.content.venueName ? <p className="mt-6 font-semibold">{site.content.venueName}</p> : null}
           </div>
         </div>
       </section>
     );
   }
+
+  // Lavender: layered translucent stationery cards.
+  if (comp === "lavender") {
+    return (
+      <section id="invitation" className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing()}`}>
+        <div className="relative">
+          <div aria-hidden="true" className="absolute inset-0 translate-x-3 translate-y-3 rounded-2xl" style={{ backgroundColor: tpl.palette.accentSoft }} />
+          <div className="sig-lavender relative rounded-2xl bg-white/80 px-6 py-10 shadow-sm sm:px-12">{body}</div>
+        </div>
+      </section>
+    );
+  }
+
+  // Champagne + sage + classic: centred stationery panel with fine border.
   return (
-    <section className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing(site.templateId)}`}>
+    <section id="invitation" className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing()}`}>
+      <div
+        className={comp === "champagne" ? "sig-champagne px-6 py-10 sm:px-12" : "px-6 py-10 sm:px-12"}
+        style={{ backgroundColor: tpl.palette.accentSoft, border: `1px solid ${tpl.palette.accent}` }}
+      >
+        {body}
+      </div>
+    </section>
+  );
+}
+
+function StorySection({ site }: { site: WeddingSite }) {
+  if (!site.settings.showStory) return null;
+  const comp = composition(site);
+  const tpl = site.templateSnapshot;
+  const first = site.gallery[0];
+  const second = site.gallery[1];
+  const storyImg = first?.url ?? site.content.heroImage;
+  const storyText = (
+    <p className="text-lg leading-relaxed whitespace-pre-line opacity-90">{site.content.story}</p>
+  );
+
+  // Champagne: asymmetric editorial two-column (text wide, image narrow).
+  if (comp === "champagne" && first) {
+    return (
+      <section id="story" className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="Our story" />
+        <div className="mt-10 grid items-start gap-10 sm:grid-cols-5">
+          <div className="sm:col-span-3">{storyText}</div>
+          <figure className="sm:col-span-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" className="aspect-[3/4] w-full object-cover" style={{ border: `1px solid ${tpl.palette.accent}` }} />
+            {first.caption ? <figcaption className="mt-2 text-center text-sm italic opacity-75">{first.caption}</figcaption> : null}
+          </figure>
+        </div>
+      </section>
+    );
+  }
+
+  // Blue: centred text with a wide image strip below.
+  if (comp === "blue" && first) {
+    return (
+      <section id="story" className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="Our story" />
+        <div className="mx-auto mt-8 max-w-3xl text-center">{storyText}</div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" className="mx-auto mt-10 aspect-[21/9] w-full max-w-5xl object-cover" />
+        {first.caption ? <p className="mt-2 text-center text-sm italic opacity-75">{first.caption}</p> : null}
+      </section>
+    );
+  }
+
+  // Midnight: dark editorial spread — large portrait, concise narrative.
+  if (comp === "midnight" && first) {
+    return (
+      <section id="story" className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing()}`}>
+        <div className="rounded-xl px-6 py-10 sm:px-10" style={{ backgroundColor: tpl.palette.accentSoft }}>
+          <SectionHeading site={site} title="Our story" />
+          <div className="mt-10 grid items-center gap-10 sm:grid-cols-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" className="aspect-[4/5] w-full object-cover" />
+            <div>{storyText}</div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Sage: orderly scrapbook pairing — framed image, text beside it.
+  if (comp === "sage" && first) {
+    return (
+      <section id="story" className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="Our story" />
+        <div className="mt-10 grid items-start gap-10 sm:grid-cols-2">
+          <figure style={{ color: tpl.palette.accent }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" className="frame-sage aspect-[4/3] w-full object-cover" />
+            {first.caption ? <figcaption className="mt-3 text-center text-sm italic opacity-75">{first.caption}</figcaption> : null}
+          </figure>
+          <div>{storyText}</div>
+        </div>
+      </section>
+    );
+  }
+
+  // Mediterranean: image-led sequence — image on top, text below.
+  if (comp === "mediterranean" && first) {
+    return (
+      <section id="story" className={`mx-auto w-full max-w-4xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="Our story" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" className="mx-auto mt-10 aspect-[16/9] w-full object-cover" />
+        {first.caption ? <p className="mt-2 text-center text-sm italic opacity-75">{first.caption}</p> : null}
+        <div className="mx-auto mt-8 max-w-2xl text-center">{storyText}</div>
+      </section>
+    );
+  }
+
+  // Lavender: soft editorial collage — two images above the text.
+  if (comp === "lavender" && first) {
+    return (
+      <section id="story" className={`mx-auto w-full max-w-5xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="Our story" />
+        <div className="mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" className="aspect-[4/5] w-full object-cover" style={{ border: `1px solid ${tpl.palette.accent}` }} />
+          {second ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={second.url} alt={second.caption || "A favourite photo"} loading="lazy" className="mt-8 aspect-[4/5] w-full object-cover" style={{ border: `1px solid ${tpl.palette.accent}` }} />
+          ) : (
+            <div className="mt-8 flex aspect-[4/5] items-center justify-center rounded-xl p-6 text-center text-sm italic opacity-70" style={{ backgroundColor: tpl.palette.accentSoft }}>
+              Your second photo goes here.
+            </div>
+          )}
+        </div>
+        <div className="mx-auto mt-10 max-w-2xl text-center">{storyText}</div>
+      </section>
+    );
+  }
+
+  // Classic / no photos: centred text.
+  return (
+    <section id="story" className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing()}`}>
       <SectionHeading site={site} title="Our story" />
       <p className="mt-8 text-lg leading-relaxed whitespace-pre-line opacity-90">{site.content.story}</p>
     </section>
@@ -373,47 +657,85 @@ function StorySection({ site }: { site: WeddingSite }) {
 
 function EventsSection({ site }: { site: WeddingSite }) {
   if (!site.settings.showEvents || site.events.length === 0) return null;
+  const comp = composition(site);
   const accent = site.templateSnapshot.palette.accent;
   const soft = site.templateSnapshot.palette.accentSoft;
-  const grid =
-    site.templateId === "the-modern"
-      ? "mt-10 grid gap-6 md:grid-cols-3"
-      : site.templateId === "the-editorial"
-        ? "mt-10 space-y-8"
-        : "mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3";
+
+  // Blue: airy stacked itinerary — time left, event right.
+  if (comp === "blue") {
+    return (
+      <section id="events" className={`mx-auto w-full max-w-4xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="When & where" intro="Everything happening across the weekend." />
+        <div className="mt-10 divide-y" style={{ borderColor: accent }}>
+          {site.events.map((event) => (
+            <article key={event.id} className="flex flex-col gap-1 py-6 sm:flex-row sm:gap-8">
+              <p className="w-40 shrink-0 font-semibold" style={{ color: accent }}>
+                {formatEventDate(event.date)}
+                <span className="block text-sm font-normal opacity-80">{event.time}</span>
+              </p>
+              <div>
+                <h3 className="text-xl font-semibold">{event.name}</h3>
+                <p className="mt-1 font-medium">{event.venue}</p>
+                <p className="text-sm opacity-75">{event.address}</p>
+                {event.description ? <p className="mt-2 text-sm leading-relaxed opacity-85">{event.description}</p> : null}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  // Classic: card grid (kept for legacy snapshots).
+  if (comp === "classic") {
+    return (
+      <section id="events" className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="When & where" intro="Everything happening across the weekend." />
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {site.events.map((event) => (
+            <article key={event.id} className="rounded-xl p-6" style={{ backgroundColor: soft }}>
+              <h3 className="text-xl font-semibold">{event.name}</h3>
+              <p className="mt-2 font-medium" style={{ color: accent }}>
+                {formatEventDate(event.date)} · {event.time}
+              </p>
+              <p className="mt-1 font-medium">{event.venue}</p>
+              <p className="text-sm opacity-75">{event.address}</p>
+              {event.description ? <p className="mt-3 text-sm leading-relaxed opacity-85">{event.description}</p> : null}
+            </article>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  // All other themes: vertical timeline with a fine rule and markers.
+  // Marker shape varies: square for Mediterranean, leaf dot for Sage,
+  // round brass for Midnight, round mauve for Lavender, round gold for Champagne.
+  const markerClass =
+    comp === "mediterranean" ? "rounded-none" : "rounded-full";
   return (
-    <section className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing(site.templateId)}`}>
+    <section id="events" className={`mx-auto w-full max-w-3xl px-5 ${sectionSpacing()}`}>
       <SectionHeading site={site} title="When & where" intro="Everything happening across the weekend." />
-      <div className={grid}>
-        {site.events.map((event) => (
-          <article
-            key={event.id}
-            className={
-              site.templateId === "the-romance"
-                ? "rounded-[1.5rem] border p-6"
-                : site.templateId === "the-modern"
-                  ? "border-t-4 p-6"
-                  : site.templateId === "the-classic"
-                    ? "border p-6 text-center"
-                    : "rounded-xl p-6"
-            }
-            style={{
-              backgroundColor: soft,
-              ...(site.templateId === "the-modern" ? { borderTopColor: accent } : {}),
-              ...(site.templateId === "the-classic" || site.templateId === "the-romance"
-                ? { borderColor: accent }
-                : {}),
-            }}
-          >
-            <h3 className="text-xl font-semibold">{event.name}</h3>
-            <p className="mt-2 font-medium" style={{ color: accent }}>
-              {formatEventDate(event.date)} · {event.time}
-            </p>
-            <p className="mt-1 font-medium">{event.venue}</p>
-            <p className="text-sm opacity-75">{event.address}</p>
-            {event.description ? <p className="mt-3 text-sm leading-relaxed opacity-85">{event.description}</p> : null}
-          </article>
-        ))}
+      <div className="relative mt-12">
+        <span aria-hidden="true" className="absolute top-0 bottom-0 left-[7px] w-px opacity-40" style={{ backgroundColor: accent }} />
+        <div className="flex flex-col gap-10">
+          {site.events.map((event) => (
+            <article key={event.id} className="relative pl-10">
+              <span
+                aria-hidden="true"
+                className={`absolute top-1.5 left-0 h-[15px] w-[15px] border-2 ${markerClass}`}
+                style={{ backgroundColor: soft, borderColor: accent }}
+              />
+              <h3 className="text-xl font-semibold">{event.name}</h3>
+              <p className="mt-1 font-medium" style={{ color: accent }}>
+                {formatEventDate(event.date)} · {event.time}
+              </p>
+              <p className="mt-1 font-medium">{event.venue}</p>
+              <p className="text-sm opacity-75">{event.address}</p>
+              {event.description ? <p className="mt-2 text-sm leading-relaxed opacity-85">{event.description}</p> : null}
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -423,7 +745,7 @@ function VenueSection({ site }: { site: WeddingSite }) {
   const { content } = site;
   if (!content.venueName && !content.venueAddress) return null;
   return (
-    <section className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing(site.templateId)}`}>
+    <section className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing()}`}>
       <SectionHeading site={site} title="The venue" />
       <p className="mt-8 text-2xl font-semibold">{content.venueName}</p>
       {content.venueAddress ? <p className="mt-2 leading-relaxed opacity-85">{content.venueAddress}</p> : null}
@@ -442,51 +764,411 @@ function VenueSection({ site }: { site: WeddingSite }) {
   );
 }
 
-function GallerySection({ site }: { site: WeddingSite }) {
-  if (!site.settings.showGallery || site.gallery.length === 0) return null;
-  const accent = site.templateSnapshot.palette.accent;
-  const container =
-    site.templateId === "the-countryside"
-      ? "mt-10 columns-1 gap-4 sm:columns-2 [&>*]:mb-4"
-      : site.templateId === "the-modern"
-        ? "mt-10 grid gap-4 sm:grid-cols-3"
-        : "mt-10 grid gap-4 sm:grid-cols-2";
+const DETAIL_KIND_LABELS: Record<string, string> = {
+  venue: "Venue",
+  travel: "Travel",
+  accommodation: "Accommodation",
+  dress: "Dress code",
+  parking: "Parking",
+  accessibility: "Accessibility",
+  registry: "Gift registry",
+  notes: "Good to know",
+};
+
+function visibleDetails(site: WeddingSite): DetailBlock[] {
+  const blocks = site.content.details ?? [];
+  return blocks.filter((b) => !b.hidden && (b.title.trim() || b.body.trim()));
+}
+
+function DetailLink({ block, site }: { block: DetailBlock; site: WeddingSite }) {
+  if (!block.linkUrl) return null;
   return (
-    <section className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing(site.templateId)}`}>
-      <SectionHeading site={site} title="Moments" intro="A few favourite memories, so far." />
-      <div className={container}>
-        {site.gallery.map((image, i) => (
-          <figure key={image.id} className={site.templateId === "the-modern" && i === 0 ? "sm:col-span-2 sm:row-span-2" : undefined}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={image.url}
-              alt={image.caption || `Gallery photo ${i + 1}`}
-              loading="lazy"
-              className={
-                site.templateId === "the-romance"
-                  ? "aspect-[4/3] w-full rounded-[1.5rem] object-cover"
-                  : site.templateId === "the-countryside"
-                    ? "w-full rounded-2xl object-cover"
-                    : site.templateId === "the-classic"
-                      ? "aspect-[4/3] w-full border-2 object-cover"
-                      : "aspect-[4/3] w-full object-cover"
+    <a
+      href={block.linkUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-3 inline-block rounded-full border px-5 py-2 text-sm font-semibold transition hover:opacity-75"
+      style={{ borderColor: site.templateSnapshot.palette.accent, color: site.templateSnapshot.palette.accent }}
+    >
+      {block.linkLabel || (block.kind === "registry" ? "View registry" : "Open link")} ↗
+    </a>
+  );
+}
+
+function DetailsSection({ site }: { site: WeddingSite }) {
+  if (site.settings.showDetails === false) return null;
+  const blocks = visibleDetails(site);
+  if (blocks.length === 0) return null;
+  const comp = composition(site);
+  const tpl = site.templateSnapshot;
+
+  // Midnight: alternating dark and ivory panels.
+  if (comp === "midnight") {
+    return (
+      <section id="details" className={`mx-auto w-full max-w-5xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="Details" intro="Everything guests need to know." />
+        <div className="mt-10 flex flex-col gap-6">
+          {blocks.map((block, i) => (
+            <article
+              key={block.id}
+              className="rounded-lg px-6 py-8"
+              style={
+                i % 2 === 0
+                  ? { backgroundColor: tpl.palette.accentSoft }
+                  : { backgroundColor: "#F1E8DA", color: "#171717" }
               }
-              style={site.templateId === "the-classic" ? { borderColor: accent } : undefined}
-            />
-            {image.caption ? (
-              <figcaption className="mt-2 text-center text-sm italic opacity-75">{image.caption}</figcaption>
-            ) : null}
-          </figure>
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.25em]" style={{ color: i % 2 === 0 ? tpl.palette.accent : "#6E263B" }}>
+                {DETAIL_KIND_LABELS[block.kind] ?? "Details"}
+              </p>
+              <h3 className="mt-2 text-xl font-semibold">{block.title}</h3>
+              <p className="mt-2 leading-relaxed whitespace-pre-line opacity-90">{block.body}</p>
+              <DetailLink block={block} site={site} />
+            </article>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  // Lavender: alternating pearl and lavender-mist panels.
+  if (comp === "lavender") {
+    return (
+      <section id="details" className={`mx-auto w-full max-w-5xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="Details" intro="Everything guests need to know." />
+        <div className="mt-10 grid gap-6 sm:grid-cols-2">
+          {blocks.map((block, i) => (
+            <article
+              key={block.id}
+              className="rounded-2xl px-6 py-8"
+              style={{ backgroundColor: i % 2 === 0 ? "#FFFFFF" : tpl.palette.accentSoft, border: `1px solid ${tpl.palette.accentSoft}` }}
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.25em]" style={{ color: tpl.palette.accent }}>
+                {DETAIL_KIND_LABELS[block.kind] ?? "Details"}
+              </p>
+              <h3 className="mt-2 text-xl font-semibold">{block.title}</h3>
+              <p className="mt-2 leading-relaxed whitespace-pre-line opacity-90">{block.body}</p>
+              <DetailLink block={block} site={site} />
+            </article>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  // Sage: clean stacked sections with botanical chapter markers.
+  if (comp === "sage") {
+    return (
+      <section id="details" className={`mx-auto w-full max-w-3xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="Details" intro="Everything guests need to know." />
+        <div className="mt-10 flex flex-col gap-10">
+          {blocks.map((block, i) => (
+            <article key={block.id} className="border-t pt-8" style={{ borderColor: tpl.palette.accent }}>
+              <p className="text-sm font-semibold" style={{ color: tpl.palette.accent }}>
+                {String(i + 1).padStart(2, "0")} · {DETAIL_KIND_LABELS[block.kind] ?? "Details"}
+              </p>
+              <h3 className="mt-2 text-2xl font-semibold">{block.title}</h3>
+              <p className="mt-2 leading-relaxed whitespace-pre-line opacity-90">{block.body}</p>
+              <DetailLink block={block} site={site} />
+            </article>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  // Champagne, Blue, Mediterranean, classic: editorial split cards.
+  return (
+    <section id="details" className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing()}`}>
+      <SectionHeading site={site} title="Details" intro="Everything guests need to know." />
+      <div className="mt-10 grid gap-6 sm:grid-cols-2">
+        {blocks.map((block) => (
+          <article
+            key={block.id}
+            className="rounded-xl p-6"
+            style={{ backgroundColor: tpl.palette.accentSoft, border: comp === "champagne" ? `1px solid ${tpl.palette.accent}` : undefined }}
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.25em]" style={{ color: tpl.palette.accent }}>
+              {DETAIL_KIND_LABELS[block.kind] ?? "Details"}
+            </p>
+            <h3 className="mt-2 text-xl font-semibold">{block.title}</h3>
+            <p className="mt-2 leading-relaxed whitespace-pre-line opacity-90">{block.body}</p>
+            <DetailLink block={block} site={site} />
+          </article>
         ))}
       </div>
     </section>
   );
 }
 
+function GallerySection({ site }: { site: WeddingSite }) {
+  if (!site.settings.showGallery || site.gallery.length === 0) return null;
+  const comp = composition(site);
+  const tpl = site.templateSnapshot;
+  const [lightbox, setLightbox] = useState<number | null>(null);
+
+  const close = useCallback(() => setLightbox(null), []);
+  const step = useCallback(
+    (dir: 1 | -1) => {
+      setLightbox((cur) =>
+        cur === null ? cur : (cur + dir + site.gallery.length) % site.gallery.length,
+      );
+    },
+    [site.gallery.length],
+  );
+
+  useEffect(() => {
+    if (lightbox === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+      if (e.key === "ArrowRight") step(1);
+      if (e.key === "ArrowLeft") step(-1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox, close, step]);
+
+  const openBtn = (i: number, label: string, children: React.ReactNode) => (
+    <button
+      type="button"
+      onClick={() => setLightbox(i)}
+      aria-label={`Open photo ${i + 1}: ${label}`}
+      className="block w-full cursor-pointer text-left"
+    >
+      {children}
+    </button>
+  );
+
+  // Sage: organic asymmetric grid (masonry columns).
+  if (comp === "sage") {
+    return (
+      <section id="gallery" className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="Moments" intro="A few favourite memories, so far." />
+        <div className="mt-10 columns-2 gap-4 sm:columns-3">
+          {site.gallery.map((image, i) => (
+            <figure key={image.id} className="mb-4 break-inside-avoid" style={{ color: tpl.palette.accent }}>
+              {openBtn(
+                i,
+                image.caption,
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={image.url}
+                    alt={image.caption || `Gallery photo ${i + 1}`}
+                    loading="lazy"
+                    className={`w-full object-cover ${i % 3 === 0 ? "aspect-[4/5]" : i % 3 === 1 ? "aspect-square" : "aspect-[4/3]"}`}
+                    style={{ border: `1px solid ${tpl.palette.accent}` }}
+                  />
+                </>,
+              )}
+              {image.caption ? <figcaption className="mt-2 text-center text-sm italic opacity-75">{image.caption}</figcaption> : null}
+            </figure>
+          ))}
+        </div>
+        <Lightbox site={site} index={lightbox} onClose={close} onStep={step} />
+      </section>
+    );
+  }
+
+  // Champagne: curated magazine grid — first photo spans two columns.
+  if (comp === "champagne") {
+    return (
+      <section id="gallery" className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="Moments" intro="A few favourite memories, so far." />
+        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          {site.gallery.map((image, i) => (
+            <figure key={image.id} className={i === 0 ? "sm:col-span-2 sm:row-span-2" : ""}>
+              {openBtn(
+                i,
+                image.caption,
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={image.url}
+                    alt={image.caption || `Gallery photo ${i + 1}`}
+                    loading="lazy"
+                    className={`w-full object-cover ${i === 0 ? "aspect-[16/10] sm:aspect-auto sm:h-full" : "aspect-[4/3]"}`}
+                  />
+                </>,
+              )}
+              {image.caption ? <figcaption className="mt-2 text-center text-sm italic opacity-75">{image.caption}</figcaption> : null}
+            </figure>
+          ))}
+        </div>
+        <Lightbox site={site} index={lightbox} onClose={close} onStep={step} />
+      </section>
+    );
+  }
+
+  // Midnight: dark gallery with generous gutters.
+  if (comp === "midnight") {
+    return (
+      <section id="gallery" className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="Moments" intro="A few favourite memories, so far." />
+        <div className="mt-10 grid gap-8 sm:grid-cols-2">
+          {site.gallery.map((image, i) => (
+            <figure key={image.id} className="rounded-lg p-3" style={{ backgroundColor: tpl.palette.accentSoft }}>
+              {openBtn(
+                i,
+                image.caption,
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={image.url}
+                    alt={image.caption || `Gallery photo ${i + 1}`}
+                    loading="lazy"
+                    className="aspect-[4/3] w-full object-cover"
+                  />
+                </>,
+              )}
+              {image.caption ? <figcaption className="mt-2 text-center text-sm italic opacity-75">{image.caption}</figcaption> : null}
+            </figure>
+          ))}
+        </div>
+        <Lightbox site={site} index={lightbox} onClose={close} onStep={step} />
+      </section>
+    );
+  }
+
+  // Mediterranean: mixed-size photo wall with warm gutters.
+  if (comp === "mediterranean") {
+    return (
+      <section id="gallery" className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="Moments" intro="A few favourite memories, so far." />
+        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          {site.gallery.map((image, i) => (
+            <figure key={image.id} className={i % 4 === 0 ? "sm:col-span-2" : ""}>
+              {openBtn(
+                i,
+                image.caption,
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={image.url}
+                    alt={image.caption || `Gallery photo ${i + 1}`}
+                    loading="lazy"
+                    className={`w-full object-cover ${i % 4 === 0 ? "aspect-[16/9]" : "aspect-[4/3]"}`}
+                  />
+                </>,
+              )}
+              {image.caption ? <figcaption className="mt-2 text-center text-sm italic opacity-75">{image.caption}</figcaption> : null}
+            </figure>
+          ))}
+        </div>
+        <Lightbox site={site} index={lightbox} onClose={close} onStep={step} />
+      </section>
+    );
+  }
+
+  // Blue: wide image-led layout. Lavender + classic: refined uniform grid.
+  return (
+    <section id="gallery" className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing()}`}>
+      <SectionHeading site={site} title="Moments" intro="A few favourite memories, so far." />
+      <div className={`mt-10 grid gap-4 ${comp === "blue" ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
+        {site.gallery.map((image, i) => (
+          <figure
+            key={image.id}
+            className={comp === "blue" && i === 0 ? "sm:col-span-2" : ""}
+            style={comp === "lavender" ? { border: `1px solid ${tpl.palette.accent}`, backgroundColor: "#fff", padding: 8 } : undefined}
+          >
+            {openBtn(
+              i,
+              image.caption,
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={image.url}
+                  alt={image.caption || `Gallery photo ${i + 1}`}
+                  loading="lazy"
+                  className={`w-full object-cover ${comp === "blue" && i === 0 ? "aspect-[16/9]" : "aspect-[4/3]"}`}
+                />
+              </>,
+            )}
+            {image.caption ? <figcaption className="mt-2 text-center text-sm italic opacity-75">{image.caption}</figcaption> : null}
+          </figure>
+        ))}
+      </div>
+      <Lightbox site={site} index={lightbox} onClose={close} onStep={step} />
+    </section>
+  );
+}
+
+/** Accessible lightbox: previous/next, close, keyboard controls. */
+function Lightbox({
+  site,
+  index,
+  onClose,
+  onStep,
+}: {
+  site: WeddingSite;
+  index: number | null;
+  onClose: () => void;
+  onStep: (dir: 1 | -1) => void;
+}) {
+  if (index === null) return null;
+  const image = site.gallery[index];
+  if (!image) return null;
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Photo ${index + 1} of ${site.gallery.length}`}
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-4"
+      onClick={onClose}
+    >
+      <div className="flex w-full max-w-4xl items-center justify-between text-white">
+        <span className="text-sm opacity-80">
+          {index + 1} / {site.gallery.length}
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close gallery"
+          className="rounded-full border border-white/40 px-4 py-2 text-sm font-semibold hover:bg-white/10"
+        >
+          Close ✕
+        </button>
+      </div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={image.url}
+        alt={image.caption || `Gallery photo ${index + 1}`}
+        className="mt-4 max-h-[75vh] w-auto max-w-full object-contain"
+        onClick={(e) => e.stopPropagation()}
+      />
+      {image.caption ? <p className="mt-3 text-center text-sm text-white/85 italic">{image.caption}</p> : null}
+      <div className="mt-4 flex gap-3">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onStep(-1);
+          }}
+          aria-label="Previous photo"
+          className="rounded-full border border-white/40 px-5 py-2 text-sm font-semibold text-white hover:bg-white/10"
+        >
+          ← Previous
+        </button>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onStep(1);
+          }}
+          aria-label="Next photo"
+          className="rounded-full border border-white/40 px-5 py-2 text-sm font-semibold text-white hover:bg-white/10"
+        >
+          Next →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function DressCodeSection({ site }: { site: WeddingSite }) {
   if (!site.settings.showDressCode || !site.content.dressCode) return null;
   return (
-    <section className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing(site.templateId)}`}>
+    <section className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing()}`}>
       <SectionHeading site={site} title="Dress code" />
       <p
         className="mx-auto mt-8 max-w-xl rounded-xl px-6 py-6 text-lg leading-relaxed"
@@ -498,13 +1180,63 @@ function DressCodeSection({ site }: { site: WeddingSite }) {
   );
 }
 
+function FaqSection({ site }: { site: WeddingSite }) {
+  const [open, setOpen] = useState<number | null>(0);
+  if (site.settings.showFaq === false) return null;
+  const faqs = site.content.faqs ?? [];
+  if (faqs.length === 0) return null;
+  const comp = composition(site);
+  const tpl = site.templateSnapshot;
+  return (
+    <section id="faq" className={`mx-auto w-full max-w-3xl px-5 ${sectionSpacing()}`}>
+      <SectionHeading site={site} title="Questions & answers" intro="The things guests ask us most." />
+      <div className="mt-10 flex flex-col gap-3">
+        {faqs.map((faq, i) => {
+          const isOpen = open === i;
+          return (
+            <div
+              key={faq.id}
+              className={comp === "lavender" ? "rounded-2xl" : "rounded-lg"}
+              style={{
+                backgroundColor: tpl.palette.accentSoft,
+                border: comp === "champagne" ? `1px solid ${tpl.palette.accent}` : undefined,
+              }}
+            >
+              <h3>
+                <button
+                  type="button"
+                  aria-expanded={isOpen}
+                  aria-controls={`faq-answer-${faq.id}`}
+                  onClick={() => setOpen(isOpen ? null : i)}
+                  className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left font-semibold"
+                >
+                  <span>{faq.question}</span>
+                  <span aria-hidden="true" className="shrink-0 text-xl" style={{ color: tpl.palette.accent }}>
+                    {isOpen ? "−" : "+"}
+                  </span>
+                </button>
+              </h3>
+              {isOpen ? (
+                <p id={`faq-answer-${faq.id}`} className="px-5 pb-5 leading-relaxed whitespace-pre-line opacity-90">
+                  {faq.answer}
+                </p>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function RsvpTeaser({ site }: { site: WeddingSite }) {
-  const accent = site.templateSnapshot.palette.accent;
+  const comp = composition(site);
+  const tpl = site.templateSnapshot;
   const deadline = site.settings.rsvpDeadline
     ? formatDate(site.settings.rsvpDeadline, site.timezone)
     : null;
-  return (
-    <section className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing(site.templateId)}`}>
+  const inner = (
+    <>
       <SectionHeading site={site} title="Will you be there?" />
       <p className="mx-auto mt-4 max-w-xl leading-relaxed opacity-85">
         {site.settings.rsvpEnabled
@@ -512,19 +1244,49 @@ function RsvpTeaser({ site }: { site: WeddingSite }) {
           : "RSVP is now closed. Thank you to everyone who has already replied."}
         {deadline && site.settings.rsvpEnabled ? ` Kindly reply by ${deadline}.` : ""}
       </p>
-      <Link
-        href={rsvpHref(site)}
-        className="mt-8 inline-block rounded-full px-9 py-3.5 text-sm font-bold text-white transition hover:opacity-85"
-        style={{ backgroundColor: accent }}
-      >
-        RSVP
-      </Link>
+      <div className="mt-8">
+        <PrimaryButton site={site} href={rsvpHref(site)}>
+          RSVP
+        </PrimaryButton>
+      </div>
       {isPreviewSite(site) ? <PreviewRsvpNote /> : null}
+    </>
+  );
+
+  // Midnight: warm ivory form panel on charcoal.
+  if (comp === "midnight") {
+    return (
+      <section id="rsvp" className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing()}`}>
+        <div className="rounded-sm px-6 py-10" style={{ backgroundColor: "#F1E8DA", color: "#171717" }}>
+          {inner}
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section id="rsvp" className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing()}`}>
+      <div
+        className={comp === "lavender" ? "rounded-2xl px-6 py-10" : "rounded-xl px-6 py-10"}
+        style={{ backgroundColor: tpl.palette.accentSoft }}
+      >
+        {inner}
+      </div>
     </section>
   );
 }
 
 /* ---------- renderer ---------- */
+
+const NAV_LABELS: Record<string, string> = {
+  invitation: "Invitation",
+  story: "Our story",
+  events: "Schedule",
+  details: "Details",
+  gallery: "Gallery",
+  faq: "FAQ",
+  rsvp: "RSVP",
+};
 
 export default function SiteRenderer({ site, preview = false }: SiteRendererProps) {
   if (site.status !== "published" && !preview) {
@@ -532,12 +1294,17 @@ export default function SiteRenderer({ site, preview = false }: SiteRendererProp
   }
 
   const palette = site.templateSnapshot.palette;
+  const comp = composition(site);
   const sections = site.templateSnapshot.sections;
+
+  const navLinks = sections.filter((key) => NAV_LABELS[key]);
 
   const renderSection = (key: string): React.ReactNode => {
     switch (key) {
       case "hero":
         return <Hero key="hero" site={site} />;
+      case "invitation":
+        return <InvitationSection key="invitation" site={site} />;
       case "countdown":
         return <CountdownSection key="countdown" site={site} />;
       case "story":
@@ -546,10 +1313,14 @@ export default function SiteRenderer({ site, preview = false }: SiteRendererProp
         return <EventsSection key="events" site={site} />;
       case "venue":
         return <VenueSection key="venue" site={site} />;
+      case "details":
+        return <DetailsSection key="details" site={site} />;
       case "gallery":
         return <GallerySection key="gallery" site={site} />;
       case "dress-code":
         return <DressCodeSection key="dress-code" site={site} />;
+      case "faq":
+        return <FaqSection key="faq" site={site} />;
       case "rsvp":
         return <RsvpTeaser key="rsvp" site={site} />;
       default:
@@ -559,20 +1330,44 @@ export default function SiteRenderer({ site, preview = false }: SiteRendererProp
 
   return (
     <div
-      className={`min-h-full w-full ${site.templateSnapshot.fontClass}`}
+      className={`theme-${comp} min-h-full w-full`}
       style={{ backgroundColor: palette.bg, color: palette.ink }}
     >
       {preview ? (
         <p className="bg-stone-900 px-4 py-2 text-center text-xs font-semibold uppercase tracking-[0.2em] text-white">
-          Template preview — demo content
+          Template preview — placeholder content
         </p>
+      ) : null}
+      {navLinks.length > 1 ? (
+        <nav
+          aria-label="Wedding website sections"
+          className="sticky top-0 z-20 overflow-x-auto border-b"
+          style={{ backgroundColor: palette.bg, borderColor: palette.accent }}
+        >
+          <div className="mx-auto flex w-full max-w-6xl items-center justify-center gap-1 px-3 py-2">
+            {navLinks.map((key) => (
+              <a
+                key={key}
+                href={`#${key}`}
+                className="rounded-full px-3 py-2 text-xs font-semibold whitespace-nowrap uppercase tracking-[0.15em] transition hover:opacity-70"
+                style={{ color: palette.ink }}
+              >
+                {NAV_LABELS[key]}
+              </a>
+            ))}
+          </div>
+        </nav>
       ) : null}
       {sections.map(renderSection)}
       <footer className="border-t px-5 py-12 text-center" style={{ borderColor: palette.accent }}>
-        <p className="text-lg font-semibold">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em]" style={{ color: palette.accent }}>
+          {initials(site)}
+        </p>
+        <p className="mt-4 text-lg font-semibold">
           {site.content.partnerA} &amp; {site.content.partnerB}
         </p>
         <p className="mx-auto mt-3 max-w-xl leading-relaxed opacity-80">{site.content.footerMessage}</p>
+        <ThemeDivider comp={comp} />
         <p className="mt-6 text-xs uppercase tracking-[0.25em] opacity-60">
           {formatDate(site.weddingDate, site.timezone)}
         </p>

@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifySession } from "@/lib/auth";
 import { listTemplates } from "@/lib/store";
-import { AdminNav, ApiButton, TemplateEditForm } from "../ui";
+import { AdminNav, ApiButton, NewTemplateForm, TemplateEditForm } from "../ui";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +26,18 @@ export default async function AdminTemplatesPage() {
           snapshot taken when it was created. Each template has one fixed access code: every buyer of that
           template gets the same code, but activating it creates a brand-new site just for that buyer.
         </p>
+
+        <NewTemplateForm />
+
+        {templates.length === 0 ? (
+          <div className="mt-6 rounded-lg border border-stone-200 bg-white p-8 text-center">
+            <h2 className="text-lg font-semibold text-stone-900">No templates yet</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
+              The template catalogue is empty. Create a new template with the
+              form above — or duplicate an existing one once it exists.
+            </p>
+          </div>
+        ) : null}
 
         <div className="mt-6 space-y-4">
           {templates.map((t) => (

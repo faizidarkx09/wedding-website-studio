@@ -1,8 +1,10 @@
-// Server-side store (demo/local mode).
-// In-memory, seeded on first use. When Supabase env vars are configured,
-// the SQL migrations in supabase/migrations/ are the production store —
-// see README "Connecting Supabase" for the one-step switch. The store API
-// is async throughout so callers never change when the backend changes.
+// Server-side store (local mode).
+// In-memory, starting EMPTY — no demo content, no sample sites, no sample
+// RSVPs. The 6 real templates are the only built-in data. When Supabase
+// env vars are configured, the SQL migrations in supabase/migrations/ are
+// the production store — see README "Connecting Supabase" for the
+// one-step switch. The store API is async throughout so callers never
+// change when the backend changes.
 //
 // Delivery model: one FIXED access code per template (TemplateMeta.accessCode,
 // baked into source). Every buyer of a template gets the same PDF and the
@@ -14,43 +16,39 @@
 // never access codes, guest lists or RSVP records.
 
 import type {
-  AccessCode,
   AuditLog,
   RsvpResponse,
   TemplateMeta,
   WeddingSite,
 } from "./types";
 import { TEMPLATES } from "./templates";
-import { buildSeed } from "./seed";
 import { sha256 } from "./auth";
 
 interface Db {
   templates: TemplateMeta[];
   sites: WeddingSite[];
-  accessCodes: AccessCode[];
   rsvps: RsvpResponse[];
   audit: AuditLog[];
-  seeded: boolean;
 }
 
 const globalDb = globalThis as unknown as { __wwsDb?: Db };
 
 function db(): Db {
   if (!globalDb.__wwsDb) {
-    const seed = buildSeed();
+    // Starts EMPTY: no demo site, no sample RSVPs, no access-code records.
+    // Templates are the only built-in data; sites appear only when a real
+    // buyer activates a template code.
     globalDb.__wwsDb = {
       templates: TEMPLATES.map((t) => ({ ...t })),
-      sites: seed.sites,
-      accessCodes: seed.accessCodes,
-      rsvps: seed.rsvps,
-      audit: seed.audit,
-      seeded: true,
+      sites: [],
+      rsvps: [],
+      audit: [],
     };
   }
   return globalDb.__wwsDb;
 }
 
-export const isDemoMode = () =>
+export const isLocalStore = () =>
   !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // --- Templates ---
@@ -174,6 +172,7 @@ export async function createSiteFromTemplate(
       partnerB,
       subtitle: "Together with their families",
       welcome: "Welcome to our wedding website! We cannot wait to celebrate with you.",
+      invitationText: `Together with their families, ${partnerA} and ${partnerB} request the honour of your presence at their wedding celebration.`,
       story: "Our story begins here — edit this text in your editor.",
       dressCode: "Semi-formal.",
       footerMessage: "Thank you for being part of our day.",
@@ -182,6 +181,23 @@ export async function createSiteFromTemplate(
       venueAddress: "",
       mapLink: "",
       postWeddingMessage: "Just married! Thank you for celebrating with us.",
+      details: [
+        {
+          id: "d-venue",
+          kind: "venue",
+          title: "The venue",
+          body: "Venue details go here — add the address and directions in the editor.",
+          hidden: false,
+        },
+        {
+          id: "d-dress",
+          kind: "dress",
+          title: "Dress code",
+          body: "Semi-formal.",
+          hidden: false,
+        },
+      ],
+      faqs: [],
     },
     design: {
       primary: template.palette.ink,
@@ -207,6 +223,9 @@ export async function createSiteFromTemplate(
       showEvents: true,
       showDressCode: true,
       showCountdown: true,
+      showInvitation: true,
+      showDetails: true,
+      showFaq: true,
     },
     createdAt: now,
     updatedAt: now,
@@ -220,22 +239,6 @@ export async function createSiteFromTemplate(
     `New site /w/${slug} created from template ${template.name} (${template.id}).`,
   );
   return site;
-}
-
-// --- Access codes (order/demo claim path) ---
-// Template codes are NOT stored here — they live on the template itself
-// (TemplateMeta.accessCode) and are looked up by hash. These records exist
-// for the demo code, which opens the pre-built Sarah & James demo site.
-export async function findAccessCodeByHash(codeHash: string): Promise<AccessCode | null> {
-  return db().accessCodes.find((c) => c.codeHash === codeHash) || null;
-}
-
-export async function useAccessCode(id: string): Promise<void> {
-  const c = db().accessCodes.find((x) => x.id === id);
-  if (c) {
-    c.status = "used";
-    c.lastUsedAt = new Date().toISOString();
-  }
 }
 
 // --- RSVPs (tenant-scoped) ---

@@ -60,7 +60,7 @@ export default function ActivatePage() {
             autoComplete="off"
             autoCapitalize="characters"
             spellCheck={false}
-            placeholder="WWS-EDITORIAL-2026"
+            placeholder="WWS-XXXX-2026"
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             required
@@ -81,7 +81,7 @@ export default function ActivatePage() {
               name="partnerA"
               type="text"
               autoComplete="off"
-              placeholder="Sarah"
+              placeholder="Alex"
               value={partnerA}
               onChange={(e) => setPartnerA(e.target.value)}
               className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 focus:border-stone-900 focus:outline-none"
@@ -96,7 +96,7 @@ export default function ActivatePage() {
               name="partnerB"
               type="text"
               autoComplete="off"
-              placeholder="James"
+              placeholder="Jordan"
               value={partnerB}
               onChange={(e) => setPartnerB(e.target.value)}
               className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 focus:border-stone-900 focus:outline-none"
@@ -105,8 +105,7 @@ export default function ActivatePage() {
         </div>
         <p className="-mt-2 text-xs text-stone-500">
           Your names create your website — your site address is built from them
-          (for example, Sarah &amp; James become /w/sarah-james). Not needed for
-          the demo code.
+          (for example, Alex &amp; Jordan become /w/alex-jordan).
         </p>
 
         {error ? (
@@ -127,21 +126,6 @@ export default function ActivatePage() {
       <p className="mt-4 text-sm text-stone-500">
         Too many wrong attempts locks activation for 15 minutes (5 attempts).
       </p>
-
-      <div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
-        <p className="font-medium">Trying the demo?</p>
-        <p className="mt-1 text-stone-600">
-          The demo code <code className="font-mono font-semibold">WWS-DEMO-2026</code> opens the
-          Sarah &amp; James demo site so you can explore the dashboard and editor.
-        </p>
-        <button
-          type="button"
-          onClick={() => setCode("WWS-DEMO-2026")}
-          className="mt-3 rounded-full border border-stone-300 bg-white px-4 py-2 text-sm font-medium"
-        >
-          Use the demo code
-        </button>
-      </div>
 
       <p className="mt-8 text-sm text-stone-500">
         Bought a template on Etsy? Your code is in the delivery PDF.{" "}

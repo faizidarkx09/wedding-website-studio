@@ -1,12 +1,16 @@
 // Shared types for Wedding Website Studio (PRD v1.0).
 // One shared rendering engine, many tenant-isolated wedding sites.
 
-export type TemplateId =
-  | "the-editorial"
-  | "the-romance"
-  | "the-modern"
-  | "the-countryside"
-  | "the-classic";
+// Template ids are free-form slugs chosen when a template is created
+// (e.g. "champagne-elegance"). The catalogue holds the six launch themes
+// from the Premium Design System spec v1.0; new templates are added from
+// the admin panel (Admin → Templates → New template).
+export type TemplateId = string;
+
+/** Composition key — which art direction a template uses. Free-form so
+ * future templates can add their own; the renderer falls back to the
+ * generic "classic" presentation for unknown keys. */
+export type Composition = string;
 
 export interface TemplateMeta {
   id: TemplateId;
@@ -28,6 +32,9 @@ export interface TemplateMeta {
   palette: { bg: string; ink: string; accent: string; accentSoft: string };
   fontClass: string;
   layout: string;
+  /** Art-direction key (e.g. "champagne", "midnight") — drives the
+   * renderer's per-theme hero, divider, timeline, gallery and motion. */
+  composition: Composition;
   sections: string[];
 }
 
@@ -47,11 +54,44 @@ export interface GalleryImage {
   caption: string;
 }
 
+/** One optional "Details" block (venue, travel, accommodation, dress
+ * code, parking, accessibility, gift registry, guest notes). Blocks with
+ * `hidden` set, or with no title and no body, are never shown publicly. */
+export type DetailKind =
+  | "venue"
+  | "travel"
+  | "accommodation"
+  | "dress"
+  | "parking"
+  | "accessibility"
+  | "registry"
+  | "notes";
+
+export interface DetailBlock {
+  id: string;
+  kind: DetailKind;
+  title: string;
+  body: string;
+  /** Optional external link (e.g. registry URL, directions). */
+  linkLabel?: string;
+  linkUrl?: string;
+  hidden: boolean;
+}
+
+/** One FAQ entry, shown in the accordion. */
+export interface FaqItem {
+  id: string;
+  question: string;
+  answer: string;
+}
+
 export interface SiteContent {
   partnerA: string;
   partnerB: string;
   subtitle: string;
   welcome: string;
+  /** Invitation section text ("Together with their families, …"). */
+  invitationText: string;
   story: string;
   dressCode: string;
   footerMessage: string;
@@ -60,6 +100,10 @@ export interface SiteContent {
   venueAddress: string;
   mapLink: string;
   postWeddingMessage: string;
+  /** Optional details blocks (shown in template "details" order). */
+  details: DetailBlock[];
+  /** FAQ entries, in display order. */
+  faqs: FaqItem[];
 }
 
 export interface SiteDesign {
@@ -92,6 +136,9 @@ export interface SiteSettings {
   showEvents: boolean;
   showDressCode: boolean;
   showCountdown: boolean;
+  showInvitation: boolean;
+  showDetails: boolean;
+  showFaq: boolean;
 }
 
 export type SiteStatus = "draft" | "published" | "unpublished" | "suspended" | "archived";
@@ -135,19 +182,6 @@ export interface RsvpResponse {
   status: "attending" | "declined" | "updated";
   submittedAt: string;
   updatedAt: string;
-}
-
-export interface AccessCode {
-  id: string;
-  /** Null for codes not tied to an order (e.g. the demo code). */
-  orderId: string | null;
-  siteId: string;
-  /** SHA-256 hex of the code. The plain code is never stored. */
-  codeHash: string;
-  status: "active" | "used" | "revoked" | "expired";
-  createdAt: string;
-  lastUsedAt: string | null;
-  expiresAt: string | null;
 }
 
 export interface AuditLog {

@@ -66,6 +66,6 @@ export function rateLimit(key: string, maxAttempts = 5, windowMs = 15 * 60 * 100
 }
 
 export function adminPassword(): string {
-  // Demo admin password. Set ADMIN_PASSWORD in production — see README.
+  // Default admin password. Set ADMIN_PASSWORD in production — see README.
   return process.env.ADMIN_PASSWORD || "admin123";
 }

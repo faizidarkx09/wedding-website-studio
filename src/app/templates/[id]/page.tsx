@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteNav, { SiteFooter } from "@/components/SiteNav";
 import SiteRenderer from "@/components/SiteRenderer";
-import { demoSiteForTemplate } from "@/lib/demo";
+import { previewSiteForTemplate } from "@/lib/preview";
 import { getTemplateById } from "@/lib/store";
 
 const SECTION_LABELS: Record<string, string> = {
@@ -25,7 +25,7 @@ export default async function TemplateDetailPage({
   const template = await getTemplateById(id);
   if (!template || !template.active) notFound();
 
-  const demoSite = demoSiteForTemplate(template);
+  const previewSite = previewSiteForTemplate(template);
 
   return (
     <div className="flex min-h-full flex-col bg-[#fdfbf7] text-stone-900">
@@ -120,7 +120,7 @@ export default async function TemplateDetailPage({
               buyer&apos;s site.
             </p>
             <p className="mt-4 text-xs text-stone-500">
-              The preview below uses demo content (Sarah &amp; James) so you can see the design
+              The preview below uses placeholder content so you can see the design
               in full — your own site will carry your words and photos.
             </p>
           </div>
@@ -128,15 +128,15 @@ export default async function TemplateDetailPage({
 
         {/* Live preview */}
         <section aria-label={`Live preview of ${template.name}`} className="border-t border-stone-200">
-          <SiteRenderer site={demoSite} preview />
+          <SiteRenderer site={previewSite} preview />
         </section>
 
         <section className="mx-auto w-full max-w-6xl px-5 py-12 text-center">
           <Link
-            href="/w/sarah-and-james"
+            href="/activate"
             className="inline-block rounded-full border border-stone-300 bg-white px-7 py-3 text-sm font-semibold text-stone-900 transition hover:border-stone-900"
           >
-            Open the full demo site →
+            Activate your code →
           </Link>
         </section>
       </main>

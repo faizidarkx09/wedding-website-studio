@@ -16,7 +16,7 @@ export interface TemplateDeliveryPdfOptions {
   activateUrl: string;
   /** The template's preview page, so the buyer can see the design. */
   templateUrl: string;
-  /** The template's fixed access code (e.g. WWS-EDITORIAL-2026). */
+  /** The template's fixed access code (e.g. WWS-XXXX-2026). */
   accessCode: string;
 }
 
@@ -114,7 +114,7 @@ export function templateDeliveryPdf(opts: TemplateDeliveryPdfOptions): Buffer {
 
   // --- Template preview link ---
   add("See your template", 14, true, { gap: 4 });
-  add("A preview of the design you bought, with demo content.", 11, false, { gap: 2 });
+  add("A preview of the design you bought, with placeholder content.", 11, false, { gap: 2 });
   addUrl(opts.templateUrl);
 
   // --- Access code ---
@@ -140,7 +140,7 @@ export function templateDeliveryPdf(opts: TemplateDeliveryPdfOptions): Buffer {
     "Open the template link above (the Activate page).",
     "Enter the access code from this PDF.",
     "Enter your names - your new website is created from them, just for you.",
-    "Replace the demo names, story, photos and event details with your own.",
+    "Replace the placeholder names, story, photos and event details with your own.",
     "Check the RSVP settings and set your RSVP deadline, then press Publish.",
     "Share your website link (or its QR code) with your guests.",
   ];

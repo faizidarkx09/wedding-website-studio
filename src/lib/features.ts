@@ -1,7 +1,8 @@
 // Feature catalogue for the /features pages. Every "try it" link points at a
-// real route in this app (demo site, RSVP form, templates, activate, editor,
-// dashboard or the QR API) — never an anchor-only jump and never an invented
-// external URL.
+// real route in this app (template preview, activate, editor, dashboard or
+// the QR API) — never an anchor-only jump and never an invented
+// external URL. There is no demo site: "try it" links go to a template
+// preview or to activation, where a buyer creates their own site.
 
 export interface FeatureLink {
   href: string;
@@ -37,8 +38,8 @@ export const FEATURES: Feature[] = [
     whoSeesIt:
       "Everyone who visits your site. Guests see the excitement build; the couple control it from the editor.",
     tryIt: [
-      { href: "/w/sarah-and-james", label: "See the countdown on the demo site" },
-      { href: "/templates/the-editorial", label: "Preview it in The Editorial template" },
+      { href: "/templates", label: "Browse templates" },
+      { href: "/activate", label: "Activate a template to see it on your own site" },
     ],
   },
   {
@@ -59,7 +60,7 @@ export const FEATURES: Feature[] = [
     whoSeesIt:
       "Your guests use the form. Only you see the full guest list, on the dashboard.",
     tryIt: [
-      { href: "/w/sarah-and-james/rsvp", label: "Try the RSVP form on the demo site" },
+      { href: "/activate", label: "Activate a template to try the RSVP form on your own site" },
       { href: "/dashboard", label: "See RSVPs on the dashboard" },
     ],
   },
@@ -80,8 +81,8 @@ export const FEATURES: Feature[] = [
     whoSeesIt:
       "Everyone who visits your site. You choose exactly which photos are shown.",
     tryIt: [
-      { href: "/w/sarah-and-james", label: "See the gallery on the demo site" },
-      { href: "/templates/the-countryside", label: "Preview it in The Countryside template" },
+      { href: "/templates", label: "Browse templates" },
+      { href: "/activate", label: "Activate a template to see it on your own site" },
     ],
   },
   {
@@ -101,8 +102,8 @@ export const FEATURES: Feature[] = [
     whoSeesIt:
       "Your guests, on the published site. You edit the schedule in the editor.",
     tryIt: [
-      { href: "/w/sarah-and-james", label: "See the schedule on the demo site" },
-      { href: "/templates/the-modern", label: "Preview it in The Modern template" },
+      { href: "/templates", label: "Browse templates" },
+      { href: "/activate", label: "Activate a template to see it on your own site" },
     ],
   },
   {
@@ -122,8 +123,8 @@ export const FEATURES: Feature[] = [
     whoSeesIt:
       "Anyone holding your invitation. The code itself opens only your public site.",
     tryIt: [
-      { href: "/api/qr?slug=sarah-and-james&format=png", label: "Download the demo site's QR code (PNG)" },
-      { href: "/w/sarah-and-james", label: "See where the QR code leads" },
+      { href: "/dashboard", label: "Download your site's QR code from the dashboard" },
+      { href: "/activate", label: "Activate a template to create your own site first" },
     ],
   },
   {
@@ -144,7 +145,7 @@ export const FEATURES: Feature[] = [
       "Only you, on your dashboard. Guests never see each other's replies.",
     tryIt: [
       { href: "/dashboard", label: "Open the dashboard guest list" },
-      { href: "/w/sarah-and-james/rsvp", label: "Send a demo RSVP first" },
+      { href: "/activate", label: "Activate a template to try the RSVP form on your own site" },
     ],
   },
   {
@@ -171,13 +172,13 @@ export const FEATURES: Feature[] = [
   {
     slug: "design",
     title: "Design & templates",
-    tagline: "Five designs — each with its own layout, type and mood",
+    tagline: "Different designs — each with its own layout, type and mood",
     intro:
-      "Five templates with genuinely different layouts, typography and palettes — not just a colour swap. Pick the one that feels like you, then make it yours.",
+      "Templates with genuinely different layouts, typography and palettes — not just a colour swap. Pick the one that feels like you, then make it yours.",
     whatItIs:
-      "Each template — The Editorial, The Romance, The Modern, The Countryside and The Classic — has its own section order, fonts and colours. When you buy one, its design is snapshotted to your site, so later changes to the shop template never alter your published site. You can still change your own colours and fonts in the editor.",
+      "Each template has its own section order, fonts and colours. When you buy one, its design is snapshotted to your site, so later changes to the shop template never alter your published site. You can still change your own colours and fonts in the editor.",
     howItWorks: [
-      "Browse the five templates and open a live preview of each.",
+      "Browse the templates and open a live preview of each.",
       "Buy your favourite on Etsy and get your access code.",
       "Activate the code and customise your names, story and photos.",
       "Publish — your design is locked to your site from then on.",
@@ -185,8 +186,8 @@ export const FEATURES: Feature[] = [
     whoSeesIt:
       "Guests see your finished design. You pick and customise it in the editor.",
     tryIt: [
-      { href: "/templates", label: "Browse all five templates" },
-      { href: "/templates/the-romance", label: "Preview The Romance" },
+      { href: "/templates", label: "Browse templates" },
+      { href: "/activate", label: "Activate a template code" },
     ],
   },
 ];

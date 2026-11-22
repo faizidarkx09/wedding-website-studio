@@ -4,18 +4,32 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import SiteRenderer from "@/components/SiteRenderer";
-import type { GalleryImage, RsvpQuestion, SiteEvent, WeddingSite } from "@/lib/types";
+import type { DetailBlock, DetailKind, FaqItem, GalleryImage, RsvpQuestion, SiteEvent, WeddingSite } from "@/lib/types";
 
-type Tab = "details" | "events" | "gallery" | "design" | "settings";
+type Tab = "details" | "events" | "gallery" | "invitation" | "details-blocks" | "faq" | "design" | "settings";
 type PreviewWidth = "desktop" | "tablet" | "mobile";
 type SaveStatus = "idle" | "saving" | "saved" | "failed";
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: "details", label: "Details" },
+  { id: "details", label: "Couple" },
   { id: "events", label: "Events" },
   { id: "gallery", label: "Gallery" },
+  { id: "invitation", label: "Invitation" },
+  { id: "details-blocks", label: "Details" },
+  { id: "faq", label: "FAQ" },
   { id: "design", label: "Design" },
   { id: "settings", label: "Settings" },
+];
+
+const DETAIL_KINDS: { id: DetailKind; label: string }[] = [
+  { id: "venue", label: "Venue" },
+  { id: "travel", label: "Travel" },
+  { id: "accommodation", label: "Accommodation" },
+  { id: "dress", label: "Dress code" },
+  { id: "parking", label: "Parking" },
+  { id: "accessibility", label: "Accessibility" },
+  { id: "registry", label: "Gift registry" },
+  { id: "notes", label: "Guest notes" },
 ];
 
 const HEADING_FONTS = [
@@ -88,6 +102,13 @@ export default function EditorPage() {
   const [newQuestionLabel, setNewQuestionLabel] = useState("");
   const [newQuestionType, setNewQuestionType] = useState<"text" | "choice">("text");
   const [newQuestionOptions, setNewQuestionOptions] = useState("");
+  const [newDetailKind, setNewDetailKind] = useState<DetailKind>("venue");
+  const [newDetailTitle, setNewDetailTitle] = useState("");
+  const [newDetailBody, setNewDetailBody] = useState("");
+  const [newDetailLinkLabel, setNewDetailLinkLabel] = useState("");
+  const [newDetailLinkUrl, setNewDetailLinkUrl] = useState("");
+  const [newFaqQuestion, setNewFaqQuestion] = useState("");
+  const [newFaqAnswer, setNewFaqAnswer] = useState("");
   const [guestPassword, setGuestPassword] = useState("");
   const [pwBusy, setPwBusy] = useState(false);
   const [pwMessage, setPwMessage] = useState("");
@@ -539,8 +560,279 @@ export default function EditorPage() {
                     }}
                     className="mt-1 block w-full text-sm"
                   />
-                  <p className="mt-1 text-xs text-stone-500">{uploadBusy ? "Uploading…" : "JPG, PNG or WebP, up to 5 MB. Stored as a data URL in demo mode."}</p>
+                  <p className="mt-1 text-xs text-stone-500">{uploadBusy ? "Uploading…" : "JPG, PNG or WebP, up to 5 MB. Stored as a data URL in local mode."}</p>
                 </div>
+              </div>
+            )}
+
+            {tab === "invitation" && (
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label htmlFor="invitation-text" className={labelCls}>Invitation text</label>
+                  <textarea
+                    id="invitation-text"
+                    rows={5}
+                    value={draft.content.invitationText ?? ""}
+                    onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, invitationText: e.target.value } }))}
+                    className={inputCls}
+                  />
+                  <p className="mt-1 text-xs text-stone-500">
+                    Shown in the Invitation section, in your theme&apos;s stationery panel.
+                  </p>
+                </div>
+                <fieldset>
+                  <legend className="text-sm font-medium">Show these sections</legend>
+                  <div className="mt-2 flex flex-col gap-2">
+                    {(
+                      [
+                        ["showInvitation", "Invitation"],
+                        ["showDetails", "Details blocks"],
+                        ["showFaq", "FAQ"],
+                      ] as const
+                    ).map(([key, labelText]) => (
+                      <label key={key} className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={draft.settings[key] ?? true}
+                          onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, [key]: e.target.checked } }))}
+                        />
+                        {labelText}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              </div>
+            )}
+
+            {tab === "details-blocks" && (
+              <div className="flex flex-col gap-4">
+                <p className="text-sm text-stone-600">
+                  Details blocks appear in the Details section of your site. Hidden or empty
+                  blocks are never shown to guests.
+                </p>
+                {(draft.content.details ?? []).length === 0 ? (
+                  <p className="text-sm text-stone-600">No details blocks yet. Add one below.</p>
+                ) : null}
+                {(draft.content.details ?? []).map((block, i) => (
+                  <fieldset key={block.id} className="rounded-lg border border-stone-200 p-3">
+                    <legend className="px-1 text-sm font-medium">
+                      {DETAIL_KINDS.find((k) => k.id === block.kind)?.label ?? "Details"} {i + 1}
+                    </legend>
+                    <div className="flex flex-col gap-2">
+                      <label className={labelCls}>
+                        Kind
+                        <select
+                          value={block.kind}
+                          onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, details: (d.content.details ?? []).map((x) => (x.id === block.id ? { ...x, kind: e.target.value as DetailKind } : x)) } }))}
+                          className={inputCls}
+                        >
+                          {DETAIL_KINDS.map((k) => (
+                            <option key={k.id} value={k.id}>{k.label}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className={labelCls}>
+                        Title
+                        <input value={block.title} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, details: (d.content.details ?? []).map((x) => (x.id === block.id ? { ...x, title: e.target.value } : x)) } }))} className={inputCls} />
+                      </label>
+                      <label className={labelCls}>
+                        Text
+                        <textarea rows={3} value={block.body} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, details: (d.content.details ?? []).map((x) => (x.id === block.id ? { ...x, body: e.target.value } : x)) } }))} className={inputCls} />
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <label className={labelCls}>
+                          Link label
+                          <input value={block.linkLabel ?? ""} placeholder="e.g. View registry" onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, details: (d.content.details ?? []).map((x) => (x.id === block.id ? { ...x, linkLabel: e.target.value } : x)) } }))} className={inputCls} />
+                        </label>
+                        <label className={labelCls}>
+                          Link URL
+                          <input type="url" value={block.linkUrl ?? ""} placeholder="https://…" onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, details: (d.content.details ?? []).map((x) => (x.id === block.id ? { ...x, linkUrl: e.target.value } : x)) } }))} className={inputCls} />
+                        </label>
+                      </div>
+                      <label className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={block.hidden}
+                          onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, details: (d.content.details ?? []).map((x) => (x.id === block.id ? { ...x, hidden: e.target.checked } : x)) } }))}
+                        />
+                        Hidden from guests
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          disabled={i === 0}
+                          onClick={() => updateDraft((d) => {
+                            const list = [...(d.content.details ?? [])];
+                            [list[i - 1], list[i]] = [list[i], list[i - 1]];
+                            return { ...d, content: { ...d.content, details: list } };
+                          })}
+                          className="rounded-full border border-stone-300 px-3 py-1 text-xs font-medium disabled:opacity-50"
+                        >
+                          ↑ Move up
+                        </button>
+                        <button
+                          type="button"
+                          disabled={i === (draft.content.details ?? []).length - 1}
+                          onClick={() => updateDraft((d) => {
+                            const list = [...(d.content.details ?? [])];
+                            [list[i], list[i + 1]] = [list[i + 1], list[i]];
+                            return { ...d, content: { ...d.content, details: list } };
+                          })}
+                          className="rounded-full border border-stone-300 px-3 py-1 text-xs font-medium disabled:opacity-50"
+                        >
+                          ↓ Move down
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateDraft((d) => ({ ...d, content: { ...d.content, details: (d.content.details ?? []).filter((x) => x.id !== block.id) } }))}
+                          className="rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-700"
+                        >
+                          Delete block
+                        </button>
+                      </div>
+                    </div>
+                  </fieldset>
+                ))}
+                <fieldset className="rounded-lg border border-dashed border-stone-300 p-3">
+                  <legend className="px-1 text-sm font-medium">Add a details block</legend>
+                  <div className="flex flex-col gap-2">
+                    <label className={labelCls}>
+                      Kind
+                      <select value={newDetailKind} onChange={(e) => setNewDetailKind(e.target.value as DetailKind)} className={inputCls}>
+                        {DETAIL_KINDS.map((k) => (
+                          <option key={k.id} value={k.id}>{k.label}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className={labelCls}>
+                      Title
+                      <input value={newDetailTitle} onChange={(e) => setNewDetailTitle(e.target.value)} placeholder="e.g. Where to stay" className={inputCls} />
+                    </label>
+                    <label className={labelCls}>
+                      Text
+                      <textarea rows={3} value={newDetailBody} onChange={(e) => setNewDetailBody(e.target.value)} className={inputCls} />
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <label className={labelCls}>
+                        Link label
+                        <input value={newDetailLinkLabel} onChange={(e) => setNewDetailLinkLabel(e.target.value)} placeholder="Optional" className={inputCls} />
+                      </label>
+                      <label className={labelCls}>
+                        Link URL
+                        <input type="url" value={newDetailLinkUrl} onChange={(e) => setNewDetailLinkUrl(e.target.value)} placeholder="https://…" className={inputCls} />
+                      </label>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={!newDetailTitle.trim() && !newDetailBody.trim()}
+                      onClick={() => {
+                        const block: DetailBlock = {
+                          id: uid("d"),
+                          kind: newDetailKind,
+                          title: newDetailTitle.trim(),
+                          body: newDetailBody.trim(),
+                          linkLabel: newDetailLinkLabel.trim() || undefined,
+                          linkUrl: newDetailLinkUrl.trim() || undefined,
+                          hidden: false,
+                        };
+                        updateDraft((d) => ({ ...d, content: { ...d.content, details: [...(d.content.details ?? []), block] } }));
+                        setNewDetailTitle("");
+                        setNewDetailBody("");
+                        setNewDetailLinkLabel("");
+                        setNewDetailLinkUrl("");
+                      }}
+                      className="self-start rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                    >
+                      Add block
+                    </button>
+                  </div>
+                </fieldset>
+              </div>
+            )}
+
+            {tab === "faq" && (
+              <div className="flex flex-col gap-4">
+                <p className="text-sm text-stone-600">
+                  Questions appear in the FAQ accordion on your site. Guests see them in
+                  this order.
+                </p>
+                {(draft.content.faqs ?? []).length === 0 ? (
+                  <p className="text-sm text-stone-600">No questions yet. Add your first one below.</p>
+                ) : null}
+                {(draft.content.faqs ?? []).map((faq, i) => (
+                  <fieldset key={faq.id} className="rounded-lg border border-stone-200 p-3">
+                    <legend className="px-1 text-sm font-medium">Question {i + 1}</legend>
+                    <div className="flex flex-col gap-2">
+                      <label className={labelCls}>
+                        Question
+                        <input value={faq.question} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, faqs: (d.content.faqs ?? []).map((x) => (x.id === faq.id ? { ...x, question: e.target.value } : x)) } }))} className={inputCls} />
+                      </label>
+                      <label className={labelCls}>
+                        Answer
+                        <textarea rows={3} value={faq.answer} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, faqs: (d.content.faqs ?? []).map((x) => (x.id === faq.id ? { ...x, answer: e.target.value } : x)) } }))} className={inputCls} />
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          disabled={i === 0}
+                          onClick={() => updateDraft((d) => {
+                            const list = [...(d.content.faqs ?? [])];
+                            [list[i - 1], list[i]] = [list[i], list[i - 1]];
+                            return { ...d, content: { ...d.content, faqs: list } };
+                          })}
+                          className="rounded-full border border-stone-300 px-3 py-1 text-xs font-medium disabled:opacity-50"
+                        >
+                          ↑ Move up
+                        </button>
+                        <button
+                          type="button"
+                          disabled={i === (draft.content.faqs ?? []).length - 1}
+                          onClick={() => updateDraft((d) => {
+                            const list = [...(d.content.faqs ?? [])];
+                            [list[i], list[i + 1]] = [list[i + 1], list[i]];
+                            return { ...d, content: { ...d.content, faqs: list } };
+                          })}
+                          className="rounded-full border border-stone-300 px-3 py-1 text-xs font-medium disabled:opacity-50"
+                        >
+                          ↓ Move down
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateDraft((d) => ({ ...d, content: { ...d.content, faqs: (d.content.faqs ?? []).filter((x) => x.id !== faq.id) } }))}
+                          className="rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-700"
+                        >
+                          Delete question
+                        </button>
+                      </div>
+                    </div>
+                  </fieldset>
+                ))}
+                <fieldset className="rounded-lg border border-dashed border-stone-300 p-3">
+                  <legend className="px-1 text-sm font-medium">Add a question</legend>
+                  <div className="flex flex-col gap-2">
+                    <label className={labelCls}>
+                      Question
+                      <input value={newFaqQuestion} onChange={(e) => setNewFaqQuestion(e.target.value)} placeholder="e.g. Can I bring a plus-one?" className={inputCls} />
+                    </label>
+                    <label className={labelCls}>
+                      Answer
+                      <textarea rows={3} value={newFaqAnswer} onChange={(e) => setNewFaqAnswer(e.target.value)} className={inputCls} />
+                    </label>
+                    <button
+                      type="button"
+                      disabled={!newFaqQuestion.trim() || !newFaqAnswer.trim()}
+                      onClick={() => {
+                        const item: FaqItem = { id: uid("faq"), question: newFaqQuestion.trim(), answer: newFaqAnswer.trim() };
+                        updateDraft((d) => ({ ...d, content: { ...d.content, faqs: [...(d.content.faqs ?? []), item] } }));
+                        setNewFaqQuestion("");
+                        setNewFaqAnswer("");
+                      }}
+                      className="self-start rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                    >
+                      Add question
+                    </button>
+                  </div>
+                </fieldset>
               </div>
             )}
 
@@ -607,12 +899,15 @@ export default function EditorPage() {
                         ["showEvents", "Events"],
                         ["showDressCode", "Dress code"],
                         ["showCountdown", "Countdown"],
+                        ["showInvitation", "Invitation"],
+                        ["showDetails", "Details blocks"],
+                        ["showFaq", "FAQ"],
                       ] as const
                     ).map(([key, label]) => (
                       <label key={key} className="flex items-center gap-2 text-sm">
                         <input
                           type="checkbox"
-                          checked={draft.settings[key]}
+                          checked={draft.settings[key] ?? true}
                           onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, [key]: e.target.checked } }))}
                         />
                         {label}

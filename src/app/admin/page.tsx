@@ -105,8 +105,7 @@ export default async function AdminPage() {
             <ul className="mt-3 space-y-2 text-sm">
               <li><a href="/admin/templates" className="text-stone-700 underline">Templates — edit, download the delivery PDF</a></li>
               <li><a href="/admin/sites" className="text-stone-700 underline">Sites — publish, suspend, archive</a></li>
-              <li><a href="/admin/settings" className="text-stone-700 underline">Settings — integrations &amp; demo mode</a></li>
-              <li><a href="/w/sarah-and-james" target="_blank" rel="noopener noreferrer" className="text-stone-700 underline">Demo site: Sarah &amp; James ↗</a></li>
+              <li><a href="/admin/settings" className="text-stone-700 underline">Settings — integrations</a></li>
             </ul>
           </section>
         </div>

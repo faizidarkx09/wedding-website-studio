@@ -6,7 +6,7 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 /**
  * POST multipart form-data { file, siteId } — customer (own site) or admin.
- * Demo/local storage: the image is returned as a base64 data URL and stored
+ * Local storage: the image is returned as a base64 data URL and stored
  * in the site gallery by the editor. When Supabase Storage is configured,
  * this route should upload the bytes there and return the public URL
  * instead — it currently does NOT upload to Supabase.

@@ -6,7 +6,7 @@ import { FEATURES } from "@/lib/features";
 export const metadata: Metadata = {
   title: "Features — Wedding Website Studio",
   description:
-    "Everything your wedding website does: countdown, RSVP, gallery, events, QR code, guest list, guest password and five designs. Each feature has its own page.",
+    "Everything your wedding website does: countdown, RSVP, gallery, events, QR code, guest list, guest password and templates. Each feature has its own page.",
 };
 
 export default function FeaturesPage() {
@@ -23,7 +23,7 @@ export default function FeaturesPage() {
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-stone-600">
             Eight features, one website. Open any feature to see what it is, how it works,
-            who sees it — and try it live on the demo site.
+            who sees it — and how to try it on your own site.
           </p>
         </section>
 
@@ -68,12 +68,12 @@ export default function FeaturesPage() {
 
         <section className="mx-auto w-full max-w-6xl px-5 pb-16 text-center">
           <p className="text-sm leading-relaxed text-stone-500">
-            This site is running in demo mode: the store is built in, and Supabase and
-            Etsy are not connected yet. There is no mail system — delivery is the PDF
-            that comes with the Etsy order. Every template has its own access code;
-            activating it creates a brand-new private website just for you.
-            Everything you see — templates, demo site, RSVP —
-            works with the demo data.
+            This site runs on a built-in in-memory store until Supabase is connected;
+            Supabase and Etsy are not connected yet. There is no mail system — delivery
+            is the PDF that comes with the Etsy order. Every template has its own access
+            code; activating it creates a brand-new private website just for you.
+            There is no demo content on this site — the templates and features
+            are the real product.
           </p>
         </section>
       </main>

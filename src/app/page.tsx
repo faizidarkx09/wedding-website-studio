@@ -53,7 +53,7 @@ const FAQS = [
   },
   {
     q: "Can I see an example first?",
-    a: "Yes — the demo site below is a full example built on The Editorial template. It is labelled DEMO and uses sample content, so you can see exactly what your guests would see.",
+    a: "Yes — there are six themes to choose from (Champagne Elegance, Blue Serenity, Midnight Romance, Sage Botanical, Mediterranean Sunset and Lavender Dreams). Each template page has a live preview showing the full design with placeholder content, so you can see exactly how each section will look on your own site.",
   },
 ];
 
@@ -84,10 +84,10 @@ export default async function HomePage() {
               Browse templates
             </Link>
             <Link
-              href="/w/sarah-and-james"
+              href="/how-it-works"
               className="rounded-full border border-stone-300 bg-white px-7 py-3.5 text-sm font-semibold text-stone-900 transition hover:border-stone-900"
             >
-              View the demo site
+              See how it works
             </Link>
           </div>
           <p className="mt-4 text-xs text-stone-500">
@@ -131,8 +131,23 @@ export default async function HomePage() {
         <section id="templates" className="mx-auto w-full max-w-6xl scroll-mt-20 px-5 py-16 sm:py-20">
           <h2 className="text-center text-3xl font-bold sm:text-4xl">Templates</h2>
           <p className="mx-auto mt-3 max-w-xl text-center leading-relaxed text-stone-600">
-            Five designs, each with its own layout, type and mood. Pick the one that feels like you.
+            Each template has its own layout, type and mood — not just a colour swap.
           </p>
+          {templates.length === 0 ? (
+            <div className="mx-auto mt-12 max-w-2xl rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm sm:p-12">
+              <h3 className="text-2xl font-bold">New templates coming soon</h3>
+              <p className="mx-auto mt-3 max-w-md leading-relaxed text-stone-600">
+                There are no templates listed right now. The first new designs will
+                appear here soon — each with a live preview you can open before you buy.
+              </p>
+              <Link
+                href="/how-it-works"
+                className="mt-6 inline-block rounded-full bg-stone-900 px-7 py-3 text-sm font-semibold text-white transition hover:bg-stone-700"
+              >
+                See how it works →
+              </Link>
+            </div>
+          ) : (
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {templates.map((t) => (
               <article
@@ -182,27 +197,7 @@ export default async function HomePage() {
               </article>
             ))}
           </div>
-        </section>
-
-        {/* Demo */}
-        <section className="bg-stone-900 py-16 text-white sm:py-20">
-          <div className="mx-auto w-full max-w-4xl px-5 text-center">
-            <span className="inline-block rounded-full bg-amber-500 px-3 py-1 text-xs font-bold tracking-widest text-stone-900 uppercase">
-              Demo
-            </span>
-            <h2 className="mt-5 text-3xl font-bold sm:text-4xl">See a real example</h2>
-            <p className="mx-auto mt-4 max-w-xl leading-relaxed text-stone-300">
-              Sarah &amp; James&apos;s site is a full demo built on The Editorial template — the
-              countdown, the events, the gallery and the RSVP form, exactly as your guests
-              would see them. It uses sample content only.
-            </p>
-            <Link
-              href="/w/sarah-and-james"
-              className="mt-8 inline-block rounded-full bg-white px-8 py-3.5 text-sm font-bold text-stone-900 transition hover:bg-stone-200"
-            >
-              Visit the demo site →
-            </Link>
-          </div>
+          )}
         </section>
 
         {/* FAQ */}

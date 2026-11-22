@@ -1,21 +1,14 @@
-// POST /api/activate — turn an access code into a customer session.
+// POST /api/activate — turn a template access code into a customer session.
 //
-// Two kinds of code:
-// 1. TEMPLATE code (e.g. WWS-EDITORIAL-2026): one fixed code per template,
-//    shared by every buyer of that template. Activating it creates a
-//    BRAND-NEW private site from that template, for this buyer only —
-//    buyers never share a site. The buyer must supply their names
-//    (Partner A + Partner B); the site slug is derived from them.
-// 2. Stored access code (e.g. the demo code WWS-DEMO-2026): claims the
-//    pre-built site the code points to. The demo code is reusable by
-//    design; any other stored code is single-use.
+// Template-code only: one fixed code per template (e.g. WWS-XXXX-2026),
+// shared by every buyer of that template. Activating it creates a
+// BRAND-NEW private site from that template, for this buyer only —
+// buyers never share a site. The buyer must supply their names
+// (Partner A + Partner B); the site slug is derived from them.
 import { NextRequest, NextResponse } from "next/server";
 import {
   createSiteFromTemplate,
-  findAccessCodeByHash,
   findTemplateByAccessCodeHash,
-  getSiteById,
-  useAccessCode,
 } from "@/lib/store";
 import { rateLimit, sha256, signSession } from "@/lib/auth";
 
@@ -71,47 +64,26 @@ export async function POST(req: NextRequest) {
   const code = rawCode.trim().toUpperCase();
   const codeHash = sha256(code);
 
-  // --- 1. Template code: create a fresh site for this buyer. ---
   const template = await findTemplateByAccessCodeHash(codeHash);
-  if (template) {
-    const partnerA = cleanName((body as { partnerA?: unknown })?.partnerA);
-    const partnerB = cleanName((body as { partnerB?: unknown })?.partnerB);
-    if (!partnerA || !partnerB) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "Please enter both names — your new website is created from them.",
-          needsNames: true,
-        },
-        { status: 400 },
-      );
-    }
-    const site = await createSiteFromTemplate(template, partnerA, partnerB);
-    const res = NextResponse.json({ ok: true, slug: site.slug, created: true });
-    setCustomerSession(res, site.id);
-    return res;
-  }
-
-  // --- 2. Stored access code (demo code): claim its pre-built site. ---
-  const record = await findAccessCodeByHash(codeHash);
-  if (!record || record.status !== "active") {
-    // Deliberately generic: do not leak whether a code exists, was used,
-    // revoked, or expired.
+  if (!template) {
+    // Deliberately generic: do not leak whether a code exists.
     return NextResponse.json({ ok: false, error: "Invalid, revoked or expired code" }, { status: 401 });
   }
 
-  const site = await getSiteById(record.siteId);
-  if (!site) {
-    return NextResponse.json({ ok: false, error: "Invalid, revoked or expired code" }, { status: 401 });
+  const partnerA = cleanName((body as { partnerA?: unknown })?.partnerA);
+  const partnerB = cleanName((body as { partnerB?: unknown })?.partnerB);
+  if (!partnerA || !partnerB) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Please enter both names — your new website is created from them.",
+        needsNames: true,
+      },
+      { status: 400 },
+    );
   }
-
-  // Demo code (code-demo-1) is reusable by design — it is the labeled
-  // demo site's code. Other stored codes are single-use: consumed on activation.
-  if (record.id !== "code-demo-1") {
-    await useAccessCode(record.id);
-  }
-
-  const res = NextResponse.json({ ok: true, slug: site.slug });
+  const site = await createSiteFromTemplate(template, partnerA, partnerB);
+  const res = NextResponse.json({ ok: true, slug: site.slug, created: true });
   setCustomerSession(res, site.id);
   return res;
 }

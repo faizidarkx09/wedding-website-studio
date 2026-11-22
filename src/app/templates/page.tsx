@@ -6,7 +6,7 @@ import { listTemplates } from "@/lib/store";
 export const metadata: Metadata = {
   title: "Templates — Wedding Website Studio",
   description:
-    "Five wedding website templates: The Editorial, The Romance, The Modern, The Countryside and The Classic. Open any template for a live preview.",
+    "Wedding website templates. Open any template for a live preview.",
 };
 
 export default async function TemplatesPage() {
@@ -21,14 +21,31 @@ export default async function TemplatesPage() {
             Templates
           </p>
           <h1 className="mx-auto mt-4 max-w-2xl text-4xl leading-tight font-bold sm:text-5xl">
-            Five designs, each with its own mood
+            Templates
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-stone-600">
             Each template has its own layout, type and palette — not just a colour swap.
-            Open one to see it live with demo content.
+            New templates are on the way — check back soon.
           </p>
         </section>
 
+        {templates.length === 0 ? (
+          <section className="mx-auto w-full max-w-6xl px-5 pb-16 sm:pb-20">
+            <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm sm:p-12">
+              <h2 className="text-2xl font-bold">New templates coming soon</h2>
+              <p className="mx-auto mt-3 max-w-md leading-relaxed text-stone-600">
+                There are no templates listed right now. The first new designs will
+                appear here soon — each with a live preview you can open before you buy.
+              </p>
+              <Link
+                href="/how-it-works"
+                className="mt-6 inline-block rounded-full bg-stone-900 px-7 py-3 text-sm font-semibold text-white transition hover:bg-stone-700"
+              >
+                See how it works →
+              </Link>
+            </div>
+          </section>
+        ) : (
         <section className="mx-auto w-full max-w-6xl px-5 pb-16 sm:pb-20">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {templates.map((t) => (
@@ -80,8 +97,11 @@ export default async function TemplatesPage() {
               </article>
             ))}
           </div>
+        </section>
+        )}
 
-          <div className="mt-12 rounded-2xl bg-amber-50 p-8 text-center">
+        <section className="mx-auto w-full max-w-6xl px-5 pb-16 sm:pb-20">
+          <div className="rounded-2xl bg-amber-50 p-8 text-center">
             <h2 className="text-xl font-bold">Already bought a template?</h2>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
               Your access code is in the delivery PDF that came with your Etsy order — the

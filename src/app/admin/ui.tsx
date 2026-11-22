@@ -70,9 +70,6 @@ export function AdminNav({ current }: { current?: string }) {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-2">
-          <a href="/w/sarah-and-james" target="_blank" rel="noopener noreferrer" className={btnSecondary}>
-            View demo site
-          </a>
           <button type="button" onClick={logout} disabled={loggingOut} className={btnSecondary}>
             {loggingOut ? "Logging out…" : "Log out"}
           </button>
@@ -347,3 +344,112 @@ export function TemplateEditForm({ template }: { template: TemplateMeta }) {
     </form>
   );
 }
+
+// --- New template ---------------------------------------------------------
+
+function randomAccessCode(): string {
+  const bytes = new Uint8Array(6);
+  crypto.getRandomValues(bytes);
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0").toUpperCase()).join("");
+  return `WWS-${hex.slice(0, 4)}-${hex.slice(4, 8)}-${hex.slice(8, 12)}`;
+}
+
+/**
+ * Create a blank template: id (slug) + name + a generated fixed access
+ * code. Defaults are a sensible starting point (single-column layout,
+ * full section set, inactive) — the admin then edits the details with the
+ * Edit form. The access code is baked into the delivery PDF, so it must
+ * never change after the PDF is on Etsy.
+ */
+export function NewTemplateForm() {
+  const router = useRouter();
+  const [id, setId] = useState("");
+  const [name, setName] = useState("");
+  const [accessCode, setAccessCode] = useState(randomAccessCode);
+  const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setMessage(null);
+    const slug = id.trim().toLowerCase();
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+      setMessage({ kind: "error", text: "ID must be a lowercase slug, e.g. champagne-elegance." });
+      return;
+    }
+    if (!name.trim() || !accessCode.trim()) {
+      setMessage({ kind: "error", text: "Name and access code are required." });
+      return;
+    }
+    const template: TemplateMeta = {
+      id: slug,
+      name: name.trim(),
+      tagline: "",
+      description: "",
+      priceUsd: 49,
+      etsyListingId: null,
+      active: false,
+      accessCode: accessCode.trim(),
+      palette: { bg: "#fdfbf7", ink: "#1c1917", accent: "#8a6d3b", accentSoft: "#f5efe4" },
+      fontClass: "font-editorial",
+      layout: "",
+      composition: "classic",
+      sections: ["hero", "invitation", "countdown", "story", "events", "details", "gallery", "faq", "rsvp"],
+    };
+    setBusy(true);
+    try {
+      const { ok, data } = await postJson("/api/admin/templates", { action: "save", template });
+      if (!ok) {
+        setMessage({ kind: "error", text: typeof data.error === "string" ? data.error : "Save failed." });
+        return;
+      }
+      setMessage({ kind: "ok", text: `Template “${template.name}” created. Edit its details below, then activate it.` });
+      setId("");
+      setName("");
+      setAccessCode(randomAccessCode());
+      router.refresh();
+    } catch {
+      setMessage({ kind: "error", text: "Network error — please try again." });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form onSubmit={submit} className="mt-6 rounded-lg border border-stone-200 bg-white p-4">
+      <h2 className="text-lg font-semibold text-stone-900">New template</h2>
+      <p className="mt-1 text-sm text-stone-600">
+        Creates a blank template with a fixed access code. Fill in the design
+        details with the Edit form afterwards.
+      </p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        <div>
+          <label className={label} htmlFor="new-template-id">Template ID (slug)</label>
+          <input id="new-template-id" value={id} onChange={(e) => setId(e.target.value)} placeholder="e.g. champagne-elegance" required className={`${input} mt-1`} />
+        </div>
+        <div>
+          <label className={label} htmlFor="new-template-name">Name</label>
+          <input id="new-template-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Champagne Elegance" required className={`${input} mt-1`} />
+        </div>
+        <div>
+          <label className={label} htmlFor="new-template-code">Access code</label>
+          <div className="mt-1 flex gap-2">
+            <input id="new-template-code" value={accessCode} onChange={(e) => setAccessCode(e.target.value)} required className={`${input} min-w-0 flex-1 font-mono`} />
+            <button type="button" onClick={() => setAccessCode(randomAccessCode())} className={btnSecondary}>
+              Regenerate
+            </button>
+          </div>
+        </div>
+      </div>
+      {message ? (
+        <p role={message.kind === "error" ? "alert" : "status"} className={`mt-3 rounded-md px-3 py-2 text-sm ${message.kind === "ok" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+          {message.text}
+        </p>
+      ) : null}
+      <button type="submit" disabled={busy} className={`${btnPrimary} mt-3`}>
+        {busy ? "Creating…" : "Create template"}
+      </button>
+    </form>
+  );
+}
+

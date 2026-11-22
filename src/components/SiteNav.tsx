@@ -7,7 +7,6 @@ const LINKS = [
   { href: "/templates", label: "Templates" },
   { href: "/features", label: "Features" },
   { href: "/how-it-works", label: "How it works" },
-  { href: "/w/sarah-and-james", label: "Demo" },
   { href: "/admin", label: "Admin" },
   { href: "/activate", label: "Activate" },
 ];
@@ -112,7 +111,7 @@ export function SiteFooter() {
           <p className="text-sm font-semibold uppercase tracking-widest text-stone-500">Good to know</p>
           <ul className="mt-3 space-y-2 text-sm leading-relaxed text-stone-600">
             <li>One purchase, one website — yours to keep.</li>
-            <li>Demo sites are clearly labelled DEMO.</li>
+            <li>Every template has its own access code — activating it creates your own private site.</li>
             <li>Guests RSVP with a link they can update later.</li>
           </ul>
         </div>

@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifySession } from "@/lib/auth";
-import { isDemoMode } from "@/lib/store";
+import { isLocalStore } from "@/lib/store";
 import { supabaseStatus } from "@/lib/supabase";
 import { AdminNav } from "../ui";
 
@@ -24,7 +24,7 @@ function StatusPill({ connected }: { connected: boolean }) {
 export default async function AdminSettingsPage() {
   await requireAdmin();
   const status = supabaseStatus();
-  const demoMode = isDemoMode();
+  const localStore = isLocalStore();
   const customPasswordSet = Boolean(process.env.ADMIN_PASSWORD);
 
   return (
@@ -34,18 +34,18 @@ export default async function AdminSettingsPage() {
         <h1 className="text-2xl font-semibold text-stone-900">Settings &amp; integrations</h1>
         <p className="mt-1 text-sm text-stone-600">Connection status is read from environment variables — nothing here claims a live connection it does not have.</p>
 
-        {demoMode ? (
+        {localStore ? (
           <div role="alert" className="mt-6 rounded-lg border-2 border-amber-400 bg-amber-50 p-4">
-            <p className="font-semibold text-amber-900">Demo mode is ON</p>
+            <p className="font-semibold text-amber-900">Local store mode is ON</p>
             <p className="mt-1 text-sm text-amber-800">
-              Supabase is not configured, so the app runs on the in-memory demo store (seeded with the Sarah &amp; James
-              demo site). Sites and RSVPs created here are lost when the server restarts. Connect Supabase to
-              persist real data.
+              Supabase is not configured, so the app runs on an in-memory store with no
+              demo content. Sites and RSVPs created here are lost when the server
+              restarts. Connect Supabase to persist real data.
             </p>
           </div>
         ) : (
           <div role="status" className="mt-6 rounded-lg border border-green-300 bg-green-50 p-4">
-            <p className="text-sm font-medium text-green-800">Supabase environment variables are present — the app is not in demo mode.</p>
+            <p className="text-sm font-medium text-green-800">Supabase environment variables are present — the app uses Supabase as its store.</p>
           </div>
         )}
 
@@ -58,7 +58,7 @@ export default async function AdminSettingsPage() {
             <p className="mt-2 text-sm text-stone-600">
               {status.supabase
                 ? "Configured. The database is the production store for sites, RSVPs and access-code hashes."
-                : "Not connected. The app runs in demo/local mode on the in-memory store."}
+                : "Not connected. The app runs in local mode on the in-memory store."}
             </p>
             <p className="mt-3 text-sm font-medium text-stone-700">Environment variables needed:</p>
             <ul className="mt-1 space-y-1 text-sm">
@@ -109,8 +109,8 @@ export default async function AdminSettingsPage() {
             <h2 className="text-base font-semibold text-stone-900">Admin password</h2>
             <p className="mt-2 text-sm text-stone-600">
               {customPasswordSet
-                ? "A custom admin password is set via the ADMIN_PASSWORD environment variable. The demo password does not work."
-                : "No ADMIN_PASSWORD is set, so the demo password below is active. Set ADMIN_PASSWORD in production and restart the server to change it."}
+                ? "A custom admin password is set via the ADMIN_PASSWORD environment variable. The default password does not work."
+                : "No ADMIN_PASSWORD is set, so the default password below is active. Set ADMIN_PASSWORD in production and restart the server to change it."}
             </p>
             <p className="mt-2 text-sm text-stone-600">
               To change the password: set <code className="rounded bg-stone-100 px-1.5 py-0.5 font-mono text-xs">ADMIN_PASSWORD</code> in
@@ -118,9 +118,9 @@ export default async function AdminSettingsPage() {
             </p>
             {!customPasswordSet ? (
               <div className="mt-3 rounded-md border border-red-300 bg-red-50 p-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-red-700">Demo only — change in production</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-red-700">Default password — change in production</p>
                 <p className="mt-1 text-sm text-red-800">
-                  Demo admin password: <code className="rounded bg-white px-1.5 py-0.5 font-mono font-bold">admin123</code>
+                  Default admin password: <code className="rounded bg-white px-1.5 py-0.5 font-mono font-bold">admin123</code>
                 </p>
                 <p className="mt-1 text-xs text-red-700">Anyone who knows this password can administer the studio. Set ADMIN_PASSWORD before going live.</p>
               </div>

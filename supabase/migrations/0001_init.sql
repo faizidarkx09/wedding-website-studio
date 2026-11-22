@@ -38,8 +38,11 @@ create trigger profiles_set_updated_at
   for each row execute function public.set_updated_at();
 
 -- ---------------------------------------------------------------------------
--- templates — the 5 launch templates (seeded in supabase/seed.sql).
--- id is the stable text slug (e.g. 'the-editorial') used by the app.
+-- templates — the 6 launch themes (seeded in supabase/seed.sql).
+-- id is the stable text slug (e.g. 'champagne-elegance') used by the app.
+-- composition is the art-direction key (see src/lib/templates.ts);
+-- access_code is the theme's FIXED public code from the Etsy delivery
+-- PDF — it only gates site creation, never access to an existing site.
 -- ---------------------------------------------------------------------------
 create table if not exists public.templates (
   id text primary key,
@@ -52,6 +55,8 @@ create table if not exists public.templates (
   palette jsonb not null default '{}'::jsonb,
   font_class text not null default '',
   layout text not null default '',
+  composition text not null default 'classic',
+  access_code text not null default '',
   sections text[] not null default '{}',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

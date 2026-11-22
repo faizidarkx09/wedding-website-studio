@@ -1,7 +1,7 @@
 // Supabase integration boundary (PRD §7).
 // Real PostgREST client (fetch-based, no extra dependency) + honest
 // connection status. When NEXT_PUBLIC_SUPABASE_URL / ANON_KEY are absent
-// the app runs in clearly-labeled demo/local mode on the in-memory store
+// the app runs in local mode on the in-memory store
 // (src/lib/store.ts) and never claims a live connection.
 
 export function isSupabaseConfigured(): boolean {
