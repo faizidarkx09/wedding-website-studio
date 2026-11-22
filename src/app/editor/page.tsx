@@ -499,7 +499,7 @@ export default function EditorPage() {
                 {draft.gallery.length === 0 ? (
                   <p className="text-sm text-stone-600">No photos yet. Add one by URL or upload a file (JPG, PNG or WebP, up to 5 MB).</p>
                 ) : null}
-                {draft.gallery.map((img) => (
+                {draft.gallery.map((img, i) => (
                   <div key={img.id} className="flex gap-3 rounded-lg border border-stone-200 p-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={img.url} alt={img.caption || "Gallery photo"} className="h-16 w-16 shrink-0 rounded object-cover" />
@@ -511,13 +511,39 @@ export default function EditorPage() {
                         onChange={(e) => updateDraft((d) => ({ ...d, gallery: d.gallery.map((x) => (x.id === img.id ? { ...x, caption: e.target.value } : x)) }))}
                         className={inputCls}
                       />
-                      <button
-                        type="button"
-                        onClick={() => updateDraft((d) => ({ ...d, gallery: d.gallery.filter((x) => x.id !== img.id) }))}
-                        className="mt-2 rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-700"
-                      >
-                        Delete photo
-                      </button>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          disabled={i === 0}
+                          onClick={() => updateDraft((d) => {
+                            const list = [...d.gallery];
+                            [list[i - 1], list[i]] = [list[i], list[i - 1]];
+                            return { ...d, gallery: list };
+                          })}
+                          className="rounded-full border border-stone-300 px-3 py-1 text-xs font-medium disabled:opacity-50"
+                        >
+                          ↑ Move up
+                        </button>
+                        <button
+                          type="button"
+                          disabled={i === draft.gallery.length - 1}
+                          onClick={() => updateDraft((d) => {
+                            const list = [...d.gallery];
+                            [list[i], list[i + 1]] = [list[i + 1], list[i]];
+                            return { ...d, gallery: list };
+                          })}
+                          className="rounded-full border border-stone-300 px-3 py-1 text-xs font-medium disabled:opacity-50"
+                        >
+                          ↓ Move down
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => updateDraft((d) => ({ ...d, gallery: d.gallery.filter((x) => x.id !== img.id) }))}
+                          className="rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-700"
+                        >
+                          Delete photo
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
