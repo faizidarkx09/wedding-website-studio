@@ -108,10 +108,17 @@ export default async function TemplateDetailPage({
                 <Link href="/activate" className="font-semibold text-amber-800 underline">
                   Activate your code
                 </Link>{" "}
-                to claim your website, then customise your names, story, photos and events.
+                with your names — a brand-new website is created just for you — then
+                customise your names, story, photos and events.
               </li>
               <li>Publish, share the link or QR code, and watch the RSVPs come in.</li>
             </ol>
+            <p className="mt-4 text-sm leading-relaxed text-stone-700">
+              Every template has its own access code. Everyone who buys this template
+              gets the same PDF and the same code — but activating it creates a
+              brand-new private website just for you. Your changes never touch another
+              buyer&apos;s site.
+            </p>
             <p className="mt-4 text-xs text-stone-500">
               The preview below uses demo content (Sarah &amp; James) so you can see the design
               in full — your own site will carry your words and photos.

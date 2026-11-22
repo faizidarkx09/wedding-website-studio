@@ -50,7 +50,7 @@ export default async function AdminSitesPage() {
             <tbody>
               {sites.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-6 text-center text-stone-600">No sites yet — provision an order to create one.</td>
+                  <td colSpan={6} className="px-4 py-6 text-center text-stone-600">No sites yet — sites are created when buyers activate a template code.</td>
                 </tr>
               ) : (
                 sites.map((s) => (

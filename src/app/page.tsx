@@ -10,8 +10,8 @@ const HOW_IT_WORKS = [
   },
   {
     step: "2",
-    title: "Get your access code",
-    text: "After purchase, download the delivery PDF from your Etsy order — it has your template link and your private access code. It unlocks your own copy of the template — nobody else can use it.",
+    title: "Get your delivery PDF",
+    text: "After purchase, download the delivery PDF from your Etsy order — it has your template link and your template's access code. Every template has its own code, and every buyer of that template gets the same PDF and the same code — but when you activate it, a brand-new private website is created just for you. Your changes never touch another buyer's site.",
   },
   {
     step: "3",
@@ -224,8 +224,9 @@ export default async function HomePage() {
           <div className="mt-12 rounded-2xl bg-amber-50 p-8 text-center">
             <h3 className="text-xl font-bold">Already bought a template?</h3>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
-              Your access code is in the delivery PDF that came with your Etsy order.
-              Activate it to claim your website and start customising.
+              Your access code is in the delivery PDF that came with your Etsy order — the
+              same PDF and code every buyer of that template gets. Activate it with your
+              names and a brand-new website is created just for you.
             </p>
             <Link
               href="/activate"

@@ -1,13 +1,14 @@
-// Seed data — clearly labeled DEMO. One demo site (Sarah & James),
-// sample events + RSVPs, one delivered demo order. No real customer data.
+// Seed data — clearly labeled DEMO. One demo site (Sarah & James) and
+// sample RSVPs. No real customer data. There are no orders in this model:
+// every buyer of a template shares that template's fixed access code
+// (see TemplateMeta.accessCode) and creates their own site on activation.
 
-import type { AccessCode, AuditLog, EtsyOrder, RsvpResponse, WeddingSite } from "./types";
+import type { AccessCode, AuditLog, RsvpResponse, WeddingSite } from "./types";
 import { getTemplate } from "./templates";
 import { sha256 } from "./auth";
 
 export interface SeedData {
   sites: WeddingSite[];
-  orders: EtsyOrder[];
   accessCodes: AccessCode[];
   rsvps: RsvpResponse[];
   audit: AuditLog[];
@@ -161,24 +162,10 @@ export function buildSeed(): SeedData {
     },
   ];
 
-  const order: EtsyOrder = {
-    id: "order-demo-1",
-    etsyOrderId: "ETSY-DEMO-1001",
-    etsyListingId: "WWS-EDT-001",
-    customerName: "Sarah & James",
-    customerEmail: "demo@example.com",
-    templateId: "the-editorial",
-    purchaseDate: now,
-    status: "delivered",
-    siteId: site.id,
-    accessCodeId: "code-demo-1",
-    deliveryStatus: "delivered",
-    displayCode: null,
-  };
-
   const accessCode: AccessCode = {
     id: "code-demo-1",
-    orderId: order.id,
+    // Not tied to any order — the demo code opens the demo site.
+    orderId: null,
     siteId: site.id,
     // Demo code for the labeled demo site only: WWS-DEMO-2026
     codeHash: sha256("WWS-DEMO-2026"),
@@ -193,10 +180,10 @@ export function buildSeed(): SeedData {
       id: "audit-1",
       actor: "system",
       action: "seed",
-      detail: "Demo data seeded: Sarah & James site, 3 sample RSVPs, 1 delivered demo order.",
+      detail: "Demo data seeded: Sarah & James site and 3 sample RSVPs.",
       createdAt: now,
     },
   ];
 
-  return { sites: [site], orders: [order], accessCodes: [accessCode], rsvps, audit };
+  return { sites: [site], accessCodes: [accessCode], rsvps, audit };
 }

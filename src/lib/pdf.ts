@@ -1,16 +1,23 @@
-// Delivery PDF generator — a REAL minimal PDF 1.4 built by hand, with no
-// dependency. Byte offsets for the xref table are computed programmatically
-// (never hardcoded). All text is ASCII-only so literal PDF strings need no
-// font encoding beyond WinAnsi/Helvetica.
+// Per-template delivery PDF generator — a REAL minimal PDF 1.4 built by
+// hand, with no dependency. Byte offsets for the xref table are computed
+// programmatically (never hardcoded). All text is ASCII-only so literal PDF
+// strings need no font encoding beyond WinAnsi/Helvetica.
+//
+// One static PDF per template: the seller uploads it once to the Etsy
+// listing as the digital download file. Every buyer of that template gets
+// the SAME PDF and the SAME access code (TemplateMeta.accessCode).
+// The PDF contains only template-level information — no per-buyer editor
+// link or public site URL, because the buyer's site does not exist yet
+// when the PDF is made. Activating the code creates the buyer's own site.
 
-export interface DeliveryPdfOptions {
-  customerName: string;
+export interface TemplateDeliveryPdfOptions {
   templateName: string;
-  editorUrl: string;
+  /** The link the buyer opens to start: the activate page. */
   activateUrl: string;
+  /** The template's preview page, so the buyer can see the design. */
+  templateUrl: string;
+  /** The template's fixed access code (e.g. WWS-EDITORIAL-2026). */
   accessCode: string;
-  siteSlug: string;
-  publicUrl: string;
 }
 
 const PAGE_W = 595; // A4
@@ -54,8 +61,14 @@ interface Line {
   color?: [number, number, number];
 }
 
-export function deliveryPdf(opts: DeliveryPdfOptions): Buffer {
+interface LinkSpot {
+  y: number;
+  url: string;
+}
+
+export function templateDeliveryPdf(opts: TemplateDeliveryPdfOptions): Buffer {
   const lines: Line[] = [];
+  const links: LinkSpot[] = [];
   let y = PAGE_H - 72;
 
   const add = (
@@ -72,52 +85,37 @@ export function deliveryPdf(opts: DeliveryPdfOptions): Buffer {
     y -= opts2?.gap ?? 4;
   };
 
+  /** A labelled clickable URL line; records its position for a link annotation. */
+  const addUrl = (url: string) => {
+    const urlY = y + 5;
+    lines.push({
+      text: url,
+      size: 10,
+      bold: false,
+      y: urlY,
+      color: [0.05, 0.25, 0.65],
+    });
+    links.push({ y: urlY, url });
+    y = urlY - 10 - 8;
+  };
+
   // --- Title block ---
   add("Wedding Website Studio", 24, true, { gap: 0 });
   add("Your Wedding Website", 24, true, { gap: 10 });
   add("Thank you for your purchase! Your wedding website is ready to set up.", 11, false, { gap: 8 });
 
   // --- Purchase summary ---
-  add(`Purchased template: ${opts.templateName}`, 12, true, { gap: 2 });
-  add(`Your website address (share this with guests): ${opts.publicUrl}`, 11, false, { gap: 2 });
-  add(`Website slug: ${opts.siteSlug}`, 11, false, { gap: 10 });
+  add(`Purchased template: ${opts.templateName}`, 12, true, { gap: 10 });
 
-  // --- Setup instructions ---
-  add("Getting started", 14, true, { gap: 4 });
-  const steps = [
-    "Go to the Activate page below and enter your access code. This unlocks your website.",
-    "Open your private editor link to replace the demo names, story, photos and event details with your own. Do not share the editor link with guests.",
-    "Check the RSVP settings and set your RSVP deadline before you share the site.",
-    "Press Publish when you are happy, then share your public website address (or its QR code) with your guests.",
-  ];
-  steps.forEach((step, i) => {
-    add(`${i + 1}. ${step}`, 11, false, { gap: 2 });
-  });
-  y -= 6;
+  // --- The template link: activate page (main link) ---
+  add("Step 1 - Open your template link", 14, true, { gap: 4 });
+  add("This is the link for your template. Open it and enter the access code from this PDF.", 11, false, { gap: 2 });
+  addUrl(opts.activateUrl);
 
-  // --- Activate URL (clickable) ---
-  add("Step 1 - Activate your website", 14, true, { gap: 4 });
-  const activateUrlY = y + 5; // y of the URL text line (baseline offset, see below)
-  lines.push({
-    text: opts.activateUrl,
-    size: 10,
-    bold: false,
-    y: activateUrlY,
-    color: [0.05, 0.25, 0.65],
-  });
-  y = activateUrlY - 10 - 8;
-
-  // --- Private editor URL (clickable) ---
-  add("Your private editor link", 14, true, { gap: 4 });
-  const urlY = y + 5; // y of the URL text line (baseline offset, see below)
-  lines.push({
-    text: opts.editorUrl,
-    size: 10,
-    bold: false,
-    y: urlY,
-    color: [0.05, 0.25, 0.65],
-  });
-  y = urlY - 10 - 8;
+  // --- Template preview link ---
+  add("See your template", 14, true, { gap: 4 });
+  add("A preview of the design you bought, with demo content.", 11, false, { gap: 2 });
+  addUrl(opts.templateUrl);
 
   // --- Access code ---
   add("Your access code", 14, true, { gap: 4 });
@@ -130,16 +128,31 @@ export function deliveryPdf(opts: DeliveryPdfOptions): Buffer {
   });
   y -= 20 + 14;
   add(
-    "Keep this code private. It is the key to your editor - do not post it publicly, do not send it to guests, and do not forward this PDF to anyone who should not edit your website. If the code is ever shared by mistake, contact support and we will reset it.",
+    "Every buyer of this template gets this same code. When you activate it, a brand-new private website is created just for you - your changes never touch another buyer's site. Keep the code for your own use; do not send it to your guests.",
     11,
     false,
     { gap: 8 },
   );
 
+  // --- Setup instructions ---
+  add("Getting started", 14, true, { gap: 4 });
+  const steps = [
+    "Open the template link above (the Activate page).",
+    "Enter the access code from this PDF.",
+    "Enter your names - your new website is created from them, just for you.",
+    "Replace the demo names, story, photos and event details with your own.",
+    "Check the RSVP settings and set your RSVP deadline, then press Publish.",
+    "Share your website link (or its QR code) with your guests.",
+  ];
+  steps.forEach((step, i) => {
+    add(`${i + 1}. ${step}`, 11, false, { gap: 2 });
+  });
+  y -= 6;
+
   // --- Customisation + publishing ---
   add("Customising and publishing", 14, true, { gap: 4 });
   add(
-    "In the editor you can change colours, fonts, photos, your story, events, dress code and gallery. Every change saves automatically. Your site stays private (draft) until you press Publish - only then can guests open your public website address. You can unpublish at any time.",
+    "In the editor you can change colours, fonts, photos, your story, events, dress code and gallery. Every change saves automatically. Your site stays private (draft) until you press Publish - only then can guests open your website address. You can unpublish at any time.",
     11,
     false,
     { gap: 8 },
@@ -176,11 +189,13 @@ export function deliveryPdf(opts: DeliveryPdfOptions): Buffer {
   const stream = streamParts.join("\n");
   const streamBytes = Buffer.byteLength(stream, "latin1");
 
-  // Link annotation rectangles over the URL lines (full text width).
-  const urlWidth = Math.min(TEXT_W, opts.editorUrl.length * 5.2);
-  const annotRect = `[${MARGIN} ${urlY - 3} ${MARGIN + Math.round(urlWidth)} ${urlY + 11}]`;
-  const activateUrlWidth = Math.min(TEXT_W, opts.activateUrl.length * 5.2);
-  const activateAnnotRect = `[${MARGIN} ${activateUrlY - 3} ${MARGIN + Math.round(activateUrlWidth)} ${activateUrlY + 11}]`;
+  // Link annotation objects: one per recorded URL line (7, 8, ...).
+  const annotObjects = links.map((link) => {
+    const width = Math.min(TEXT_W, link.url.length * 5.2);
+    const rect = `[${MARGIN} ${link.y - 3} ${MARGIN + Math.round(width)} ${link.y + 11}]`;
+    return `<< /Type /Annot /Subtype /Link /Rect ${rect} /Border [0 0 0] /A << /S /URI /URI (${pdfText(link.url)}) >> >>`;
+  });
+  const annotRefs = annotObjects.map((_, i) => `${7 + i} 0 R`).join(" ");
 
   // --- Objects (1-based; offsets computed below) ---
   const objects: string[] = [
@@ -189,17 +204,15 @@ export function deliveryPdf(opts: DeliveryPdfOptions): Buffer {
     // 2: Pages
     "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
     // 3: Page
-    `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PAGE_W} ${PAGE_H}] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R /Annots [7 0 R 8 0 R] >>`,
+    `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PAGE_W} ${PAGE_H}] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R /Annots [${annotRefs}] >>`,
     // 4: Helvetica
     "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
     // 5: Helvetica-Bold
     "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>",
     // 6: Content stream
     `<< /Length ${streamBytes} >>\nstream\n${stream}\nendstream`,
-    // 7: Link annotation (clickable editor URL)
-    `<< /Type /Annot /Subtype /Link /Rect ${annotRect} /Border [0 0 0] /A << /S /URI /URI (${pdfText(opts.editorUrl)}) >> >>`,
-    // 8: Link annotation (clickable activate URL)
-    `<< /Type /Annot /Subtype /Link /Rect ${activateAnnotRect} /Border [0 0 0] /A << /S /URI /URI (${pdfText(opts.activateUrl)}) >> >>`,
+    // 7+: Link annotations (clickable URLs)
+    ...annotObjects,
   ];
 
   // --- Assemble with computed byte offsets ---

@@ -16,6 +16,15 @@ export interface TemplateMeta {
   priceUsd: number;
   etsyListingId: string | null;
   active: boolean;
+  /**
+   * Fixed access code for this template, baked into source so it never
+   * changes across deploys. Every buyer of this template gets the SAME
+   * PDF and the SAME code — but activating it creates a brand-new private
+   * site just for that buyer. The code is public by design (it ships in
+   * the Etsy delivery PDF); it only gates site creation, never access to
+   * an existing site.
+   */
+  accessCode: string;
   palette: { bg: string; ink: string; accent: string; accentSoft: string };
   fontClass: string;
   layout: string;
@@ -91,7 +100,7 @@ export interface WeddingSite {
   id: string;
   slug: string;
   templateId: TemplateId;
-  /** Snapshot of the template config at provisioning time — later template
+  /** Snapshot of the template config at creation time — later template
    *  edits must never silently change a purchased customer's site. */
   templateSnapshot: TemplateMeta;
   ownerName: string;
@@ -128,35 +137,10 @@ export interface RsvpResponse {
   updatedAt: string;
 }
 
-export type OrderStatus =
-  | "pending"
-  | "verified"
-  | "provisioned"
-  | "delivered"
-  | "refunded"
-  | "cancelled"
-  | "disputed";
-
-export interface EtsyOrder {
-  id: string;
-  etsyOrderId: string;
-  etsyListingId: string;
-  customerName: string;
-  customerEmail: string;
-  templateId: TemplateId;
-  purchaseDate: string;
-  status: OrderStatus;
-  siteId: string | null;
-  accessCodeId: string | null;
-  deliveryStatus: "not-started" | "pdf-ready" | "delivered";
-  /** The one-time display copy of the access code. NEVER stored in the
-   *  database — only shown once to the admin for the delivery PDF. */
-  displayCode?: string | null;
-}
-
 export interface AccessCode {
   id: string;
-  orderId: string;
+  /** Null for codes not tied to an order (e.g. the demo code). */
+  orderId: string | null;
   siteId: string;
   /** SHA-256 hex of the code. The plain code is never stored. */
   codeHash: string;

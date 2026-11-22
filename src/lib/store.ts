@@ -4,26 +4,29 @@
 // see README "Connecting Supabase" for the one-step switch. The store API
 // is async throughout so callers never change when the backend changes.
 //
-// Tenant isolation rule: every private read/write is scoped by siteId
-// (or orderId). Public pages only ever receive the public fields of a
-// published site — never access codes, guest lists or RSVP records.
+// Delivery model: one FIXED access code per template (TemplateMeta.accessCode,
+// baked into source). Every buyer of a template gets the same PDF and the
+// same code — but activating the code creates a brand-new private site just
+// for that buyer. There is no per-order provisioning and no mail system.
+//
+// Tenant isolation rule: every private read/write is scoped by siteId.
+// Public pages only ever receive the public fields of a published site —
+// never access codes, guest lists or RSVP records.
 
 import type {
   AccessCode,
   AuditLog,
-  EtsyOrder,
   RsvpResponse,
   TemplateMeta,
   WeddingSite,
 } from "./types";
 import { TEMPLATES } from "./templates";
 import { buildSeed } from "./seed";
-import { generateAccessCode, sha256 } from "./auth";
+import { sha256 } from "./auth";
 
 interface Db {
   templates: TemplateMeta[];
   sites: WeddingSite[];
-  orders: EtsyOrder[];
   accessCodes: AccessCode[];
   rsvps: RsvpResponse[];
   audit: AuditLog[];
@@ -38,7 +41,6 @@ function db(): Db {
     globalDb.__wwsDb = {
       templates: TEMPLATES.map((t) => ({ ...t })),
       sites: seed.sites,
-      orders: seed.orders,
       accessCodes: seed.accessCodes,
       rsvps: seed.rsvps,
       audit: seed.audit,
@@ -74,6 +76,24 @@ export async function archiveTemplate(id: string): Promise<void> {
     t.active = false;
     await saveTemplate(t);
   }
+}
+
+/**
+ * Find the template whose fixed access code matches the given SHA-256 hash.
+ * The plain code is never stored or compared in the clear here — callers
+ * pass the hash of the code the buyer entered.
+ */
+export async function findTemplateByAccessCodeHash(
+  codeHash: string,
+): Promise<TemplateMeta | null> {
+  return (
+    db().templates.find(
+      (t) =>
+        typeof t.accessCode === "string" &&
+        t.accessCode.length > 0 &&
+        sha256(t.accessCode) === codeHash,
+    ) || null
+  );
 }
 
 // --- Sites ---
@@ -113,71 +133,45 @@ export async function setSiteStatus(id: string, status: WeddingSite["status"]): 
   audit("admin", "site.status", `Site ${site.slug} → ${status}.`);
 }
 
-// --- Orders + provisioning (idempotent) ---
-export async function listOrders(): Promise<EtsyOrder[]> {
-  return db().orders.map((o) => ({ ...o }));
-}
-
-export async function getOrderById(id: string): Promise<EtsyOrder | null> {
-  return db().orders.find((o) => o.id === id) || null;
-}
-
-export async function saveOrder(order: EtsyOrder): Promise<void> {
-  const d = db();
-  const i = d.orders.findIndex((x) => x.id === order.id);
-  if (i >= 0) d.orders[i] = { ...order };
-  else d.orders.push({ ...order });
-}
-
 /**
- * Provision exactly one site + one access code for a verified order.
- * Idempotent: a second call returns the existing site/code, never a
- * duplicate. The admin's chosen template is authoritative — the Etsy
- * listing ID only auto-suggests it in the form, it never overrides.
+ * Create a BRAND-NEW private site from a template, for one buyer.
+ * Called when a buyer activates a template's fixed access code with their
+ * names. Every activation creates a fresh site — buyers of the same
+ * template never share a site and never overwrite each other's work.
+ * The slug comes from the buyers' names, with -2/-3 dedup on collision.
  */
-export async function provisionOrder(
-  orderId: string,
-): Promise<{ site: WeddingSite; code: string; already: boolean }> {
+export async function createSiteFromTemplate(
+  template: TemplateMeta,
+  partnerA: string,
+  partnerB: string,
+): Promise<WeddingSite> {
   const d = db();
-  const order = d.orders.find((o) => o.id === orderId);
-  if (!order) throw new Error("Order not found");
-  if (order.status === "pending") throw new Error("Order must be verified first");
+  const ownerName = `${partnerA} & ${partnerB}`;
 
-  const existingSite = order.siteId ? d.sites.find((s) => s.id === order.siteId) : undefined;
-  const existingCode = order.accessCodeId
-    ? d.accessCodes.find((c) => c.id === order.accessCodeId)
-    : undefined;
-  if (existingSite && existingCode) {
-    // Never reveal the original code again — admin must reset it to get a new one.
-    return { site: existingSite, code: "", already: true };
-  }
-
-  const template = d.templates.find((t) => t.id === order.templateId);
-  if (!template) throw new Error("Template not found");
-
-  const slugBase = order.customerName
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
-    .slice(0, 40) || "wedding";
+  const slugBase =
+    ownerName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "")
+      .slice(0, 40) || "wedding";
   let slug = slugBase;
   let n = 2;
   while (d.sites.some((s) => s.slug === slug)) slug = `${slugBase}-${n++}`;
 
   const now = new Date().toISOString();
   const site: WeddingSite = {
-    id: `site-${Date.now().toString(36)}`,
+    id: `site-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
     slug,
     templateId: template.id,
     templateSnapshot: { ...template },
-    ownerName: order.customerName,
-    ownerEmail: order.customerEmail,
+    ownerName,
+    ownerEmail: "",
     status: "draft",
     weddingDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString(),
     timezone: "America/New_York",
     content: {
-      partnerA: order.customerName.split("&")[0]?.trim() || "Partner A",
-      partnerB: order.customerName.split("&")[1]?.trim() || "Partner B",
+      partnerA,
+      partnerB,
       subtitle: "Together with their families",
       welcome: "Welcome to our wedding website! We cannot wait to celebrate with you.",
       story: "Our story begins here — edit this text in your editor.",
@@ -219,30 +213,19 @@ export async function provisionOrder(
     publishedAt: null,
   };
 
-  const code = generateAccessCode();
-  const accessCode: AccessCode = {
-    id: `code-${Date.now().toString(36)}`,
-    orderId: order.id,
-    siteId: site.id,
-    codeHash: sha256(code),
-    status: "active",
-    createdAt: now,
-    lastUsedAt: null,
-    expiresAt: null,
-  };
-
   d.sites.push(site);
-  d.accessCodes.push(accessCode);
-  order.siteId = site.id;
-  order.accessCodeId = accessCode.id;
-  order.status = "provisioned";
-  order.deliveryStatus = "pdf-ready";
-  order.displayCode = code;
-  await saveOrder(order);
-  audit("admin", "order.provision", `Order ${order.etsyOrderId} provisioned → site ${slug}.`);
-  return { site, code, already: false };
+  audit(
+    "system",
+    "site.create",
+    `New site /w/${slug} created from template ${template.name} (${template.id}).`,
+  );
+  return site;
 }
 
+// --- Access codes (order/demo claim path) ---
+// Template codes are NOT stored here — they live on the template itself
+// (TemplateMeta.accessCode) and are looked up by hash. These records exist
+// for the demo code, which opens the pre-built Sarah & James demo site.
 export async function findAccessCodeByHash(codeHash: string): Promise<AccessCode | null> {
   return db().accessCodes.find((c) => c.codeHash === codeHash) || null;
 }
@@ -253,30 +236,6 @@ export async function useAccessCode(id: string): Promise<void> {
     c.status = "used";
     c.lastUsedAt = new Date().toISOString();
   }
-}
-
-export async function revokeAccessCode(id: string): Promise<void> {
-  const c = db().accessCodes.find((x) => x.id === id);
-  if (c) {
-    c.status = "revoked";
-    audit("admin", "code.revoke", `Access code ${id} revoked.`);
-  }
-}
-
-export async function resetAccessCode(orderId: string): Promise<string> {
-  const d = db();
-  const order = d.orders.find((o) => o.id === orderId);
-  if (!order || !order.accessCodeId) throw new Error("No access code for this order");
-  const code = generateAccessCode();
-  const c = d.accessCodes.find((x) => x.id === order.accessCodeId);
-  if (!c) throw new Error("Access code not found");
-  c.codeHash = sha256(code);
-  c.status = "active";
-  c.lastUsedAt = null;
-  order.displayCode = code;
-  await saveOrder(order);
-  audit("admin", "code.reset", `Access code reset for order ${order.etsyOrderId}.`);
-  return code;
 }
 
 // --- RSVPs (tenant-scoped) ---
@@ -320,9 +279,6 @@ export async function getStats() {
   const d = db();
   const attending = d.rsvps.filter((r) => r.attending);
   return {
-    totalOrders: d.orders.length,
-    pendingOrders: d.orders.filter((o) => o.status === "pending").length,
-    verifiedOrders: d.orders.filter((o) => o.status !== "pending").length,
     totalSites: d.sites.length,
     publishedSites: d.sites.filter((s) => s.status === "published").length,
     draftSites: d.sites.filter((s) => s.status === "draft" || s.status === "unpublished").length,

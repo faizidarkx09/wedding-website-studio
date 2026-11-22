@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { verifySession } from "@/lib/auth";
+import { generateAccessCode, verifySession } from "@/lib/auth";
 import { archiveTemplate, getTemplateById, listTemplates, saveTemplate } from "@/lib/store";
 import type { TemplateMeta } from "@/lib/types";
 
@@ -28,6 +28,10 @@ function isValidTemplate(v: unknown): v is TemplateMeta {
   if (typeof t.priceUsd !== "number" || !Number.isFinite(t.priceUsd) || t.priceUsd < 0) return false;
   if (!(t.etsyListingId === null || typeof t.etsyListingId === "string")) return false;
   if (typeof t.active !== "boolean") return false;
+  // The fixed per-template access code must survive every save — it is
+  // baked into the static delivery PDF on Etsy, so it must never be
+  // blanked or lost by an edit.
+  if (typeof t.accessCode !== "string" || !t.accessCode.trim()) return false;
   if (typeof t.fontClass !== "string" || typeof t.layout !== "string") return false;
   if (!Array.isArray(t.sections) || !t.sections.every((s) => typeof s === "string")) return false;
   const p = t.palette;
@@ -80,6 +84,9 @@ export async function POST(req: NextRequest) {
       // A copy must not share the original's Etsy listing — it starts
       // inactive until the admin gives it its own listing and activates it.
       etsyListingId: null,
+      // ...and it must not share the original's access code either: every
+      // template has its own code, so the copy gets a fresh one.
+      accessCode: generateAccessCode(),
       active: false,
       palette: { ...original.palette },
       sections: [...original.sections],

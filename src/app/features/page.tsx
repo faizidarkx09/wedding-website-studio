@@ -70,7 +70,9 @@ export default function FeaturesPage() {
           <p className="text-sm leading-relaxed text-stone-500">
             This site is running in demo mode: the store is built in, and Supabase and
             Etsy are not connected yet. There is no mail system — delivery is the PDF
-            that comes with the Etsy order. Everything you see — templates, demo site, RSVP —
+            that comes with the Etsy order. Every template has its own access code;
+            activating it creates a brand-new private website just for you.
+            Everything you see — templates, demo site, RSVP —
             works with the demo data.
           </p>
         </section>

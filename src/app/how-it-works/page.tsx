@@ -18,7 +18,7 @@ const STEPS = [
   {
     step: "2",
     title: "Get your delivery PDF",
-    text: "After purchase you get a delivery PDF with your Etsy order. It has your template link and a private access code — it unlocks your own copy of the template, nobody else can use it, and it can only be used once.",
+    text: "After purchase you get a delivery PDF with your Etsy order. It has your template link and the template's access code. Every template has its own code, and every buyer of that template gets the same PDF and the same code — but when you activate it, a brand-new private website is created just for you. Your changes never touch another buyer's site.",
     links: [{ href: "/activate", label: "Activate an access code" }],
   },
   {
@@ -120,7 +120,8 @@ export default function HowItWorksPage() {
           <p className="mt-8 text-center text-sm leading-relaxed text-stone-500">
             Demo mode: this site runs on a built-in demo store, and Supabase and Etsy
             are not connected yet. There is no mail system — delivery is the PDF that
-            comes with the Etsy order. To try activation here, use the demo access code{" "}
+            comes with the Etsy order. Each template&apos;s access code is fixed — activating
+            it with your names creates your own site. To try activation here, use the demo access code{" "}
             <code className="rounded bg-stone-100 px-1.5 py-0.5 font-mono">
               WWS-DEMO-2026
             </code>{" "}

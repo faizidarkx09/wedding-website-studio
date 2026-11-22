@@ -46,8 +46,6 @@ export default async function AdminPage() {
     .map(([id, count]) => ({ name: templates.find((t) => t.id === id)?.name ?? id, count }));
 
   const metrics: { label: string; value: number; href?: string }[] = [
-    { label: "Total orders", value: stats.totalOrders, href: "/admin/orders" },
-    { label: "Pending orders", value: stats.pendingOrders, href: "/admin/orders" },
     { label: "Sites published", value: stats.publishedSites, href: "/admin/sites" },
     { label: "Sites draft / unpublished", value: stats.draftSites, href: "/admin/sites" },
     { label: "Sites suspended", value: stats.suspendedSites, href: "/admin/sites" },
@@ -63,7 +61,7 @@ export default async function AdminPage() {
       <main className="mx-auto max-w-6xl px-4 py-6">
         <h1 className="text-2xl font-semibold text-stone-900">Admin dashboard</h1>
         <p className="mt-1 text-sm text-stone-600">
-          {stats.totalOrders} orders · {stats.totalSites} sites · {stats.totalRsvps} RSVPs
+          {stats.totalSites} sites · {stats.totalRsvps} RSVPs
         </p>
 
         <section aria-label="Metrics" className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -105,8 +103,7 @@ export default async function AdminPage() {
           <section className="rounded-lg border border-stone-200 bg-white p-4">
             <h2 className="text-base font-semibold text-stone-900">Quick links</h2>
             <ul className="mt-3 space-y-2 text-sm">
-              <li><a href="/admin/templates" className="text-stone-700 underline">Templates — edit, duplicate, archive</a></li>
-              <li><a href="/admin/orders" className="text-stone-700 underline">Orders — register, verify, provision, deliver</a></li>
+              <li><a href="/admin/templates" className="text-stone-700 underline">Templates — edit, download the delivery PDF</a></li>
               <li><a href="/admin/sites" className="text-stone-700 underline">Sites — publish, suspend, archive</a></li>
               <li><a href="/admin/settings" className="text-stone-700 underline">Settings — integrations &amp; demo mode</a></li>
               <li><a href="/w/sarah-and-james" target="_blank" rel="noopener noreferrer" className="text-stone-700 underline">Demo site: Sarah &amp; James ↗</a></li>

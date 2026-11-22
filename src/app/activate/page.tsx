@@ -7,6 +7,8 @@ import Link from "next/link";
 export default function ActivatePage() {
   const router = useRouter();
   const [code, setCode] = useState("");
+  const [partnerA, setPartnerA] = useState("");
+  const [partnerB, setPartnerB] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -18,7 +20,7 @@ export default function ActivatePage() {
       const res = await fetch("/api/activate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, partnerA, partnerB }),
       });
       const data = (await res.json()) as { ok: boolean; slug?: string; error?: string };
       if (res.ok && data.ok && data.slug) {
@@ -40,7 +42,10 @@ export default function ActivatePage() {
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-4 py-12">
       <h1 className="text-3xl font-semibold">Activate your website</h1>
       <p className="mt-2 text-stone-600">
-        Enter the access code from your order confirmation to open your wedding website dashboard.
+        Enter the access code from your delivery PDF. Every template has its own
+        code, and every buyer of that template gets the same code — but when you
+        activate it, a brand-new private website is created just for you. Your
+        changes never touch another buyer&apos;s site.
       </p>
 
       <form onSubmit={submit} className="mt-8 flex flex-col gap-4">
@@ -55,13 +60,54 @@ export default function ActivatePage() {
             autoComplete="off"
             autoCapitalize="characters"
             spellCheck={false}
-            placeholder="WWS-XXXX-XXXX-XXXX"
+            placeholder="WWS-EDITORIAL-2026"
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             required
             className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 font-mono uppercase tracking-wider focus:border-stone-900 focus:outline-none"
           />
+          <p className="mt-1 text-xs text-stone-500">
+            In the delivery PDF that came with your Etsy order.
+          </p>
         </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="partner-a" className="block text-sm font-medium">
+              Partner A
+            </label>
+            <input
+              id="partner-a"
+              name="partnerA"
+              type="text"
+              autoComplete="off"
+              placeholder="Sarah"
+              value={partnerA}
+              onChange={(e) => setPartnerA(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 focus:border-stone-900 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label htmlFor="partner-b" className="block text-sm font-medium">
+              Partner B
+            </label>
+            <input
+              id="partner-b"
+              name="partnerB"
+              type="text"
+              autoComplete="off"
+              placeholder="James"
+              value={partnerB}
+              onChange={(e) => setPartnerB(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 focus:border-stone-900 focus:outline-none"
+            />
+          </div>
+        </div>
+        <p className="-mt-2 text-xs text-stone-500">
+          Your names create your website — your site address is built from them
+          (for example, Sarah &amp; James become /w/sarah-james). Not needed for
+          the demo code.
+        </p>
 
         {error ? (
           <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">

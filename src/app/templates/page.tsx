@@ -84,8 +84,9 @@ export default async function TemplatesPage() {
           <div className="mt-12 rounded-2xl bg-amber-50 p-8 text-center">
             <h2 className="text-xl font-bold">Already bought a template?</h2>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
-              Your access code is in the delivery PDF that came with your Etsy order.
-              Activate it to claim your website and start customising.
+              Your access code is in the delivery PDF that came with your Etsy order — the
+              same PDF and code every buyer of that template gets. Activate it with your
+              names and a brand-new website is created just for you.
             </p>
             <Link
               href="/activate"

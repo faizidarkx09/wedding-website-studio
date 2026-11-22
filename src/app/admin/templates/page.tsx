@@ -23,7 +23,8 @@ export default async function AdminTemplatesPage() {
         <h1 className="text-2xl font-semibold text-stone-900">Templates</h1>
         <p className="mt-1 text-sm text-stone-600">
           Editing a master template never changes an existing customer&apos;s site — each site keeps the template
-          snapshot taken when it was provisioned. Duplicates start inactive with no Etsy listing.
+          snapshot taken when it was created. Each template has one fixed access code: every buyer of that
+          template gets the same code, but activating it creates a brand-new site just for that buyer.
         </p>
 
         <div className="mt-6 space-y-4">
@@ -54,10 +55,24 @@ export default async function AdminTemplatesPage() {
                     ))}
                   </div>
                   <p className="mt-2 text-xs text-stone-500">Sections: {t.sections.join(" · ")}</p>
+                  <p className="mt-3 rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm">
+                    <span className="font-medium text-stone-700">Access code: </span>
+                    <code className="font-mono font-bold text-stone-900">{t.accessCode}</code>
+                    <span className="block text-xs text-stone-500">
+                      Same code for every buyer of this template. It is baked into the
+                      delivery PDF below — never change it after the PDF is on Etsy.
+                    </span>
+                  </p>
                 </div>
               </div>
 
               <div className="mt-3 flex flex-wrap gap-2">
+                <a
+                  href={`/api/pdf/template?templateId=${encodeURIComponent(t.id)}`}
+                  className="inline-flex items-center justify-center rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-800 transition-colors hover:bg-stone-100"
+                >
+                  Download delivery PDF
+                </a>
                 <ApiButton
                   endpoint="/api/admin/templates"
                   body={{ action: "duplicate", id: t.id }}
@@ -80,6 +95,10 @@ export default async function AdminTemplatesPage() {
                   disabled={!t.active}
                 />
               </div>
+              <p className="mt-2 text-xs text-stone-500">
+                Upload this PDF to the Etsy listing as the digital download file — every
+                buyer of this template gets this same PDF and code.
+              </p>
 
               <details className="mt-3">
                 <summary className="cursor-pointer text-sm font-medium text-stone-700 underline">Edit template</summary>

@@ -39,7 +39,7 @@ export default async function AdminSettingsPage() {
             <p className="font-semibold text-amber-900">Demo mode is ON</p>
             <p className="mt-1 text-sm text-amber-800">
               Supabase is not configured, so the app runs on the in-memory demo store (seeded with the Sarah &amp; James
-              demo site). Orders, sites and RSVPs created here are lost when the server restarts. Connect Supabase to
+              demo site). Sites and RSVPs created here are lost when the server restarts. Connect Supabase to
               persist real data.
             </p>
           </div>
@@ -57,7 +57,7 @@ export default async function AdminSettingsPage() {
             </div>
             <p className="mt-2 text-sm text-stone-600">
               {status.supabase
-                ? "Configured. The database is the production store for sites, orders, RSVPs and access-code hashes."
+                ? "Configured. The database is the production store for sites, RSVPs and access-code hashes."
                 : "Not connected. The app runs in demo/local mode on the in-memory store."}
             </p>
             <p className="mt-3 text-sm font-medium text-stone-700">Environment variables needed:</p>
@@ -75,8 +75,8 @@ export default async function AdminSettingsPage() {
             </div>
             <p className="mt-2 text-sm text-stone-600">
               {status.etsy
-                ? "Configured. Orders can be pulled from Etsy automatically."
-                : "Not connected — manual workflow. Register each Etsy order on the Orders page, verify it, then provision the site. The Etsy listing ID only suggests a template; your chosen template is authoritative."}
+                ? "Configured. No automatic order sync is used — delivery is by static PDF per template (see the Templates page)."
+                : "Not connected — no automatic order sync. Delivery is by static PDF: download each template's delivery PDF from the Templates page and upload it to the Etsy listing as the digital download file. The Etsy listing ID only suggests a template; your chosen template is authoritative."}
             </p>
             <p className="mt-3 text-sm font-medium text-stone-700">Environment variables needed:</p>
             <ul className="mt-1 space-y-1 text-sm">
@@ -98,8 +98,8 @@ export default async function AdminSettingsPage() {
               no mail system by design — no delivery emails are sent.
             </p>
             <p className="mt-3 text-sm text-stone-600">
-              Upload the delivery PDF (download it from the order page) to the Etsy listing as
-              the digital download file, so the buyer gets it automatically after purchase.
+              Upload each template&apos;s delivery PDF (download it from the Templates page) to that template&apos;s
+              Etsy listing as the digital download file, so every buyer gets the same PDF and code automatically after purchase.
             </p>
           </section>
         </div>
@@ -134,7 +134,7 @@ export default async function AdminSettingsPage() {
               <li>Guest lists and RSVP records are tenant-scoped by site — an admin sees them, a public visitor never does.</li>
               <li>Session cookies are httpOnly and sameSite=lax; the admin session lasts 30 days.</li>
               <li>Service-role keys (Supabase) and API keys (Etsy) are server-side only and are never sent to the browser.</li>
-              <li>Editing a master template never changes an existing site — each site keeps the template snapshot from provisioning time.</li>
+              <li>Editing a master template never changes an existing site — each site keeps the template snapshot from creation time.</li>
             </ul>
           </section>
         </div>
