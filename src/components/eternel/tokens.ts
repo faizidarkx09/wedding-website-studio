@@ -119,6 +119,11 @@ export function visibleMilestones(site: WeddingSite) {
  * sections that will be on the page — a dead anchor is worse than no link. */
 export function willRenderSection(site: WeddingSite, key: string): boolean {
   switch (key) {
+    case "welcome":
+      // The welcome letter (PRD §02) renders whenever the couple has
+      // welcome text — the activation default is non-empty, and clearing
+      // the text in the editor hides the section.
+      return (site.content.welcome ?? "").trim().length > 0;
     case "story":
       return site.settings.showStory === true;
     case "events":
