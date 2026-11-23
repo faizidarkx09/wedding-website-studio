@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PasswordGate from "@/components/PasswordGate";
 import RsvpForm from "@/components/RsvpForm";
+import EternelRsvpForm from "@/components/eternel/EternelRsvpForm";
 import { verifySession } from "@/lib/auth";
 import { getPublicSite } from "@/lib/store";
 
@@ -63,14 +64,27 @@ export default async function RsvpPage({
     );
   }
 
+  const isEternel = site.templateSnapshot.composition === "eternel";
+
   return (
-    <main className="min-h-full w-full bg-[#fdfbf7] px-5 py-12 text-stone-900 sm:py-16">
+    <main
+      className="min-h-full w-full px-5 py-12 sm:py-16"
+      style={
+        isEternel
+          ? { backgroundColor: "#F8F5EF", color: "#302821", fontFamily: "var(--font-manrope), sans-serif" }
+          : { backgroundColor: "#fdfbf7", color: "#1c1917" }
+      }
+    >
       <div className="mx-auto mb-8 max-w-xl text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-700">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: isEternel ? "#B49A70" : "#b45309" }}>
           {site.content.partnerA} &amp; {site.content.partnerB}
         </p>
-        <h1 className="mt-3 text-3xl font-bold sm:text-4xl">RSVP</h1>
-        <p className="mt-3 leading-relaxed text-stone-600">
+        <h1
+          className={`mt-3 text-3xl sm:text-4xl ${isEternel ? "font-eternel font-medium" : "font-bold"}`}
+        >
+          RSVP
+        </h1>
+        <p className="mt-3 leading-relaxed" style={{ color: isEternel ? "rgba(48,40,33,0.8)" : "#57534e" }}>
           Please reply for yourself and your party
           {site.settings.rsvpDeadline
             ? ` by ${new Date(site.settings.rsvpDeadline).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`
@@ -78,9 +92,9 @@ export default async function RsvpPage({
           .
         </p>
       </div>
-      <RsvpForm site={site} token={token} />
+      {isEternel ? <EternelRsvpForm site={site} token={token} /> : <RsvpForm site={site} token={token} />}
       <p className="mt-8 text-center">
-        <Link href={`/w/${site.slug}`} className="text-sm font-medium text-stone-500 hover:text-stone-900">
+        <Link href={`/w/${site.slug}`} className="text-sm font-medium hover:opacity-70" style={{ color: isEternel ? "#B49A70" : "#78716c" }}>
           ← Back to the wedding website
         </Link>
       </p>

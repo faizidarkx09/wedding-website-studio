@@ -54,6 +54,23 @@ export interface SiteEvent {
   venue: string;
   address: string;
   description: string;
+  /** Optional event photo URL (ÉTERNEL event blocks). */
+  photo?: string;
+  /** Optional directions link (e.g. Google Maps URL). */
+  directionsUrl?: string;
+}
+
+/** One relationship milestone for the Our Story timeline (ÉTERNEL).
+ * Optional so older sites (without milestones) still parse — the
+ * renderer falls back to the single `story` text when none are set. */
+export interface StoryMilestone {
+  id: string;
+  /** Display date, e.g. "June 2019" — free text, shown as written. */
+  date: string;
+  title: string;
+  text: string;
+  /** Optional milestone photo URL. */
+  image?: string;
 }
 
 export interface GalleryImage {
@@ -101,6 +118,9 @@ export interface SiteContent {
   /** Invitation section text ("Together with their families, …"). */
   invitationText: string;
   story: string;
+  /** ÉTERNEL story timeline milestones (4 by default). When empty or
+   * unset, the renderer shows the single `story` text instead. */
+  storyMilestones?: StoryMilestone[];
   dressCode: string;
   footerMessage: string;
   heroImage: string;
@@ -139,6 +159,12 @@ export interface SiteSettings {
   timezone: string;
   countdownEnabled: boolean;
   countdownStyle: "classic" | "minimal" | "bold";
+  /** Optional background-music URL (ÉTERNEL music toggle). Null/empty
+   * means the template default track. */
+  musicUrl?: string | null;
+  /** Max guests one RSVP may cover (ÉTERNEL). Null/empty means the
+   * server cap of 10. */
+  rsvpMaxGuests?: number | null;
   showStory: boolean;
   showGallery: boolean;
   showEvents: boolean;

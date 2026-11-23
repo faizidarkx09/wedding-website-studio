@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, EB_Garamond, Inter, Playfair_Display } from "next/font/google";
+import { Allura, Cormorant_Garamond, EB_Garamond, Inter, Manrope, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 // Display serifs per theme (see globals.css .font-* classes). Every
@@ -32,6 +32,19 @@ const inter = Inter({
   variable: "--font-inter",
   display: "swap",
 });
+// ÉTERNEL: Manrope body + Allura script accents.
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-manrope",
+  display: "swap",
+});
+const allura = Allura({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-allura",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Wedding Website Studio — Beautiful wedding websites, sold on Etsy",
@@ -43,7 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${playfair.variable} ${ebGaramond.variable} ${inter.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${playfair.variable} ${ebGaramond.variable} ${inter.variable} ${manrope.variable} ${allura.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

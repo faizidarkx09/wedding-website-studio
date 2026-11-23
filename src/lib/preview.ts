@@ -7,6 +7,43 @@
 
 import type { TemplateMeta, WeddingSite } from "./types";
 
+// ÉTERNEL template photography (public/images/themes/eternel/*) — the full
+// 30-image masonry gallery for the template preview: the detail close-up
+// first, then the 29 gallery photographs (couple, engagement, ceremony,
+// reception, venue, details). Other templates keep the two-image gallery.
+const ETERNEL_GALLERY = [
+  "/images/themes/eternel-detail.jpg",
+  "/images/themes/eternel/couple-portrait-01.jpg",
+  "/images/themes/eternel/engagement-01.jpg",
+  "/images/themes/eternel/venue-exterior-01.jpg",
+  "/images/themes/eternel/couple-walking-01.jpg",
+  "/images/themes/eternel/rings-01.jpg",
+  "/images/themes/eternel/engagement-02.jpg",
+  "/images/themes/eternel/ceremony-02.jpg",
+  "/images/themes/eternel/couple-portrait-02.jpg",
+  "/images/themes/eternel/bouquet-01.jpg",
+  "/images/themes/eternel/venue-interior-01.jpg",
+  "/images/themes/eternel/couple-walking-02.jpg",
+  "/images/themes/eternel/engagement-03.jpg",
+  "/images/themes/eternel/table-detail-01.jpg",
+  "/images/themes/eternel/reception-02.jpg",
+  "/images/themes/eternel/bride-detail-01.jpg",
+  "/images/themes/eternel/couple-final-01.jpg",
+  "/images/themes/eternel/engagement-04.jpg",
+  "/images/themes/eternel/venue-exterior-02.jpg",
+  "/images/themes/eternel/groom-detail-01.jpg",
+  "/images/themes/eternel/invitation-detail-01.jpg",
+  "/images/themes/eternel/couple-closeup-02.jpg",
+  "/images/themes/eternel/venue-interior-02.jpg",
+  "/images/themes/eternel/bouquet-02.jpg",
+  "/images/themes/eternel/table-detail-02.jpg",
+  "/images/themes/eternel/rings-02.jpg",
+  "/images/themes/eternel/bride-detail-02.jpg",
+  "/images/themes/eternel/groom-detail-02.jpg",
+  "/images/themes/eternel/invitation-detail-02.jpg",
+  "/images/themes/eternel/couple-final-02.jpg",
+];
+
 export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
   const now = new Date().toISOString();
   const weddingDate = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000);
@@ -39,6 +76,43 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
         "Together with their families, Partner A and Partner B request the honour of your presence at their wedding. This is placeholder text — replace it with your own invitation wording in the editor.",
       story:
         "Your story goes here — replace this text in the editor with the story of how you met.",
+      // ÉTERNEL only: four placeholder milestones for the animated
+      // timeline. Marked as placeholder text, like the rest of the
+      // preview content; the editor can replace or remove them.
+      ...(template.composition === "eternel"
+        ? {
+            storyMilestones: [
+              {
+                id: "m-sample-1",
+                date: "Spring 2018",
+                title: "The first hello",
+                text: "Sample milestone — replace this with your own first meeting, in your own words.",
+                image: "/images/themes/eternel/story-01.jpg",
+              },
+              {
+                id: "m-sample-2",
+                date: "Summer 2019",
+                title: "The first trip",
+                text: "Sample milestone — replace this with your own favourite trip together.",
+                image: "/images/themes/eternel/story-02.jpg",
+              },
+              {
+                id: "m-sample-3",
+                date: "Winter 2022",
+                title: "Moving in",
+                text: "Sample milestone — replace this with the moment you made a home together.",
+                image: "/images/themes/eternel/story-03.jpg",
+              },
+              {
+                id: "m-sample-4",
+                date: "Autumn 2024",
+                title: "The proposal",
+                text: "Sample milestone — replace this with the day the question was asked.",
+                image: "/images/themes/eternel/story-04.jpg",
+              },
+            ],
+          }
+        : {}),
       dressCode: "Your dress code goes here — for example, semi-formal.",
       footerMessage: "Thank you for being part of our day.",
       heroImage: themeHero,
@@ -108,6 +182,9 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
         venue: "Your venue",
         address: "Your venue address",
         description: "Sample event — replace this with your own ceremony details.",
+        ...(template.composition === "eternel"
+          ? { photo: "/images/themes/eternel/ceremony-01.jpg" }
+          : {}),
       },
       {
         id: "ev-sample-reception",
@@ -117,14 +194,24 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
         venue: "Your venue",
         address: "Your venue address",
         description: "Sample event — replace this with your own reception details.",
+        ...(template.composition === "eternel"
+          ? { photo: "/images/themes/eternel/reception-01.jpg" }
+          : {}),
       },
     ],
-    gallery: [
-      // Detail shot first, so the story section uses it and the hero
-      // image is not repeated three times on the preview page.
-      { id: "g1", url: themeDetail, caption: "Your photo 1" },
-      { id: "g2", url: themeHero, caption: "Your photo 2" },
-    ],
+    gallery:
+      template.composition === "eternel"
+        ? ETERNEL_GALLERY.map((url, i) => ({
+            id: `g-eternel-${i + 1}`,
+            url,
+            caption: `Your photo ${i + 1}`,
+          }))
+        : [
+            // Detail shot first, so the story section uses it and the hero
+            // image is not repeated three times on the preview page.
+            { id: "g1", url: themeDetail, caption: "Your photo 1" },
+            { id: "g2", url: themeHero, caption: "Your photo 2" },
+          ],
     customQuestions: [],
     settings: {
       passwordEnabled: false,

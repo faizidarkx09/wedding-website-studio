@@ -17,8 +17,8 @@ function bad(message: string, status = 400) {
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
 /** Composition keys the renderer knows (SiteRenderer composition()):
- * champagne, blue, midnight, sage, mediterranean, lavender, plus the
- * generic "classic" fallback for unknown keys. */
+ * champagne, blue, midnight, sage, mediterranean, lavender, eternel,
+ * plus the generic "classic" fallback for unknown keys. */
 const KNOWN_COMPOSITIONS = new Set([
   "champagne",
   "blue",
@@ -26,11 +26,13 @@ const KNOWN_COMPOSITIONS = new Set([
   "sage",
   "mediterranean",
   "lavender",
+  "eternel",
   "classic",
 ]);
 
 /** Section keys the renderer knows (NAV_LABELS + renderSection switch in
- * SiteRenderer). "hero" has no nav label but is a real section. */
+ * SiteRenderer). "hero" has no nav label but is a real section.
+ * "welcome" and "venue" are ÉTERNEL-only sections (its own renderer). */
 const KNOWN_SECTIONS = new Set([
   "hero",
   "invitation",
@@ -41,6 +43,8 @@ const KNOWN_SECTIONS = new Set([
   "gallery",
   "faq",
   "rsvp",
+  "welcome",
+  "venue",
 ]);
 
 /** Validate a TemplateMeta payload. Returns an error message, or null when

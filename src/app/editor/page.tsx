@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import SiteRenderer from "@/components/SiteRenderer";
-import type { DetailBlock, DetailKind, FaqItem, GalleryImage, RsvpQuestion, SiteEvent, WeddingSite } from "@/lib/types";
+import type { DetailBlock, DetailKind, FaqItem, GalleryImage, RsvpQuestion, SiteEvent, StoryMilestone, WeddingSite } from "@/lib/types";
 
 type Tab = "details" | "events" | "gallery" | "invitation" | "details-blocks" | "faq" | "design" | "settings";
 type PreviewWidth = "desktop" | "tablet" | "mobile";
@@ -491,6 +491,85 @@ export default function EditorPage() {
                   <label htmlFor="story" className={labelCls}>Our story</label>
                   <textarea id="story" rows={5} value={draft.content.story} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, story: e.target.value } }))} className={inputCls} />
                 </div>
+                {/* ÉTERNEL only: story milestones for the animated timeline.
+                    Other templates use the single "Our story" text above. */}
+                {draft.templateSnapshot.composition === "eternel" ? (
+                  <div className="rounded-lg border border-stone-200 p-3">
+                    <h3 className="text-sm font-medium">Story milestones</h3>
+                    <p className="mt-1 text-xs text-stone-500">
+                      Shown as the animated timeline on your ÉTERNEL site. Up to 4 milestones work best.
+                      Empty milestones are hidden on the live site.
+                    </p>
+                    <div className="mt-3 flex flex-col gap-3">
+                      {(draft.content.storyMilestones ?? []).map((m, i) => (
+                        <fieldset key={m.id} className="rounded-lg border border-stone-200 p-3">
+                          <legend className="px-1 text-sm font-medium">Milestone {i + 1}</legend>
+                          <div className="flex flex-col gap-2">
+                            <label className={labelCls}>
+                              Date
+                              <input value={m.date} placeholder="e.g. Spring 2018" onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, storyMilestones: (d.content.storyMilestones ?? []).map((x) => (x.id === m.id ? { ...x, date: e.target.value } : x)) } }))} className={inputCls} />
+                            </label>
+                            <label className={labelCls}>
+                              Title
+                              <input value={m.title} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, storyMilestones: (d.content.storyMilestones ?? []).map((x) => (x.id === m.id ? { ...x, title: e.target.value } : x)) } }))} className={inputCls} />
+                            </label>
+                            <label className={labelCls}>
+                              Text
+                              <textarea rows={3} value={m.text} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, storyMilestones: (d.content.storyMilestones ?? []).map((x) => (x.id === m.id ? { ...x, text: e.target.value } : x)) } }))} className={inputCls} />
+                            </label>
+                            <label className={labelCls}>
+                              Photo URL <span className="font-normal text-stone-500">(optional)</span>
+                              <input type="url" placeholder="https://…" value={m.image ?? ""} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, storyMilestones: (d.content.storyMilestones ?? []).map((x) => (x.id === m.id ? { ...x, image: e.target.value } : x)) } }))} className={inputCls} />
+                            </label>
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                disabled={i === 0}
+                                onClick={() => updateDraft((d) => {
+                                  const list = [...(d.content.storyMilestones ?? [])];
+                                  [list[i - 1], list[i]] = [list[i], list[i - 1]];
+                                  return { ...d, content: { ...d.content, storyMilestones: list } };
+                                })}
+                                className="rounded-full border border-stone-300 px-3 py-1 text-xs font-medium disabled:opacity-40"
+                              >
+                                Move up
+                              </button>
+                              <button
+                                type="button"
+                                disabled={i === (draft.content.storyMilestones ?? []).length - 1}
+                                onClick={() => updateDraft((d) => {
+                                  const list = [...(d.content.storyMilestones ?? [])];
+                                  [list[i], list[i + 1]] = [list[i + 1], list[i]];
+                                  return { ...d, content: { ...d.content, storyMilestones: list } };
+                                })}
+                                className="rounded-full border border-stone-300 px-3 py-1 text-xs font-medium disabled:opacity-40"
+                              >
+                                Move down
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => updateDraft((d) => ({ ...d, content: { ...d.content, storyMilestones: (d.content.storyMilestones ?? []).filter((x) => x.id !== m.id) } }))}
+                                className="rounded-full border border-red-200 px-3 py-1 text-xs font-medium text-red-700"
+                              >
+                                Delete milestone
+                              </button>
+                            </div>
+                          </div>
+                        </fieldset>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const m: StoryMilestone = { id: uid("m"), date: "", title: "New milestone", text: "" };
+                          updateDraft((d) => ({ ...d, content: { ...d.content, storyMilestones: [...(d.content.storyMilestones ?? []), m] } }));
+                        }}
+                        className="self-start rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white"
+                      >
+                        Add milestone
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
                 <div>
                   <label htmlFor="hero-image" className={labelCls}>Hero image</label>
                   <input id="hero-image" type="url" placeholder="https://…" value={draft.content.heroImage} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, heroImage: e.target.value } }))} className={inputCls} />
@@ -607,6 +686,14 @@ export default function EditorPage() {
                       <label className={labelCls}>
                         Description
                         <textarea rows={2} value={ev.description} onChange={(e) => updateDraft((d) => ({ ...d, events: d.events.map((x) => (x.id === ev.id ? { ...x, description: e.target.value } : x)) }))} className={inputCls} />
+                      </label>
+                      <label className={labelCls}>
+                        Photo URL <span className="font-normal text-stone-500">(optional — shown on the ÉTERNEL template)</span>
+                        <input type="url" placeholder="https://…" value={ev.photo ?? ""} onChange={(e) => updateDraft((d) => ({ ...d, events: d.events.map((x) => (x.id === ev.id ? { ...x, photo: e.target.value } : x)) }))} className={inputCls} />
+                      </label>
+                      <label className={labelCls}>
+                        Directions URL <span className="font-normal text-stone-500">(optional — defaults to a Google Maps link for the venue)</span>
+                        <input type="url" placeholder="https://maps.google.com/…" value={ev.directionsUrl ?? ""} onChange={(e) => updateDraft((d) => ({ ...d, events: d.events.map((x) => (x.id === ev.id ? { ...x, directionsUrl: e.target.value } : x)) }))} className={inputCls} />
                       </label>
                       <button
                         type="button"
@@ -1145,6 +1232,39 @@ export default function EditorPage() {
                     className={inputCls}
                   />
                   <p className="mt-1 text-xs text-stone-500">Dates and times use the timezone set on the Couple tab.</p>
+                </div>
+                <div>
+                  <label htmlFor="rsvp-max-guests" className={labelCls}>Max guests per RSVP</label>
+                  <input
+                    id="rsvp-max-guests"
+                    type="number"
+                    min={1}
+                    max={10}
+                    step={1}
+                    placeholder="10"
+                    value={draft.settings.rsvpMaxGuests ?? ""}
+                    onChange={(e) => {
+                      const v = e.target.value === "" ? null : Math.min(10, Math.max(1, Number(e.target.value) || 1));
+                      updateDraft((d) => ({ ...d, settings: { ...d.settings, rsvpMaxGuests: v } }));
+                    }}
+                    className={inputCls}
+                  />
+                  <p className="mt-1 text-xs text-stone-500">How many people one RSVP can cover. Leave blank for 10 (the system maximum).</p>
+                </div>
+                <div>
+                  <label htmlFor="music-url" className={labelCls}>Music URL <span className="font-normal text-stone-500">(ÉTERNEL template — optional)</span></label>
+                  <input
+                    id="music-url"
+                    type="url"
+                    placeholder="https://…/wedding-piano.mp3"
+                    value={draft.settings.musicUrl ?? ""}
+                    onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, musicUrl: e.target.value } }))}
+                    className={inputCls}
+                  />
+                  <p className="mt-1 text-xs text-stone-500">
+                    Background music for the ÉTERNEL template (play/pause toggle, never autoplay).
+                    Leave blank to use the template&rsquo;s default piano track, or paste any MP3 URL.
+                  </p>
                 </div>
 
                 <div className="rounded-lg border border-stone-200 p-3">

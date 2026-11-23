@@ -194,6 +194,33 @@ export const TEMPLATES: TemplateMeta[] = [
       "rsvp",
     ],
   },
+  {
+    id: "eternel",
+    name: "ÉTERNEL",
+    tagline: "Luxury editorial · French countryside",
+    description:
+      "Warm ivory, champagne and antique gold with Cormorant Garamond display type — a cinematic European editorial invitation. 3D wax-seal envelope opening, full-screen parallax hero, animated story timeline, live countdown, masonry gallery with lightbox and a full RSVP form. The flagship template.",
+    priceUsd: 69,
+    etsyListingId: null,
+    active: true,
+    accessCode: "WWS-ETERNEL-2026",
+    heroImage: "/images/themes/eternel.jpg",
+    palette: { bg: "#F8F5EF", ink: "#302821", accent: "#B49A70", accentSoft: "#E8DDCA" },
+    fontClass: "font-eternel",
+    layout:
+      "Luxury editorial single column: 3D envelope opening, full-screen cinematic hero, welcome letter, alternating story timeline, large countdown, event cards, venue with embedded map, masonry gallery with lightbox, full RSVP form, signature footer",
+    composition: "eternel",
+    sections: [
+      "hero",
+      "welcome",
+      "story",
+      "countdown",
+      "events",
+      "venue",
+      "gallery",
+      "rsvp",
+    ],
+  },
 ];
 
 export function getTemplate(id: string): TemplateMeta | undefined {

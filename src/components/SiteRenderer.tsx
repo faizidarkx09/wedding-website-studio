@@ -6,6 +6,7 @@ import type { DetailBlock, WeddingSite } from "@/lib/types";
 import Countdown from "./Countdown";
 import EnvelopeIntro from "./EnvelopeIntro";
 import Reveal from "./Reveal";
+import EternelRenderer from "./eternel/EternelRenderer";
 
 interface SiteRendererProps {
   site: WeddingSite;
@@ -1494,6 +1495,14 @@ export default function SiteRenderer({ site, preview = false, envelope = false }
   const effective = withDesign(site);
   const palette = effective.templateSnapshot.palette;
   const comp = composition(effective);
+
+  // ÉTERNEL renders through its own renderer (Framer Motion + editorial
+  // layout). The published-only gate above already ran, so no own gate
+  // is needed here.
+  if (comp === "eternel") {
+    return <EternelRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
   const sections = effective.templateSnapshot.sections;
 
   const navLinks = sections.filter((key) => NAV_LABELS[key] && willRenderSection(effective, key));

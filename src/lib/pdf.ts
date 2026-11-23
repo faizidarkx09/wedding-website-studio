@@ -25,9 +25,30 @@ const PAGE_H = 842;
 const MARGIN = 72;
 const TEXT_W = PAGE_W - MARGIN * 2;
 
+/** Accented Latin letters → their plain ASCII base letter, so a template
+ * name like ÉTERNEL reads "ETERNEL" instead of "-TERNEL". Everything
+ * else outside printable ASCII still falls back to "-". (The six
+ * existing PDFs contain no accented letters, so their output is
+ * unchanged.) */
+const TRANSLITERATE: Record<string, string> = {
+  À: "A", Á: "A", Â: "A", Ã: "A", Ä: "A", Å: "A",
+  à: "a", á: "a", â: "a", ã: "a", ä: "a", å: "a",
+  È: "E", É: "E", Ê: "E", Ë: "E",
+  è: "e", é: "e", ê: "e", ë: "e",
+  Ì: "I", Í: "I", Î: "I", Ï: "I",
+  ì: "i", í: "i", î: "i", ï: "i",
+  Ò: "O", Ó: "O", Ô: "O", Õ: "O", Ö: "O",
+  ò: "o", ó: "o", ô: "o", õ: "o", ö: "o",
+  Ù: "U", Ú: "U", Û: "U", Ü: "U",
+  ù: "u", ú: "u", û: "u", ü: "u",
+  Ç: "C", ç: "c", Ñ: "N", ñ: "n", Ý: "Y", ý: "y", ÿ: "y",
+  Æ: "AE", æ: "ae", Œ: "OE", œ: "oe", ß: "ss",
+};
+
 /** Escape a PDF literal string and strip anything outside printable ASCII. */
 function pdfText(raw: string): string {
-  return raw
+  const ascii = raw.replace(/[À-ÿÆæŒœß]/g, (ch) => TRANSLITERATE[ch] ?? "-");
+  return ascii
     .replace(/[^\x20-\x7E]/g, "-")
     .replace(/\\/g, "\\\\")
     .replace(/\(/g, "\\(")

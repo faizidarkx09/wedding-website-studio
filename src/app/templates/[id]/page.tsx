@@ -7,6 +7,7 @@ import { getTemplateById } from "@/lib/store";
 
 const SECTION_LABELS: Record<string, string> = {
   hero: "Hero — names, date & photo",
+  welcome: "Welcome message",
   countdown: "Countdown to the day",
   story: "Our story",
   events: "Events — ceremony, reception & more",
