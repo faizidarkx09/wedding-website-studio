@@ -13,8 +13,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUp, ChevronDown, Clock } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowUp, ChevronDown, Clock, X } from "lucide-react";
 import type { WeddingSite } from "@/lib/types";
 import { SACRED, coupleNames, formatLongDate, initials, musicUrl, willRenderSection } from "./tokens";
 import { Divider, Flower, FloralDrift, WaxSeal } from "./Decor";
@@ -140,14 +140,37 @@ export default function SacredGardenRenderer({
     site.settings.rsvpEnabled &&
     site.settings.rsvpDeadline &&
     Date.parse(site.settings.rsvpDeadline) <= Date.now();
+  const [rsvpModalOpen, setRsvpModalOpen] = useState(false);
+  const rsvpCloseBtnRef = useRef<HTMLButtonElement | null>(null);
 
-  // Closing photo: Phase A reuses the hero photograph (the only
-  // couple photo that exists yet). Phase B replaces it with the
-  // dedicated closing photo (see SLOT_MAP.md, slot "closing").
-  const closingSrc =
+  // RSVP modal: Escape closes, body scroll locks, and the close
+  // button takes focus on open.
+  useEffect(() => {
+    if (!rsvpModalOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setRsvpModalOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    rsvpCloseBtnRef.current?.focus();
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [rsvpModalOpen]);
+
+  // Closing photo: the dedicated Phase B closing photo (template
+  // chrome, like the envelope artwork), falling back to the hero
+  // photograph if it fails to load.
+  const heroFallback =
     !site.content.heroImage || site.content.heroImage.includes("picsum.photos")
       ? (site.templateSnapshot.heroImage ?? site.content.heroImage)
       : site.content.heroImage;
+  const [closingFailed, setClosingFailed] = useState(false);
+  const closingSrc = closingFailed
+    ? heroFallback
+    : "/images/themes/sacred-garden/closing-01.jpg";
 
   return (
     <div
@@ -193,9 +216,11 @@ export default function SacredGardenRenderer({
         {willRenderSection(site, "gallery") ? <SacredGardenGallery site={site} /> : null}
         {willRenderSection(site, "dress-code") ? <SacredGardenDressCode site={site} /> : null}
 
-        {/* RSVP — wax seal + pulsing cue that scrolls to the INLINE
-            form (audit bug #4: the source's text-link trigger is too
-            easy to miss; no popup). */}
+        {/* RSVP — wax seal + pulsing cue that opens the form in a
+            MODAL (the source's RSVP opens as a popup; the inline form
+            below the cue left a tall empty-feeling block on the page).
+            When RSVPs are closed the inline closed notice stays — no
+            modal. */}
         {site.settings.rsvpEnabled ? (
           <section id="rsvp" aria-label="RSVP" className="mx-auto w-full max-w-4xl" style={{ backgroundColor: SACRED.lighterCream }}>
             <div className="px-5 py-20 sm:py-24">
@@ -212,38 +237,78 @@ export default function SacredGardenRenderer({
                     : ""}
                 </p>
                 {rsvpOpen ? (
-                  <motion.a
-                    href="#rsvp-form"
+                  <motion.button
+                    type="button"
+                    onClick={() => setRsvpModalOpen(true)}
                     aria-label="Open the RSVP form"
-                    className="mt-8 inline-flex flex-col items-center gap-1"
+                    aria-haspopup="dialog"
+                    className="mt-8 inline-flex cursor-pointer flex-col items-center gap-1 bg-transparent"
                     style={{ color: SACRED.gold }}
                     animate={{ opacity: [0.6, 1, 0.6] }}
                     transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
                   >
                     <ChevronDown className="h-5 w-5" aria-hidden="true" />
                     <span className="sacred-script text-[32px] leading-[1.55]">Click to open</span>
-                  </motion.a>
+                  </motion.button>
                 ) : null}
               </div>
-              <div className="mt-10">
-                {rsvpOpen ? (
-                  <SacredGardenRsvpForm site={site} />
-                ) : rsvpClosed ? (
-                  <div className="mx-auto flex max-w-xl items-start gap-3 rounded-sm border bg-white px-5 py-4" style={{ borderColor: SACRED.beige }}>
-                    <Clock className="mt-0.5 h-5 w-5 shrink-0" style={{ color: SACRED.gold }} aria-hidden="true" />
-                    <p className="text-sm leading-relaxed">
-                      RSVPs for this wedding are now closed
-                      {site.settings.rsvpDeadline
-                        ? ` (the deadline was ${formatLongDate(site.settings.rsvpDeadline, site.timezone)})`
-                        : ""}
-                      . If you still need to reply, please contact the couple directly.
-                    </p>
-                  </div>
-                ) : null}
-              </div>
+              {rsvpClosed ? (
+                <div className="mx-auto mt-10 flex max-w-xl items-start gap-3 rounded-sm border bg-white px-5 py-4" style={{ borderColor: SACRED.beige }}>
+                  <Clock className="mt-0.5 h-5 w-5 shrink-0" style={{ color: SACRED.gold }} aria-hidden="true" />
+                  <p className="text-sm leading-relaxed">
+                    RSVPs for this wedding are now closed
+                    {site.settings.rsvpDeadline
+                      ? ` (the deadline was ${formatLongDate(site.settings.rsvpDeadline, site.timezone)})`
+                      : ""}
+                    . If you still need to reply, please contact the couple directly.
+                  </p>
+                </div>
+              ) : null}
             </div>
           </section>
         ) : null}
+        <AnimatePresence>
+          {rsvpModalOpen && rsvpOpen ? (
+            <motion.div
+              key="rsvp-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-label="RSVP form"
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setRsvpModalOpen(false)}
+            >
+              <motion.div
+                className="relative max-h-[85vh] w-full max-w-xl overflow-y-auto rounded-sm bg-white p-6 shadow-xl sm:p-8"
+                style={{ borderColor: SACRED.beige }}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 16 }}
+                transition={{ duration: 0.25, ease: [0.2, 0.7, 0.2, 1] }}
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              >
+                <div className="mb-4 flex justify-end">
+                  <button
+                    ref={rsvpCloseBtnRef}
+                    type="button"
+                    onClick={() => setRsvpModalOpen(false)}
+                    aria-label="Close RSVP form"
+                    className="inline-flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full border px-4 text-sm font-semibold transition hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2"
+                    style={{ borderColor: SACRED.gold, color: SACRED.gold, outlineColor: SACRED.gold }}
+                  >
+                    <X className="h-4 w-4" aria-hidden="true" />
+                    Close
+                  </button>
+                </div>
+                <SacredGardenRsvpForm site={site} />
+              </motion.div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </main>
 
       {/* Closing footer */}
@@ -258,7 +323,7 @@ export default function SacredGardenRenderer({
           {closingSrc ? (
             <div className="w-full max-w-md overflow-hidden rounded-sm">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={closingSrc} alt={`${names} — closing photograph`} loading="lazy" decoding="async" className="aspect-[4/5] w-full object-cover" />
+              <img src={closingSrc} alt={`${names} — closing photograph`} loading="lazy" decoding="async" onError={() => setClosingFailed(true)} className="aspect-[4/5] w-full object-cover" />
             </div>
           ) : null}
           <FloralDrift>

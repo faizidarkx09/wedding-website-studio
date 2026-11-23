@@ -2,9 +2,11 @@
 // Sacred Garden site.
 //
 // A full-viewport cream overlay: the AI-generated envelope artwork
-// (ivory, embossed florals, burgundy wax seal with the gold "A&B"
-// monogram baked into the image — NO HTML monogram overlay), with the
-// pulsing chevron + "TAP TO OPEN" (Cinzel 11px, bronze, 0.26em
+// (ivory, embossed florals, burgundy wax seal), with the couple's
+// LIVE initials rendered in HTML over the seal — the baked gold
+// "A&B" monogram in the image is covered by a burgundy disc carrying
+// initials(site), so the seal reads correctly for ANY couple — with
+// the pulsing chevron + "TAP TO OPEN" (Cinzel 11px, bronze, 0.26em
 // letter-spacing) overlaid on the lower third, exactly as the audit
 // specifies (DESIGN_SYSTEM.md §0.2).
 //
@@ -25,7 +27,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
-import { ENVELOPE_IMAGE_URL, SACRED, coupleNames } from "./tokens";
+import { ENVELOPE_IMAGE_URL, SACRED, coupleNames, initials } from "./tokens";
 
 type Phase = "closed" | "opening" | "gone";
 
@@ -168,11 +170,15 @@ export default function SacredGardenEnvelope({
           style={{ outlineColor: SACRED.gold } as React.CSSProperties}
         >
           {/* Envelope artwork — one image, max 440px wide (audit §0.1).
-              The wax seal + monogram are baked into the image. */}
+              The wax seal is baked into the image, but its monogram is
+              NOT trusted: the live initials overlay below covers the
+              baked "A&B" with a burgundy disc carrying initials(site).
+              containerType makes the disc + initials scale with the
+              envelope via cqw units. */}
           <motion.span
             aria-hidden="true"
             className="relative block w-[min(440px,86vw)] overflow-hidden rounded-sm"
-            style={{ aspectRatio: "9 / 16" }}
+            style={{ aspectRatio: "9 / 16", containerType: "inline-size" } as React.CSSProperties}
             initial={false}
             animate={
               opening
@@ -202,6 +208,31 @@ export default function SacredGardenEnvelope({
               animate={{ opacity: opening ? 1 : 0 }}
               transition={{ duration: 0.9, ease: "easeOut" }}
             />
+            {/* Live seal monogram — burgundy disc (15% of the envelope
+                width, centred on the baked seal at 50% / 43%) covering
+                the baked "A&B", with the couple's live initials in
+                Imperial Script, light gold. Sized in cqw so it scales
+                with the envelope at any width. */}
+            <span
+              aria-hidden="true"
+              className="absolute left-1/2 top-[43%] flex items-center justify-center"
+              style={{
+                width: "15cqw",
+                height: "15cqw",
+                transform: "translate(-50%, -50%)",
+                borderRadius: "46% 54% 52% 48% / 52% 48% 54% 46%",
+                background:
+                  "radial-gradient(circle at 50% 42%, #7A2836 0%, #6A1F2C 55%, #5A0F1B 100%)",
+              }}
+            >
+              <span
+                aria-hidden="true"
+                className="sacred-script"
+                style={{ color: "#E8D5A0", fontSize: "8.5cqw", lineHeight: 1 }}
+              >
+                {initials(site)}
+              </span>
+            </span>
           </motion.span>
 
           {/* Tap prompt — over the lower third of the envelope image,

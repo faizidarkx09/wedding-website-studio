@@ -23,6 +23,7 @@ import type {
   WeddingSite,
 } from "./types";
 import { TEMPLATES } from "./templates";
+import { sacredGardenSeed } from "./template-seeds";
 import { sha256 } from "./auth";
 
 interface Db {
@@ -227,6 +228,19 @@ export async function createSiteFromTemplate(
     updatedAt: now,
     publishedAt: null,
   };
+
+  // THE SACRED GARDEN: seed the activation from the shared template
+  // seed (src/lib/template-seeds.ts) — the same sample schedule,
+  // gallery, gift text and venue the template preview shows. Without
+  // this, buyer sites start with empty events/gallery and no
+  // tagline/gift/venue, so those sections never render. Other
+  // templates keep their generic defaults.
+  if (template.composition === "sacred-garden") {
+    const seed = sacredGardenSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.gallery = seed.gallery;
+  }
 
   d.sites.push(site);
   audit(

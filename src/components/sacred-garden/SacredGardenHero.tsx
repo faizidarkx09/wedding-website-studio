@@ -30,6 +30,7 @@ export default function SacredGardenHero({ site }: { site: WeddingSite }) {
 
   const names = coupleNames(site);
   const dottedDate = formatDottedDate(site.weddingDate, site.timezone);
+  const tagline = (site.content.tagline ?? "").trim();
 
   return (
     <section
@@ -118,6 +119,20 @@ export default function SacredGardenHero({ site }: { site: WeddingSite }) {
           </span>
           {site.content.partnerB}
         </motion.h1>
+
+        {/* Tagline — under the couple names, above the torn-paper
+            divider (the original shows it in the hero only). */}
+        {tagline ? (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.9, delay: 0.9 }}
+            className="sacred-script mt-8 max-w-2xl text-[41px] leading-[1.05]"
+            style={{ color: SACRED.gold }}
+          >
+            {tagline}
+          </motion.p>
+        ) : null}
 
         <motion.div
           initial={{ opacity: 0 }}

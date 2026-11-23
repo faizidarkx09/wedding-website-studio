@@ -6,6 +6,7 @@
 // Preview sites are never saved to the store (slug "preview-<template>").
 
 import type { TemplateMeta, WeddingSite } from "./types";
+import { sacredGardenSeed } from "./template-seeds";
 
 // ÉTERNEL template photography (public/images/themes/eternel/*) — the full
 // 30-image masonry gallery for the template preview: the detail close-up
@@ -102,6 +103,11 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
   const now = new Date().toISOString();
   const weddingDate = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000);
   const weddingDay = weddingDate.toISOString().slice(0, 10);
+
+  // THE SACRED GARDEN seed — the single source of truth shared with
+  // activation (store-neon.ts / store-local.ts). Preview and buyer
+  // sites start from exactly the same sample content.
+  const sacredSeed = sacredGardenSeed(weddingDay);
 
   // The template's own AI-generated artwork (original, made for this
   // theme). Templates without one fall back to the old placeholder seeds.
@@ -240,19 +246,11 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
             ],
           }
         : {}),
-      // THE SACRED GARDEN only: tagline + gift text + venue photo
-      // placeholders (all ORIGINAL copy — never the source site's
-      // "Two Souls One destiny" line). Phase A has only the hero and
-      // envelope images, so venueImage stays empty until Phase B.
-      ...(template.composition === "sacred-garden"
-        ? {
-            tagline:
-              "Two hearts, one garden, a lifetime of grace — sample tagline, replace it with your own words.",
-            giftText:
-              "Your gift preference goes here — for example, your presence is the greatest gift. Sample text — replace it in the editor.",
-            venueImage: "",
-          }
-        : {}),
+      // THE SACRED GARDEN only: tagline + gift text + venue photo +
+      // venue + dress code from the shared seed (src/lib/
+      // template-seeds.ts) — the same values activation seeds into
+      // buyer sites, so preview and activation can never drift.
+      ...(template.composition === "sacred-garden" ? sacredSeed.content : {}),
       dressCode: "Your dress code goes here — for example, semi-formal.",
       // DOLCE VITA only: the standalone's own letter + dress-code
       // copy as the template defaults (template copy, not couple
@@ -270,6 +268,14 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
       heroImage: themeHero,
       venueName: "Your venue",
       venueAddress: "Your venue address goes here",
+      // THE SACRED GARDEN: the generic venue lines above would clobber
+      // the seed — re-apply the seed's venue name/address here.
+      ...(template.composition === "sacred-garden"
+        ? {
+            venueName: sacredSeed.content.venueName,
+            venueAddress: sacredSeed.content.venueAddress,
+          }
+        : {}),
       mapLink: "",
       postWeddingMessage: "Just married! Thank you for celebrating with us.",
       details: [
@@ -345,13 +351,7 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
             { id: "ev-sample-end", name: "End of the celebration", date: weddingDay, time: "23:00", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own closing details." },
           ]
         : template.composition === "sacred-garden"
-          ? [
-            { id: "ev-sample-arrival", name: "Guest Arrival", date: weddingDay, time: "5 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own arrival details." },
-            { id: "ev-sample-nikkah", name: "Nikkah Ceremony", date: weddingDay, time: "6 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own ceremony details." },
-            { id: "ev-sample-mocktail", name: "Mocktail Hour", date: weddingDay, time: "7 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own mocktail-hour details." },
-            { id: "ev-sample-dinner", name: "Dinner", date: weddingDay, time: "8 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own dinner details." },
-            { id: "ev-sample-dance", name: "Dance", date: weddingDay, time: "9 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own dance details." },
-          ]
+          ? sacredSeed.events
         : [
       {
         id: "ev-sample-ceremony",
@@ -398,13 +398,7 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
               caption: `Your photo ${i + 1}`,
             }))
           : template.composition === "sacred-garden"
-            ? // Phase A has only the envelope artwork and the hero
-              // photo — the gallery shows those two. Phase B replaces
-              // this with the full Sacred Garden photo set.
-              [
-                { id: "g-sacred-1", url: themeDetail, caption: "Your photo 1" },
-                { id: "g-sacred-2", url: themeHero, caption: "Your photo 2" },
-              ]
+            ? sacredSeed.gallery
           : template.composition === "dolce-vita"
             ? DOLCE_GALLERY.map((url, i) => ({
                 id: `g-dolce-${i + 1}`,

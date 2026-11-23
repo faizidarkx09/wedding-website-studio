@@ -23,8 +23,11 @@ export const SACRED = {
 } as const;
 
 /** The envelope artwork — the AI-generated ivory envelope with the
- * embossed florals and burgundy wax seal (gold "A&B" monogram baked
- * into the image). No HTML monogram overlay is needed. */
+ * embossed florals and burgundy wax seal. The gold "A&B" monogram is
+ * baked into the image, but it is NEVER shown as-is: the envelope
+ * component covers it with a burgundy disc carrying the couple's LIVE
+ * initials (initials(site)), so the seal reads correctly for any
+ * couple. */
 export const ENVELOPE_IMAGE_URL = "/images/themes/sacred-garden-detail.jpg";
 
 /** Default background-music track (CC0, verified — "Romantic

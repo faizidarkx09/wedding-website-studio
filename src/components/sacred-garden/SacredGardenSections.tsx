@@ -1,4 +1,4 @@
-// The Sacred Garden sections — Welcome (tagline + invitation card),
+// The Sacred Garden sections — Welcome (invitation card),
 // Countdown, Schedule of Events (vertical timeline), Venue + map,
 // Dress Code + Gift Preference. All content comes from site data;
 // nothing here is hardcoded to a sample wedding. Reveals are
@@ -64,10 +64,9 @@ function sectionPad(): string {
   return "px-5 py-20 sm:py-24";
 }
 
-/* ---------- Welcome (tagline + invitation card) ---------- */
+/* ---------- Welcome (invitation card) ---------- */
 
 export function SacredGardenWelcome({ site }: { site: WeddingSite }) {
-  const tagline = (site.content.tagline ?? "").trim();
   const invitation = (site.content.invitationText ?? "").trim();
   return (
     <section id="welcome" aria-label="Welcome" className="relative mx-auto w-full max-w-3xl overflow-hidden text-center" style={{ backgroundColor: SACRED.cream }}>
@@ -82,13 +81,8 @@ export function SacredGardenWelcome({ site }: { site: WeddingSite }) {
         </FloralDrift>
       </div>
       <div className={`relative ${sectionPad()}`}>
-        {tagline ? (
-          <Reveal>
-            <p className="sacred-script mx-auto max-w-2xl text-[41px] leading-[1.05]" style={{ color: SACRED.gold }}>
-              {tagline}
-            </p>
-          </Reveal>
-        ) : null}
+        {/* The tagline lives in the hero now (SacredGardenHero) — it
+            used to render here too, which duplicated the line. */}
         <Reveal delay={0.1}>
           <p className="mx-auto mt-6 max-w-xl text-[21px] leading-[1.25]" style={{ color: SACRED.welcomeBrown }}>
             {site.content.welcome}
@@ -156,7 +150,8 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: reduceMotion ? 0 : "60%", opacity: 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.55, ease: [0.2, 0.7, 0.2, 1] }}
-            className="sacred-ovo bg-gradient-to-b from-[#B48C3D] via-[#CDA95A] to-[#D8BA72] bg-clip-text text-[45px] leading-none font-normal text-transparent tabular-nums"
+            className="sacred-ovo text-[45px] leading-none font-normal tabular-nums"
+            style={{ color: SACRED.gold }}
           >
             {display}
           </motion.div>
@@ -171,7 +166,7 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
 
 function CountdownSeparator() {
   return (
-    <span aria-hidden="true" className="sacred-ovo pt-3 text-[52px] leading-none" style={{ color: SACRED.countdownGold }}>
+    <span aria-hidden="true" className="sacred-ovo pt-3 text-[52px] leading-none" style={{ color: SACRED.gold }}>
       :
     </span>
   );
