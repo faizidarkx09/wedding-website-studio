@@ -6,6 +6,7 @@ import RsvpForm from "@/components/RsvpForm";
 import EternelRsvpForm from "@/components/eternel/EternelRsvpForm";
 import BlossomRsvpForm from "@/components/blossom/BlossomRsvpForm";
 import SacredGardenRsvpForm from "@/components/sacred-garden/SacredGardenRsvpForm";
+import DolceVitaRsvpForm from "@/components/dolce-vita/DolceVitaRsvpForm";
 import { verifySession } from "@/lib/auth";
 import { getPublicSite } from "@/lib/store";
 
@@ -69,18 +70,19 @@ export default async function RsvpPage({
   const isEternel = site.templateSnapshot.composition === "eternel";
   const isBlossom = site.templateSnapshot.composition === "blossom";
   const isSacred = site.templateSnapshot.composition === "sacred-garden";
-  const isFancy = isEternel || isBlossom || isSacred;
-  const fancyBg = isSacred ? "#F9F0E0" : isBlossom ? "#FAF6EF" : "#F8F5EF";
-  const fancyInk = isSacred ? "#6C513F" : isBlossom ? "#3E2A20" : "#302821";
-  const fancyAccent = isSacred ? "#A67D2B" : isBlossom ? "#B08D57" : "#B49A70";
-  const fancyFont = isSacred ? "font-sacred font-medium" : isBlossom ? "font-blossom font-medium" : "font-eternel font-medium";
+  const isDolce = site.templateSnapshot.composition === "dolce-vita";
+  const isFancy = isEternel || isBlossom || isSacred || isDolce;
+  const fancyBg = isDolce ? "#FFFDFB" : isSacred ? "#F9F0E0" : isBlossom ? "#FAF6EF" : "#F8F5EF";
+  const fancyInk = isDolce ? "#3A3A3A" : isSacred ? "#6C513F" : isBlossom ? "#3E2A20" : "#302821";
+  const fancyAccent = isDolce ? "#64A0BD" : isSacred ? "#A67D2B" : isBlossom ? "#B08D57" : "#B49A70";
+  const fancyFont = isDolce ? "font-dolce font-medium" : isSacred ? "font-sacred font-medium" : isBlossom ? "font-blossom font-medium" : "font-eternel font-medium";
 
   return (
     <main
       className="min-h-full w-full px-5 py-12 sm:py-16"
       style={
         isFancy
-          ? { backgroundColor: fancyBg, color: fancyInk, fontFamily: isSacred ? "var(--font-cormorant), Georgia, serif" : "var(--font-manrope), sans-serif" }
+          ? { backgroundColor: fancyBg, color: fancyInk, fontFamily: isDolce ? "var(--font-rufina), Georgia, serif" : isSacred ? "var(--font-cormorant), Georgia, serif" : "var(--font-manrope), sans-serif" }
           : { backgroundColor: "#fdfbf7", color: "#1c1917" }
       }
     >
@@ -107,6 +109,10 @@ export default async function RsvpPage({
         <BlossomRsvpForm site={site} token={token} />
       ) : isSacred ? (
         <SacredGardenRsvpForm site={site} token={token} />
+      ) : isDolce ? (
+        <div className="mx-auto w-full max-w-[380px] overflow-hidden rounded-xl bg-white shadow-[0_18px_50px_rgba(0,0,0,0.28)]">
+          <DolceVitaRsvpForm site={site} token={token} />
+        </div>
       ) : (
         <RsvpForm site={site} token={token} />
       )}

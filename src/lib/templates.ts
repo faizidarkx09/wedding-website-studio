@@ -286,6 +286,39 @@ export const TEMPLATES: TemplateMeta[] = [
       "rsvp",
     ],
   },
+  {
+    id: "dolce-vita",
+    name: "Dolce Vita",
+    tagline: "Italian lakeside · dusty blue & gold",
+    description:
+      "Warm off-white, dusty blue and pale sky with Imperial Script names — a 1:1 port of the approved standalone Dolce Vita invitation. Envelope opening with gold heart seal, Ken Burns hero with falling petals, scratch-to-reveal date, welcome letter, live countdown, order-of-the-day timeline, venue with map, dress code with palette swatches, photo slider and a full RSVP form.",
+    // PRICE TBD — set at the approval gate before the delivery PDF is
+    // issued. Kept at 0 and inactive until then so it can never be
+    // bought or activated with a placeholder price.
+    priceUsd: 0,
+    etsyListingId: null,
+    active: false,
+    // ACCESS CODE TBD — fixed code is set at the approval gate, before
+    // the delivery PDF is issued. Never activate with this placeholder.
+    accessCode: "WWS-DOLCE-VITA-TBD",
+    heroImage: "/images/themes/dolce-vita.jpg",
+    palette: { bg: "#FFFDFB", ink: "#3A3A3A", accent: "#64A0BD", accentSoft: "#E9F1F5" },
+    fontClass: "font-dolce",
+    layout:
+      "Italian lakeside single column (390px): envelope opening, Ken Burns hero with falling petals, scratch-reveal date, welcome letter, story timeline, live countdown, alternating schedule timeline, venue with photo and map, dress-code palette, photo slider, colours, full RSVP form, signature footer",
+    composition: "dolce-vita",
+    sections: [
+      "hero",
+      "welcome",
+      "story",
+      "countdown",
+      "events",
+      "venue",
+      "dress-code",
+      "gallery",
+      "rsvp",
+    ],
+  },
 ];
 
 export function getTemplate(id: string): TemplateMeta | undefined {

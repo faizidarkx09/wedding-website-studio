@@ -18,8 +18,8 @@ const HEX = /^#[0-9a-fA-F]{6}$/;
 
 /** Composition keys the renderer knows (SiteRenderer composition()):
  * champagne, blue, midnight, sage, mediterranean, lavender, eternel,
- * blossom, sacred-garden, plus the generic "classic" fallback for
- * unknown keys. */
+ * blossom, sacred-garden, dolce-vita, plus the generic "classic"
+ * fallback for unknown keys. */
 const KNOWN_COMPOSITIONS = new Set([
   "champagne",
   "blue",
@@ -30,14 +30,15 @@ const KNOWN_COMPOSITIONS = new Set([
   "eternel",
   "blossom",
   "sacred-garden",
+  "dolce-vita",
   "classic",
 ]);
 
 /** Section keys the renderer knows (NAV_LABELS + renderSection switch in
  * SiteRenderer). "hero" has no nav label but is a real section.
  * "welcome" and "venue" are ÉTERNEL-only sections (its own renderer);
- * "dress-code" is a BLOSSOM & OUD / SACRED GARDEN section (their own
- * renderers). */
+ * "dress-code" is a BLOSSOM & OUD / SACRED GARDEN / DOLCE VITA section
+ * (their own renderers). */
 const KNOWN_SECTIONS = new Set([
   "hero",
   "invitation",

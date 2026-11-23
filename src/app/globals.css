@@ -54,6 +54,9 @@ body {
 .font-sacred {
   font-family: var(--font-cormorant), Georgia, "Times New Roman", serif;
 }
+.font-dolce {
+  font-family: var(--font-rufina), Georgia, "Times New Roman", serif;
+}
 
 /* Legacy font classes kept for sites snapshotted before the six themes. */
 .font-editorial {
@@ -660,6 +663,797 @@ body {
   pointer-events: none;
   opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+/* ------------------------------------------------------------------ */
+/* DOLCE VITA — 1:1 port of the approved standalone site's stylesheet */
+/* (~/workspace/dolcevita/styles.css). Same values, same class roles,  */
+/* only prefixed dolce-*. Imperial Script headings, Ovo dates/times,  */
+/* Rufina body. The font variables are set on <html> by layout.tsx.   */
+/* ------------------------------------------------------------------ */
+
+.dolce-script {
+  font-family: var(--font-imperial), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.dolce-ovo {
+  font-family: var(--font-ovo), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.dolce-rufina {
+  font-family: var(--font-rufina), Georgia, "Times New Roman", serif;
+}
+
+/* Subtle tileable paper grain — same treatment as the other templates. */
+.dolce-paper {
+  position: relative;
+}
+.dolce-paper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+/* The standalone's narrow centred column — the approved design. */
+.dolce-column {
+  width: 100%;
+  max-width: 390px;
+  margin: 0 auto;
+  background: #fffdfb;
+  position: relative;
+}
+
+.dolce-section {
+  padding: 52px 20px;
+  position: relative;
+  text-align: center;
+}
+
+.dolce-body {
+  font-size: 18px;
+  line-height: 1.55;
+  color: #4a4a4a;
+  margin: 0 auto;
+  max-width: 320px;
+}
+
+/* ---------- envelope ---------- */
+
+.dolce-envelope {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: hidden;
+  cursor: pointer;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.9), transparent 55%),
+    radial-gradient(ellipse at 75% 80%, rgba(242,233,223,.55), transparent 55%),
+    repeating-linear-gradient(0deg, rgba(58,58,58,.012) 0 1px, transparent 1px 3px),
+    #fffdfb;
+  transition: opacity .6s ease;
+}
+
+.dolce-env-flap { position: absolute; inset: 0; transition: transform 1.6s cubic-bezier(.22,.8,.3,1), opacity 1.6s ease; }
+.dolce-env-flap-top    { clip-path: polygon(0 0, 100% 0, 50% 50%); background: #fbf7f0; }
+.dolce-env-flap-right  { clip-path: polygon(100% 0, 100% 100%, 50% 50%); background: #f6efe3; }
+.dolce-env-flap-bottom { clip-path: polygon(0 100%, 100% 100%, 50% 50%); background: #faf5ec; }
+.dolce-env-flap-left   { clip-path: polygon(0 0, 0 100%, 50% 50%); background: #f3ead9; }
+
+.dolce-envelope.open .dolce-env-flap-top    { transform: translateY(-110%); }
+.dolce-envelope.open .dolce-env-flap-right  { transform: translateX(110%); }
+.dolce-envelope.open .dolce-env-flap-bottom { transform: translateY(110%); }
+.dolce-envelope.open .dolce-env-flap-left   { transform: translateX(-110%); }
+.dolce-envelope.open { opacity: 0; pointer-events: none; }
+
+.dolce-env-seal {
+  position: absolute;
+  left: 50%; top: 46%;
+  width: 92px; height: 92px;
+  margin: -46px 0 0 -46px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  filter: drop-shadow(0 6px 14px rgba(90, 70, 20, .35));
+  transition: transform 1.4s ease, opacity 1.4s ease;
+  z-index: 3;
+}
+.dolce-env-seal svg { width: 100%; height: 100%; display: block; }
+.dolce-envelope.open .dolce-env-seal { transform: scale(1.22); opacity: 0; }
+
+.dolce-env-text {
+  position: absolute;
+  left: 0; right: 0;
+  top: calc(46% + 66px);
+  text-align: center;
+  font-family: var(--font-rufina), Georgia, serif;
+  font-size: 20px;
+  line-height: 1.55;
+  margin: 0;
+  z-index: 3;
+  transition: opacity .5s ease;
+}
+.dolce-envelope.open .dolce-env-text { opacity: 0; }
+
+.dolce-env-skip {
+  position: absolute;
+  left: 0; right: 0; bottom: 28px;
+  background: none;
+  border: 0;
+  font-family: var(--font-rufina), Georgia, serif;
+  font-size: 14px;
+  text-decoration: underline;
+  cursor: pointer;
+  z-index: 3;
+}
+
+/* ---------- audio control ---------- */
+
+.dolce-audio-control {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  border: 0;
+  background: #64a0bd;
+  box-shadow: 0 4px 10px rgba(0,0,0,.12);
+  cursor: pointer;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity .3s ease, transform .2s ease;
+}
+.dolce-audio-control:hover { transform: scale(1.06); }
+.dolce-audio-control svg { width: 26px; height: 26px; }
+.dolce-audio-control .dolce-icon-pause { display: none; }
+.dolce-audio-control.playing .dolce-icon-pause { display: block; }
+.dolce-audio-control.playing .dolce-icon-play { display: none; }
+
+/* ---------- hero ---------- */
+
+.dolce-hero { position: relative; text-align: center; }
+
+.dolce-hero-media {
+  position: relative;
+  aspect-ratio: 440 / 782;
+  overflow: hidden;
+  background: #e9e2d6;
+}
+.dolce-hero-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  transform: scale(1.06);
+  animation: dolce-kenburns 26s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes dolce-kenburns {
+  from { transform: scale(1.02) translateY(0); }
+  to   { transform: scale(1.12) translateY(-1.5%); }
+}
+
+.dolce-petals {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+.dolce-hero-birds { position: absolute; inset: 0; pointer-events: none; }
+.dolce-bird {
+  position: absolute;
+  color: rgba(58,58,58,.55);
+  font-size: 15px;
+  animation: dolce-drift 24s linear infinite;
+}
+.dolce-b1 { top: 14%; animation-delay: 0s; }
+.dolce-b2 { top: 10%; font-size: 12px; animation-delay: -9s; }
+.dolce-b3 { top: 18%; font-size: 11px; animation-delay: -17s; }
+@keyframes dolce-drift {
+  from { left: -8%; transform: translateY(0); }
+  50%  { transform: translateY(-14px); }
+  to   { left: 104%; transform: translateY(6px); }
+}
+
+.dolce-hero-fade { position: absolute; left: 0; right: 0; pointer-events: none; }
+.dolce-hero-fade-top {
+  top: 0; height: 150px;
+  background: linear-gradient(to bottom, rgba(255,253,251,.85), rgba(255,253,251,0));
+}
+.dolce-hero-fade-bottom {
+  bottom: 0; height: 200px;
+  background: linear-gradient(to top, rgba(255,253,251,.9), rgba(255,253,251,0));
+}
+
+.dolce-hero-copy {
+  position: absolute;
+  left: 0; right: 0;
+  top: 27%;
+  padding: 0 16px;
+  pointer-events: none;
+}
+.dolce-hero-names {
+  font-size: 45px;
+  line-height: 1.2;
+  color: #4a4a4a;
+  font-weight: 400;
+  margin: 0 0 2px;
+  text-shadow: 0 1px 14px rgba(255,253,251,.9), 0 0 34px rgba(255,253,251,.75);
+}
+.dolce-hero-sub {
+  font-size: 22px;
+  line-height: 1.27;
+  color: #4a4a4a;
+  margin: 0;
+  text-shadow: 0 1px 12px rgba(255,253,251,.9);
+}
+
+/* ---------- scratch date ---------- */
+
+.dolce-scratch-hint {
+  font-size: 18px;
+  line-height: 1.5;
+  color: #7a9aaa;
+  margin: 0 0 26px;
+}
+
+.dolce-scratch-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.dolce-scratch-tile {
+  position: relative;
+  width: 108px;
+  height: 138px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fffdfb;
+  border: 1px solid #f2e9df;
+  box-shadow: 0 2px 8px rgba(58,58,58,.06);
+}
+
+.dolce-scratch-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px;
+}
+.dolce-scratch-num {
+  font-size: 34px;
+  line-height: 1.1;
+  color: #3a3a3a;
+}
+.dolce-scratch-num.dolce-scratch-month { font-size: 22px; line-height: 1.15; }
+.dolce-scratch-lbl {
+  font-size: 13px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: #7a9aaa;
+}
+
+.dolce-scratch-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  touch-action: none;
+  cursor: pointer;
+  transition: opacity .8s ease;
+  display: block;
+}
+.dolce-scratch-tile.done .dolce-scratch-canvas { opacity: 0; pointer-events: none; }
+
+.dolce-married {
+  font-family: var(--font-imperial), "Snell Roundhand", cursive;
+  font-size: 34px;
+  line-height: 1.3;
+  color: #52839c;
+  margin: 26px 0 0;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 1.1s ease, transform 1.1s ease;
+}
+.dolce-married.show { opacity: 1; transform: none; }
+
+.dolce-gold-flash {
+  position: absolute;
+  left: 50%; top: 55%;
+  width: 300px; height: 300px;
+  margin: -150px 0 0 -150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212,192,144,.75), rgba(245,237,224,0) 65%);
+  opacity: 0;
+  pointer-events: none;
+}
+.dolce-gold-flash.flash { animation: dolce-flash 1.5s ease forwards; }
+@keyframes dolce-flash {
+  0% { opacity: 0; transform: scale(.6); }
+  35% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+
+.dolce-confetti {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+/* ---------- welcome letter ---------- */
+
+.dolce-letter-card {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: -7px -7px 19px rgba(42,38,38,.09), 7px 7px 19px rgba(42,38,38,.07);
+  padding: 40px 26px 30px;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.dolce-letter-ornament { display: block; width: 260px; margin: 0 auto 14px; }
+.dolce-letter-ornament-small { display: block; width: 120px; margin: 22px auto 0; }
+
+.dolce-letter-heading { font-size: 33px; line-height: 1.3; margin-bottom: 16px; }
+
+.dolce-letter-body {
+  font-size: 18px;
+  line-height: 1.6;
+  color: #4a4a4a;
+  margin: 0 auto;
+  max-width: 290px;
+}
+
+.dolce-float-anim { animation: dolce-floaty 6s ease-in-out infinite; }
+@keyframes dolce-floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.dolce-float-anim-x { animation: dolce-floatx 7s ease-in-out infinite; }
+@keyframes dolce-floatx {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(8px); }
+}
+
+/* ---------- story timeline (Studio addition, Dolce language) ---------- */
+
+.dolce-story-list {
+  position: relative;
+  max-width: 340px;
+  margin: 30px auto 0;
+  padding-left: 26px;
+  text-align: left;
+}
+.dolce-story-list::before {
+  content: "";
+  position: absolute;
+  left: 7px; top: 0; bottom: 0;
+  width: 2px;
+  background: rgba(100,160,189,.45);
+}
+.dolce-story-item { position: relative; padding-bottom: 34px; }
+.dolce-story-item:last-child { padding-bottom: 0; }
+.dolce-story-dot {
+  position: absolute;
+  top: 6px; left: -24px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #64a0bd;
+  box-shadow: 0 0 0 3px #fffdfb;
+}
+.dolce-story-photo { border-radius: 4px; overflow: hidden; margin-bottom: 14px; }
+.dolce-story-photo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.dolce-story-date { font-size: 20px; line-height: 1.1; color: #64a0bd; margin: 0 0 2px; }
+.dolce-story-title { font-size: 22px; line-height: 1.25; color: #3a3a3a; font-weight: 700; margin: 0 0 6px; }
+.dolce-story-text { font-size: 18px; line-height: 1.55; color: #4a4a4a; margin: 0; }
+
+/* ---------- countdown (Studio addition, Dolce language) ---------- */
+
+.dolce-countdown-row { display: flex; justify-content: center; align-items: flex-start; margin-top: 8px; }
+.dolce-countdown-group { display: flex; align-items: flex-start; }
+.dolce-countdown-unit { display: flex; flex-direction: column; align-items: center; min-width: 64px; }
+.dolce-countdown-num { font-size: 30px; line-height: 1.1; color: #3a3a3a; }
+.dolce-countdown-lbl { font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: #7a9aaa; margin-top: 4px; }
+.dolce-countdown-sep { font-size: 30px; line-height: 1.1; color: #64a0bd; padding: 0 2px; }
+.dolce-countdown-date { font-size: 18px; line-height: 1.5; color: #4a4a4a; margin: 18px 0 0; }
+
+/* ---------- schedule ---------- */
+
+.dolce-timeline {
+  position: relative;
+  max-width: 340px;
+  margin: 30px auto 0;
+  padding: 6px 0;
+}
+.dolce-timeline::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 0; bottom: 0;
+  width: 4px;
+  margin-left: -2px;
+  background: rgba(58,58,58,.7);
+  border-radius: 2px;
+}
+
+.dolce-tl-item {
+  position: relative;
+  width: 50%;
+  padding: 14px 22px;
+}
+.dolce-tl-left  { margin-right: auto; text-align: right; }
+.dolce-tl-right { margin-left: auto; text-align: left; }
+
+.dolce-tl-dot {
+  position: absolute;
+  top: 50%; margin-top: -5px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #64a0bd;
+  box-shadow: 0 0 0 3px #fffdfb;
+}
+.dolce-tl-left .dolce-tl-dot  { right: -5px; }
+.dolce-tl-right .dolce-tl-dot { left: -5px; }
+
+.dolce-tl-time {
+  font-size: 30px;
+  line-height: 1.1;
+  color: #3a3a3a;
+}
+.dolce-tl-name {
+  font-size: 20px;
+  line-height: 1.25;
+  color: #4a4a4a;
+  margin-top: 2px;
+}
+.dolce-tl-desc { font-size: 16px; line-height: 1.5; color: #4a4a4a; margin: 6px 0 0; }
+
+/* ---------- venue ---------- */
+
+.dolce-venue-photo { margin: 0 0 20px; border-radius: 4px; overflow: hidden; }
+.dolce-venue-photo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+
+.dolce-venue-name {
+  font-size: 22px;
+  line-height: 1.27;
+  color: #3a3a3a;
+  margin: 0 0 4px;
+}
+.dolce-venue-addr {
+  font-size: 19px;
+  line-height: 1.4;
+  margin: 0 0 16px;
+}
+.dolce-venue-link {
+  display: inline-block;
+  font-size: 18px;
+  color: #52839c;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.dolce-venue-map { margin: 22px auto 0; max-width: 340px; border: 1px solid #f2e9df; border-radius: 4px; overflow: hidden; }
+.dolce-venue-iframe { width: 100%; aspect-ratio: 4 / 3; border: 0; display: block; }
+
+/* ---------- dress code ---------- */
+
+.dolce-dress-ornament { display: block; width: 280px; margin: 26px auto 0; }
+
+/* ---------- gallery slider ---------- */
+
+.dolce-slider {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+}
+.dolce-slides {
+  display: flex;
+  transition: transform .45s ease;
+  will-change: transform;
+  cursor: grab;
+}
+.dolce-slides.dragging { transition: none; cursor: grabbing; }
+.dolce-slide { flex: 0 0 100%; margin: 0; }
+.dolce-slide img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.dolce-slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255,253,251,.85);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(58,58,58,.18);
+  z-index: 2;
+}
+.dolce-slider-prev { left: 10px; }
+.dolce-slider-next { right: 10px; }
+.dolce-slider-arrow:hover { background: #fff; }
+
+.dolce-slider-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 0 4px;
+}
+.dolce-slider-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  border: 0;
+  padding: 0;
+  background: rgba(100,160,189,.35);
+  cursor: pointer;
+  transition: background .25s ease, transform .25s ease;
+}
+.dolce-slider-dot.active { background: #64a0bd; transform: scale(1.25); }
+
+/* ---------- colours ---------- */
+
+.dolce-colours-label {
+  font-size: 19px;
+  line-height: 1.5;
+  color: #4a4a4a;
+  margin: 0 0 18px;
+}
+
+.dolce-swatches {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 6px 4px 10px;
+  scrollbar-width: thin;
+}
+.dolce-swatch {
+  flex: 0 0 auto;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  border: 1px solid #f2e9df;
+  box-shadow: 0 2px 6px rgba(58,58,58,.12);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: dolce-swatchin .6s ease forwards;
+}
+@keyframes dolce-swatchin { to { opacity: 1; transform: none; } }
+
+.dolce-colours-body { margin-top: 18px; }
+
+/* ---------- RSVP CTA ---------- */
+
+.dolce-rsvp-intro {
+  font-size: 18px;
+  line-height: 1.55;
+  max-width: 300px;
+  margin: 0 auto 22px;
+}
+
+.dolce-btn-rsvp {
+  position: relative;
+  overflow: hidden;
+  width: 149px; height: 41px;
+  border-radius: 30px;
+  border: 0;
+  background: #9bc9e1;
+  color: #fff;
+  font-family: var(--font-rufina), Georgia, serif;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.dolce-btn-rsvp:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(155,201,225,.5); }
+.dolce-btn-rsvp::after {
+  content: "";
+  position: absolute;
+  top: -50%; bottom: -50%;
+  width: 34px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+  transform: skewX(-20deg);
+  animation: dolce-shine 3s linear infinite;
+}
+@keyframes dolce-shine {
+  0% { left: -20%; }
+  55%, 100% { left: 110%; }
+}
+
+.dolce-rsvp-closed {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  max-width: 340px;
+  margin: 0 auto;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #f2e9df;
+  border-radius: 6px;
+  padding: 16px 18px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #4a4a4a;
+}
+.dolce-rsvp-closed p { margin: 0; }
+
+/* ---------- closing ---------- */
+
+.dolce-closing { padding-bottom: 64px; text-align: center; }
+.dolce-closing-photo { margin: 0 0 24px; border-radius: 0 0 30px 30px; overflow: hidden; }
+.dolce-closing-photo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.dolce-closing-heading { font-size: 33px; margin-bottom: 8px; }
+.dolce-closing-names { font-size: 30px; color: #3a3a3a; margin: 0 0 20px; }
+.dolce-closing-ornament { display: block; width: 120px; margin: 0 auto; }
+
+/* ---------- RSVP modal ---------- */
+
+.dolce-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.dolce-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(58,58,58,.45);
+  animation: dolce-fadein .3s ease;
+}
+@keyframes dolce-fadein { from { opacity: 0; } }
+
+.dolce-modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.28);
+}
+
+.dolce-modal-close {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255,253,251,.9);
+  color: #3a3a3a;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0,0,0,.15);
+}
+
+.dolce-modal-header-img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.dolce-modal-body { padding: 22px 24px 28px; text-align: center; }
+
+.dolce-modal-body h3 {
+  font-family: var(--font-rufina), Georgia, serif;
+  font-size: 24px;
+  line-height: 1.25;
+  color: #3a3a3a;
+  margin: 0 0 6px;
+  font-weight: 700;
+}
+.dolce-modal-desc { font-size: 16px; color: #7a9aaa; margin: 0 0 20px; }
+
+.dolce-field-label {
+  display: block;
+  font-size: 16px;
+  color: #3a3a3a;
+  text-align: left;
+  margin: 0 0 6px;
+}
+.dolce-field-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  margin-bottom: 16px;
+  border: 1px solid #d8d2c8;
+  border-radius: 8px;
+  font-family: var(--font-rufina), Georgia, serif;
+  font-size: 16px;
+  color: #3a3a3a;
+  background: #fff;
+}
+.dolce-field-input:focus { outline: 2px solid #64a0bd; outline-offset: 1px; border-color: #64a0bd; }
+
+.dolce-field-group {
+  border: 0;
+  padding: 0;
+  margin: 0 0 16px;
+  text-align: left;
+}
+.dolce-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  color: #4a4a4a;
+  padding: 7px 2px;
+  cursor: pointer;
+}
+.dolce-check input {
+  width: 18px; height: 18px;
+  accent-color: #64a0bd;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.dolce-form-error {
+  color: #b0392e;
+  font-size: 15px;
+  margin: 0 0 12px;
+}
+
+.dolce-btn-submit {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 46px;
+  border-radius: 20px;
+  border: 0;
+  background: #9bc9e1;
+  color: #fff;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 19px;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.dolce-btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(155,201,225,.5); }
+.dolce-btn-submit:disabled { opacity: .6; cursor: default; transform: none; }
+.dolce-btn-submit::after {
+  content: "";
+  position: absolute;
+  top: -50%; bottom: -50%;
+  width: 34px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+  transform: skewX(-20deg);
+  animation: dolce-shine 3s linear infinite;
+}
+.dolce-btn-link { display: flex; align-items: center; justify-content: center; text-decoration: none; }
+
+.dolce-rsvp-success { padding: 8px 0 4px; }
+.dolce-success-script {
+  font-family: var(--font-imperial), "Snell Roundhand", cursive;
+  font-size: 44px;
+  line-height: 1.2;
+  color: #52839c;
+  margin: 0 0 10px;
+}
+.dolce-success-body { font-size: 17px; line-height: 1.55; margin: 0 0 22px; }
+.dolce-update-box { background: #f6f1e8; border-radius: 6px; padding: 18px; text-align: left; margin: 0 0 22px; }
+.dolce-update-title { font-size: 14px; font-weight: 700; color: #3a3a3a; margin: 0 0 8px; }
+.dolce-update-link { display: block; word-break: break-all; font-size: 14px; font-weight: 500; text-decoration: underline; }
+.dolce-update-note { font-size: 12px; line-height: 1.5; color: #4a4a4a; opacity: .7; margin: 8px 0 0; }
+.dolce-loading-note { background: #f6f1e8; border-radius: 6px; padding: 12px 16px; font-size: 14px; margin: 0 0 16px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dolce-hero-img, .dolce-bird, .dolce-float-anim, .dolce-float-anim-x,
+  .dolce-btn-rsvp::after, .dolce-btn-submit::after { animation: none !important; }
+  .dolce-swatch { animation: none !important; opacity: 1; transform: none; }
 }
 
 @media print {

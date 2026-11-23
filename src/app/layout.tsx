@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Allura, Cormorant_Garamond, EB_Garamond, Inter, Manrope, Playfair_Display } from "next/font/google";
+import { Allura, Beau_Rivage, Cinzel, Cormorant_Garamond, EB_Garamond, Imperial_Script, Inter, Manrope, Ovo, Playfair_Display, Rufina } from "next/font/google";
 import "./globals.css";
 
 // Display serifs per theme (see globals.css .font-* classes). Every
@@ -45,6 +45,40 @@ const allura = Allura({
   variable: "--font-allura",
   display: "swap",
 });
+// THE SACRED GARDEN: Beau Rivage (couple names) + Imperial Script
+// (section titles) + Cinzel ("Tap to open") + Ovo (dates/times).
+const beauRivage = Beau_Rivage({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-beaurivage",
+  display: "swap",
+});
+const imperialScript = Imperial_Script({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-imperial",
+  display: "swap",
+});
+const cinzel = Cinzel({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-cinzel",
+  display: "swap",
+});
+const ovo = Ovo({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-ovo",
+  display: "swap",
+});
+// DOLCE VITA: Rufina (body — the standalone's body face; Imperial
+// Script + Ovo are already imported above for Sacred Garden).
+const rufina = Rufina({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-rufina",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Wedding Website Studio — Beautiful wedding websites, sold on Etsy",
@@ -56,7 +90,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${playfair.variable} ${ebGaramond.variable} ${inter.variable} ${manrope.variable} ${allura.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${playfair.variable} ${ebGaramond.variable} ${inter.variable} ${manrope.variable} ${allura.variable} ${beauRivage.variable} ${imperialScript.variable} ${cinzel.variable} ${ovo.variable} ${rufina.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

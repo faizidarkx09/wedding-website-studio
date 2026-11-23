@@ -81,6 +81,23 @@ const BLOSSOM_GALLERY = [
   "/images/themes/blossom/couple-final-02.jpg",
 ];
 
+// DOLCE VITA template photography (public/images/themes/dolce-vita/*)
+// — the standalone's 10 slider photos: the hands/rings close-up
+// (detail) first, then gallery-01…09, so the slider shows all 10
+// standalone photos with no duplicates (gallery-10 IS the detail).
+const DOLCE_GALLERY = [
+  "/images/themes/dolce-vita-detail.jpg",
+  "/images/themes/dolce-vita/gallery-01.jpg",
+  "/images/themes/dolce-vita/gallery-02.jpg",
+  "/images/themes/dolce-vita/gallery-03.jpg",
+  "/images/themes/dolce-vita/gallery-04.jpg",
+  "/images/themes/dolce-vita/gallery-05.jpg",
+  "/images/themes/dolce-vita/gallery-06.jpg",
+  "/images/themes/dolce-vita/gallery-07.jpg",
+  "/images/themes/dolce-vita/gallery-08.jpg",
+  "/images/themes/dolce-vita/gallery-09.jpg",
+];
+
 export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
   const now = new Date().toISOString();
   const weddingDate = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000);
@@ -186,6 +203,43 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
             ],
           }
         : {}),
+      // DOLCE VITA only: same four placeholder milestones. Story
+      // photos REUSE gallery images (the standalone has no dedicated
+      // story shoot — see dolcevita-assets/SLOT_MAP.md).
+      ...(template.composition === "dolce-vita"
+        ? {
+            storyMilestones: [
+              {
+                id: "m-sample-1",
+                date: "Spring 2018",
+                title: "The first hello",
+                text: "Sample milestone — replace this with your own first meeting, in your own words.",
+                image: "/images/themes/dolce-vita/gallery-04.jpg",
+              },
+              {
+                id: "m-sample-2",
+                date: "Summer 2019",
+                title: "The first trip",
+                text: "Sample milestone — replace this with your own favourite trip together.",
+                image: "/images/themes/dolce-vita/gallery-07.jpg",
+              },
+              {
+                id: "m-sample-3",
+                date: "Winter 2022",
+                title: "Moving in",
+                text: "Sample milestone — replace this with the moment you made a home together.",
+                image: "/images/themes/dolce-vita/gallery-01.jpg",
+              },
+              {
+                id: "m-sample-4",
+                date: "Autumn 2024",
+                title: "The proposal",
+                text: "Sample milestone — replace this with the day the question was asked.",
+                image: "/images/themes/dolce-vita/gallery-06.jpg",
+              },
+            ],
+          }
+        : {}),
       // THE SACRED GARDEN only: tagline + gift text + venue photo
       // placeholders (all ORIGINAL copy — never the source site's
       // "Two Souls One destiny" line). Phase A has only the hero and
@@ -200,6 +254,18 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
           }
         : {}),
       dressCode: "Your dress code goes here — for example, semi-formal.",
+      // DOLCE VITA only: the standalone's own letter + dress-code
+      // copy as the template defaults (template copy, not couple
+      // data — the editor can replace it), plus the venue photo.
+      ...(template.composition === "dolce-vita"
+        ? {
+            welcome:
+              "As we count down the days to our wedding, our hearts are full of gratitude for the people who have shaped our story. Your love, your laughter and your friendship mean more to us than words can say, and we would be so happy to celebrate the beginning of our married life with you beside us.",
+            dressCode:
+              "We would love it if your outfit echoed the colours of our day — soft pastels, warm neutrals, and a touch of gold.",
+            venueImage: "/images/themes/dolce-vita/venue-01.jpg",
+          }
+        : {}),
       footerMessage: "Thank you for being part of our day.",
       heroImage: themeHero,
       venueName: "Your venue",
@@ -263,9 +329,23 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
     // 5 PM, Nikkah Ceremony 6 PM, Mocktail Hour 7 PM, Dinner 8 PM,
     // Dance 9 PM), all marked as sample text. Events carry NO photos
     // in Phase A — the timeline renders names + times only.
+    // DOLCE VITA: the standalone's 6-event schedule (Doors 16:30,
+    // Ceremony 17:00, Cocktail 18:00, Dinner 20:00, Party 21:00, End
+    // 23:00 — chronological, the standalone's fix for the source
+    // site listing Dinner after Party), all marked as sample text.
+    // Times stay 24-hour, exactly as the standalone shows them.
     events:
-      template.composition === "sacred-garden"
+      template.composition === "dolce-vita"
         ? [
+            { id: "ev-sample-doors", name: "Opening of the doors", date: weddingDay, time: "16:30", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own arrival details." },
+            { id: "ev-sample-ceremony", name: "Ceremony", date: weddingDay, time: "17:00", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own ceremony details." },
+            { id: "ev-sample-cocktail", name: "Cocktail and dancing time", date: weddingDay, time: "18:00", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own cocktail-hour details." },
+            { id: "ev-sample-dinner", name: "Dinner", date: weddingDay, time: "20:00", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own dinner details." },
+            { id: "ev-sample-party", name: "Party and Open Bar", date: weddingDay, time: "21:00", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own party details." },
+            { id: "ev-sample-end", name: "End of the celebration", date: weddingDay, time: "23:00", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own closing details." },
+          ]
+        : template.composition === "sacred-garden"
+          ? [
             { id: "ev-sample-arrival", name: "Guest Arrival", date: weddingDay, time: "5 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own arrival details." },
             { id: "ev-sample-nikkah", name: "Nikkah Ceremony", date: weddingDay, time: "6 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own ceremony details." },
             { id: "ev-sample-mocktail", name: "Mocktail Hour", date: weddingDay, time: "7 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own mocktail-hour details." },
@@ -325,12 +405,18 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
                 { id: "g-sacred-1", url: themeDetail, caption: "Your photo 1" },
                 { id: "g-sacred-2", url: themeHero, caption: "Your photo 2" },
               ]
-          : [
-            // Detail shot first, so the story section uses it and the hero
-            // image is not repeated three times on the preview page.
-            { id: "g1", url: themeDetail, caption: "Your photo 1" },
-            { id: "g2", url: themeHero, caption: "Your photo 2" },
-          ],
+          : template.composition === "dolce-vita"
+            ? DOLCE_GALLERY.map((url, i) => ({
+                id: `g-dolce-${i + 1}`,
+                url,
+                caption: `Your photo ${i + 1}`,
+              }))
+            : [
+              // Detail shot first, so the story section uses it and the hero
+              // image is not repeated three times on the preview page.
+              { id: "g1", url: themeDetail, caption: "Your photo 1" },
+              { id: "g2", url: themeHero, caption: "Your photo 2" },
+            ],
     customQuestions: [],
     settings: {
       passwordEnabled: false,

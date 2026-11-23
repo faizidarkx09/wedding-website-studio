@@ -9,6 +9,7 @@ import Reveal from "./Reveal";
 import EternelRenderer from "./eternel/EternelRenderer";
 import BlossomRenderer from "./blossom/BlossomRenderer";
 import SacredGardenRenderer from "./sacred-garden/SacredGardenRenderer";
+import DolceVitaRenderer from "./dolce-vita/DolceVitaRenderer";
 
 interface SiteRendererProps {
   site: WeddingSite;
@@ -1515,6 +1516,13 @@ export default function SiteRenderer({ site, preview = false, envelope = false }
   // + rose-garden layout). Same gate as ÉTERNEL above.
   if (comp === "sacred-garden") {
     return <SacredGardenRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // DOLCE VITA renders through its own renderer — a 1:1 port of the
+  // approved standalone site (390px column, Ken Burns hero, petals,
+  // scratch-reveal date, photo slider). Same gate as ÉTERNEL above.
+  if (comp === "dolce-vita") {
+    return <DolceVitaRenderer site={effective} envelope={envelope} preview={preview} />;
   }
 
   const sections = effective.templateSnapshot.sections;
