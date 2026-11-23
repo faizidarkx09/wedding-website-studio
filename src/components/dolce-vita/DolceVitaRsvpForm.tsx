@@ -334,7 +334,7 @@ export function DolceVitaRsvpModal({
         className="dolce-modal-card"
         initial={{ opacity: 0, y: reduceMotion ? 0 : 16, scale: reduceMotion ? 1 : 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: reduceMotion ? 0 : 0.35, ease: "ease" }}
+        transition={{ duration: reduceMotion ? 0 : 0.35, ease: [0.25, 0.1, 0.25, 1] }}
       >
         <button type="button" onClick={onClose} aria-label="Close" className="dolce-modal-close">
           &times;

@@ -121,6 +121,15 @@ export interface SiteContent {
   /** ÉTERNEL story timeline milestones (4 by default). When empty or
    * unset, the renderer shows the single `story` text instead. */
   storyMilestones?: StoryMilestone[];
+  /** The Sacred Garden tagline (Imperial Script, gold) shown above
+   * the welcome paragraph. Optional — empty hides the line. */
+  tagline?: string;
+  /** The Sacred Garden gift-preference text. Optional — when empty
+   * the gift notice is hidden. */
+  giftText?: string;
+  /** The Sacred Garden venue photo URL. Optional — shown above the
+   * map when set. */
+  venueImage?: string;
   dressCode: string;
   footerMessage: string;
   heroImage: string;

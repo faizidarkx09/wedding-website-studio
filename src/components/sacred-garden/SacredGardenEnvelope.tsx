@@ -149,7 +149,7 @@ export default function SacredGardenEnvelope({
       style={{ backgroundColor: SACRED.cream, color: SACRED.brown }}
       initial={false}
       animate={{ opacity: opening ? 0 : 1 }}
-      transition={{ duration: 1.4, ease: "ease" }}
+      transition={{ duration: 1.4, ease: [0.25, 0.1, 0.25, 1] }}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
