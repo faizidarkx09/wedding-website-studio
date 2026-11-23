@@ -2,7 +2,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifySession } from "@/lib/auth";
 import { isLocalStore } from "@/lib/store";
-import { supabaseStatus } from "@/lib/supabase";
+import { isNeonConfigured } from "@/lib/neon";
+import { isEtsyConfigured } from "@/lib/supabase";
 import { AdminNav } from "../ui";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +24,7 @@ function StatusPill({ connected }: { connected: boolean }) {
 
 export default async function AdminSettingsPage() {
   await requireAdmin();
-  const status = supabaseStatus();
+  const status = { neon: isNeonConfigured(), etsy: isEtsyConfigured() };
   const localStore = isLocalStore();
   const customPasswordSet = Boolean(process.env.ADMIN_PASSWORD);
 
@@ -38,17 +39,16 @@ export default async function AdminSettingsPage() {
           <div role="alert" className="mt-6 rounded-lg border-2 border-amber-400 bg-amber-50 p-4">
             <p className="font-semibold text-amber-900">Local store mode is ON</p>
             <p className="mt-1 text-sm text-amber-800">
-              Supabase is not configured, so the app runs on an in-memory store with no
+              No database is configured, so the app runs on an in-memory store with no
               demo content. Sites and RSVPs created here are lost when the server
-              restarts. Connect Supabase to persist real data.
+              restarts. Set DATABASE_URL (Neon) to persist real data.
             </p>
           </div>
         ) : (
-          <div role="status" className="mt-6 rounded-lg border border-amber-300 bg-amber-50 p-4">
-            <p className="text-sm font-medium text-amber-800">
-              Supabase environment variables are present — but the store is still in-memory until the Supabase
-              switch is implemented (see README “Connecting Supabase”). Sites and RSVPs are still lost when the
-              server restarts.
+          <div role="status" className="mt-6 rounded-lg border border-green-300 bg-green-50 p-4">
+            <p className="text-sm font-medium text-green-800">
+              Neon database is connected — sites, RSVPs and audit logs are stored in
+              Postgres (wedding schema) and survive redeploys and cold starts.
             </p>
           </div>
         )}
@@ -56,19 +56,17 @@ export default async function AdminSettingsPage() {
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <section className="rounded-lg border border-stone-200 bg-white p-4">
             <div className="flex items-center justify-between gap-2">
-              <h2 className="text-base font-semibold text-stone-900">Supabase</h2>
-              <StatusPill connected={status.supabase} />
+              <h2 className="text-base font-semibold text-stone-900">Database (Neon)</h2>
+              <StatusPill connected={status.neon} />
             </div>
             <p className="mt-2 text-sm text-stone-600">
-              {status.supabase
-                ? "Configured (variables present) — but the app still runs on the in-memory store. The Supabase switch is not implemented yet, so no data is read from or written to Supabase."
+              {status.neon
+                ? "Connected — sites, RSVPs and audit logs are stored in the Neon Postgres database (wedding schema) and survive redeploys. The 6 launch themes still live in code; only admin-created templates are stored in the database."
                 : "Not connected. The app runs in local mode on the in-memory store."}
             </p>
-            <p className="mt-3 text-sm font-medium text-stone-700">Environment variables needed:</p>
+            <p className="mt-3 text-sm font-medium text-stone-700">Environment variable needed:</p>
             <ul className="mt-1 space-y-1 text-sm">
-              <li><code className="rounded bg-stone-100 px-1.5 py-0.5 font-mono text-xs">NEXT_PUBLIC_SUPABASE_URL</code></li>
-              <li><code className="rounded bg-stone-100 px-1.5 py-0.5 font-mono text-xs">NEXT_PUBLIC_SUPABASE_ANON_KEY</code></li>
-              <li><code className="rounded bg-stone-100 px-1.5 py-0.5 font-mono text-xs">SUPABASE_SERVICE_ROLE_KEY</code> <span className="text-stone-500">(server only — never expose it)</span></li>
+              <li><code className="rounded bg-stone-100 px-1.5 py-0.5 font-mono text-xs">DATABASE_URL</code> <span className="text-stone-500">(server only — never expose it)</span></li>
             </ul>
           </section>
 
@@ -137,7 +135,7 @@ export default async function AdminSettingsPage() {
               <li>Access codes are public by design — they ship in the delivery PDF, and are stored in plain text on the template. Only guest passwords are hashed (SHA-256).</li>
               <li>Guest lists and RSVP records are tenant-scoped by site — an admin sees them, a public visitor never does.</li>
               <li>Session cookies are httpOnly and sameSite=lax; the admin session lasts 30 days.</li>
-              <li>Service-role keys (Supabase) and API keys (Etsy) are server-side only and are never sent to the browser.</li>
+              <li>Database credentials (DATABASE_URL) and API keys (Etsy) are server-side only and are never sent to the browser.</li>
               <li>Editing a master template never changes an existing site — each site keeps the template snapshot from creation time.</li>
             </ul>
           </section>

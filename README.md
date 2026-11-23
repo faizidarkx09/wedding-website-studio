@@ -23,30 +23,33 @@ npm start          # serve the production build
 Copy `.env.example` to `.env.local` and fill in the values you have — the
 app runs fully in **local mode** with no keys at all (see below).
 
-## Local mode vs Supabase
+## Local mode vs Neon (database)
 
-**Local mode (default, no keys needed).** When `NEXT_PUBLIC_SUPABASE_URL`
-/ `NEXT_PUBLIC_SUPABASE_ANON_KEY` are absent, the app runs on an in-memory
-store (`src/lib/store.ts`) that starts empty — no demo content, no sample
-sites. The 6 real themes are the only built-in data.
-Everything works — editor, RSVP, QR, PDF, CSV — but data resets on every
-redeploy / cold start.
+**Local mode (default, no keys needed).** When `DATABASE_URL` is absent,
+the app runs on an in-memory store (`src/lib/store-local.ts`) that starts
+empty — no demo content, no sample sites. The 6 real themes are the only
+built-in data. Everything works — editor, RSVP, QR, PDF, CSV — but data
+resets on every redeploy / cold start.
 
-**Supabase (production store).** Exact steps:
+**Neon (production store).** The app stores sites, RSVPs, templates and
+audit logs in a Neon Postgres database, in a dedicated `wedding` schema
+(the same Neon database also holds ClipForge's `public` tables — no
+collision). Exact steps:
 
-1. Create a project at [supabase.com](https://supabase.com) → **New project**.
-2. In the project dashboard go to **Settings → API** and copy the
-   **Project URL** and the **anon public key** (and the **service_role**
-   secret key for server-side admin flows).
-3. Open the **SQL Editor** and run, in order:
-   - `supabase/migrations/0001_init.sql` (schema)
-   - `supabase/migrations/0002_rls.sql` (row level security)
-   - `supabase/seed.sql` (6 themes — optional)
-4. Set the env vars in `.env.local` (or in Vercel → Project → Settings →
-   Environment Variables):
-   `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
-   `SUPABASE_SERVICE_ROLE_KEY`, `SESSION_SECRET`, `ADMIN_PASSWORD`.
-5. Restart the dev server / redeploy.
+1. Run `supabase/migrations/0003_neon.sql` against the Neon database
+   (one statement per call via the Neon HTTP `/sql` endpoint — see the
+   file header for why 0001/0002 were not run as-is: 0001 references
+   Supabase Auth, and 0002's RLS policies call `auth.uid()`, which does
+   not exist on Neon).
+2. Set `DATABASE_URL` (the Postgres connection string) in `.env.local`
+   (or in Vercel → Project → Settings → Environment Variables), plus
+   `SESSION_SECRET` and `ADMIN_PASSWORD`.
+3. Restart the dev server / redeploy. The store switches automatically:
+   `DATABASE_URL` set → Neon; unset → in-memory.
+
+Supabase is NOT used by this app — the `NEXT_PUBLIC_SUPABASE_*` /
+`SUPABASE_SERVICE_ROLE_KEY` variables in `.env.example` are legacy and
+ignored.
 
 ## Etsy delivery model — one static PDF per template
 
@@ -87,10 +90,9 @@ npx vercel            # link the project, then set env vars
 ```
 
 Set in Vercel → Project → Settings → Environment Variables (Production):
-`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
-`SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SITE_URL` (your domain, no
-trailing slash), `ADMIN_PASSWORD`, `SESSION_SECRET`, and optionally
-`ETSY_API_KEY`, `ETSY_SHOP_ID`. Then redeploy. Use the
+`DATABASE_URL` (Neon connection string), `NEXT_PUBLIC_SITE_URL` (your
+domain, no trailing slash), `ADMIN_PASSWORD`, `SESSION_SECRET`, and
+optionally `ETSY_API_KEY`, `ETSY_SHOP_ID`. Then redeploy. Use the
 domain in `NEXT_PUBLIC_SITE_URL` — it is what QR codes and PDF links encode.
 
 ## Admin credentials (change before going live)
@@ -120,8 +122,8 @@ only — it never works in production once the env var is set.
 
 ## Known limitations
 
-- **Local mode is in-memory**: data resets on redeploy / cold start. Use
-  Supabase for anything real.
+- **Local mode is in-memory**: data resets on redeploy / cold start. Set
+  `DATABASE_URL` (Neon) for anything real.
 - **Email is not connected**: there is no mail system by design — delivery
   happens through the Etsy digital-download PDF (see delivery model above).
 - **Etsy API is not connected**: there is no automatic order sync; delivery
@@ -138,11 +140,11 @@ only — it never works in production once the env var is set.
   (`src/lib/templates.ts`) — they ship in the static Etsy PDF, so they
   must never change after the PDF is listed. Their plain form is never
   stored, logged or returned by any API.
-- **Row Level Security**: every customer-owned table has RLS
-  (`supabase/migrations/0002_rls.sql`). Anonymous users can read published
-  sites and their public content only; owners see only their own rows;
-  admins are gated on `profiles.is_admin`. The `service_role` key bypasses
-  RLS, so server code still scopes every read/write by `siteId`.
+- **No row-level security**: the database has no RLS policies (Neon has
+  no Supabase Auth — see `supabase/migrations/0003_neon.sql`). Tenant
+  isolation is enforced in code: server code scopes every read/write by
+  `siteId`, and the database is reachable only server-side via
+  `DATABASE_URL`, never from the browser.
 - **Tenant isolation**: public pages receive only the public fields of a
   published site — never access codes, guest lists or other guests' RSVPs.
   The RSVP GET endpoint returns a single response by its secret token.
