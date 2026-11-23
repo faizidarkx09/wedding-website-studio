@@ -97,10 +97,11 @@ domain in `NEXT_PUBLIC_SITE_URL` — it is what QR codes and PDF links encode.
 
 | Who | How | Value |
 | --- | --- | --- |
-| Admin | Admin login password | `admin123` (set `ADMIN_PASSWORD` in production) |
+| Admin | Admin login password | Set via `ADMIN_PASSWORD` env var in Vercel (strong secret; the `admin123` default is disabled) |
 
-The admin password is a default placeholder. Never use it for a real
-customer-facing setup without changing it.
+The admin password is managed through the `ADMIN_PASSWORD` environment
+variable in Vercel. The `admin123` default in the code is a placeholder
+only — it never works in production once the env var is set.
 
 ## Routes
 
