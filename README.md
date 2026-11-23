@@ -158,3 +158,4 @@ only — it never works in production once the env var is set.
 - **Secrets**: never commit `.env.local` or real keys. Placeholders only
   in `.env.example`. Set a long random `SESSION_SECRET` and a real
   `ADMIN_PASSWORD` in production.
+<!-- Deploy trigger 2026-11-23: DATABASE_URL corrected in Vercel; redeploy to pick up the real Neon connection string. -->
