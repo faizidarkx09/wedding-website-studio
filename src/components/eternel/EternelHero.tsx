@@ -54,6 +54,16 @@ function StaggeredText({ text, delay = 0 }: { text: string; delay?: number }) {
   );
 }
 
+/** Shared hero-image resolution (template snapshot wins over picsum placeholders).
+ * Used by the hero itself and by the renderer, which preloads this exact URL
+ * in <head> so the hero photo starts downloading immediately on page load
+ * instead of after hydration / envelope open. */
+export function resolveEternelHeroSrc(site: WeddingSite): string | undefined {
+  return !site.content.heroImage || site.content.heroImage.includes("picsum.photos")
+    ? (site.templateSnapshot.heroImage ?? site.content.heroImage)
+    : site.content.heroImage;
+}
+
 export default function EternelHero({ site }: { site: WeddingSite }) {
   const reduceMotion = useReducedMotion();
   const parallax = useDesktopParallax();
@@ -68,10 +78,7 @@ export default function EternelHero({ site }: { site: WeddingSite }) {
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "45%"]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
-  const heroSrc =
-    !site.content.heroImage || site.content.heroImage.includes("picsum.photos")
-      ? (site.templateSnapshot.heroImage ?? site.content.heroImage)
-      : site.content.heroImage;
+  const heroSrc = resolveEternelHeroSrc(site);
 
   const names = coupleNames(site);
   const dateLine = formatLongDate(site.weddingDate, site.timezone);

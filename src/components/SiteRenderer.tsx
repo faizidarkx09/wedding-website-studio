@@ -7,6 +7,8 @@ import Countdown from "./Countdown";
 import EnvelopeIntro from "./EnvelopeIntro";
 import Reveal from "./Reveal";
 import EternelRenderer from "./eternel/EternelRenderer";
+import BlossomRenderer from "./blossom/BlossomRenderer";
+import SacredGardenRenderer from "./sacred-garden/SacredGardenRenderer";
 
 interface SiteRendererProps {
   site: WeddingSite;
@@ -1501,6 +1503,18 @@ export default function SiteRenderer({ site, preview = false, envelope = false }
   // is needed here.
   if (comp === "eternel") {
     return <EternelRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // BLOSSOM & OUD renders through its own renderer (Framer Motion +
+  // French-Moroccan garden layout). Same gate as ÉTERNEL above.
+  if (comp === "blossom") {
+    return <BlossomRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // THE SACRED GARDEN renders through its own renderer (Framer Motion
+  // + rose-garden layout). Same gate as ÉTERNEL above.
+  if (comp === "sacred-garden") {
+    return <SacredGardenRenderer site={effective} envelope={envelope} preview={preview} />;
   }
 
   const sections = effective.templateSnapshot.sections;

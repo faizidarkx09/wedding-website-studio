@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import PasswordGate from "@/components/PasswordGate";
 import RsvpForm from "@/components/RsvpForm";
 import EternelRsvpForm from "@/components/eternel/EternelRsvpForm";
+import BlossomRsvpForm from "@/components/blossom/BlossomRsvpForm";
+import SacredGardenRsvpForm from "@/components/sacred-garden/SacredGardenRsvpForm";
 import { verifySession } from "@/lib/auth";
 import { getPublicSite } from "@/lib/store";
 
@@ -65,26 +67,33 @@ export default async function RsvpPage({
   }
 
   const isEternel = site.templateSnapshot.composition === "eternel";
+  const isBlossom = site.templateSnapshot.composition === "blossom";
+  const isSacred = site.templateSnapshot.composition === "sacred-garden";
+  const isFancy = isEternel || isBlossom || isSacred;
+  const fancyBg = isSacred ? "#F9F0E0" : isBlossom ? "#FAF6EF" : "#F8F5EF";
+  const fancyInk = isSacred ? "#6C513F" : isBlossom ? "#3E2A20" : "#302821";
+  const fancyAccent = isSacred ? "#A67D2B" : isBlossom ? "#B08D57" : "#B49A70";
+  const fancyFont = isSacred ? "font-sacred font-medium" : isBlossom ? "font-blossom font-medium" : "font-eternel font-medium";
 
   return (
     <main
       className="min-h-full w-full px-5 py-12 sm:py-16"
       style={
-        isEternel
-          ? { backgroundColor: "#F8F5EF", color: "#302821", fontFamily: "var(--font-manrope), sans-serif" }
+        isFancy
+          ? { backgroundColor: fancyBg, color: fancyInk, fontFamily: isSacred ? "var(--font-cormorant), Georgia, serif" : "var(--font-manrope), sans-serif" }
           : { backgroundColor: "#fdfbf7", color: "#1c1917" }
       }
     >
       <div className="mx-auto mb-8 max-w-xl text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: isEternel ? "#B49A70" : "#b45309" }}>
+        <p className="text-xs font-semibold uppercase tracking-[0.3em]" style={{ color: isFancy ? fancyAccent : "#b45309" }}>
           {site.content.partnerA} &amp; {site.content.partnerB}
         </p>
         <h1
-          className={`mt-3 text-3xl sm:text-4xl ${isEternel ? "font-eternel font-medium" : "font-bold"}`}
+          className={`mt-3 text-3xl sm:text-4xl ${isFancy ? fancyFont : "font-bold"}`}
         >
           RSVP
         </h1>
-        <p className="mt-3 leading-relaxed" style={{ color: isEternel ? "rgba(48,40,33,0.8)" : "#57534e" }}>
+        <p className="mt-3 leading-relaxed" style={{ color: isFancy ? `${fancyInk}CC` : "#57534e" }}>
           Please reply for yourself and your party
           {site.settings.rsvpDeadline
             ? ` by ${new Date(site.settings.rsvpDeadline).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}`
@@ -92,9 +101,17 @@ export default async function RsvpPage({
           .
         </p>
       </div>
-      {isEternel ? <EternelRsvpForm site={site} token={token} /> : <RsvpForm site={site} token={token} />}
+      {isEternel ? (
+        <EternelRsvpForm site={site} token={token} />
+      ) : isBlossom ? (
+        <BlossomRsvpForm site={site} token={token} />
+      ) : isSacred ? (
+        <SacredGardenRsvpForm site={site} token={token} />
+      ) : (
+        <RsvpForm site={site} token={token} />
+      )}
       <p className="mt-8 text-center">
-        <Link href={`/w/${site.slug}`} className="text-sm font-medium hover:opacity-70" style={{ color: isEternel ? "#B49A70" : "#78716c" }}>
+        <Link href={`/w/${site.slug}`} className="text-sm font-medium hover:opacity-70" style={{ color: isFancy ? fancyAccent : "#78716c" }}>
           ← Back to the wedding website
         </Link>
       </p>

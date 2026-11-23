@@ -14,7 +14,7 @@ import { ETERNEL, coupleNames, formatLongDate, initials, willRenderSection } fro
 import { Divider, FloralDrift, Flower } from "./Decor";
 import EternelEnvelope from "./EternelEnvelope";
 import EternelNav from "./EternelNav";
-import EternelHero from "./EternelHero";
+import EternelHero, { resolveEternelHeroSrc } from "./EternelHero";
 import { EternelCountdown, EternelEvents, EternelVenue, EternelWelcome, EternelStory } from "./EternelSections";
 import EternelGallery from "./EternelGallery";
 import EternelRsvpForm from "./EternelRsvpForm";
@@ -57,6 +57,9 @@ export default function EternelRenderer({
 }) {
   const names = coupleNames(site);
   const dateLine = formatLongDate(site.weddingDate, site.timezone);
+  // Preload the hero photo so it starts downloading with the document,
+  // not after hydration / envelope open — the photo is visible instantly.
+  const heroSrc = resolveEternelHeroSrc(site);
 
   const rsvpOpen =
     site.settings.rsvpEnabled &&
@@ -71,6 +74,11 @@ export default function EternelRenderer({
       className="eternel-paper min-h-svh"
       style={{ backgroundColor: ETERNEL.ivory, color: ETERNEL.espresso, fontFamily: "var(--font-manrope), sans-serif" }}
     >
+      {heroSrc ? (
+        // React hoists this <link> into <head>: the hero photo is fetched
+        // with the document instead of waiting for the <img> to render.
+        <link rel="preload" as="image" href={heroSrc} fetchPriority="high" />
+      ) : null}
       {preview ? (
         <div
           className="relative z-50 px-4 py-2.5 text-center text-xs font-semibold tracking-wide text-white"

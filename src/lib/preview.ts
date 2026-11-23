@@ -44,6 +44,43 @@ const ETERNEL_GALLERY = [
   "/images/themes/eternel/couple-final-02.jpg",
 ];
 
+// BLOSSOM & OUD template photography (public/images/themes/blossom/*) —
+// the full 30-image masonry gallery for the template preview: the detail
+// close-up first, then the 29 gallery photographs (couple, engagement,
+// ceremony, reception, venue, details). Mirrors the ÉTERNEL structure.
+const BLOSSOM_GALLERY = [
+  "/images/themes/blossom-oud-detail.jpg",
+  "/images/themes/blossom/couple-portrait-01.jpg",
+  "/images/themes/blossom/engagement-01.jpg",
+  "/images/themes/blossom/venue-exterior-01.jpg",
+  "/images/themes/blossom/couple-walking-01.jpg",
+  "/images/themes/blossom/rings-01.jpg",
+  "/images/themes/blossom/engagement-02.jpg",
+  "/images/themes/blossom/ceremony-02.jpg",
+  "/images/themes/blossom/couple-portrait-02.jpg",
+  "/images/themes/blossom/bouquet-01.jpg",
+  "/images/themes/blossom/venue-interior-01.jpg",
+  "/images/themes/blossom/couple-walking-02.jpg",
+  "/images/themes/blossom/engagement-03.jpg",
+  "/images/themes/blossom/table-detail-01.jpg",
+  "/images/themes/blossom/reception-02.jpg",
+  "/images/themes/blossom/bride-detail-01.jpg",
+  "/images/themes/blossom/couple-final-01.jpg",
+  "/images/themes/blossom/engagement-04.jpg",
+  "/images/themes/blossom/venue-exterior-02.jpg",
+  "/images/themes/blossom/groom-detail-01.jpg",
+  "/images/themes/blossom/invitation-detail-01.jpg",
+  "/images/themes/blossom/couple-closeup-02.jpg",
+  "/images/themes/blossom/venue-interior-02.jpg",
+  "/images/themes/blossom/bouquet-02.jpg",
+  "/images/themes/blossom/table-detail-02.jpg",
+  "/images/themes/blossom/rings-02.jpg",
+  "/images/themes/blossom/bride-detail-02.jpg",
+  "/images/themes/blossom/groom-detail-02.jpg",
+  "/images/themes/blossom/invitation-detail-02.jpg",
+  "/images/themes/blossom/couple-final-02.jpg",
+];
+
 export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
   const now = new Date().toISOString();
   const weddingDate = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000);
@@ -113,6 +150,55 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
             ],
           }
         : {}),
+      // BLOSSOM & OUD only: same four placeholder milestones, with the
+      // Phase B story photos (mirrors the ÉTERNEL branch).
+      ...(template.composition === "blossom"
+        ? {
+            storyMilestones: [
+              {
+                id: "m-sample-1",
+                date: "Spring 2018",
+                title: "The first hello",
+                text: "Sample milestone — replace this with your own first meeting, in your own words.",
+                image: "/images/themes/blossom/story-01.jpg",
+              },
+              {
+                id: "m-sample-2",
+                date: "Summer 2019",
+                title: "The first trip",
+                text: "Sample milestone — replace this with your own favourite trip together.",
+                image: "/images/themes/blossom/story-02.jpg",
+              },
+              {
+                id: "m-sample-3",
+                date: "Winter 2022",
+                title: "Moving in",
+                text: "Sample milestone — replace this with the moment you made a home together.",
+                image: "/images/themes/blossom/story-03.jpg",
+              },
+              {
+                id: "m-sample-4",
+                date: "Autumn 2024",
+                title: "The proposal",
+                text: "Sample milestone — replace this with the day the question was asked.",
+                image: "/images/themes/blossom/story-04.jpg",
+              },
+            ],
+          }
+        : {}),
+      // THE SACRED GARDEN only: tagline + gift text + venue photo
+      // placeholders (all ORIGINAL copy — never the source site's
+      // "Two Souls One destiny" line). Phase A has only the hero and
+      // envelope images, so venueImage stays empty until Phase B.
+      ...(template.composition === "sacred-garden"
+        ? {
+            tagline:
+              "Two hearts, one garden, a lifetime of grace — sample tagline, replace it with your own words.",
+            giftText:
+              "Your gift preference goes here — for example, your presence is the greatest gift. Sample text — replace it in the editor.",
+            venueImage: "",
+          }
+        : {}),
       dressCode: "Your dress code goes here — for example, semi-formal.",
       footerMessage: "Thank you for being part of our day.",
       heroImage: themeHero,
@@ -173,7 +259,20 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
       bodyFont: "system-ui, sans-serif",
       galleryLayout: "grid",
     },
-    events: [
+    // THE SACRED GARDEN: the audit's 5-event schedule (Guest Arrival
+    // 5 PM, Nikkah Ceremony 6 PM, Mocktail Hour 7 PM, Dinner 8 PM,
+    // Dance 9 PM), all marked as sample text. Events carry NO photos
+    // in Phase A — the timeline renders names + times only.
+    events:
+      template.composition === "sacred-garden"
+        ? [
+            { id: "ev-sample-arrival", name: "Guest Arrival", date: weddingDay, time: "5 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own arrival details." },
+            { id: "ev-sample-nikkah", name: "Nikkah Ceremony", date: weddingDay, time: "6 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own ceremony details." },
+            { id: "ev-sample-mocktail", name: "Mocktail Hour", date: weddingDay, time: "7 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own mocktail-hour details." },
+            { id: "ev-sample-dinner", name: "Dinner", date: weddingDay, time: "8 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own dinner details." },
+            { id: "ev-sample-dance", name: "Dance", date: weddingDay, time: "9 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own dance details." },
+          ]
+        : [
       {
         id: "ev-sample-ceremony",
         name: "The Ceremony",
@@ -184,6 +283,9 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
         description: "Sample event — replace this with your own ceremony details.",
         ...(template.composition === "eternel"
           ? { photo: "/images/themes/eternel/ceremony-01.jpg" }
+          : {}),
+        ...(template.composition === "blossom"
+          ? { photo: "/images/themes/blossom/ceremony-01.jpg" }
           : {}),
       },
       {
@@ -197,6 +299,9 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
         ...(template.composition === "eternel"
           ? { photo: "/images/themes/eternel/reception-01.jpg" }
           : {}),
+        ...(template.composition === "blossom"
+          ? { photo: "/images/themes/blossom/reception-01.jpg" }
+          : {}),
       },
     ],
     gallery:
@@ -206,7 +311,21 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
             url,
             caption: `Your photo ${i + 1}`,
           }))
-        : [
+        : template.composition === "blossom"
+          ? BLOSSOM_GALLERY.map((url, i) => ({
+              id: `g-blossom-${i + 1}`,
+              url,
+              caption: `Your photo ${i + 1}`,
+            }))
+          : template.composition === "sacred-garden"
+            ? // Phase A has only the envelope artwork and the hero
+              // photo — the gallery shows those two. Phase B replaces
+              // this with the full Sacred Garden photo set.
+              [
+                { id: "g-sacred-1", url: themeDetail, caption: "Your photo 1" },
+                { id: "g-sacred-2", url: themeHero, caption: "Your photo 2" },
+              ]
+          : [
             // Detail shot first, so the story section uses it and the hero
             // image is not repeated three times on the preview page.
             { id: "g1", url: themeDetail, caption: "Your photo 1" },

@@ -491,13 +491,15 @@ export default function EditorPage() {
                   <label htmlFor="story" className={labelCls}>Our story</label>
                   <textarea id="story" rows={5} value={draft.content.story} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, story: e.target.value } }))} className={inputCls} />
                 </div>
-                {/* ÉTERNEL only: story milestones for the animated timeline.
-                    Other templates use the single "Our story" text above. */}
-                {draft.templateSnapshot.composition === "eternel" ? (
+                {/* ÉTERNEL / BLOSSOM & OUD only: story milestones for the
+                    animated timeline. Other templates use the single
+                    "Our story" text above. */}
+                {(draft.templateSnapshot.composition === "eternel" ||
+                  draft.templateSnapshot.composition === "blossom") ? (
                   <div className="rounded-lg border border-stone-200 p-3">
                     <h3 className="text-sm font-medium">Story milestones</h3>
                     <p className="mt-1 text-xs text-stone-500">
-                      Shown as the animated timeline on your ÉTERNEL site. Up to 4 milestones work best.
+                      Shown as the animated timeline on your site. Up to 4 milestones work best.
                       Empty milestones are hidden on the live site.
                     </p>
                     <div className="mt-3 flex flex-col gap-3">
@@ -593,6 +595,28 @@ export default function EditorPage() {
                   <input id="dress-code" value={draft.content.dressCode} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, dressCode: e.target.value } }))} className={inputCls} />
                   <p className="mt-1 text-xs text-stone-500">Shown in the Dress code section of your site.</p>
                 </div>
+                {/* THE SACRED GARDEN only: tagline, gift text and venue
+                    photo URL — the three new optional SiteContent
+                    fields. Other templates ignore them. */}
+                {draft.templateSnapshot.composition === "sacred-garden" ? (
+                  <>
+                    <div>
+                      <label htmlFor="sacred-tagline" className={labelCls}>Tagline</label>
+                      <input id="sacred-tagline" value={draft.content.tagline ?? ""} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, tagline: e.target.value } }))} className={inputCls} />
+                      <p className="mt-1 text-xs text-stone-500">Shown in Imperial Script above the welcome paragraph. Leave empty to hide it.</p>
+                    </div>
+                    <div>
+                      <label htmlFor="sacred-gift-text" className={labelCls}>Gift preference</label>
+                      <input id="sacred-gift-text" value={draft.content.giftText ?? ""} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, giftText: e.target.value } }))} className={inputCls} />
+                      <p className="mt-1 text-xs text-stone-500">Shown next to the dress code. Leave empty to hide the gift notice.</p>
+                    </div>
+                    <div>
+                      <label htmlFor="sacred-venue-image" className={labelCls}>Venue photo URL <span className="font-normal text-stone-500">(optional)</span></label>
+                      <input id="sacred-venue-image" type="url" placeholder="https://…" value={draft.content.venueImage ?? ""} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, venueImage: e.target.value } }))} className={inputCls} />
+                      <p className="mt-1 text-xs text-stone-500">Shown above the map in the Location section.</p>
+                    </div>
+                  </>
+                ) : null}
                 <div>
                   <label htmlFor="venue-name" className={labelCls}>Venue name</label>
                   <input id="venue-name" value={draft.content.venueName} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, venueName: e.target.value } }))} className={inputCls} />

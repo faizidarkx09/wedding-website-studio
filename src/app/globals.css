@@ -48,6 +48,12 @@ body {
 .font-eternel {
   font-family: var(--font-cormorant), Georgia, "Times New Roman", serif;
 }
+.font-blossom {
+  font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
+}
+.font-sacred {
+  font-family: var(--font-cormorant), Georgia, "Times New Roman", serif;
+}
 
 /* Legacy font classes kept for sites snapshotted before the six themes. */
 .font-editorial {
@@ -100,6 +106,18 @@ body {
   --font-display: var(--font-cormorant), Georgia, "Times New Roman", serif;
   --font-body: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
   --font-script: var(--font-allura), "Snell Roundhand", cursive;
+  font-family: var(--font-body);
+}
+.theme-blossom {
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-script: var(--font-allura), "Snell Roundhand", cursive;
+  font-family: var(--font-body);
+}
+.theme-sacred {
+  --font-display: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-cormorant), Georgia, "Times New Roman", serif;
+  --font-script: var(--font-imperial), "Snell Roundhand", cursive;
   font-family: var(--font-body);
 }
 .theme-classic {
@@ -567,6 +585,16 @@ body {
   font-weight: 400;
 }
 
+/* BLOSSOM & OUD — Allura script accents, own class so the two
+ * templates never share a selector. NOTE: --font-script only exists
+ * inside the (never applied) .theme-* classes, so this class uses the
+ * --font-allura variable directly — the variable IS set on <html> by
+ * layout.tsx, so the script face actually renders. */
+.blossom-script {
+  font-family: var(--font-allura), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+
 /* Subtle tileable paper grain — SVG turbulence noise at very low
  * opacity, so text stays fully readable. Applied to the ÉTERNEL
  * renderer root as a ::before overlay (pointer-events none). */
@@ -574,6 +602,57 @@ body {
   position: relative;
 }
 .eternel-paper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+/* BLOSSOM & OUD paper grain — same treatment, own class. Applied to
+ * the BLOSSOM renderer root as a ::before overlay. */
+.blossom-paper {
+  position: relative;
+}
+.blossom-paper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+/* THE SACRED GARDEN — Imperial Script headings, Beau Rivage names,
+ * Cinzel labels, Ovo dates. (.font-sacred lives with the other
+ * .font-* classes above.) The font variables are set on <html> by
+ * layout.tsx, so these classes use them directly. */
+.sacred-script {
+  font-family: var(--font-imperial), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.sacred-beaurivage {
+  font-family: var(--font-beaurivage), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.sacred-cinzel {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.sacred-ovo {
+  font-family: var(--font-ovo), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* THE SACRED GARDEN paper grain — same treatment, own class. Applied
+ * to the SACRED GARDEN renderer root as a ::before overlay. */
+.sacred-paper {
+  position: relative;
+}
+.sacred-paper::before {
   content: "";
   position: absolute;
   inset: 0;
