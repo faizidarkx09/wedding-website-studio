@@ -44,8 +44,12 @@ export default async function AdminSettingsPage() {
             </p>
           </div>
         ) : (
-          <div role="status" className="mt-6 rounded-lg border border-green-300 bg-green-50 p-4">
-            <p className="text-sm font-medium text-green-800">Supabase environment variables are present — the app uses Supabase as its store.</p>
+          <div role="status" className="mt-6 rounded-lg border border-amber-300 bg-amber-50 p-4">
+            <p className="text-sm font-medium text-amber-800">
+              Supabase environment variables are present — but the store is still in-memory until the Supabase
+              switch is implemented (see README “Connecting Supabase”). Sites and RSVPs are still lost when the
+              server restarts.
+            </p>
           </div>
         )}
 
@@ -57,7 +61,7 @@ export default async function AdminSettingsPage() {
             </div>
             <p className="mt-2 text-sm text-stone-600">
               {status.supabase
-                ? "Configured. The database is the production store for sites, RSVPs and access-code hashes."
+                ? "Configured (variables present) — but the app still runs on the in-memory store. The Supabase switch is not implemented yet, so no data is read from or written to Supabase."
                 : "Not connected. The app runs in local mode on the in-memory store."}
             </p>
             <p className="mt-3 text-sm font-medium text-stone-700">Environment variables needed:</p>
@@ -130,7 +134,7 @@ export default async function AdminSettingsPage() {
           <section className="rounded-lg border border-stone-200 bg-white p-4">
             <h2 className="text-base font-semibold text-stone-900">Data &amp; privacy</h2>
             <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-stone-600">
-              <li>Access codes are stored as SHA-256 hashes only. The plain code is shown once, to the admin, and never logged or shown on public pages.</li>
+              <li>Access codes are public by design — they ship in the delivery PDF, and are stored in plain text on the template. Only guest passwords are hashed (SHA-256).</li>
               <li>Guest lists and RSVP records are tenant-scoped by site — an admin sees them, a public visitor never does.</li>
               <li>Session cookies are httpOnly and sameSite=lax; the admin session lasts 30 days.</li>
               <li>Service-role keys (Supabase) and API keys (Etsy) are server-side only and are never sent to the browser.</li>

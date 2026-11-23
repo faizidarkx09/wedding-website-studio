@@ -80,6 +80,52 @@ function composition(site: WeddingSite): string {
   return site.templateSnapshot.composition || "classic";
 }
 
+/* ---------- design-tab overrides (editor saves site.design.*) ---------- */
+
+// The editor's Design tab saves colours / fonts / gallery layout on
+// site.design, seeded at creation from the template palette. Colours apply
+// whenever set (the seed equals the template palette, so untouched sites
+// look identical); fonts and gallery layout apply only when the couple
+// actually changed them from the creation defaults, so untouched sites
+// keep the theme's own display serif and per-theme gallery treatment.
+const DEFAULT_HEADING_FONT = "Georgia, serif";
+const DEFAULT_BODY_FONT = "system-ui, sans-serif";
+
+function effectivePalette(site: WeddingSite): {
+  bg: string;
+  ink: string;
+  accent: string;
+  accentSoft: string;
+} {
+  const tpl = site.templateSnapshot.palette;
+  const d = site.design;
+  return {
+    bg: d?.background?.trim() ? d.background : tpl.bg,
+    ink: d?.primary?.trim() ? d.primary : tpl.ink,
+    accent: d?.accent?.trim() ? d.accent : tpl.accent,
+    accentSoft: tpl.accentSoft,
+  };
+}
+
+/** Site with the template palette replaced by the design-tab palette, so
+ * every section that reads site.templateSnapshot.palette honours it. */
+function withDesign(site: WeddingSite): WeddingSite {
+  return {
+    ...site,
+    templateSnapshot: { ...site.templateSnapshot, palette: effectivePalette(site) },
+  };
+}
+
+function headingFontOverride(site: WeddingSite): string | undefined {
+  const f = site.design?.headingFont?.trim();
+  return f && f !== DEFAULT_HEADING_FONT ? f : undefined;
+}
+
+function bodyFontOverride(site: WeddingSite): string | undefined {
+  const f = site.design?.bodyFont?.trim();
+  return f && f !== DEFAULT_BODY_FONT ? f : undefined;
+}
+
 function initials(site: WeddingSite): string {
   const a = site.content.partnerA.trim().charAt(0);
   const b = site.content.partnerB.trim().charAt(0);
@@ -610,7 +656,7 @@ function StorySection({ site }: { site: WeddingSite }) {
           <div className="sm:col-span-3">{storyText}</div>
           <figure className="sm:col-span-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" className="aspect-[3/4] w-full object-cover" style={{ border: `1px solid ${tpl.palette.accent}` }} />
+            <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" decoding="async" className="aspect-[3/4] w-full object-cover" style={{ border: `1px solid ${tpl.palette.accent}` }} />
             {first.caption ? <figcaption className="mt-2 text-center text-sm italic opacity-75">{first.caption}</figcaption> : null}
           </figure>
         </div>
@@ -625,7 +671,7 @@ function StorySection({ site }: { site: WeddingSite }) {
         <SectionHeading site={site} title="Our story" />
         <div className="mx-auto mt-8 max-w-3xl text-center">{storyText}</div>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" className="mx-auto mt-10 aspect-[21/9] w-full max-w-5xl object-cover" />
+        <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" decoding="async" className="mx-auto mt-10 aspect-[21/9] w-full max-w-5xl object-cover" />
         {first.caption ? <p className="mt-2 text-center text-sm italic opacity-75">{first.caption}</p> : null}
       </section>
     );
@@ -639,7 +685,7 @@ function StorySection({ site }: { site: WeddingSite }) {
           <SectionHeading site={site} title="Our story" />
           <div className="mt-10 grid items-center gap-10 sm:grid-cols-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" className="aspect-[4/5] w-full object-cover" />
+            <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" decoding="async" className="aspect-[4/5] w-full object-cover" />
             <div>{storyText}</div>
           </div>
         </div>
@@ -655,7 +701,7 @@ function StorySection({ site }: { site: WeddingSite }) {
         <div className="mt-10 grid items-start gap-10 sm:grid-cols-2">
           <figure style={{ color: tpl.palette.accent }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" className="frame-sage aspect-[4/3] w-full object-cover" />
+            <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" decoding="async" className="frame-sage aspect-[4/3] w-full object-cover" />
             {first.caption ? <figcaption className="mt-3 text-center text-sm italic opacity-75">{first.caption}</figcaption> : null}
           </figure>
           <div>{storyText}</div>
@@ -670,7 +716,7 @@ function StorySection({ site }: { site: WeddingSite }) {
       <section id="story" className={`mx-auto w-full max-w-4xl px-5 ${sectionSpacing()}`}>
         <SectionHeading site={site} title="Our story" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" className="mx-auto mt-10 aspect-[16/9] w-full object-cover" />
+        <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" decoding="async" className="mx-auto mt-10 aspect-[16/9] w-full object-cover" />
         {first.caption ? <p className="mt-2 text-center text-sm italic opacity-75">{first.caption}</p> : null}
         <div className="mx-auto mt-8 max-w-2xl text-center">{storyText}</div>
       </section>
@@ -678,22 +724,26 @@ function StorySection({ site }: { site: WeddingSite }) {
   }
 
   // Lavender: soft editorial collage — two images above the text.
+  // With only one photo there is no second card: show the single photo
+  // alone instead of rendering an empty placeholder card.
   if (comp === "lavender" && first) {
     return (
       <section id="story" className={`mx-auto w-full max-w-5xl px-5 ${sectionSpacing()}`}>
         <SectionHeading site={site} title="Our story" />
-        <div className="mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-4">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" className="aspect-[4/5] w-full object-cover" style={{ border: `1px solid ${tpl.palette.accent}` }} />
-          {second ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={second.url} alt={second.caption || "A favourite photo"} loading="lazy" className="mt-8 aspect-[4/5] w-full object-cover" style={{ border: `1px solid ${tpl.palette.accent}` }} />
-          ) : (
-            <div className="mt-8 flex aspect-[4/5] items-center justify-center rounded-xl p-6 text-center text-sm italic opacity-70" style={{ backgroundColor: tpl.palette.accentSoft }}>
-              Your second photo goes here.
-            </div>
-          )}
-        </div>
+        {second ? (
+          <div className="mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" decoding="async" className="aspect-[4/5] w-full object-cover" style={{ border: `1px solid ${tpl.palette.accent}` }} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={second.url} alt={second.caption || "A favourite photo"} loading="lazy" decoding="async" className="mt-8 aspect-[4/5] w-full object-cover" style={{ border: `1px solid ${tpl.palette.accent}` }} />
+          </div>
+        ) : (
+          <div className="mx-auto mt-10 max-w-sm">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={storyImg} alt={first.caption || "A favourite photo"} loading="lazy" decoding="async" className="aspect-[4/5] w-full object-cover" style={{ border: `1px solid ${tpl.palette.accent}` }} />
+            {first.caption ? <p className="mt-2 text-center text-sm italic opacity-75">{first.caption}</p> : null}
+          </div>
+        )}
         <div className="mx-auto mt-10 max-w-2xl text-center">{storyText}</div>
       </section>
     );
@@ -798,8 +848,7 @@ function VenueSection({ site }: { site: WeddingSite }) {
   const { content } = site;
   if (!content.venueName && !content.venueAddress) return null;
   return (
-    <section className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing()}`}>
-      <SectionHeading site={site} title="The venue" />
+    <section id="venue" className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing()}`}>
       <p className="mt-8 text-2xl font-semibold">{content.venueName}</p>
       {content.venueAddress ? <p className="mt-2 leading-relaxed opacity-85">{content.venueAddress}</p> : null}
       {content.mapLink ? (
@@ -955,7 +1004,8 @@ function DetailsSection({ site }: { site: WeddingSite }) {
 }
 
 function GallerySection({ site }: { site: WeddingSite }) {
-  if (!site.settings.showGallery || site.gallery.length === 0) return null;
+  // Hooks FIRST — the early return below must come after them, or the
+  // hook order changes (and React crashes) once a first photo is added.
   const comp = composition(site);
   const tpl = site.templateSnapshot;
   const [lightbox, setLightbox] = useState<number | null>(null);
@@ -981,6 +1031,8 @@ function GallerySection({ site }: { site: WeddingSite }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [lightbox, close, step]);
 
+  if (!site.settings.showGallery || site.gallery.length === 0) return null;
+
   const openBtn = (i: number, label: string, children: React.ReactNode) => (
     <button
       type="button"
@@ -991,6 +1043,67 @@ function GallerySection({ site }: { site: WeddingSite }) {
       {children}
     </button>
   );
+
+  // Design-tab gallery layout wins when the couple changed it from the
+  // "grid" default. (Sage already renders masonry per-theme, so only
+  // non-sage compositions need the explicit masonry branch here.)
+  const layout = site.design?.galleryLayout;
+  if (layout === "carousel") {
+    return (
+      <section id="gallery" className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="Moments" intro="A few favourite memories, so far." />
+        <div className="mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2">
+          {site.gallery.map((image, i) => (
+            <figure key={image.id} className="w-72 shrink-0 snap-start sm:w-96">
+              {openBtn(
+                i,
+                image.caption,
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={image.url}
+                    alt={image.caption || `Gallery photo ${i + 1}`}
+                    loading="lazy" decoding="async"
+                    className="aspect-[4/3] w-full object-cover"
+                  />
+                </>,
+              )}
+              {image.caption ? <figcaption className="mt-2 text-center text-sm italic opacity-75">{image.caption}</figcaption> : null}
+            </figure>
+          ))}
+        </div>
+        <Lightbox site={site} index={lightbox} onClose={close} onStep={step} />
+      </section>
+    );
+  }
+  if (layout === "masonry" && comp !== "sage") {
+    return (
+      <section id="gallery" className={`mx-auto w-full max-w-6xl px-5 ${sectionSpacing()}`}>
+        <SectionHeading site={site} title="Moments" intro="A few favourite memories, so far." />
+        <div className="mt-10 columns-2 gap-4 sm:columns-3">
+          {site.gallery.map((image, i) => (
+            <figure key={image.id} className="mb-4 break-inside-avoid">
+              {openBtn(
+                i,
+                image.caption,
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={image.url}
+                    alt={image.caption || `Gallery photo ${i + 1}`}
+                    loading="lazy" decoding="async"
+                    className={`w-full object-cover ${i % 3 === 0 ? "aspect-[4/5]" : i % 3 === 1 ? "aspect-square" : "aspect-[4/3]"}`}
+                  />
+                </>,
+              )}
+              {image.caption ? <figcaption className="mt-2 text-center text-sm italic opacity-75">{image.caption}</figcaption> : null}
+            </figure>
+          ))}
+        </div>
+        <Lightbox site={site} index={lightbox} onClose={close} onStep={step} />
+      </section>
+    );
+  }
 
   // Sage: organic asymmetric grid (masonry columns).
   if (comp === "sage") {
@@ -1008,7 +1121,7 @@ function GallerySection({ site }: { site: WeddingSite }) {
                   <img
                     src={image.url}
                     alt={image.caption || `Gallery photo ${i + 1}`}
-                    loading="lazy"
+                    loading="lazy" decoding="async"
                     className={`w-full object-cover ${i % 3 === 0 ? "aspect-[4/5]" : i % 3 === 1 ? "aspect-square" : "aspect-[4/3]"}`}
                     style={{ border: `1px solid ${tpl.palette.accent}` }}
                   />
@@ -1039,7 +1152,7 @@ function GallerySection({ site }: { site: WeddingSite }) {
                   <img
                     src={image.url}
                     alt={image.caption || `Gallery photo ${i + 1}`}
-                    loading="lazy"
+                    loading="lazy" decoding="async"
                     className={`w-full object-cover ${i === 0 ? "aspect-[16/10] sm:aspect-auto sm:h-full" : "aspect-[4/3]"}`}
                   />
                 </>,
@@ -1069,7 +1182,7 @@ function GallerySection({ site }: { site: WeddingSite }) {
                   <img
                     src={image.url}
                     alt={image.caption || `Gallery photo ${i + 1}`}
-                    loading="lazy"
+                    loading="lazy" decoding="async"
                     className="aspect-[4/3] w-full object-cover"
                   />
                 </>,
@@ -1099,7 +1212,7 @@ function GallerySection({ site }: { site: WeddingSite }) {
                   <img
                     src={image.url}
                     alt={image.caption || `Gallery photo ${i + 1}`}
-                    loading="lazy"
+                    loading="lazy" decoding="async"
                     className={`w-full object-cover ${i % 4 === 0 ? "aspect-[16/9]" : "aspect-[4/3]"}`}
                   />
                 </>,
@@ -1132,7 +1245,7 @@ function GallerySection({ site }: { site: WeddingSite }) {
                 <img
                   src={image.url}
                   alt={image.caption || `Gallery photo ${i + 1}`}
-                  loading="lazy"
+                  loading="lazy" decoding="async"
                   className={`w-full object-cover ${comp === "blue" && i === 0 ? "aspect-[16/9]" : "aspect-[4/3]"}`}
                 />
               </>,
@@ -1186,6 +1299,7 @@ function Lightbox({
       <img
         src={image.url}
         alt={image.caption || `Gallery photo ${index + 1}`}
+        decoding="async"
         className="mt-4 max-h-[75vh] w-auto max-w-full object-contain"
         onClick={(e) => e.stopPropagation()}
       />
@@ -1221,8 +1335,7 @@ function Lightbox({
 function DressCodeSection({ site }: { site: WeddingSite }) {
   if (!site.settings.showDressCode || !site.content.dressCode) return null;
   return (
-    <section className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing()}`}>
-      <SectionHeading site={site} title="Dress code" />
+    <section id="dress-code" className={`mx-auto w-full max-w-3xl px-5 text-center ${sectionSpacing()}`}>
       <p
         className="mx-auto mt-8 max-w-xl rounded-xl px-6 py-6 text-lg leading-relaxed"
         style={{ backgroundColor: site.templateSnapshot.palette.accentSoft }}
@@ -1335,58 +1448,102 @@ const NAV_LABELS: Record<string, string> = {
   invitation: "Invitation",
   story: "Our story",
   events: "Schedule",
+  venue: "Venue",
   details: "Details",
+  "dress-code": "Dress code",
   gallery: "Gallery",
   faq: "FAQ",
   rsvp: "RSVP",
 };
+
+/** Does this section actually render for this site? Nav links must only
+ * point at sections that will be on the page — sections return null when
+ * empty / hidden / disabled, and a dead anchor is worse than no link. */
+function willRenderSection(site: WeddingSite, key: string): boolean {
+  switch (key) {
+    case "invitation":
+      return site.settings.showInvitation !== false && (site.content.invitationText ?? "").trim().length > 0;
+    case "story":
+      return site.settings.showStory === true;
+    case "events":
+      return site.settings.showEvents === true && site.events.length > 0;
+    case "venue":
+      return Boolean(site.content.venueName?.trim() || site.content.venueAddress?.trim());
+    case "details":
+      return site.settings.showDetails !== false && visibleDetails(site).length > 0;
+    case "gallery":
+      return site.settings.showGallery === true && site.gallery.length > 0;
+    case "dress-code":
+      return site.settings.showDressCode === true && Boolean(site.content.dressCode?.trim());
+    case "faq":
+      return site.settings.showFaq !== false && (site.content.faqs ?? []).length > 0;
+    case "rsvp":
+      return true;
+    default:
+      return false;
+  }
+}
 
 export default function SiteRenderer({ site, preview = false, envelope = false }: SiteRendererProps) {
   if (site.status !== "published" && !preview) {
     return <SiteUnavailable />;
   }
 
-  const palette = site.templateSnapshot.palette;
-  const comp = composition(site);
-  const sections = site.templateSnapshot.sections;
+  // Apply the Design-tab overrides (colours / fonts / gallery layout)
+  // once, here, and render everything from the effective site.
+  const effective = withDesign(site);
+  const palette = effective.templateSnapshot.palette;
+  const comp = composition(effective);
+  const sections = effective.templateSnapshot.sections;
 
-  const navLinks = sections.filter((key) => NAV_LABELS[key]);
+  const navLinks = sections.filter((key) => NAV_LABELS[key] && willRenderSection(effective, key));
 
   const renderSection = (key: string): React.ReactNode => {
     switch (key) {
       case "hero":
-        return <Hero key="hero" site={site} />;
+        return <Hero key="hero" site={effective} />;
       case "invitation":
-        return <InvitationSection key="invitation" site={site} />;
+        return <InvitationSection key="invitation" site={effective} />;
       case "countdown":
-        return <CountdownSection key="countdown" site={site} />;
+        return <CountdownSection key="countdown" site={effective} />;
       case "story":
-        return <StorySection key="story" site={site} />;
+        return <StorySection key="story" site={effective} />;
       case "events":
-        return <EventsSection key="events" site={site} />;
+        return <EventsSection key="events" site={effective} />;
       case "venue":
-        return <VenueSection key="venue" site={site} />;
+        return <VenueSection key="venue" site={effective} />;
       case "details":
-        return <DetailsSection key="details" site={site} />;
+        return <DetailsSection key="details" site={effective} />;
       case "gallery":
-        return <GallerySection key="gallery" site={site} />;
+        return <GallerySection key="gallery" site={effective} />;
       case "dress-code":
-        return <DressCodeSection key="dress-code" site={site} />;
+        return <DressCodeSection key="dress-code" site={effective} />;
       case "faq":
-        return <FaqSection key="faq" site={site} />;
+        return <FaqSection key="faq" site={effective} />;
       case "rsvp":
-        return <RsvpTeaser key="rsvp" site={site} />;
+        return <RsvpTeaser key="rsvp" site={effective} />;
       default:
         return null;
     }
   };
 
+  // Design-tab fonts, when the couple changed them: headings via the
+  // --font-display variable (headings use it), body via font-family.
+  const headingFont = headingFontOverride(site);
+  const bodyFont = bodyFontOverride(site);
+
   return (
     <div
       className={`theme-${comp} min-h-full w-full`}
-      style={{ backgroundColor: palette.bg, color: palette.ink }}
+      style={{
+        backgroundColor: palette.bg,
+        color: palette.ink,
+        fontFamily: bodyFont ?? undefined,
+        "--font-display": headingFont,
+        "--font-body": bodyFont,
+      } as React.CSSProperties}
     >
-      {envelope ? <EnvelopeIntro site={site} /> : null}
+      {envelope ? <EnvelopeIntro site={effective} autoFocus={!preview} /> : null}
       {preview ? (
         <p className="bg-stone-900 px-4 py-2 text-center text-xs font-semibold uppercase tracking-[0.2em] text-white">
           Template preview — placeholder content
@@ -1398,7 +1555,7 @@ export default function SiteRenderer({ site, preview = false, envelope = false }
           className="sticky top-0 z-20 overflow-x-auto border-b"
           style={{ backgroundColor: palette.bg, borderColor: palette.accent }}
         >
-          <div className="mx-auto flex w-full max-w-6xl items-center justify-center gap-1 px-3 py-2">
+          <div className="mx-auto flex w-full max-w-6xl items-center justify-start gap-1 px-3 py-2 sm:justify-center">
             {navLinks.map((key) => (
               <a
                 key={key}

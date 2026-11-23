@@ -97,15 +97,6 @@ export default async function AdminTemplatesPage() {
                   label={t.active ? "Deactivate" : "Activate"}
                   busyLabel="Saving…"
                 />
-                <ApiButton
-                  endpoint="/api/admin/templates"
-                  body={{ action: "archive", id: t.id }}
-                  label="Archive"
-                  busyLabel="Archiving…"
-                  variant="danger"
-                  confirmText={`Archive “${t.name}”? It will become inactive. Existing sites are unaffected.`}
-                  disabled={!t.active}
-                />
               </div>
               <p className="mt-2 text-xs text-stone-500">
                 Upload this PDF to the Etsy listing as the digital download file — every

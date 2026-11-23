@@ -80,6 +80,44 @@ function fromLocalInput(value: string): string | null {
   return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
+/** ISO datetime → YYYY-MM-DD calendar date in the given IANA timezone
+ * (not UTC — `slice(0, 10)` on an ISO string gives the UTC date, which
+ * can be a day off for the couple). */
+function dateInTimezone(iso: string, timeZone: string): string {
+  try {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date(iso));
+  } catch {
+    return iso.slice(0, 10);
+  }
+}
+
+/** True when the value is a real IANA timezone name. */
+function isKnownTimezone(value: string): boolean {
+  if (!value) return false;
+  try {
+    return Intl.supportedValuesOf("timeZone").includes(value);
+  } catch {
+    return false;
+  }
+}
+
+/** Gallery / hero image URL check: http(s) only — javascript: and data:
+ * URLs are rejected (a data: URL in an <img src> can run scripts in some
+ * contexts, and javascript: is never a photo). */
+function isSafeImageUrl(value: string): boolean {
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 const inputCls =
   "w-full rounded-lg border border-stone-300 bg-white px-3 py-2 focus:border-stone-900 focus:outline-none";
 const labelCls = "block text-sm font-medium";
@@ -113,6 +151,9 @@ export default function EditorPage() {
   const [pwBusy, setPwBusy] = useState(false);
   const [pwMessage, setPwMessage] = useState("");
   const [publishBusy, setPublishBusy] = useState(false);
+  const [tzError, setTzError] = useState("");
+  const [galleryUrlError, setGalleryUrlError] = useState("");
+  const [heroUploadBusy, setHeroUploadBusy] = useState(false);
 
   const loadedRef = useRef(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -120,30 +161,36 @@ export default function EditorPage() {
   draftRef.current = draft;
 
   const load = useCallback(async () => {
-    const res = await fetch("/api/sites/save");
-    if (res.status === 401) {
-      router.replace("/activate");
-      return;
-    }
-    const data = (await res.json()) as { ok: boolean; site?: WeddingSite; error?: string };
-    if (!res.ok || !data.site) {
-      setError(data.error || "Could not load your website.");
+    try {
+      const res = await fetch("/api/sites/save");
+      if (res.status === 401) {
+        router.replace("/activate");
+        return;
+      }
+      const data = (await res.json()) as { ok: boolean; site?: WeddingSite; error?: string };
+      if (!res.ok || !data.site) {
+        setError(data.error || "Could not load your website.");
+        setLoading(false);
+        return;
+      }
+      setSite(data.site);
+      setDraft(data.site);
+      loadedRef.current = true;
       setLoading(false);
-      return;
+    } catch {
+      setError("Could not load your website — check your connection and try again.");
+      setLoading(false);
     }
-    setSite(data.site);
-    setDraft(data.site);
-    loadedRef.current = true;
-    setLoading(false);
   }, [router]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  const saveNow = useCallback(async () => {
+  /** Save the current draft. Returns true on success, false on failure. */
+  const saveNow = useCallback(async (): Promise<boolean> => {
     const current = draftRef.current;
-    if (!current) return;
+    if (!current) return false;
     if (saveTimer.current) clearTimeout(saveTimer.current);
     setSaveStatus("saving");
     setSaveError("");
@@ -158,9 +205,11 @@ export default function EditorPage() {
       setSite(current);
       setSaveStatus("saved");
       setSavedAt(new Date().toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+      return true;
     } catch (e) {
       setSaveStatus("failed");
       setSaveError(e instanceof Error ? e.message : "Save failed");
+      return false;
     }
   }, []);
 
@@ -183,8 +232,20 @@ export default function EditorPage() {
 
   async function togglePublish() {
     if (!draft) return;
-    // Publish/unpublish always uses the last saved version.
-    if (saveStatus === "saving") await saveNow();
+    // A suspended/archived site can only be restored by an admin.
+    if (draft.status === "suspended" || draft.status === "archived") {
+      setNotice("This website was suspended or archived. Only an admin can restore it.");
+      return;
+    }
+    // Publish/unpublish always uses the last saved version — and never
+    // proceeds when the pre-publish save fails.
+    if (saveStatus === "saving" || saveStatus === "idle" || saveStatus === "failed") {
+      const saved = await saveNow();
+      if (!saved) {
+        setNotice("Could not save your changes — publishing cancelled. Please fix the save error and try again.");
+        return;
+      }
+    }
     setPublishBusy(true);
     setNotice("");
     const next = draft.status === "published" ? "unpublished" : "published";
@@ -217,12 +278,33 @@ export default function EditorPage() {
       const res = await fetch("/api/upload", { method: "POST", body: form });
       const data = (await res.json()) as { ok: boolean; url?: string; error?: string };
       if (!res.ok || !data.ok || !data.url) throw new Error(data.error || "Upload failed");
-      const image: GalleryImage = { id: uid("g"), url: data.url, caption: file.name };
+      // Captions default to empty — the file name is not a caption.
+      const image: GalleryImage = { id: uid("g"), url: data.url, caption: "" };
       updateDraft((d) => ({ ...d, gallery: [...d.gallery, image] }));
     } catch (e) {
       setNotice(e instanceof Error ? e.message : "Upload failed");
     } finally {
       setUploadBusy(false);
+    }
+  }
+
+  /** Upload a file as the site's hero image (same /api/upload endpoint). */
+  async function uploadHeroImage(file: File) {
+    if (!draft) return;
+    setHeroUploadBusy(true);
+    setNotice("");
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      form.append("siteId", draft.id);
+      const res = await fetch("/api/upload", { method: "POST", body: form });
+      const data = (await res.json()) as { ok: boolean; url?: string; error?: string };
+      if (!res.ok || !data.ok || !data.url) throw new Error(data.error || "Upload failed");
+      updateDraft((d) => ({ ...d, content: { ...d.content, heroImage: data.url as string } }));
+    } catch (e) {
+      setNotice(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setHeroUploadBusy(false);
     }
   }
 
@@ -303,7 +385,7 @@ export default function EditorPage() {
         ? `✓ Saved ${savedAt}`
         : saveStatus === "failed"
           ? "Save failed — retry"
-          : "All changes saved";
+          : "Not saved yet";
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-6">
@@ -340,13 +422,23 @@ export default function EditorPage() {
           <button
             type="button"
             onClick={() => void togglePublish()}
-            disabled={publishBusy}
+            disabled={publishBusy || draft.status === "suspended" || draft.status === "archived"}
+            title={
+              draft.status === "suspended" || draft.status === "archived"
+                ? "This website was suspended or archived — only an admin can restore it."
+                : undefined
+            }
             className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
           >
             {publishBusy ? "Working…" : draft.status === "published" ? "Unpublish" : "Publish"}
           </button>
         </div>
       </div>
+      {draft.status === "suspended" || draft.status === "archived" ? (
+        <p role="status" className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          This website was {draft.status}. Publishing is disabled — only an admin can restore it.
+        </p>
+      ) : null}
 
       {notice ? (
         <p role="status" className="mt-3 rounded-lg bg-stone-100 px-3 py-2 text-sm">
@@ -400,6 +492,29 @@ export default function EditorPage() {
                   <textarea id="story" rows={5} value={draft.content.story} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, story: e.target.value } }))} className={inputCls} />
                 </div>
                 <div>
+                  <label htmlFor="hero-image" className={labelCls}>Hero image</label>
+                  <input id="hero-image" type="url" placeholder="https://…" value={draft.content.heroImage} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, heroImage: e.target.value } }))} className={inputCls} />
+                  <p className="mt-1 text-xs text-stone-500">Shown at the top of your site. Paste an image URL, or upload one below.</p>
+                  <input
+                    id="hero-image-upload"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    disabled={heroUploadBusy}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void uploadHeroImage(file);
+                      e.target.value = "";
+                    }}
+                    className="mt-2 block w-full text-sm"
+                  />
+                  <p className="mt-1 text-xs text-stone-500">{heroUploadBusy ? "Uploading…" : "JPG, PNG or WebP, up to 5 MB."}</p>
+                </div>
+                <div>
+                  <label htmlFor="dress-code" className={labelCls}>Dress code</label>
+                  <input id="dress-code" value={draft.content.dressCode} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, dressCode: e.target.value } }))} className={inputCls} />
+                  <p className="mt-1 text-xs text-stone-500">Shown in the Dress code section of your site.</p>
+                </div>
+                <div>
                   <label htmlFor="venue-name" className={labelCls}>Venue name</label>
                   <input id="venue-name" value={draft.content.venueName} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, venueName: e.target.value } }))} className={inputCls} />
                 </div>
@@ -426,12 +541,34 @@ export default function EditorPage() {
                 </div>
                 <div>
                   <label htmlFor="timezone" className={labelCls}>Timezone</label>
-                  <input id="timezone" list="tz-list" value={draft.timezone} onChange={(e) => updateDraft((d) => ({ ...d, timezone: e.target.value, settings: { ...d.settings, timezone: e.target.value } }))} className={inputCls} />
+                  <input
+                    id="timezone"
+                    list="tz-list"
+                    value={draft.timezone}
+                    onChange={(e) => {
+                      setTzError("");
+                      // Top-level site.timezone is the single source of
+                      // truth — settings.timezone is not read anywhere.
+                      updateDraft((d) => ({ ...d, timezone: e.target.value }));
+                    }}
+                    onBlur={(e) => {
+                      const value = e.target.value.trim();
+                      if (value && !isKnownTimezone(value)) {
+                        setTzError(`“${value}” is not a known timezone — pick one from the list.`);
+                        // Revert to the last saved timezone.
+                        updateDraft((d) => ({ ...d, timezone: site.timezone }));
+                      } else {
+                        setTzError("");
+                      }
+                    }}
+                    className={inputCls}
+                  />
                   <datalist id="tz-list">
                     {TIMEZONES.map((tz) => (
                       <option key={tz} value={tz} />
                     ))}
                   </datalist>
+                  {tzError ? <p role="alert" className="mt-1 text-xs text-red-700">{tzError}</p> : null}
                 </div>
               </div>
             )}
@@ -484,7 +621,7 @@ export default function EditorPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    const ev: SiteEvent = { id: uid("ev"), name: "New event", date: draft.weddingDate.slice(0, 10), time: "4:00 PM", venue: "", address: "", description: "" };
+                    const ev: SiteEvent = { id: uid("ev"), name: "New event", date: dateInTimezone(draft.weddingDate, draft.timezone), time: "4:00 PM", venue: "", address: "", description: "" };
                     updateDraft((d) => ({ ...d, events: [...d.events, ev] }));
                   }}
                   className="rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white"
@@ -562,6 +699,11 @@ export default function EditorPage() {
                       type="button"
                       disabled={!newImageUrl.trim()}
                       onClick={() => {
+                        if (!isSafeImageUrl(newImageUrl)) {
+                          setGalleryUrlError("Enter a valid http(s) image URL — javascript: and data: links are not allowed.");
+                          return;
+                        }
+                        setGalleryUrlError("");
                         const image: GalleryImage = { id: uid("g"), url: newImageUrl.trim(), caption: "" };
                         updateDraft((d) => ({ ...d, gallery: [...d.gallery, image] }));
                         setNewImageUrl("");
@@ -571,6 +713,7 @@ export default function EditorPage() {
                       Add
                     </button>
                   </div>
+                  {galleryUrlError ? <p role="alert" className="mt-1 text-xs text-red-700">{galleryUrlError}</p> : null}
                 </div>
                 <div>
                   <label htmlFor="gallery-upload" className={labelCls}>Upload a photo</label>
@@ -605,6 +748,28 @@ export default function EditorPage() {
                   <p className="mt-1 text-xs text-stone-500">
                     Shown in the Invitation section, in your theme&apos;s stationery panel.
                   </p>
+                </div>
+                <div>
+                  <label htmlFor="footer-message" className={labelCls}>Footer message</label>
+                  <textarea
+                    id="footer-message"
+                    rows={2}
+                    value={draft.content.footerMessage}
+                    onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, footerMessage: e.target.value } }))}
+                    className={inputCls}
+                  />
+                  <p className="mt-1 text-xs text-stone-500">Shown at the bottom of your site.</p>
+                </div>
+                <div>
+                  <label htmlFor="post-wedding-message" className={labelCls}>Post-wedding message</label>
+                  <textarea
+                    id="post-wedding-message"
+                    rows={2}
+                    value={draft.content.postWeddingMessage}
+                    onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, postWeddingMessage: e.target.value } }))}
+                    className={inputCls}
+                  />
+                  <p className="mt-1 text-xs text-stone-500">Shown to guests after the wedding date has passed.</p>
                 </div>
                 <fieldset>
                   <legend className="text-sm font-medium">Show these sections</legend>
@@ -946,7 +1111,7 @@ export default function EditorPage() {
                   <select
                     id="countdown-style"
                     value={draft.settings.countdownStyle}
-                    onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, countdownStyle: e.target.value as WeddingSite["settings"]["countdownStyle"], countdownEnabled: true } }))}
+                    onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, countdownStyle: e.target.value as WeddingSite["settings"]["countdownStyle"] } }))}
                     className={inputCls}
                   >
                     <option value="classic">Classic</option>
@@ -979,21 +1144,7 @@ export default function EditorPage() {
                     onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, rsvpDeadline: fromLocalInput(e.target.value) } }))}
                     className={inputCls}
                   />
-                </div>
-                <div>
-                  <label htmlFor="rsvp-timezone" className={labelCls}>RSVP timezone</label>
-                  <input
-                    id="rsvp-timezone"
-                    list="tz-list-2"
-                    value={draft.settings.timezone}
-                    onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, timezone: e.target.value } }))}
-                    className={inputCls}
-                  />
-                  <datalist id="tz-list-2">
-                    {TIMEZONES.map((tz) => (
-                      <option key={tz} value={tz} />
-                    ))}
-                  </datalist>
+                  <p className="mt-1 text-xs text-stone-500">Dates and times use the timezone set on the Couple tab.</p>
                 </div>
 
                 <div className="rounded-lg border border-stone-200 p-3">

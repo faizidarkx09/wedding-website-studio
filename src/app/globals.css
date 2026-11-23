@@ -481,6 +481,15 @@ body {
   transform: translateY(0);
 }
 
+/* No-JS fallback: if scripting is off, reveal sections are never hidden
+ * (Reveal.tsx also only adds .reveal once JS has run — belt and braces). */
+@media (scripting: none) {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 /* Per-theme reveal personality (same timing, different feel). */
 .theme-midnight .reveal {
   transform: translateY(14px) scale(0.985);

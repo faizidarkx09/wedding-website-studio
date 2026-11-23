@@ -42,25 +42,36 @@ export default function DashboardPage() {
   const [publishBusy, setPublishBusy] = useState(false);
 
   const load = useCallback(async () => {
-    const siteRes = await fetch("/api/sites/save");
-    if (siteRes.status === 401) {
-      router.replace("/activate");
-      return;
-    }
-    const siteData = (await siteRes.json()) as { ok: boolean; site?: WeddingSite; error?: string };
-    if (!siteRes.ok || !siteData.site) {
-      setError(siteData.error || "Could not load your website.");
+    try {
+      const siteRes = await fetch("/api/sites/save");
+      if (siteRes.status === 401) {
+        router.replace("/activate");
+        return;
+      }
+      const siteData = (await siteRes.json()) as { ok: boolean; site?: WeddingSite; error?: string };
+      if (!siteRes.ok || !siteData.site) {
+        setError(siteData.error || "Could not load your website.");
+        setLoading(false);
+        return;
+      }
+      setSite(siteData.site);
+      try {
+        const gRes = await fetch(`/api/guests?siteId=${encodeURIComponent(siteData.site.id)}`);
+        const gData = (await gRes.json()) as { ok: boolean; rsvps?: RsvpResponse[]; counts?: GuestCounts; error?: string };
+        if (gRes.ok && gData.rsvps && gData.counts) {
+          setRsvps(gData.rsvps);
+          setCounts(gData.counts);
+        } else {
+          setNotice("Could not load RSVP responses — showing 0 for now. Try reloading the page.");
+        }
+      } catch {
+        setNotice("Could not load RSVP responses — showing 0 for now. Check your connection and try reloading the page.");
+      }
       setLoading(false);
-      return;
+    } catch {
+      setError("Could not load your dashboard — check your connection and try again.");
+      setLoading(false);
     }
-    setSite(siteData.site);
-    const gRes = await fetch(`/api/guests?siteId=${encodeURIComponent(siteData.site.id)}`);
-    const gData = (await gRes.json()) as { ok: boolean; rsvps?: RsvpResponse[]; counts?: GuestCounts; error?: string };
-    if (gRes.ok && gData.rsvps && gData.counts) {
-      setRsvps(gData.rsvps);
-      setCounts(gData.counts);
-    }
-    setLoading(false);
   }, [router]);
 
   useEffect(() => {
@@ -85,6 +96,11 @@ export default function DashboardPage() {
 
   async function togglePublish() {
     if (!site) return;
+    // A suspended/archived site can only be restored by an admin.
+    if (site.status === "suspended" || site.status === "archived") {
+      setNotice("This website was suspended or archived. Only an admin can restore it.");
+      return;
+    }
     setPublishBusy(true);
     setNotice("");
     const next = site.status === "published" ? "unpublished" : "published";
@@ -228,14 +244,18 @@ export default function DashboardPage() {
         <div className="rounded-xl border border-stone-200 bg-white p-4">
           <p className="text-sm text-stone-500">Publishing status</p>
           <p className="mt-1 text-xl font-semibold capitalize">{site.status}</p>
-          <button
-            type="button"
-            onClick={togglePublish}
-            disabled={publishBusy}
-            className="mt-3 rounded-full border border-stone-300 px-4 py-1.5 text-sm font-medium disabled:opacity-50"
-          >
-            {publishBusy ? "Working…" : site.status === "published" ? "Unpublish" : "Publish"}
-          </button>
+          {site.status === "suspended" || site.status === "archived" ? (
+            <p className="mt-2 text-sm text-amber-700">Only an admin can restore this website.</p>
+          ) : (
+            <button
+              type="button"
+              onClick={togglePublish}
+              disabled={publishBusy}
+              className="mt-3 rounded-full border border-stone-300 px-4 py-1.5 text-sm font-medium disabled:opacity-50"
+            >
+              {publishBusy ? "Working…" : site.status === "published" ? "Unpublish" : "Publish"}
+            </button>
+          )}
         </div>
         <div className="rounded-xl border border-stone-200 bg-white p-4">
           <p className="text-sm text-stone-500">Wedding countdown</p>
@@ -408,14 +428,20 @@ export default function DashboardPage() {
               Edit website
             </Link>
           </p>
-          <button
-            type="button"
-            onClick={togglePublish}
-            disabled={publishBusy}
-            className="mt-3 rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-          >
-            {publishBusy ? "Working…" : site.status === "published" ? "Unpublish website" : "Publish website"}
-          </button>
+          {site.status === "suspended" || site.status === "archived" ? (
+            <p className="mt-3 text-sm text-amber-700">
+              This website was {site.status}. Publishing is disabled — only an admin can restore it.
+            </p>
+          ) : (
+            <button
+              type="button"
+              onClick={togglePublish}
+              disabled={publishBusy}
+              className="mt-3 rounded-full bg-stone-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+            >
+              {publishBusy ? "Working…" : site.status === "published" ? "Unpublish website" : "Publish website"}
+            </button>
+          )}
 
           <h3 className="mt-6 font-medium">Guest password</h3>
           <p className="mt-1 text-sm text-stone-600">

@@ -1,8 +1,15 @@
 // GET /api/qr?slug=…&format=svg|png — QR code for a site's PUBLIC guest
 // URL only. Never encodes editor, activation or admin URLs.
+//
+// Access: published sites are public (anyone may fetch their QR code).
+// Draft / unpublished / suspended sites only disclose a QR code to their
+// owner (customer session for that site) or an admin — otherwise 404,
+// so the endpoint cannot be used to probe for or advertise hidden sites.
 
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { getSiteBySlug } from "@/lib/store";
+import { verifySession } from "@/lib/auth";
 import { qrPng, qrSvg } from "@/lib/qr";
 
 export async function GET(req: NextRequest) {
@@ -20,9 +27,24 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Site not found" }, { status: 404 });
   }
 
+  if (site.status !== "published") {
+    const cookieStore = await cookies();
+    const admin = verifySession(cookieStore.get("wws_admin")?.value);
+    const customer = verifySession(cookieStore.get("wws_customer")?.value);
+    const allowed =
+      admin?.role === "admin" ||
+      (customer?.role === "customer" && customer.siteId === site.id);
+    if (!allowed) {
+      return NextResponse.json({ error: "Site not found" }, { status: 404 });
+    }
+  }
+
+  // Canonical base URL first (configured), then this request's own
+  // origin. Never the Origin header: it is caller-controlled, and a
+  // forged Origin would make the QR code point at an attacker's domain.
   const base = (
     process.env.NEXT_PUBLIC_SITE_URL ||
-    req.headers.get("origin") ||
+    process.env.SITE_URL ||
     new URL(req.url).origin
   ).replace(/\/$/, "");
   const publicUrl = `${base}/w/${site.slug}`;

@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifySession } from "@/lib/auth";
-import { listRsvps } from "@/lib/store";
+import { listRsvps, getSiteById } from "@/lib/store";
 import { toCsv } from "@/lib/csv";
 
 export async function GET(req: NextRequest) {
@@ -24,29 +24,40 @@ export async function GET(req: NextRequest) {
   }
 
   const rsvps = await listRsvps(siteId);
+  // One extra column per custom RSVP question on this site, appended after
+  // the fixed columns (existing columns keep their order). Guests who did
+  // not answer a question get an empty cell.
+  const site = await getSiteById(siteId);
+  const questions = site?.customQuestions ?? [];
+  const fixedColumns = [
+    { key: "name", label: "Name" },
+    { key: "email", label: "Email" },
+    { key: "phone", label: "Phone" },
+    { key: "attending", label: "Attending" },
+    { key: "guests", label: "Guests" },
+    { key: "dietary", label: "Dietary" },
+    { key: "allergies", label: "Allergies" },
+    { key: "message", label: "Message" },
+    { key: "submitted", label: "Submitted" },
+  ];
+  const questionColumns = questions.map((q) => ({ key: `answer:${q.id}`, label: q.label }));
   const csv = toCsv(
-    rsvps.map((r) => ({
-      name: r.guestName,
-      email: r.email,
-      phone: r.phone,
-      attending: r.attending ? "Yes" : "No",
-      guests: r.guestCount,
-      dietary: r.dietary,
-      allergies: r.allergies,
-      message: r.message,
-      submitted: r.submittedAt,
-    })),
-    [
-      { key: "name", label: "Name" },
-      { key: "email", label: "Email" },
-      { key: "phone", label: "Phone" },
-      { key: "attending", label: "Attending" },
-      { key: "guests", label: "Guests" },
-      { key: "dietary", label: "Dietary" },
-      { key: "allergies", label: "Allergies" },
-      { key: "message", label: "Message" },
-      { key: "submitted", label: "Submitted" },
-    ],
+    rsvps.map((r) => {
+      const row: Record<string, string | number> = {
+        name: r.guestName,
+        email: r.email,
+        phone: r.phone,
+        attending: r.attending ? "Yes" : "No",
+        guests: r.guestCount,
+        dietary: r.dietary,
+        allergies: r.allergies,
+        message: r.message,
+        submitted: r.submittedAt,
+      };
+      for (const q of questions) row[`answer:${q.id}`] = r.answers?.[q.id] ?? "";
+      return row;
+    }),
+    [...fixedColumns, ...questionColumns],
   );
 
   const safeSiteId = siteId.replace(/[^A-Za-z0-9._-]/g, "-");

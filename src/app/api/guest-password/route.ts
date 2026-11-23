@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSiteBySlug } from "@/lib/store";
-import { rateLimit, sha256 } from "@/lib/auth";
+import { rateLimit, sha256, signSession } from "@/lib/auth";
 
 function clientIp(req: NextRequest): string {
   const forwarded = req.headers.get("x-forwarded-for");
@@ -12,7 +12,13 @@ function clientIp(req: NextRequest): string {
  * POST { slug, password } — guest gate for a password-protected public site.
  * No protection configured → { ok: true }. On success sets the
  * `wws_guest_<slug>` cookie (httpOnly, 7 days) which the public site page
- * checks server-side to bypass the gate. Wrong password → generic error.
+ * checks server-side to bypass the gate. The cookie value is a signed
+ * session token (HMAC, bound to this site, 7-day expiry) — not a bare
+ * "1" — so it cannot be forged by setting the cookie by hand. Wrong
+ * password → generic error.
+ *
+ * The guest token uses role "guest" with siteId set; pages verify both
+ * fields, so it cannot be mistaken for an owner ("customer") session.
  */
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -45,7 +51,12 @@ export async function POST(req: NextRequest) {
   }
 
   const res = NextResponse.json({ ok: true });
-  res.cookies.set(`wws_guest_${slug}`, "1", {
+  const guestToken = signSession({
+    role: "guest",
+    siteId: site.id,
+    exp: Date.now() + 7 * 24 * 3600 * 1000,
+  });
+  res.cookies.set(`wws_guest_${slug}`, guestToken, {
     httpOnly: true,
     path: "/",
     maxAge: 7 * 24 * 3600,

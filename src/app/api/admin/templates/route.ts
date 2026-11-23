@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { generateAccessCode, verifySession } from "@/lib/auth";
-import { archiveTemplate, getTemplateById, listTemplates, saveTemplate } from "@/lib/store";
+import { getTemplateById, listTemplates, saveTemplate } from "@/lib/store";
 import type { TemplateMeta } from "@/lib/types";
 
 async function requireAdmin() {
@@ -16,33 +16,73 @@ function bad(message: string, status = 400) {
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
 
-/** Validate a TemplateMeta payload. Saving a master template only updates
- *  the templates table — existing sites keep their templateSnapshot, so
- *  this can never silently change a purchased customer's site. */
-function isValidTemplate(v: unknown): v is TemplateMeta {
-  if (!v || typeof v !== "object") return false;
+/** Composition keys the renderer knows (SiteRenderer composition()):
+ * champagne, blue, midnight, sage, mediterranean, lavender, plus the
+ * generic "classic" fallback for unknown keys. */
+const KNOWN_COMPOSITIONS = new Set([
+  "champagne",
+  "blue",
+  "midnight",
+  "sage",
+  "mediterranean",
+  "lavender",
+  "classic",
+]);
+
+/** Section keys the renderer knows (NAV_LABELS + renderSection switch in
+ * SiteRenderer). "hero" has no nav label but is a real section. */
+const KNOWN_SECTIONS = new Set([
+  "hero",
+  "invitation",
+  "countdown",
+  "story",
+  "events",
+  "details",
+  "gallery",
+  "faq",
+  "rsvp",
+]);
+
+/** Validate a TemplateMeta payload. Returns an error message, or null when
+ * valid. Saving a master template only updates the templates table —
+ * existing sites keep their templateSnapshot, so this can never silently
+ * change a purchased customer's site. */
+function validateTemplate(v: unknown): string | null {
+  if (!v || typeof v !== "object") return "Invalid template.";
   const t = v as Record<string, unknown>;
-  if (typeof t.id !== "string" || !t.id.trim()) return false;
-  if (typeof t.name !== "string" || !t.name.trim()) return false;
-  if (typeof t.tagline !== "string" || typeof t.description !== "string") return false;
-  if (typeof t.priceUsd !== "number" || !Number.isFinite(t.priceUsd) || t.priceUsd < 0) return false;
-  if (!(t.etsyListingId === null || typeof t.etsyListingId === "string")) return false;
-  if (typeof t.active !== "boolean") return false;
+  if (typeof t.id !== "string" || !t.id.trim()) return "Template ID is required.";
+  if (typeof t.name !== "string" || !t.name.trim()) return "Template name is required.";
+  if (typeof t.tagline !== "string" || typeof t.description !== "string") return "Tagline and description are required.";
+  if (typeof t.priceUsd !== "number" || !Number.isFinite(t.priceUsd) || t.priceUsd < 0) return "Price must be a number ≥ 0.";
+  if (!(t.etsyListingId === null || typeof t.etsyListingId === "string")) return "Etsy listing ID must be text or empty.";
+  if (typeof t.active !== "boolean") return "Active must be true or false.";
   // The fixed per-template access code must survive every save — it is
   // baked into the static delivery PDF on Etsy, so it must never be
   // blanked or lost by an edit.
-  if (typeof t.accessCode !== "string" || !t.accessCode.trim()) return false;
-  if (typeof t.fontClass !== "string" || typeof t.layout !== "string") return false;
-  if (!Array.isArray(t.sections) || !t.sections.every((s) => typeof s === "string")) return false;
+  if (typeof t.accessCode !== "string" || !t.accessCode.trim()) return "Access code is required.";
+  if (typeof t.fontClass !== "string" || typeof t.layout !== "string") return "Font class and layout are required.";
+  if (typeof t.composition !== "string" || !KNOWN_COMPOSITIONS.has(t.composition)) {
+    return `Composition must be one of: ${[...KNOWN_COMPOSITIONS].sort().join(", ")}.`;
+  }
+  if (!Array.isArray(t.sections) || !t.sections.every((s) => typeof s === "string")) return "Sections must be a list of text.";
+  const unknownSections = (t.sections as string[]).filter((s) => !KNOWN_SECTIONS.has(s));
+  if (unknownSections.length > 0) {
+    return `Unknown section(s): ${unknownSections.join(", ")}. Known sections: ${[...KNOWN_SECTIONS].sort().join(", ")}.`;
+  }
   const p = t.palette;
-  if (!p || typeof p !== "object") return false;
+  if (!p || typeof p !== "object") return "Palette is required.";
   const pal = p as Record<string, unknown>;
-  return (
-    typeof pal.bg === "string" && HEX.test(pal.bg) &&
-    typeof pal.ink === "string" && HEX.test(pal.ink) &&
-    typeof pal.accent === "string" && HEX.test(pal.accent) &&
-    typeof pal.accentSoft === "string" && HEX.test(pal.accentSoft)
-  );
+  if (
+    !(
+      typeof pal.bg === "string" && HEX.test(pal.bg) &&
+      typeof pal.ink === "string" && HEX.test(pal.ink) &&
+      typeof pal.accent === "string" && HEX.test(pal.accent) &&
+      typeof pal.accentSoft === "string" && HEX.test(pal.accentSoft)
+    )
+  ) {
+    return "Palette needs four #rrggbb colours.";
+  }
+  return null;
 }
 
 export async function POST(req: NextRequest) {
@@ -61,11 +101,23 @@ export async function POST(req: NextRequest) {
   if (typeof action !== "string") return bad("Missing action.");
 
   if (action === "save") {
-    if (!isValidTemplate(body.template)) {
-      return bad("Invalid template: name, a price ≥ 0, and four #rrggbb palette colours are required.");
+    const templateError = validateTemplate(body.template);
+    if (templateError) {
+      return bad(`Invalid template: ${templateError}`);
     }
-    await saveTemplate(body.template);
-    return NextResponse.json({ ok: true, id: body.template.id });
+    const template = body.template as TemplateMeta;
+    // Access codes must be unique (case-insensitive) across templates:
+    // two templates sharing a code would activate the same code to two
+    // different themes, and findTemplateByAccessCodeHash returns the
+    // first match. The template being edited may keep its own code.
+    const clash = (await listTemplates()).find(
+      (t) => t.id !== template.id && t.accessCode.trim().toUpperCase() === template.accessCode.trim().toUpperCase(),
+    );
+    if (clash) {
+      return bad(`Access code “${template.accessCode.trim()}” is already used by the “${clash.name}” template. Each template needs its own code.`);
+    }
+    await saveTemplate(template);
+    return NextResponse.json({ ok: true, id: template.id });
   }
 
   if (action === "duplicate") {
@@ -93,15 +145,6 @@ export async function POST(req: NextRequest) {
     };
     await saveTemplate(copy);
     return NextResponse.json({ ok: true, id: copy.id });
-  }
-
-  if (action === "archive") {
-    const id = typeof body.id === "string" ? body.id : typeof body.templateId === "string" ? body.templateId : "";
-    if (!id) return bad("Missing template id.");
-    const existing = await getTemplateById(id);
-    if (!existing) return bad("Template not found.", 404);
-    await archiveTemplate(id);
-    return NextResponse.json({ ok: true, id });
   }
 
   return bad(`Unknown action: ${action}.`);

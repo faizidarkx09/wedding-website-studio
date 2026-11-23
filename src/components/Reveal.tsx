@@ -9,18 +9,22 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
  * first time they scroll into view (IntersectionObserver, one shot).
  * Restrained by design: 500ms, no bounce. Reduced motion: content is
  * shown immediately with no transition (handled here and in CSS).
+ *
+ * The hidden state is applied only once JS has run (jsReady): the
+ * server-rendered markup — and any no-JS render — has no `.reveal`
+ * class, so content is never stuck invisible with JS disabled.
  */
 interface RevealProps {
   children: ReactNode;
-  /** Extra stagger delay in ms (kept small; 0 by default). */
-  delay?: number;
 }
 
-export default function Reveal({ children, delay = 0 }: RevealProps) {
+export default function Reveal({ children }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const [jsReady, setJsReady] = useState(false);
 
   useEffect(() => {
+    setJsReady(true);
     const el = ref.current;
     if (!el) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -41,11 +45,7 @@ export default function Reveal({ children, delay = 0 }: RevealProps) {
   }, []);
 
   return (
-    <div
-      ref={ref}
-      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
-      className={`reveal ${visible ? "reveal-visible" : ""}`}
-    >
+    <div ref={ref} className={jsReady ? `reveal ${visible ? "reveal-visible" : ""}` : undefined}>
       {children}
     </div>
   );

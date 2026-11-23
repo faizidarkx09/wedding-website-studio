@@ -16,6 +16,19 @@ const input =
   "w-full rounded-md border border-stone-300 bg-white px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-stone-900 focus:outline-none";
 const label = "block text-sm font-medium text-stone-700";
 
+/** Composition keys the renderer knows (SiteRenderer composition()):
+ * each one gets its own hero, divider, timeline, gallery and motion
+ * treatment; "classic" is the generic fallback. */
+const COMPOSITIONS = [
+  { value: "classic", label: "Classic (generic fallback)" },
+  { value: "champagne", label: "Champagne" },
+  { value: "blue", label: "Blue" },
+  { value: "midnight", label: "Midnight" },
+  { value: "sage", label: "Sage" },
+  { value: "mediterranean", label: "Mediterranean" },
+  { value: "lavender", label: "Lavender" },
+] as const;
+
 async function postJson(endpoint: string, body: unknown): Promise<{ ok: boolean; status: number; data: Record<string, unknown> }> {
   const res = await fetch(endpoint, {
     method: "POST",
@@ -230,6 +243,7 @@ export function TemplateEditForm({ template }: { template: TemplateMeta }) {
   const [accentSoft, setAccentSoft] = useState(template.palette.accentSoft);
   const [layout, setLayout] = useState(template.layout);
   const [fontClass, setFontClass] = useState(template.fontClass);
+  const [composition, setComposition] = useState(template.composition || "classic");
   const [heroImage, setHeroImage] = useState(template.heroImage ?? "");
   const [sections, setSections] = useState(template.sections.join(", "));
   const [active, setActive] = useState(template.active);
@@ -255,6 +269,7 @@ export function TemplateEditForm({ template }: { template: TemplateMeta }) {
       palette: { bg: bg.trim(), ink: ink.trim(), accent: accent.trim(), accentSoft: accentSoft.trim() },
       layout: layout.trim(),
       fontClass: fontClass.trim(),
+      composition,
       sections: sections.split(",").map((s) => s.trim()).filter(Boolean),
     };
     // Optional hero image (e.g. /images/themes/<id>.jpg). Blank removes it.
@@ -306,6 +321,14 @@ export function TemplateEditForm({ template }: { template: TemplateMeta }) {
         <div>
           <label className={label} htmlFor={`font-${template.id}`}>Font class</label>
           <input id={`font-${template.id}`} value={fontClass} onChange={(e) => setFontClass(e.target.value)} className={`${input} mt-1`} />
+        </div>
+        <div>
+          <label className={label} htmlFor={`composition-${template.id}`}>Composition (art direction)</label>
+          <select id={`composition-${template.id}`} value={composition} onChange={(e) => setComposition(e.target.value)} className={`${input} mt-1`}>
+            {COMPOSITIONS.map((c) => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
+          </select>
         </div>
         <div>
           <label className={label} htmlFor={`hero-${template.id}`}>Hero image URL</label>
@@ -374,6 +397,7 @@ export function NewTemplateForm() {
   const [id, setId] = useState("");
   const [name, setName] = useState("");
   const [accessCode, setAccessCode] = useState(randomAccessCode);
+  const [composition, setComposition] = useState("classic");
   const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -401,7 +425,7 @@ export function NewTemplateForm() {
       palette: { bg: "#fdfbf7", ink: "#1c1917", accent: "#8a6d3b", accentSoft: "#f5efe4" },
       fontClass: "font-editorial",
       layout: "",
-      composition: "classic",
+      composition,
       sections: ["hero", "invitation", "countdown", "story", "events", "details", "gallery", "faq", "rsvp"],
     };
     setBusy(true);
@@ -415,6 +439,7 @@ export function NewTemplateForm() {
       setId("");
       setName("");
       setAccessCode(randomAccessCode());
+      setComposition("classic");
       router.refresh();
     } catch {
       setMessage({ kind: "error", text: "Network error — please try again." });
@@ -438,6 +463,14 @@ export function NewTemplateForm() {
         <div>
           <label className={label} htmlFor="new-template-name">Name</label>
           <input id="new-template-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Champagne Elegance" required className={`${input} mt-1`} />
+        </div>
+        <div>
+          <label className={label} htmlFor="new-template-composition">Composition (art direction)</label>
+          <select id="new-template-composition" value={composition} onChange={(e) => setComposition(e.target.value)} className={`${input} mt-1`}>
+            {COMPOSITIONS.map((c) => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
+          </select>
         </div>
         <div>
           <label className={label} htmlFor="new-template-code">Access code</label>

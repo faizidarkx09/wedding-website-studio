@@ -111,12 +111,9 @@ export default function RsvpForm({ site, token }: RsvpFormProps) {
     const answerErrors: Record<string, string> = {};
     if (!form.guestName.trim()) next.guestName = "Please enter your full name.";
     if (form.attending === null) next.attending = "Please say whether you are attending.";
-    const count = Number(form.guestCount);
+    const count = form.attending === false ? 0 : Number(form.guestCount);
     if (form.attending === true && (!Number.isInteger(count) || count < 1 || count > 10)) {
       next.guestCount = "Guest count must be between 1 and 10.";
-    }
-    if (form.attending === false && count !== 0) {
-      next.guestCount = "Guest count should be 0 when you are not attending.";
     }
     if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
       next.email = "That email address does not look right.";
@@ -272,7 +269,12 @@ export default function RsvpForm({ site, token }: RsvpFormProps) {
                 name="attending"
                 value={opt.value ? "yes" : "no"}
                 checked={form.attending === opt.value}
-                onChange={() => set("attending", opt.value)}
+                onChange={() => {
+                  set("attending", opt.value);
+                  // Keep state truthful: a decline means 0 guests, matching
+                  // the disabled count input (which shows 0) and onSubmit.
+                  if (opt.value === false) set("guestCount", "0");
+                }}
                 className="sr-only"
               />
               {opt.label}

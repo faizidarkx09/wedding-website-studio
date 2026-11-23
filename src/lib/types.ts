@@ -199,13 +199,3 @@ export interface AuditLog {
   detail: string;
   createdAt: string;
 }
-
-export interface GuestRecord {
-  id: string;
-  siteId: string;
-  name: string;
-  email: string;
-  phone: string;
-  notes: string;
-  rsvpId: string | null;
-}

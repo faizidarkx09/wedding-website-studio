@@ -34,9 +34,20 @@ function formatShortDate(dateIso: string, timezone: string): string {
   }
 }
 
-export default function EnvelopeIntro({ site }: { site: WeddingSite }) {
+export default function EnvelopeIntro({
+  site,
+  /** Land keyboard focus on the envelope on mount — only when the
+   * envelope is the page's primary content. Template-preview pages
+   * pass false: the preview page has its own chrome above the envelope
+   * and stealing focus there strands keyboard users. */
+  autoFocus = true,
+}: {
+  site: WeddingSite;
+  autoFocus?: boolean;
+}) {
   const [phase, setPhase] = useState<Phase>("closed");
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<number | null>(null);
 
   const tpl = site.templateSnapshot;
@@ -48,10 +59,26 @@ export default function EnvelopeIntro({ site }: { site: WeddingSite }) {
     "W";
 
   // Land keyboard focus on the envelope so it can be opened with
-  // Enter/Space without hunting for it.
+  // Enter/Space without hunting for it — unless the caller opted out
+  // (template previews), where focus stays with the page.
   useEffect(() => {
-    buttonRef.current?.focus();
-  }, []);
+    if (autoFocus) buttonRef.current?.focus();
+  }, [autoFocus]);
+
+  // While the intro covers the page, the site behind it is inert:
+  // keyboard / screen-reader users cannot tab into content they cannot
+  // see. Restored when the intro is dismissed or unmounts.
+  useEffect(() => {
+    if (phase === "gone") return;
+    const overlay = overlayRef.current;
+    const parent = overlay?.parentElement;
+    if (!parent) return;
+    const siblings = Array.from(parent.children).filter((el) => el !== overlay);
+    siblings.forEach((el) => el.setAttribute("inert", ""));
+    return () => {
+      siblings.forEach((el) => el.removeAttribute("inert"));
+    };
+  }, [phase]);
 
   // Lock body scroll while the intro covers the page.
   useEffect(() => {
@@ -85,6 +112,28 @@ export default function EnvelopeIntro({ site }: { site: WeddingSite }) {
     setPhase("gone");
   }
 
+  /** Keep Tab inside the overlay while it is open (it holds two buttons). */
+  function trapTab(e: React.KeyboardEvent) {
+    if (e.key !== "Tab") return;
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+    const focusable = Array.from(
+      overlay.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+      ),
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
+
   function open() {
     if (phase !== "closed") return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -103,9 +152,11 @@ export default function EnvelopeIntro({ site }: { site: WeddingSite }) {
 
   return (
     <div
+      ref={overlayRef}
       role="dialog"
       aria-modal="true"
       aria-label={`Invitation for ${names}`}
+      onKeyDown={trapTab}
       className={`envelope-overlay ${phase === "opening" ? "envelope-leaving" : ""}`}
       style={{ backgroundColor: tpl.palette.bg, color: tpl.palette.ink }}
     >

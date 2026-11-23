@@ -1,6 +1,9 @@
+import { cookies } from "next/headers";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import PasswordGate from "@/components/PasswordGate";
 import RsvpForm from "@/components/RsvpForm";
-import { SiteUnavailable } from "@/components/SiteRenderer";
+import { verifySession } from "@/lib/auth";
 import { getPublicSite } from "@/lib/store";
 
 export default async function RsvpPage({
@@ -16,7 +19,19 @@ export default async function RsvpPage({
   const site = await getPublicSite(slug);
 
   if (!site) {
-    return <SiteUnavailable />;
+    // Unknown slug (or an unpublished/draft site): a real 404.
+    notFound();
+  }
+
+  // Password-protected sites gate the RSVP form exactly like the site
+  // itself: the guest cookie must be a valid signed token for this site.
+  if (site.settings.passwordEnabled) {
+    const cookieStore = await cookies();
+    const session = verifySession(cookieStore.get(`wws_guest_${slug}`)?.value);
+    const unlocked = session?.role === "guest" && session.siteId === site.id;
+    if (!unlocked) {
+      return <PasswordGate slug={slug} />;
+    }
   }
 
   const deadline = site.settings.rsvpDeadline ? new Date(site.settings.rsvpDeadline) : null;

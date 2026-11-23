@@ -3,7 +3,7 @@
 // fields so a guest can edit their own RSVP. Never returns other guests.
 
 import { NextRequest, NextResponse } from "next/server";
-import { generateToken, rateLimit } from "@/lib/auth";
+import { generateToken, rateLimit, verifySession } from "@/lib/auth";
 import { getRsvpByToken, getSiteById, saveRsvp } from "@/lib/store";
 import type { RsvpResponse } from "@/lib/types";
 
@@ -40,6 +40,21 @@ export async function POST(req: NextRequest) {
   const site = await getSiteById(siteId);
   if (!site) {
     return NextResponse.json({ error: "Site not found" }, { status: 404 });
+  }
+  // Only published sites take RSVPs — drafts / unpublished / suspended
+  // sites must not collect responses (direct POSTs included, not just
+  // the form page, which already 404s for them via getPublicSite).
+  if (site.status !== "published") {
+    return NextResponse.json({ error: "Site not found" }, { status: 404 });
+  }
+  // Password-protected sites: the caller must hold the signed guest
+  // cookie for this site, exactly as the RSVP form page requires.
+  // (The form page is gated, but a direct POST would bypass it.)
+  if (site.settings.passwordEnabled) {
+    const session = verifySession(req.cookies.get(`wws_guest_${site.slug}`)?.value);
+    if (!(session?.role === "guest" && session.siteId === site.id)) {
+      return NextResponse.json({ error: "Password required" }, { status: 401 });
+    }
   }
   if (!site.settings.rsvpEnabled) {
     return NextResponse.json({ error: "RSVP is disabled for this site" }, { status: 403 });

@@ -68,18 +68,13 @@ export async function saveTemplate(t: TemplateMeta): Promise<void> {
   audit("admin", "template.save", `Template ${t.id} saved.`);
 }
 
-export async function archiveTemplate(id: string): Promise<void> {
-  const t = await getTemplateById(id);
-  if (t) {
-    t.active = false;
-    await saveTemplate(t);
-  }
-}
-
 /**
  * Find the template whose fixed access code matches the given SHA-256 hash.
- * The plain code is never stored or compared in the clear here — callers
- * pass the hash of the code the buyer entered.
+ * NOTE: the plain code IS stored on the template record (TemplateMeta.
+ * accessCode, plain text by design — it ships in the delivery PDF), so
+ * this hashes the stored plain code and compares hashes. Callers pass the
+ * hash of the code the buyer entered; the plain entered code is never
+ * logged or compared in the clear here.
  */
 export async function findTemplateByAccessCodeHash(
   codeHash: string,
@@ -263,14 +258,20 @@ export async function deleteRsvp(id: string, siteId: string): Promise<void> {
 }
 
 // --- Audit ---
+const MAX_AUDIT_ENTRIES = 500;
+
 export function audit(actor: string, action: string, detail: string): void {
-  db().audit.unshift({
+  const d = db();
+  d.audit.unshift({
     id: `audit-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
     actor,
     action,
     detail,
     createdAt: new Date().toISOString(),
   });
+  // Cap the log so it cannot grow without bound (listAudit only ever
+  // returns the first 100).
+  if (d.audit.length > MAX_AUDIT_ENTRIES) d.audit.length = MAX_AUDIT_ENTRIES;
 }
 
 export async function listAudit(): Promise<AuditLog[]> {

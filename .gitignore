@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated image metadata (publicly served generation records with
+# external CDN URLs — never commit these)
+public/images/themes/media-generation-*.json

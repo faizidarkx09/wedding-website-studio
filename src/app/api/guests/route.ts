@@ -49,6 +49,10 @@ export async function DELETE(req: NextRequest) {
   if (!siteId || !id) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
+  const exists = (await listRsvps(siteId)).some((r) => r.id === id);
+  if (!exists) {
+    return NextResponse.json({ ok: false, error: "RSVP not found" }, { status: 404 });
+  }
   await deleteRsvp(id, siteId);
   return NextResponse.json({ ok: true });
 }

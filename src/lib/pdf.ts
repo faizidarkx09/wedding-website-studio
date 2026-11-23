@@ -64,6 +64,8 @@ interface Line {
 interface LinkSpot {
   y: number;
   url: string;
+  /** The text actually drawn on this line (one wrapped chunk of url). */
+  text: string;
 }
 
 export function templateDeliveryPdf(opts: TemplateDeliveryPdfOptions): Buffer {
@@ -85,18 +87,30 @@ export function templateDeliveryPdf(opts: TemplateDeliveryPdfOptions): Buffer {
     y -= opts2?.gap ?? 4;
   };
 
-  /** A labelled clickable URL line; records its position for a link annotation. */
+  /** A labelled clickable URL line; records its position for a link annotation.
+   * Long URLs wrap across lines (hard-split every maxChars characters —
+   * URLs have no spaces for the word wrapper to split on) so a long
+   * activate/template URL cannot run off the right edge of the A4 page.
+   * Each wrapped chunk gets its own link annotation for the same URL. */
   const addUrl = (url: string) => {
-    const urlY = y + 5;
-    lines.push({
-      text: url,
-      size: 10,
-      bold: false,
-      y: urlY,
-      color: [0.05, 0.25, 0.65],
-    });
-    links.push({ y: urlY, url });
-    y = urlY - 10 - 8;
+    const maxChars = Math.max(10, Math.floor(TEXT_W / (10 * 0.52)));
+    const chunks: string[] = [];
+    for (let i = 0; i < url.length; i += maxChars) {
+      chunks.push(url.slice(i, i + maxChars));
+    }
+    let lineY = y + 5;
+    for (const chunk of chunks) {
+      lines.push({
+        text: chunk,
+        size: 10,
+        bold: false,
+        y: lineY,
+        color: [0.05, 0.25, 0.65],
+      });
+      links.push({ y: lineY, url, text: chunk });
+      lineY -= 15;
+    }
+    y = lineY - 3;
   };
 
   // --- Title block ---
@@ -191,7 +205,7 @@ export function templateDeliveryPdf(opts: TemplateDeliveryPdfOptions): Buffer {
 
   // Link annotation objects: one per recorded URL line (7, 8, ...).
   const annotObjects = links.map((link) => {
-    const width = Math.min(TEXT_W, link.url.length * 5.2);
+    const width = Math.min(TEXT_W, link.text.length * 5.2);
     const rect = `[${MARGIN} ${link.y - 3} ${MARGIN + Math.round(width)} ${link.y + 11}]`;
     return `<< /Type /Annot /Subtype /Link /Rect ${rect} /Border [0 0 0] /A << /S /URI /URI (${pdfText(link.url)}) >> >>`;
   });

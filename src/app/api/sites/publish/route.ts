@@ -31,6 +31,14 @@ export async function POST(req: NextRequest) {
   }
   const site = await getSiteById(siteId);
   if (!site) return NextResponse.json({ ok: false, error: "Site not found" }, { status: 404 });
+  // A suspended or archived site can only be restored by an admin (via
+  // /api/admin/sites). The owner must not be able to re-publish it here.
+  if (status === "published" && (site.status === "suspended" || site.status === "archived") && !isAdminUser) {
+    return NextResponse.json(
+      { ok: false, error: "This website was suspended or archived. Only an admin can restore it." },
+      { status: 403 },
+    );
+  }
   await setSiteStatus(siteId, status);
   return NextResponse.json({ ok: true, status });
 }
