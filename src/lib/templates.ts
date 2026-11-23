@@ -227,15 +227,11 @@ export const TEMPLATES: TemplateMeta[] = [
     tagline: "French-Moroccan garden · blush & oud",
     description:
       "Warm ivory, blush rose and deep oud brown with Playfair Display type — a French-Moroccan garden invitation. Burgundy wax-seal envelope opening, full-screen riad-garden hero with a bottom-fade, bilingual welcome with an Arabic invitation line, live countdown, order-of-the-day timeline, venue with embedded map, dress code with palette swatches, masonry gallery with lightbox and a full RSVP form.",
-    // PRICE TBD — set at the approval gate before the delivery PDF is
-    // issued. Kept at 0 and inactive until then so it can never be
-    // bought or activated with a placeholder price.
-    priceUsd: 0,
+    // Price + access code set by the user 2026-11-23 ($69 both templates).
+    priceUsd: 69,
     etsyListingId: null,
-    active: false,
-    // ACCESS CODE TBD — fixed code is set at the approval gate, before
-    // the delivery PDF is issued. Never activate with this placeholder.
-    accessCode: "WWS-BLOSSOM-TBD",
+    active: true,
+    accessCode: "WWS-BLOSSOM-2026",
     heroImage: "/images/themes/blossom-oud.jpg",
     palette: { bg: "#FAF6EF", ink: "#3E2A20", accent: "#B08D57", accentSoft: "#EFDCD2" },
     fontClass: "font-blossom",
@@ -260,15 +256,11 @@ export const TEMPLATES: TemplateMeta[] = [
     tagline: "Rose garden · ivory & burgundy",
     description:
       "Warm cream, antique gold and deep burgundy with Beau Rivage names and Imperial Script headings — a rose-garden invitation. Envelope artwork opening, Ken Burns hero, live countdown, order-of-the-day timeline, venue with embedded map, dress code and gift preference, masonry gallery with lightbox and a full RSVP form.",
-    // PRICE TBD — set at the approval gate before the delivery PDF is
-    // issued. Kept at 0 and inactive until then so it can never be
-    // bought or activated with a placeholder price.
-    priceUsd: 0,
+    // Price + access code set by the user 2026-11-23 ($69 both templates).
+    priceUsd: 69,
     etsyListingId: null,
-    active: false,
-    // ACCESS CODE TBD — fixed code is set at the approval gate, before
-    // the delivery PDF is issued. Never activate with this placeholder.
-    accessCode: "WWS-SACRED-GARDEN-TBD",
+    active: true,
+    accessCode: "WWS-SACRED-GARDEN-2026",
     heroImage: "/images/themes/sacred-garden.jpg",
     palette: { bg: "#F9F0E0", ink: "#6C513F", accent: "#A67D2B", accentSoft: "#F6F1E8" },
     fontClass: "font-sacred",
