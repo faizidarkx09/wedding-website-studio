@@ -130,6 +130,9 @@ export interface SiteContent {
   /** The Sacred Garden venue photo URL. Optional — shown above the
    * map when set. */
   venueImage?: string;
+  /** The Royal Burgundy RSVP entrée menu (5 by default). Optional —
+   * when empty the renderer falls back to the template's own menu. */
+  mealOptions?: string[];
   dressCode: string;
   footerMessage: string;
   heroImage: string;

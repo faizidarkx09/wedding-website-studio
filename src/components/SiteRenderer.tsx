@@ -8,6 +8,7 @@ import EnvelopeIntro from "./EnvelopeIntro";
 import Reveal from "./Reveal";
 import EternelRenderer from "./eternel/EternelRenderer";
 import BlossomRenderer from "./blossom/BlossomRenderer";
+import RoyalBurgundyRenderer from "./royal-burgundy/RoyalBurgundyRenderer";
 import SacredGardenRenderer from "./sacred-garden/SacredGardenRenderer";
 import DolceVitaRenderer from "./dolce-vita/DolceVitaRenderer";
 
@@ -1516,6 +1517,13 @@ export default function SiteRenderer({ site, preview = false, envelope = false }
   // + rose-garden layout). Same gate as ÉTERNEL above.
   if (comp === "sacred-garden") {
     return <SacredGardenRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // ROYAL BURGUNDY renders through its own renderer — a 1:1 port of
+  // the user's own Vite + React app (burgundy leather cover, vinyl
+  // waltz, film-strip story, details page). Same gate as ÉTERNEL.
+  if (comp === "royal-burgundy") {
+    return <RoyalBurgundyRenderer site={effective} envelope={envelope} preview={preview} />;
   }
 
   // DOLCE VITA renders through its own renderer — a 1:1 port of the

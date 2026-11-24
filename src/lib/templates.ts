@@ -279,6 +279,40 @@ export const TEMPLATES: TemplateMeta[] = [
     ],
   },
   {
+    id: "royal-burgundy",
+    name: "Royal Burgundy",
+    tagline: "A burgundy leather-bound invitation with a wax-seal heart, vinyl waltz and golden-hour story.",
+    description:
+      "Deep burgundy leather, ivory parchment and rose-gold with Great Vibes script names — a 1:1 port of the user's own Royal Burgundy invitation app. Leather cover with embossed heart seal and live monogram, interactive sliding envelope with vinyl waltz medallion, welcome letter, months-aware live countdown, burgundy film-strip story, details card with polaroids and antique key, torn-paper RSVP and a full RSVP form with entrée menu.",
+    // PRICE TBD — set at the approval gate before the delivery PDF is
+    // issued. Kept at 0 and inactive until then so it can never be
+    // bought or activated with a placeholder price.
+    priceUsd: 0,
+    etsyListingId: null,
+    active: false,
+    // ACCESS CODE TBD — fixed code is set at the approval gate, before
+    // the delivery PDF is issued. Never activate with this placeholder.
+    accessCode: "WWS-ROYAL-BURGUNDY-TBD",
+    palette: { bg: "#3B101B", ink: "#481C26", accent: "#570F20", accentSoft: "#B58A72" },
+    heroImage: "/images/themes/royal-burgundy.jpg",
+    fontClass: "font-royal-burgundy",
+    layout:
+      "Burgundy leather cover, parchment invitation (envelope, welcome, countdown), burgundy film-strip story, parchment details card + RSVP, story page (film strip + triptych), details page (schedule, dress code, venue + travel, accommodations, registry)",
+    composition: "royal-burgundy",
+    sections: [
+      "hero",
+      "welcome",
+      "story",
+      "countdown",
+      "events",
+      "venue",
+      "details",
+      "dress-code",
+      "gallery",
+      "rsvp",
+    ],
+  },
+  {
     id: "dolce-vita",
     name: "Dolce Vita",
     tagline: "Italian lakeside · dusty blue & gold",

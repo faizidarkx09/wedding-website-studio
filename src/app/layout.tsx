@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Allura, Beau_Rivage, Cinzel, Cormorant_Garamond, EB_Garamond, Imperial_Script, Inter, Manrope, Ovo, Playfair_Display, Rufina } from "next/font/google";
+import { Allura, Beau_Rivage, Cinzel, Cormorant_Garamond, EB_Garamond, Great_Vibes, Imperial_Script, Inter, Lora, Manrope, Ovo, Playfair_Display, Rufina } from "next/font/google";
 import "./globals.css";
 
 // Display serifs per theme (see globals.css .font-* classes). Every
@@ -79,6 +79,22 @@ const rufina = Rufina({
   variable: "--font-rufina",
   display: "swap",
 });
+// ROYAL BURGUNDY: Great Vibes (cover script names) + Lora (editorial
+// body italic). Allura (alternate script) + Cormorant Garamond
+// (display serif) + Cinzel (display caps) are already imported above.
+const greatVibes = Great_Vibes({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-great-vibes",
+  display: "swap",
+});
+const lora = Lora({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-lora",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Wedding Website Studio — Beautiful wedding websites, sold on Etsy",
@@ -90,7 +106,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${playfair.variable} ${ebGaramond.variable} ${inter.variable} ${manrope.variable} ${allura.variable} ${beauRivage.variable} ${imperialScript.variable} ${cinzel.variable} ${ovo.variable} ${rufina.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${playfair.variable} ${ebGaramond.variable} ${inter.variable} ${manrope.variable} ${allura.variable} ${beauRivage.variable} ${imperialScript.variable} ${cinzel.variable} ${ovo.variable} ${rufina.variable} ${greatVibes.variable} ${lora.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

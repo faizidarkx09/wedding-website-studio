@@ -6,7 +6,7 @@
 // Preview sites are never saved to the store (slug "preview-<template>").
 
 import type { TemplateMeta, WeddingSite } from "./types";
-import { sacredGardenSeed } from "./template-seeds";
+import { royalBurgundySeed, sacredGardenSeed } from "./template-seeds";
 
 // ÉTERNEL template photography (public/images/themes/eternel/*) — the full
 // 30-image masonry gallery for the template preview: the detail close-up
@@ -108,6 +108,11 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
   // activation (store-neon.ts / store-local.ts). Preview and buyer
   // sites start from exactly the same sample content.
   const sacredSeed = sacredGardenSeed(weddingDay);
+
+  // ROYAL BURGUNDY seed — same pattern: the single source of truth
+  // shared with activation. Its gallery is preview-only (see
+  // template-seeds.ts); activation never copies it.
+  const royalSeed = royalBurgundySeed(weddingDay);
 
   // The template's own AI-generated artwork (original, made for this
   // theme). Templates without one fall back to the old placeholder seeds.
@@ -251,6 +256,10 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
       // template-seeds.ts) — the same values activation seeds into
       // buyer sites, so preview and activation can never drift.
       ...(template.composition === "sacred-garden" ? sacredSeed.content : {}),
+      // ROYAL BURGUNDY only: welcome + story + dress code + meal
+      // menu + venue from the shared seed — same values activation
+      // seeds into buyer sites.
+      ...(template.composition === "royal-burgundy" ? royalSeed.content : {}),
       dressCode: "Your dress code goes here — for example, semi-formal.",
       // DOLCE VITA only: the standalone's own letter + dress-code
       // copy as the template defaults (template copy, not couple
@@ -276,9 +285,24 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
             venueAddress: sacredSeed.content.venueAddress,
           }
         : {}),
+      // ROYAL BURGUNDY: same — re-apply the seed's venue, address and
+      // dress code (the generic defaults above would clobber them).
+      ...(template.composition === "royal-burgundy"
+        ? {
+            venueName: royalSeed.content.venueName,
+            venueAddress: royalSeed.content.venueAddress,
+            dressCode: royalSeed.content.dressCode,
+          }
+        : {}),
       mapLink: "",
       postWeddingMessage: "Just married! Thank you for celebrating with us.",
-      details: [
+      // ROYAL BURGUNDY: the seed's own detail blocks (2 accommodations,
+    // travel + registry) so the details card and details page render
+    // full on the preview — the same blocks activation seeds.
+    details:
+      template.composition === "royal-burgundy"
+        ? royalSeed.details
+        : [
         {
           id: "d-sample-venue",
           kind: "venue",
@@ -352,6 +376,8 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
           ]
         : template.composition === "sacred-garden"
           ? sacredSeed.events
+        : template.composition === "royal-burgundy"
+          ? royalSeed.events
         : [
       {
         id: "ev-sample-ceremony",
@@ -399,6 +425,8 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
             }))
           : template.composition === "sacred-garden"
             ? sacredSeed.gallery
+          : template.composition === "royal-burgundy"
+            ? royalSeed.gallery
           : template.composition === "dolce-vita"
             ? DOLCE_GALLERY.map((url, i) => ({
                 id: `g-dolce-${i + 1}`,

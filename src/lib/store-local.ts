@@ -23,7 +23,7 @@ import type {
   WeddingSite,
 } from "./types";
 import { TEMPLATES } from "./templates";
-import { sacredGardenSeed } from "./template-seeds";
+import { royalBurgundySeed, sacredGardenSeed } from "./template-seeds";
 import { sha256 } from "./auth";
 
 interface Db {
@@ -231,15 +231,30 @@ export async function createSiteFromTemplate(
 
   // THE SACRED GARDEN: seed the activation from the shared template
   // seed (src/lib/template-seeds.ts) — the same sample schedule,
-  // gallery, gift text and venue the template preview shows. Without
-  // this, buyer sites start with empty events/gallery and no
-  // tagline/gift/venue, so those sections never render. Other
-  // templates keep their generic defaults.
+  // gift text and venue the template preview shows. Without this,
+  // buyer sites start with empty events and no tagline/gift/venue,
+  // so those sections never render. The gallery is deliberately NOT
+  // seeded: its 10 photos are a fictional couple's preview assets
+  // and must never land on a real buyer's site — the buyer uploads
+  // their own photos in the editor, and the gallery appears then.
+  // Other templates keep their generic defaults.
   if (template.composition === "sacred-garden") {
     const seed = sacredGardenSeed(site.weddingDate.slice(0, 10));
     site.content = { ...site.content, ...seed.content };
     site.events = seed.events;
-    site.gallery = seed.gallery;
+  }
+
+  // ROYAL BURGUNDY: same pattern — seed the activation from the
+  // shared template seed (the 5-event schedule, dress code, meal
+  // menu, venue + the 2 accommodations, travel + registry notes).
+  // The gallery is deliberately NOT seeded (preview-only, same
+  // rule as Sacred Garden — a fictional couple's photos must never
+  // land on a real buyer's site).
+  if (template.composition === "royal-burgundy") {
+    const seed = royalBurgundySeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
   }
 
   d.sites.push(site);

@@ -627,6 +627,22 @@ export default function EditorPage() {
                     <p className="mt-1 text-xs text-stone-500">Shown in the Venue section, above the map.</p>
                   </div>
                 ) : null}
+                {/* ROYAL BURGUNDY only: the RSVP entrée menu (one option
+                    per line). The form falls back to the template's own
+                    5-course menu when this is empty. */}
+                {draft.templateSnapshot.composition === "royal-burgundy" ? (
+                  <div>
+                    <label htmlFor="royal-meal-options" className={labelCls}>Entrée menu <span className="font-normal text-stone-500">(one per line)</span></label>
+                    <textarea
+                      id="royal-meal-options"
+                      rows={5}
+                      value={(draft.content.mealOptions ?? []).join("\n")}
+                      onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, mealOptions: e.target.value.split("\n").map((o) => o.trim()).filter(Boolean) } }))}
+                      className={inputCls}
+                    />
+                    <p className="mt-1 text-xs text-stone-500">Guests pick one entrée in the RSVP form. Leave empty to use the template&rsquo;s own menu.</p>
+                  </div>
+                ) : null}
                 <div>
                   <label htmlFor="venue-name" className={labelCls}>Venue name</label>
                   <input id="venue-name" value={draft.content.venueName} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, venueName: e.target.value } }))} className={inputCls} />

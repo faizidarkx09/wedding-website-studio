@@ -57,6 +57,9 @@ body {
 .font-dolce {
   font-family: var(--font-rufina), Georgia, "Times New Roman", serif;
 }
+.font-royal-burgundy {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
 
 /* Legacy font classes kept for sites snapshotted before the six themes. */
 .font-editorial {
@@ -1462,5 +1465,81 @@ body {
   }
   body {
     background: #fff;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* ROYAL BURGUNDY — 1:1 port of the user's own Vite + React app's     */
+/* stylesheet (~/workspace/royal-burgundy-2/src/index.css @theme +    */
+/* utilities). Same values, same class roles, only prefixed rb-*      */
+/* (the source's bare names would collide with other templates).      */
+/* Fonts: Great Vibes script, Allura alternate script, Cinzel         */
+/* display caps, Cormorant Garamond editorial serif, Lora body. The   */
+/* font variables are set on <html> by layout.tsx.                    */
+/* ------------------------------------------------------------------ */
+
+.rb-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.rb-font-script-alt {
+  font-family: var(--font-allura), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.rb-font-display {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.rb-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.rb-font-body {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* Wax-embossed gold monogram text (cover heart seal). */
+.rb-wax-embossed-text {
+  color: #e8d5a0;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35),
+    0 -1px 0 rgba(0, 0, 0, 0.45),
+    0 2px 3px rgba(0, 0, 0, 0.45),
+    0 0 14px rgba(232, 213, 160, 0.3);
+}
+
+/* Soft radial mask — blends rectangular artwork edges into the paper. */
+.rb-mask-radial-soft {
+  -webkit-mask-image: radial-gradient(ellipse 68% 64% at 50% 50%, #000 58%, rgba(0, 0, 0, 0.75) 78%, transparent 98%);
+  mask-image: radial-gradient(ellipse 68% 64% at 50% 50%, #000 58%, rgba(0, 0, 0, 0.75) 78%, transparent 98%);
+}
+
+/* Floral-corner mask — corner artwork fades diagonally toward the card. */
+.rb-mask-floral-corner {
+  -webkit-mask-image: radial-gradient(ellipse 80% 82% at 12% 8%, #000 46%, rgba(0, 0, 0, 0.78) 68%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 82% at 12% 8%, #000 46%, rgba(0, 0, 0, 0.78) 68%, transparent 100%);
+}
+
+/* Fine letterpress inner border — hand-cut stationery edge. */
+.rb-stationery-shadow {
+  box-shadow:
+    0 0 0 1px rgba(184, 138, 114, 0.28),
+    0 14px 28px -12px rgba(59, 16, 27, 0.38);
+}
+
+/* Vinyl record slow rotation (11s per revolution, like the source). */
+@keyframes rb-vinyl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.rb-animate-vinyl-spin {
+  animation: rb-vinyl-spin 11s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rb-animate-vinyl-spin {
+    animation: none;
   }
 }
