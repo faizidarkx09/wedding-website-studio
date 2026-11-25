@@ -20,7 +20,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { PaperSurface } from "./Decor";
 import EmeraldRoyaleCover from "./EmeraldRoyaleCover";
@@ -103,7 +103,11 @@ export default function EmeraldRoyaleRenderer({
   const showRsvp = willRenderSection(site, "rsvp");
 
   return (
-    <div className="emerald-royale min-h-dvh w-full">
+    <div className="emerald-royale min-h-dvh w-full bg-[#F7F3E8]">
+      {/* Root bg matches the invitation's first (parchment) surface so
+          the cover-exit → invitation-entrance dissolve passes through
+          parchment, never a white flash. The cover itself is full-bleed
+          emerald, so this is invisible until the transition. */}
       {/* Fast-load: preload the hero/cover image (the user explicitly
           wants fast loading — same fix as ÉTERNEL / Blossom / Royal
           Burgundy). */}
@@ -122,7 +126,12 @@ export default function EmeraldRoyaleRenderer({
         )}
 
         {currentView === "invitation" && (
-          <div key="invitation">
+          <motion.div
+            key="invitation"
+            initial={{ opacity: 0, y: 36 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+          >
             {/* Parchment invitation body */}
             <PaperSurface variant="parchment">
               <EmeraldRoyaleEnvelope site={site} />
@@ -151,7 +160,7 @@ export default function EmeraldRoyaleRenderer({
             </PaperSurface>
 
             <EmeraldRoyaleFooter site={site} showCoverLink={envelope} onNavigate={navigateFromFooter} />
-          </div>
+          </motion.div>
         )}
 
         {currentView === "story" && (

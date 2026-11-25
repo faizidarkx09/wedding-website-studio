@@ -23,7 +23,7 @@ import {
 function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
   return (
     <div
-      className={`relative mx-auto w-full overflow-hidden bg-[#FBF8EF] px-4 py-5 text-center text-[#0B3D2E] transition-shadow duration-700 sm:px-6 sm:py-7 ${
+      className={`relative mx-auto w-full overflow-hidden bg-[#FBF8EF] px-4 py-4 text-center text-[#0B3D2E] transition-shadow duration-700 sm:px-6 sm:py-7 ${
         isOpen
           ? "shadow-[0_22px_42px_-12px_rgba(4,26,19,0.52),0_4px_12px_rgba(4,26,19,0.22)]"
           : "shadow-[0_10px_24px_-8px_rgba(4,26,19,0.45)]"
@@ -70,13 +70,13 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
           WE INVITE YOU
         </p>
 
-        <h2 className="er-font-display mt-3 text-xl leading-none font-normal tracking-[0.18em] text-[#0B3D2E] uppercase sm:mt-4 sm:text-[1.75rem]">
+        <h2 className="er-font-display mt-3 text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#0B3D2E] uppercase sm:mt-4 sm:text-[1.75rem] sm:tracking-[0.18em]">
           {site.content.partnerA}
         </h2>
         <span className="er-font-editorial my-1 text-base italic text-[#14543D] sm:text-lg">
           &amp;
         </span>
-        <h2 className="er-font-display text-xl leading-none font-normal tracking-[0.18em] text-[#0B3D2E] uppercase sm:text-[1.75rem]">
+        <h2 className="er-font-display text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#0B3D2E] uppercase sm:text-[1.75rem] sm:tracking-[0.18em]">
           {site.content.partnerB}
         </h2>
 
@@ -164,7 +164,7 @@ export default function EmeraldRoyaleEnvelope({ site }: { site: WeddingSite }) {
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.95, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
           className="relative w-full max-w-[490px]"
         >
           <div

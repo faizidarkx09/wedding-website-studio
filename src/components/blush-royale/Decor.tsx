@@ -63,9 +63,9 @@ interface FloralCornerProps {
 
 export function FloralCorner({ position, className = "" }: FloralCornerProps) {
   const positionStyles: Record<FloralCornerProps["position"], string> = {
-    "top-left": "-top-6 -left-8 w-44 sm:w-56 md:w-64 rotate-0",
-    "bottom-right": "-bottom-8 -right-8 w-44 sm:w-56 md:w-64 rotate-180",
-    "top-right": "-top-6 -right-8 w-40 sm:w-52 rotate-90",
+    "top-left": "top-0 left-0 w-44 sm:w-56 md:w-64 rotate-0",
+    "bottom-right": "bottom-0 right-0 w-44 sm:w-56 md:w-64 rotate-180",
+    "top-right": "top-0 right-0 w-40 sm:w-52 rotate-90",
   };
 
   return (

@@ -1,14 +1,16 @@
 // Sapphire Royale envelope — navy + silver art-deco envelope with
-// the sliding ice invitation card (tap to reveal / tuck back) and
-// silver deco corner ornaments. No music engine on this template:
-// there is no vinyl medallion and no toggle. Only the data comes
-// from the site.
+// the sliding ice invitation card (tap to reveal / tuck back).
+// No corner ornaments: the envelope art already carries the deco,
+// and the 144px dark corner squares read as stray fragments on the
+// light ice background. No music engine on this template: there is
+// no vinyl medallion and no toggle. Only the data comes from the
+// site.
 "use client";
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
-import { DecoCorner, DecoDivider } from "./Decor";
+import { DecoDivider } from "./Decor";
 import { DETAIL_IMAGE_URL, formatCardDate, locationLabel } from "./tokens";
 
 /* ------------------------------------------------------------------ */
@@ -102,17 +104,13 @@ export default function SapphireRoyaleEnvelope({ site }: { site: WeddingSite }) 
 
   return (
     <div className="relative px-4 pt-16 pb-10 sm:px-6 sm:pt-24 sm:pb-14">
-      {/* Silver Deco Corner Ornaments */}
-      <DecoCorner position="top-left" />
-      <DecoCorner position="bottom-right" />
-
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
         {/* Interactive Navy Envelope + Sliding Ice Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.95, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
           className="relative w-full max-w-[490px]"
         >
           <div

@@ -17,7 +17,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { WashSurface } from "./Decor";
 import BlushRoyaleCover from "./BlushRoyaleCover";
@@ -100,7 +100,11 @@ export default function BlushRoyaleRenderer({
   const showRsvp = willRenderSection(site, "rsvp");
 
   return (
-    <div className="blush-royale min-h-dvh w-full">
+    <div className="blush-royale min-h-dvh w-full bg-[#FBF6F3]">
+      {/* Root bg matches the invitation's first (cream) surface so the
+          cover-exit → invitation-entrance dissolve passes through cream,
+          never a white flash. The cover itself is full-bleed blush, so
+          this is invisible until the transition. */}
       {/* Fast-load: preload the hero/cover image (same fix as
           Royal Burgundy / ÉTERNEL / Blossom). */}
       <link rel="preload" as="image" href={heroSrc} fetchPriority="high" />
@@ -118,7 +122,12 @@ export default function BlushRoyaleRenderer({
         )}
 
         {currentView === "invitation" && (
-          <div key="invitation">
+          <motion.div
+            key="invitation"
+            initial={{ opacity: 0, y: 36 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+          >
             {/* Cream invitation body */}
             <WashSurface variant="cream">
               <BlushRoyaleEnvelope site={site} />
@@ -147,7 +156,7 @@ export default function BlushRoyaleRenderer({
             </WashSurface>
 
             <BlushRoyaleFooter site={site} showCoverLink={envelope} onNavigate={navigateFromFooter} />
-          </div>
+          </motion.div>
         )}
 
         {currentView === "story" && (

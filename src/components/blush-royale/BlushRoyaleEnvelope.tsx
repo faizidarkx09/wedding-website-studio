@@ -90,7 +90,7 @@ export default function BlushRoyaleEnvelope({ site }: { site: WeddingSite }) {
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.95, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
           className="relative w-full max-w-[490px]"
         >
           <div

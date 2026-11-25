@@ -26,7 +26,7 @@ export default function SapphireRoyaleCover({
       aria-label="Wedding Invitation Cover"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -28, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }}
+      exit={{ opacity: 0, y: -48, scale: 0.97, transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } }}
       onClick={onOpen}
       className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden bg-[#0A1F44] px-5 py-12 text-[#F2F4F8] select-none sm:py-16"
     >

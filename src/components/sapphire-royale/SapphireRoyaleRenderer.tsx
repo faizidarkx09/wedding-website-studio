@@ -19,7 +19,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { NightSurface } from "./Decor";
 import SapphireRoyaleCover from "./SapphireRoyaleCover";
@@ -102,7 +102,11 @@ export default function SapphireRoyaleRenderer({
   const showRsvp = willRenderSection(site, "rsvp");
 
   return (
-    <div className="sapphire-royale min-h-dvh w-full">
+    <div className="sapphire-royale min-h-dvh w-full bg-[#F2F4F8]">
+      {/* Root bg matches the invitation's first (ice) surface so the
+          cover-exit → invitation-entrance dissolve passes through ice,
+          never a white flash. The cover itself is full-bleed navy, so
+          this is invisible until the transition. */}
       {/* Fast-load: preload the hero/cover image (the user explicitly
           wants fast loading — same fix as ÉTERNEL / Blossom / Royal Burgundy). */}
       <link rel="preload" as="image" href={heroSrc} fetchPriority="high" />
@@ -120,7 +124,12 @@ export default function SapphireRoyaleRenderer({
         )}
 
         {currentView === "invitation" && (
-          <div key="invitation">
+          <motion.div
+            key="invitation"
+            initial={{ opacity: 0, y: 36 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+          >
             {/* Ice invitation body */}
             <NightSurface variant="ice">
               <SapphireRoyaleEnvelope site={site} />
@@ -149,7 +158,7 @@ export default function SapphireRoyaleRenderer({
             </NightSurface>
 
             <SapphireRoyaleFooter site={site} showCoverLink={envelope} onNavigate={navigateFromFooter} />
-          </div>
+          </motion.div>
         )}
 
         {currentView === "story" && (

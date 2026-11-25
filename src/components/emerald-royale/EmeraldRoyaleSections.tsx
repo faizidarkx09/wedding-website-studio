@@ -360,11 +360,17 @@ export function EmeraldRoyaleRsvpSection({
           {/* Text column is constrained to THIS image's measured paper
               bounds: pixel-profiled 2026-11-25 — the cream paper spans
               16.0%–83.7% of the image width (~67% at mid-height, 67.4%
-              / 67.3% / 67.8% at y=25/50/75%). 62–64% leaves a ~7px
-              margin from the torn edges at every viewport, so the
-              heading / body / reply-by line sit ON the cream paper
-              instead of spilling onto the emerald frame. */}
-          <div className="relative z-10 mx-auto flex w-[62%] min-w-0 flex-col items-center py-12 text-center sm:w-[64%] sm:py-16">
+              / 67.3% / 67.8% at y=25/50/75%) and ~17%–84% vertically.
+              62–64% leaves a ~7px margin from the torn edges at every
+              viewport, so the heading / body / reply-by line sit ON the
+              cream paper instead of spilling onto the emerald frame.
+              Bottom padding is pb-24 on mobile (not py-12): the paper's
+              bottom torn edge sits at ~85% of the frame height, so the
+              button — the last element — needs the extra bottom room
+              to end ABOVE that edge instead of straddling it (E2E
+              2026-11-25: at 390px the two-line button's "RESPOND" sat
+              on the emerald frame below the edge). */}
+          <div className="relative z-10 mx-auto flex w-[62%] min-w-0 flex-col items-center pt-12 pb-24 text-center sm:w-[64%] sm:py-16">
             <p className="er-font-display text-[10px] tracking-[0.34em] text-[#14543D] uppercase sm:text-xs">
               RSVP
             </p>
@@ -388,11 +394,11 @@ export function EmeraldRoyaleRsvpSection({
             <button
               type="button"
               onClick={onJumpToRsvp}
-              className="group mt-7 inline-flex items-center gap-2 bg-[#0B3D2E] px-5 py-3 er-font-display text-[10px] tracking-[0.2em] text-[#F7F3E8] uppercase shadow-[0_10px_22px_-8px_rgba(11,61,46,0.6)] transition-colors duration-300 hover:bg-[#14543D] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0B3D2E] sm:px-7 sm:py-3.5 sm:text-xs sm:tracking-[0.26em]"
+              className="group mt-5 inline-flex items-center gap-2 bg-[#0B3D2E] px-3.5 py-2.5 er-font-display text-[9px] tracking-[0.1em] whitespace-nowrap text-[#F7F3E8] uppercase shadow-[0_10px_22px_-8px_rgba(11,61,46,0.6)] transition-colors duration-300 hover:bg-[#14543D] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0B3D2E] sm:mt-7 sm:px-7 sm:py-3.5 sm:text-xs sm:tracking-[0.26em]"
             >
-              <Heart className="h-4 w-4 fill-[#F7F3E8]/20" />
+              <Heart className="h-3.5 w-3.5 fill-[#F7F3E8]/20 sm:h-4 sm:w-4" />
               Kindly Respond
-              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+              <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1 sm:h-3.5 sm:w-3.5" />
             </button>
           </div>
         </motion.div>
