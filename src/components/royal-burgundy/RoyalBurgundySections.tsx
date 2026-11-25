@@ -358,11 +358,16 @@ export function RoyalBurgundyRsvpSection({
             className="absolute inset-0 bg-[#F5EBDD]/35"
           />
 
-          <div className="relative z-10 flex flex-col items-center px-6 py-12 text-center sm:px-10 sm:py-16">
+          {/* Text column is constrained to the torn paper's measured
+              inner width (53-60% of the image, ~54% at mid-height), so
+              the heading / body / reply-by line sit ON the cream paper
+              instead of spilling onto the burgundy frame. 50-52% leaves
+              a ~7px margin from the torn edges at every viewport. */}
+          <div className="relative z-10 mx-auto flex w-[50%] min-w-0 flex-col items-center py-12 text-center sm:w-[52%] sm:py-16">
             <p className="rb-font-display text-[10px] tracking-[0.34em] text-[#762637] uppercase sm:text-xs">
               RSVP
             </p>
-            <h3 className="rb-font-display mt-3 text-[1.9rem] leading-[1.12] font-normal tracking-[0.02em] text-[#570F20] sm:text-[2.3rem]">
+            <h3 className="rb-font-display mt-3 text-[clamp(1.35rem,5vw,1.9rem)] leading-[1.15] font-normal tracking-[0.02em] text-balance text-[#570F20]">
               Will You Join Us?
             </h3>
 
@@ -374,7 +379,7 @@ export function RoyalBurgundyRsvpSection({
             </p>
 
             {replyBy && (
-              <p className="rb-font-display mt-5 text-[11px] tracking-[0.24em] text-[#762637] uppercase sm:text-xs">
+              <p className="rb-font-display mt-5 text-[10px] leading-[1.9] tracking-[0.12em] text-balance text-[#762637] uppercase sm:text-xs sm:tracking-[0.2em]">
                 {replyBy}
               </p>
             )}
@@ -382,7 +387,7 @@ export function RoyalBurgundyRsvpSection({
             <button
               type="button"
               onClick={onJumpToRsvp}
-              className="group mt-7 inline-flex items-center gap-2 bg-[#570F20] px-7 py-3.5 rb-font-display text-[11px] tracking-[0.26em] text-[#F5EBDD] uppercase shadow-[0_10px_22px_-8px_rgba(87,15,32,0.6)] transition-colors duration-300 hover:bg-[#762637] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#570F20] sm:text-xs"
+              className="group mt-7 inline-flex items-center gap-2 bg-[#570F20] px-5 py-3 rb-font-display text-[10px] tracking-[0.2em] text-[#F5EBDD] uppercase shadow-[0_10px_22px_-8px_rgba(87,15,32,0.6)] transition-colors duration-300 hover:bg-[#762637] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#570F20] sm:px-7 sm:py-3.5 sm:text-xs sm:tracking-[0.26em]"
             >
               <Heart className="h-4 w-4 fill-[#F5EBDD]/20" />
               Kindly Respond
