@@ -1720,3 +1720,64 @@ body {
   -webkit-mask-image: radial-gradient(ellipse 135% 135% at 0% 0%, #000 68%, rgba(0, 0, 0, 0.85) 86%, transparent 100%);
   mask-image: radial-gradient(ellipse 135% 135% at 0% 0%, #000 68%, rgba(0, 0, 0, 0.85) 86%, transparent 100%);
 }
+
+/* ------------------------------------------------------------------ */
+/* GOLDEN HOUR — warm sunset gold. Same class roles as Royal          */
+/* Burgundy, only prefixed gh-* (the source's bare names would       */
+/* collide with other templates). Fonts: Great Vibes script, Allura  */
+/* alternate script, Cinzel display caps, Cormorant Garamond         */
+/* editorial serif, Lora body. The font variables are set on <html>  */
+/* by layout.tsx (already loaded for Royal Burgundy).                 */
+/* ------------------------------------------------------------------ */
+
+.font-golden-hour {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+.gh-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.gh-font-script-alt {
+  font-family: var(--font-allura), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.gh-font-display {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.gh-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.gh-font-body {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* Gold-embossed monogram text (cover sun-ray crest). */
+.gh-gold-embossed-text {
+  color: #f6d68a;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4),
+    0 -1px 0 rgba(36, 23, 8, 0.45),
+    0 2px 3px rgba(36, 23, 8, 0.5),
+    0 0 14px rgba(246, 214, 138, 0.4);
+}
+
+/* Soft radial mask — blends rectangular artwork edges into the page. */
+.gh-mask-radial-soft {
+  -webkit-mask-image: radial-gradient(ellipse 68% 64% at 50% 50%, #000 58%, rgba(0, 0, 0, 0.75) 78%, transparent 98%);
+  mask-image: radial-gradient(ellipse 68% 64% at 50% 50%, #000 58%, rgba(0, 0, 0, 0.75) 78%, transparent 98%);
+}
+
+/* ------------------------------------------------------------------ */
+/* SILVER MOONLIGHT — moonlit night. Dedicated font class so the      */
+/* template entry does not borrow another template's class. Same      */
+/* Cormorant Garamond family the components already use via the      */
+/* er-font-* classes (loaded by layout.tsx).                          */
+/* ------------------------------------------------------------------ */
+
+.font-silver-moonlight {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}

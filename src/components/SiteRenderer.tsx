@@ -12,6 +12,8 @@ import RoyalBurgundyRenderer from "./royal-burgundy/RoyalBurgundyRenderer";
 import EmeraldRoyaleRenderer from "./emerald-royale/EmeraldRoyaleRenderer";
 import SapphireRoyaleRenderer from "./sapphire-royale/SapphireRoyaleRenderer";
 import BlushRoyaleRenderer from "./blush-royale/BlushRoyaleRenderer";
+import GoldenHourRenderer from "./golden-hour/GoldenHourRenderer";
+import SilverMoonlightRenderer from "./silver-moonlight/SilverMoonlightRenderer";
 import SacredGardenRenderer from "./sacred-garden/SacredGardenRenderer";
 import DolceVitaRenderer from "./dolce-vita/DolceVitaRenderer";
 
@@ -1549,6 +1551,23 @@ export default function SiteRenderer({ site, preview = false, envelope = false }
   // Royal Burgundy above. No music engine.
   if (comp === "blush-royale") {
     return <BlushRoyaleRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // GOLDEN HOUR renders through its own renderer — warm sunset gold
+  // (golden-hour photo cover with sun-ray crest and golden dust,
+  // gold wax-seal envelope, warm photo-card story, cream details
+  // card + golden torn-paper RSVP). Same gate as Royal Burgundy
+  // above. No music engine.
+  if (comp === "golden-hour") {
+    return <GoldenHourRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // SILVER MOONLIGHT renders through its own renderer — moonlit
+  // night (night-sky cover with twinkling stars, silver crescent
+  // seal envelope, three moonlit photo cards, slate-panel
+  // details). Same gate as Royal Burgundy above. No music engine.
+  if (comp === "silver-moonlight") {
+    return <SilverMoonlightRenderer site={effective} envelope={envelope} preview={preview} />;
   }
 
   // DOLCE VITA renders through its own renderer — a 1:1 port of the

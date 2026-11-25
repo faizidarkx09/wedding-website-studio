@@ -20,7 +20,7 @@ import type {
   WeddingSite,
 } from "./types";
 import { TEMPLATES } from "./templates";
-import { blushRoyaleSeed, emeraldRoyaleSeed, royalBurgundySeed, sacredGardenSeed, sapphireRoyaleSeed } from "./template-seeds";
+import { blushRoyaleSeed, emeraldRoyaleSeed, goldenHourSeed, royalBurgundySeed, sacredGardenSeed, sapphireRoyaleSeed, silverMoonlightSeed } from "./template-seeds";
 import { sha256 } from "./auth";
 import { neonQuery } from "./neon";
 
@@ -309,6 +309,18 @@ export async function createSiteFromTemplate(
   }
   if (template.composition === "blush-royale") {
     const seed = blushRoyaleSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "golden-hour") {
+    const seed = goldenHourSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "silver-moonlight") {
+    const seed = silverMoonlightSeed(site.weddingDate.slice(0, 10));
     site.content = { ...site.content, ...seed.content };
     site.events = seed.events;
     site.content.details = seed.details;

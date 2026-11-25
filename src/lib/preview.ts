@@ -6,7 +6,7 @@
 // Preview sites are never saved to the store (slug "preview-<template>").
 
 import type { TemplateMeta, WeddingSite } from "./types";
-import { blushRoyaleSeed, emeraldRoyaleSeed, royalBurgundySeed, sacredGardenSeed, sapphireRoyaleSeed } from "./template-seeds";
+import { blushRoyaleSeed, emeraldRoyaleSeed, goldenHourSeed, royalBurgundySeed, sacredGardenSeed, sapphireRoyaleSeed, silverMoonlightSeed } from "./template-seeds";
 
 // ÉTERNEL template photography (public/images/themes/eternel/*) — the full
 // 30-image masonry gallery for the template preview: the detail close-up
@@ -120,6 +120,8 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
   const emeraldSeed = emeraldRoyaleSeed(weddingDay);
   const sapphireSeed = sapphireRoyaleSeed(weddingDay);
   const blushSeed = blushRoyaleSeed(weddingDay);
+  const goldenSeed = goldenHourSeed(weddingDay);
+  const silverSeed = silverMoonlightSeed(weddingDay);
 
   // The template's own AI-generated artwork (original, made for this
   // theme). Templates without one fall back to the old placeholder seeds.
@@ -273,6 +275,8 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
       ...(template.composition === "emerald-royale" ? emeraldSeed.content : {}),
       ...(template.composition === "sapphire-royale" ? sapphireSeed.content : {}),
       ...(template.composition === "blush-royale" ? blushSeed.content : {}),
+      ...(template.composition === "golden-hour" ? goldenSeed.content : {}),
+      ...(template.composition === "silver-moonlight" ? silverSeed.content : {}),
       dressCode: "Your dress code goes here — for example, semi-formal.",
       // DOLCE VITA only: the standalone's own letter + dress-code
       // copy as the template defaults (template copy, not couple
@@ -330,6 +334,20 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
             dressCode: blushSeed.content.dressCode,
           }
         : {}),
+      ...(template.composition === "golden-hour"
+        ? {
+            venueName: goldenSeed.content.venueName,
+            venueAddress: goldenSeed.content.venueAddress,
+            dressCode: goldenSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "silver-moonlight"
+        ? {
+            venueName: silverSeed.content.venueName,
+            venueAddress: silverSeed.content.venueAddress,
+            dressCode: silverSeed.content.dressCode,
+          }
+        : {}),
       mapLink: "",
       postWeddingMessage: "Just married! Thank you for celebrating with us.",
       // ROYAL BURGUNDY: the seed's own detail blocks (2 accommodations,
@@ -342,6 +360,10 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
         ? sapphireSeed.details
       : template.composition === "blush-royale"
         ? blushSeed.details
+      : template.composition === "golden-hour"
+        ? goldenSeed.details
+      : template.composition === "silver-moonlight"
+        ? silverSeed.details
       : template.composition === "royal-burgundy"
         ? royalSeed.details
         : [
@@ -424,6 +446,10 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
           ? sapphireSeed.events
         : template.composition === "blush-royale"
           ? blushSeed.events
+        : template.composition === "golden-hour"
+          ? goldenSeed.events
+        : template.composition === "silver-moonlight"
+          ? silverSeed.events
         : template.composition === "royal-burgundy"
           ? royalSeed.events
         : [
@@ -479,6 +505,10 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
             ? sapphireSeed.gallery
           : template.composition === "blush-royale"
             ? blushSeed.gallery
+          : template.composition === "golden-hour"
+            ? goldenSeed.gallery
+          : template.composition === "silver-moonlight"
+            ? silverSeed.gallery
           : template.composition === "royal-burgundy"
             ? royalSeed.gallery
           : template.composition === "dolce-vita"
