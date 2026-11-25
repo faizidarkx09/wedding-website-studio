@@ -411,7 +411,7 @@ export function EmeraldRoyaleRsvpSection({
               bottom 389.1; the 0.842 model does NOT apply at
               desktop aspect — width-driven bg-cover puts the edge
               at 274*s + frameH/2, s = frameW/1200). */}
-          <div className="relative z-10 mx-auto flex w-[62%] min-w-0 flex-col items-center pt-28 pb-32 text-center @min-[40rem]:w-[64%] @min-[40rem]:py-16">
+          <div className="relative z-10 mx-auto flex w-[62%] min-w-0 flex-col items-center pt-28 pb-32 text-center @min-[40rem]:w-[64%] @min-[40rem]:pt-16 @min-[40rem]:pb-24">
             <p className="er-font-display text-[10px] tracking-[0.34em] text-[#14543D] uppercase @min-[40rem]:text-xs">
               RSVP
             </p>

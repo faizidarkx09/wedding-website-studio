@@ -134,7 +134,7 @@ function WaxSeal({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }
       </motion.button>
 
       <span className="er-font-editorial mt-3 text-xs tracking-[0.18em] text-[#14543D]/85 uppercase">
-        {isOpen ? "Sealed Again · Tap to Reseal" : "Tap the Seal to Open"}
+        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
       </span>
     </div>
   );
@@ -266,14 +266,19 @@ export default function EmeraldRoyaleEnvelope({ site }: { site: WeddingSite }) {
                   so divider + date + location are fully revealed
                   with no top clipping (a pure 80px+ card lift would
                   push "WE INVITE YOU" out of the overflow-hidden
-                  container at 320px). */}
+                  container at 320px). Round 4: bottom edge 98% ->
+                  100% — at 320px the card bottom is 105.6% and the
+                  98-100% band showed a ~4px sliver of location
+                  glyphs at rest; the overlay is the same photo so
+                  100% is seamless. Top edge untouched, so the
+                  desktop divider clearance is unchanged. */}
               <motion.div
                 aria-hidden="true"
                 initial={false}
                 animate={{
                   clipPath: isCardLifted
-                    ? "polygon(19% 96%, 32% 97.5%, 68% 97.5%, 81% 96%, 81% 98%, 19% 98%)"
-                    : "polygon(19% 52%, 32% 65%, 68% 65%, 81% 52%, 81% 98%, 19% 98%)",
+                    ? "polygon(19% 96%, 32% 97.5%, 68% 97.5%, 81% 96%, 81% 100%, 19% 100%)"
+                    : "polygon(19% 52%, 32% 65%, 68% 65%, 81% 52%, 81% 100%, 19% 100%)",
                 }}
                 transition={{
                   duration: prefersReducedMotion ? 0.2 : 0.9,
