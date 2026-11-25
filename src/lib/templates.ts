@@ -313,15 +313,10 @@ export const TEMPLATES: TemplateMeta[] = [
     tagline: "Regal botanical · emerald leather & gold",
     description:
       "Deep emerald leather, ivory parchment and antique gold with Great Vibes script names — a regal botanical invitation. Leather cover with gold filigree crest and live monogram, gold wax-seal envelope opening, welcome letter, months-aware live countdown, emerald film-strip story with gold tape, details card with polaroids and gold-leaf ornament, emerald torn-paper RSVP and a full RSVP form with entrée menu. No music.",
-    // PRICE TBD — set at the approval gate before the delivery PDF is
-    // issued. Kept at 0 and inactive until then so it can never be
-    // bought or activated with a placeholder price.
-    priceUsd: 0,
+    priceUsd: 69,
     etsyListingId: null,
-    active: false,
-    // ACCESS CODE TBD — fixed code is set at the approval gate, before
-    // the delivery PDF is issued. Never activate with this placeholder.
-    accessCode: "WWS-EMERALD-TBD",
+    active: true,
+    accessCode: "WWS-EMERALD-2026",
     palette: { bg: "#0B3D2E", ink: "#06231B", accent: "#C9A227", accentSoft: "#B49A70" },
     heroImage: "/images/themes/emerald-royale.jpg",
     fontClass: "font-emerald-royale",
@@ -347,13 +342,10 @@ export const TEMPLATES: TemplateMeta[] = [
     tagline: "Art-deco night · midnight navy & silver",
     description:
       "Midnight navy velvet, silver geometric art-deco lines and sunburst with a silver monogram seal — an art-deco night invitation. Navy velvet cover with a live monogram seal, interactive sliding envelope, welcome letter, months-aware live countdown in silver diamond frames, story as three horizontal photo cards, details in navy panels with silver rules, panel-based RSVP and a full RSVP form with entrée menu. No music.",
-    // PRICE TBD — set at the approval gate before the delivery PDF is
-    // issued. Kept at 0 and inactive until then so it can never be
-    // bought or activated with a placeholder price.
-    priceUsd: 0,
+    priceUsd: 69,
     etsyListingId: null,
-    active: false,
-    accessCode: "WWS-SAPPHIRE-TBD",
+    active: true,
+    accessCode: "WWS-SAPPHIRE-2026",
     palette: { bg: "#0A1F44", ink: "#12294D", accent: "#C0C0C8", accentSoft: "#D9D9DE" },
     heroImage: "/images/themes/sapphire-royale.jpg",
     fontClass: "font-sapphire-royale",
@@ -379,13 +371,10 @@ export const TEMPLATES: TemplateMeta[] = [
     tagline: "A soft blush watercolor invitation with rose-gold script names and circular floral-ring story photos.",
     description:
       "Blush watercolor wash, cream paper and rose gold with Great Vibes script names — a soft watercolor invitation. Blush wash cover with a rose-gold wax-seal emblem and live monogram, interactive sliding envelope, welcome letter, months-aware live countdown, circular story photos ringed by watercolor florals, details in soft blush rounded cards, a blush watercolor RSVP card and a full RSVP form with entrée menu. No music.",
-    // PRICE TBD — set at the approval gate before the delivery PDF is
-    // issued. Kept at 0 and inactive until then so it can never be
-    // bought or activated with a placeholder price.
-    priceUsd: 0,
+    priceUsd: 69,
     etsyListingId: null,
-    active: false,
-    accessCode: "WWS-BLUSH-TBD",
+    active: true,
+    accessCode: "WWS-BLUSH-2026",
     palette: { bg: "#F6DDE0", ink: "#B76E79", accent: "#E8B4B8", accentSoft: "#EFC9CE" },
     heroImage: "/images/themes/blush-royale.jpg",
     fontClass: "font-blush-royale",
