@@ -20,13 +20,18 @@ export default function SapphireRoyaleCover({
 }) {
   const prefersReducedMotion = useReducedMotion();
 
+  {/* Cover exit is a deliberate ceremony, not a quick fade: the old
+      0.9s / -48px exit read as a ~0.5s fade on a phone (the ease-out
+      opacity drops fast and -48px barely moves a full-screen cover).
+      1.05s with a -72px rise + slight scale, then the invitation
+      rises 1.0s — total ≈ 2.0s. */}
   return (
     <motion.div
       role="region"
       aria-label="Wedding Invitation Cover"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -48, scale: 0.97, transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } }}
+      exit={{ opacity: 0, y: -72, scale: 0.96, transition: { duration: 1.05, ease: [0.22, 1, 0.36, 1] } }}
       onClick={onOpen}
       className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden bg-[#0A1F44] px-5 py-12 text-[#F2F4F8] select-none sm:py-16"
     >
@@ -114,11 +119,24 @@ export default function SapphireRoyaleCover({
           className="relative mx-auto w-full max-w-[440px]"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
+          {/* The seal art's diamond apex sits at ~4% from the image top
+              and at ~72% of the old 68x64 radial mask's radius, so the
+              shared .sr-mask-radial-soft faded the top triangle to ~83%
+              — on a phone it reads as clipped at the top edge. This
+              wider inline mask (80x76, opaque to 68%) keeps all four
+              diamond points fully opaque while still fading the square
+              image corners into the navy velvet. */}
           <img
             src={MONOGRAM_SEAL_URL}
             alt="Silver art-deco geometric seal with an empty centre for the couple's monogram"
             referrerPolicy="no-referrer"
-            className="sr-mask-radial-soft mx-auto block w-full object-contain drop-shadow-[0_18px_36px_rgba(6,18,43,0.7)]"
+            style={{
+              maskImage:
+                "radial-gradient(ellipse 80% 76% at 50% 50%, #000 68%, rgba(0, 0, 0, 0.75) 86%, transparent 99%)",
+              WebkitMaskImage:
+                "radial-gradient(ellipse 80% 76% at 50% 50%, #000 68%, rgba(0, 0, 0, 0.75) 86%, transparent 99%)",
+            }}
+            className="mx-auto block w-full object-contain drop-shadow-[0_18px_36px_rgba(6,18,43,0.7)]"
           />
 
           {/* Real HTML Typography Monogram Overlaid Inside the Seal */}

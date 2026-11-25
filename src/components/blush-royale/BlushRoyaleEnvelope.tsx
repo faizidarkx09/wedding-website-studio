@@ -1,13 +1,19 @@
 // Blush Royale envelope — interactive blush envelope with the
-// sliding cream invitation card (tap to reveal / tuck back) and
-// blush floral corner sprigs. No music medallion: this template
-// has no music engine by design.
+// cream invitation card tucked BEHIND it (tap to reveal / tuck
+// back) and blush floral corner sprigs. No music medallion: this
+// template has no music engine by design.
 //
 // Geometry note: the envelope artwork is a CLOSED blush envelope
 // (rose-gold wax seal, roses at the corner) on a plain cream field,
-// so there is no open pocket to slide a card out of — the card
-// lives below the envelope and slides UP to overlap it when
-// revealed, instead of the pocket-mask trick other templates use.
+// so there is no open pocket to slide a card out of. The card lives
+// in an overflow-hidden wrapper whose height animates 0 → auto: at
+// rest the wrapper is 0px tall, so 0px of the card is visible and
+// it takes no space; on tap the wrapper grows down from behind the
+// envelope's bottom edge (the -mt-16 overlap keeps the open card
+// tucked 64px up over the envelope art, exactly the old open look).
+// A spacer div above the cue (pt-16 / sm:pt-20, collapsing on open)
+// compensates the overlap, so the cue sits 16px below the envelope
+// at rest and 16px below the card when open.
 "use client";
 
 import { useState } from "react";
@@ -74,6 +80,9 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
 export default function BlushRoyaleEnvelope({ site }: { site: WeddingSite }) {
   const [isCardLifted, setIsCardLifted] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  // One shared reveal timing for the height growth + cue margin so
+  // the cue tracks the card's bottom edge while it emerges.
+  const revealDuration = prefersReducedMotion ? 0.2 : 0.85;
 
   const toggleEnvelope = () => {
     setIsCardLifted((prev) => !prev);
@@ -99,8 +108,8 @@ export default function BlushRoyaleEnvelope({ site }: { site: WeddingSite }) {
             aria-expanded={isCardLifted}
             aria-label={
               isCardLifted
-                ? "Tuck wedding invitation card back below the envelope"
-                : "Open blush envelope and slide up wedding invitation card"
+                ? "Tuck wedding invitation card back behind the envelope"
+                : "Open blush envelope and slide the wedding invitation card out from behind it"
             }
             onClick={toggleEnvelope}
             onKeyDown={(e) => {
@@ -120,27 +129,48 @@ export default function BlushRoyaleEnvelope({ site }: { site: WeddingSite }) {
               className="pointer-events-none block h-auto w-full rounded-[1.5rem] object-contain drop-shadow-[0_24px_34px_rgba(92,50,59,0.22)]"
             />
 
-            {/* Sliding cream invitation card — overlaps the envelope
-                from below when lifted */}
+            {/* Invitation card — tucked BEHIND the envelope at rest.
+                The wrapper is overflow-hidden with height animated
+                0 → auto, so at rest 0px of the card is visible and
+                the wrapper takes no space; on tap it grows down from
+                behind the envelope's bottom edge. The -mt-16 overlap
+                is on the wrapper (not the card: a negative margin on
+                the card would be clipped by the overflow-hidden
+                wrapper and lose the card's top 64px) and reproduces
+                the old open look — card tucked 64px up over the
+                envelope art. No y/scale animation on the card: a
+                translate would clip its top / leave a gap at the
+                wrapper's bottom while the height animates. */}
             <motion.div
               initial={false}
-              animate={{
-                y: isCardLifted ? (prefersReducedMotion ? -40 : -110) : 0,
-                scale: isCardLifted ? 1.02 : 1,
-              }}
+              animate={{ height: isCardLifted ? "auto" : 0 }}
               transition={{
-                duration: prefersReducedMotion ? 0.2 : 0.85,
+                duration: revealDuration,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="relative z-10 mx-auto -mt-16 w-[86%] sm:-mt-20 sm:w-[84%]"
+              aria-hidden={!isCardLifted}
+              className="relative z-10 mx-auto -mt-16 w-[86%] overflow-hidden sm:-mt-20 sm:w-[84%]"
             >
               <InvitationCard site={site} isOpen={isCardLifted} />
             </motion.div>
 
-            {/* Subtle interactive cue */}
-            <p className="br-font-display mt-4 text-center text-[10px] tracking-[0.26em] text-[#7A4A55]/80 uppercase transition-colors group-hover:text-[#5C323B]">
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
+            {/* Subtle interactive cue. The spacer div's top padding
+                (64px mobile / 80px sm+, matching the wrapper's
+                -mt-16 / sm:-mt-20) compensates the overlap when the
+                card is tucked, so the cue sits 16px below the
+                envelope at rest and 16px below the card when open;
+                it animates away on the same timing as the reveal so
+                the cue tracks the card's bottom edge. */}
+            <div
+              className={`transition-[padding-top] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                isCardLifted ? "pt-0" : "pt-16 sm:pt-20"
+              }`}
+              style={{ transitionDuration: `${revealDuration}s` }}
+            >
+              <p className="br-font-display mt-4 text-center text-[10px] tracking-[0.26em] text-[#7A4A55]/80 uppercase transition-colors group-hover:text-[#5C323B]">
+                {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
+              </p>
+            </div>
           </div>
         </motion.div>
       </div>

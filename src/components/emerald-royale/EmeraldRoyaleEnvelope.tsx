@@ -23,7 +23,7 @@ import {
 function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
   return (
     <div
-      className={`relative mx-auto w-full overflow-hidden bg-[#FBF8EF] px-4 py-4 text-center text-[#0B3D2E] transition-shadow duration-700 sm:px-6 sm:py-7 ${
+      className={`relative mx-auto w-full overflow-hidden bg-[#FBF8EF] px-4 py-3 text-center text-[#0B3D2E] transition-shadow duration-700 max-[380px]:py-2 sm:px-6 sm:py-7 ${
         isOpen
           ? "shadow-[0_22px_42px_-12px_rgba(4,26,19,0.52),0_4px_12px_rgba(4,26,19,0.22)]"
           : "shadow-[0_10px_24px_-8px_rgba(4,26,19,0.45)]"
@@ -65,22 +65,22 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
       />
 
       {/* Editable HTML Letterpress Typography */}
-      <div className="relative z-10 flex flex-col items-center py-2 sm:py-3">
+      <div className="relative z-10 flex flex-col items-center py-1 max-[380px]:py-0.5 sm:py-3">
         <p className="er-font-display text-[9px] tracking-[0.26em] text-[#14543D] uppercase sm:text-[10px]">
           WE INVITE YOU
         </p>
 
-        <h2 className="er-font-display mt-3 text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#0B3D2E] uppercase sm:mt-4 sm:text-[1.75rem] sm:tracking-[0.18em]">
+        <h2 className="er-font-display mt-2 text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#0B3D2E] uppercase max-[380px]:mt-1.5 max-[380px]:text-[15px] max-[380px]:tracking-[0.08em] sm:mt-4 sm:text-[1.75rem] sm:tracking-[0.18em]">
           {site.content.partnerA}
         </h2>
-        <span className="er-font-editorial my-1 text-base italic text-[#14543D] sm:text-lg">
+        <span className="er-font-editorial my-0.5 text-base italic text-[#14543D] max-[380px]:text-sm sm:my-1 sm:text-lg">
           &amp;
         </span>
-        <h2 className="er-font-display text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#0B3D2E] uppercase sm:text-[1.75rem] sm:tracking-[0.18em]">
+        <h2 className="er-font-display text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#0B3D2E] uppercase max-[380px]:text-[15px] max-[380px]:tracking-[0.08em] sm:text-[1.75rem] sm:tracking-[0.18em]">
           {site.content.partnerB}
         </h2>
 
-        <BotanicalCardDivider className="my-2.5 h-8 w-24 sm:my-3.5 sm:h-10 sm:w-28" />
+        <BotanicalCardDivider className="mt-4 mb-2 h-6 w-24 max-[380px]:mb-1.5 max-[380px]:h-5 sm:my-3.5 sm:h-10 sm:w-28" />
 
         <p className="er-font-display text-[9px] tracking-[0.24em] text-[#0B3D2E] uppercase sm:text-[10px]">
           {formatCardDate(site.weddingDate, site.timezone)}
@@ -200,24 +200,87 @@ export default function EmeraldRoyaleEnvelope({ site }: { site: WeddingSite }) {
               <motion.div
                 initial={false}
                 animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -28 : -54) : 0,
+                  y: isCardLifted ? (prefersReducedMotion ? -28 : -48) : 0,
                   scale: isCardLifted ? 1.03 : 1,
                 }}
                 transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.85,
+                  duration: prefersReducedMotion ? 0.2 : 0.9,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 sm:w-[46%]"
+                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 max-[380px]:top-[23%] sm:w-[46%]"
               >
                 <InvitationCard site={site} isOpen={isCardLifted} />
               </motion.div>
 
-              {/* Layer 3: Emerald pocket fold — a soft bottom gradient so
-                  the card reads as sliding out of the pocket */}
-              <div
+              {/* Layer 3: REAL emerald pocket — the envelope photo rendered
+                  a second time ABOVE the card, clipped to the pocket's
+                  shape, so the card is physically tucked inside at rest
+                  (round 1's bottom gradient only darkened the card and
+                  hid nothing — the full card sat visibly on the photo).
+                  The clip follows the photo's own pocket: the fold is a
+                  shallow V (corners ~40% of container height, V bottom
+                  ~57%), so the polygon's top edge sits BELOW the fold
+                  everywhere and the overlay is pixel-seamless with
+                  Layer 1 (same image, same object-cover mapping).
+                  Two overlays because the card is taller, relative to
+                  the container, on desktop (sm:) than on mobile: the
+                  flat of the V must sit just below Partner B's
+                  baseline and just above the divider at each width.
+                  Live-measured 2026-11-25 (390px: container 268.5px,
+                  Partner B bottom 62.0%, divider top 68.0% after the
+                  card tightening above; 1280px: Partner B bottom
+                  69.4%, divider top 73.2%):
+                  - mobile flat at 65% → 8px clear of both lines;
+                  - desktop flat at 71.3% → 7px clear of both lines.
+                  On tap the clip's top edge drops to ~97% (the pocket
+                  opens) while the card lifts 48px, so divider + date +
+                  location are fully revealed with no top clipping
+                  (a pure 80px+ card lift would push "WE INVITE YOU"
+                  out of the overflow-hidden container at 320px). */}
+              <motion.div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-1/3 bg-gradient-to-t from-[#06231B]/55 via-[#06231B]/15 to-transparent"
-              />
+                initial={false}
+                animate={{
+                  clipPath: isCardLifted
+                    ? "polygon(19% 96%, 32% 97.5%, 68% 97.5%, 81% 96%, 81% 98%, 19% 98%)"
+                    : "polygon(19% 52%, 32% 65%, 68% 65%, 81% 52%, 81% 98%, 19% 98%)",
+                }}
+                transition={{
+                  duration: prefersReducedMotion ? 0.2 : 0.9,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                className="pointer-events-none absolute inset-0 z-20 sm:hidden"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={ENVELOPE_IMAGE_URL}
+                  alt=""
+                  referrerPolicy="no-referrer"
+                  className="block h-full w-full object-cover"
+                />
+              </motion.div>
+              <motion.div
+                aria-hidden="true"
+                initial={false}
+                animate={{
+                  clipPath: isCardLifted
+                    ? "polygon(19% 96%, 32% 97.5%, 68% 97.5%, 81% 96%, 81% 98%, 19% 98%)"
+                    : "polygon(19% 58%, 32% 71.3%, 68% 71.3%, 81% 58%, 81% 98%, 19% 98%)",
+                }}
+                transition={{
+                  duration: prefersReducedMotion ? 0.2 : 0.9,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                className="pointer-events-none absolute inset-0 z-20 hidden sm:block"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={ENVELOPE_IMAGE_URL}
+                  alt=""
+                  referrerPolicy="no-referrer"
+                  className="block h-full w-full object-cover"
+                />
+              </motion.div>
             </div>
 
             {/* Subtle interactive cue */}

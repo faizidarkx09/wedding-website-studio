@@ -357,20 +357,29 @@ export function EmeraldRoyaleRsvpSection({
             className="absolute inset-0 bg-[#F7F3E8]/35"
           />
 
-          {/* Text column is constrained to THIS image's measured paper
-              bounds: pixel-profiled 2026-11-25 — the cream paper spans
-              16.0%–83.7% of the image width (~67% at mid-height, 67.4%
-              / 67.3% / 67.8% at y=25/50/75%) and ~17%–84% vertically.
-              62–64% leaves a ~7px margin from the torn edges at every
-              viewport, so the heading / body / reply-by line sit ON the
-              cream paper instead of spilling onto the emerald frame.
-              Bottom padding is pb-24 on mobile (not py-12): the paper's
-              bottom torn edge sits at ~85% of the frame height, so the
-              button — the last element — needs the extra bottom room
-              to end ABOVE that edge instead of straddling it (E2E
-              2026-11-25: at 390px the two-line button's "RESPOND" sat
-              on the emerald frame below the edge). */}
-          <div className="relative z-10 mx-auto flex w-[62%] min-w-0 flex-col items-center pt-12 pb-24 text-center sm:w-[64%] sm:py-16">
+          {/* Text column sits ON the cream paper. The paper is
+              pixel-profiled from torn_paper_rsvp.jpg (1200x800):
+              cream spans x 16.4%-83.6% and y 16.5%-84.2% of the
+              image (bottom torn edge ~84.2% across the card's
+              x-range). The frame is bg-cover: at mobile widths the
+              frame is taller than 3:2, so the image scales by height
+              and the torn edge sits at ~84.2% of the FRAME height —
+              while the button's bottom sits at frameH - pb. Margin
+              above the edge = pb - 0.158 * frameH, so the margin
+              SHRINKS as the column grows: round 1's pb-24 (96px)
+              left only 17.5px at 390px (frameH 496.8) and 6.2px at
+              320px (frameH 568.7) — any font-metric growth on a real
+              phone (taller column) pushed the button onto / below
+              the edge, which is what live verification saw at 390px.
+              Fix: pb-32 (128px) + a shorter column (pt-28 so the
+              heading AND the RSVP eyebrow clear the TOP torn edge,
+              which the old pt-12 let the heading straddle, and
+              tighter gaps). Live-measured baseline 2026-11-25: new
+              margins are ~37px at 390px and ~26px at 320px, staying
+              >=8px even if the column grows +150px on a phone.
+              Desktop is untouched (sm:py-16 still governs; measured
+              18.7px margin there, correct). */}
+          <div className="relative z-10 mx-auto flex w-[62%] min-w-0 flex-col items-center pt-28 pb-32 text-center sm:w-[64%] sm:py-16">
             <p className="er-font-display text-[10px] tracking-[0.34em] text-[#14543D] uppercase sm:text-xs">
               RSVP
             </p>
@@ -378,15 +387,15 @@ export function EmeraldRoyaleRsvpSection({
               Will You Join Us?
             </h3>
 
-            <BotanicalCardDivider className="mt-4 h-9 w-28 sm:h-10 sm:w-32" />
+            <BotanicalCardDivider className="mt-3 h-8 w-28 sm:mt-4 sm:h-10 sm:w-32" />
 
-            <p className="er-font-editorial mt-4 max-w-[520px] text-[1rem] leading-[1.75] text-[#06231B]/85 sm:text-[1.06rem]">
+            <p className="er-font-editorial mt-3 max-w-[520px] text-[1rem] leading-[1.75] text-[#06231B]/85 sm:mt-4 sm:text-[1.06rem]">
               Your presence is the greatest gift. Please let us know if you can
               share in our joy — we cannot wait to celebrate with you.
             </p>
 
             {replyBy && (
-              <p className="er-font-display mt-5 text-[10px] leading-[1.9] tracking-[0.12em] text-balance text-[#14543D] uppercase sm:text-xs sm:tracking-[0.2em]">
+              <p className="er-font-display mt-4 text-[10px] leading-[1.9] tracking-[0.12em] text-balance text-[#14543D] uppercase sm:mt-5 sm:text-xs sm:tracking-[0.2em]">
                 {replyBy}
               </p>
             )}
@@ -394,7 +403,7 @@ export function EmeraldRoyaleRsvpSection({
             <button
               type="button"
               onClick={onJumpToRsvp}
-              className="group mt-5 inline-flex items-center gap-2 bg-[#0B3D2E] px-3.5 py-2.5 er-font-display text-[9px] tracking-[0.1em] whitespace-nowrap text-[#F7F3E8] uppercase shadow-[0_10px_22px_-8px_rgba(11,61,46,0.6)] transition-colors duration-300 hover:bg-[#14543D] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0B3D2E] sm:mt-7 sm:px-7 sm:py-3.5 sm:text-xs sm:tracking-[0.26em]"
+              className="group mt-4 inline-flex items-center gap-2 bg-[#0B3D2E] px-3.5 py-2.5 er-font-display text-[9px] tracking-[0.1em] whitespace-nowrap text-[#F7F3E8] uppercase shadow-[0_10px_22px_-8px_rgba(11,61,46,0.6)] transition-colors duration-300 hover:bg-[#14543D] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0B3D2E] sm:mt-7 sm:px-7 sm:py-3.5 sm:text-xs sm:tracking-[0.26em]"
             >
               <Heart className="h-3.5 w-3.5 fill-[#F7F3E8]/20 sm:h-4 sm:w-4" />
               Kindly Respond

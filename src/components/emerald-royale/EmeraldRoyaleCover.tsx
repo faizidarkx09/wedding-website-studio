@@ -25,7 +25,7 @@ export default function EmeraldRoyaleCover({
       aria-label="Wedding Invitation Cover"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -48, scale: 0.97, transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } }}
+      exit={{ opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }}
       onClick={onOpen}
       className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden bg-[#0B3D2E] px-5 py-12 text-[#F7F3E8] select-none sm:py-16"
     >
@@ -83,14 +83,17 @@ export default function EmeraldRoyaleCover({
           WITH LOVE
         </motion.p>
 
-        {/* Handwritten Script Reveal */}
+        {/* Handwritten Script Reveal — fade + gentle rise, never a
+            left-to-right clip wipe: the wipe's clip-path cut the
+            script's swashes mid-reveal, which read on the live site
+            as the heading clipped at its right edge (no persistent
+            overflow was measurable — scrollWidth == clientWidth at
+            1440 / 1920 / 390 — the wipe itself was the clip). */}
         <motion.h1
-          initial={
-            prefersReducedMotion ? false : { opacity: 0, clipPath: "inset(0 100% 0 0)" }
-          }
-          animate={{ opacity: 1, clipPath: "inset(0 0% 0 0)" }}
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.5, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          className="er-font-script mt-4 px-2 text-[3.4rem] leading-[1.08] font-normal tracking-normal text-[#FFFDF9] drop-shadow-[0_3px_14px_rgba(4,26,19,0.5)] sm:text-[4.6rem] md:text-[5.5rem]"
+          className="er-font-script mt-4 px-3 text-[3.4rem] leading-[1.08] font-normal tracking-normal text-[#FFFDF9] drop-shadow-[0_3px_14px_rgba(4,26,19,0.5)] sm:text-[4.6rem] md:text-[5.5rem]"
         >
           {coupleNames(site)}
         </motion.h1>

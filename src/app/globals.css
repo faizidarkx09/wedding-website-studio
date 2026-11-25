@@ -1708,8 +1708,15 @@ body {
   mask-image: radial-gradient(ellipse 68% 64% at 50% 50%, #000 58%, rgba(0, 0, 0, 0.75) 78%, transparent 98%);
 }
 
-/* Floral-corner mask — corner artwork fades diagonally toward the card. */
+/* Floral-corner mask — gentle diagonal fade. The corner artwork's
+   roses sit in the image's top-left and the sprig's tail reaches
+   ~84% across the cropped square box, so the opaque core must cover
+   the whole sprig and fade only past its far tip. (The old mask's
+   small core — #000 only to 46% of an ellipse centred at 12%, 8% —
+   faded half the sprig away, which is why the corners read as
+   slivers. The empty cream field it used to hide is now cropped out
+   by object-cover in Decor.tsx instead.) */
 .br-mask-floral-corner {
-  -webkit-mask-image: radial-gradient(ellipse 80% 82% at 12% 8%, #000 46%, rgba(0, 0, 0, 0.78) 68%, transparent 100%);
-  mask-image: radial-gradient(ellipse 80% 82% at 12% 8%, #000 46%, rgba(0, 0, 0, 0.78) 68%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 135% 135% at 0% 0%, #000 68%, rgba(0, 0, 0, 0.85) 86%, transparent 100%);
+  mask-image: radial-gradient(ellipse 135% 135% at 0% 0%, #000 68%, rgba(0, 0, 0, 0.85) 86%, transparent 100%);
 }

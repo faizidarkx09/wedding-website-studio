@@ -19,12 +19,16 @@ export default function BlushRoyaleCover({
   const prefersReducedMotion = useReducedMotion();
 
   return (
+    // Cover exit is a deliberate ~1.0s ceremony, not a quick fade:
+    // the even [0.65, 0, 0.35, 1] ease spreads the dissolve across
+    // the full second (the old front-loaded ease collapsed opacity
+    // below 0.05 in ~0.5s) before the invitation rises 1.0s.
     <motion.div
       role="region"
       aria-label="Wedding Invitation Cover"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -48, scale: 0.97, transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1] } }}
+      exit={{ opacity: 0, y: -48, scale: 0.97, transition: { duration: 1.0, ease: [0.65, 0, 0.35, 1] } }}
       onClick={onOpen}
       className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden bg-[#F6DDE0] px-5 py-12 text-[#5C323B] select-none sm:py-16"
     >

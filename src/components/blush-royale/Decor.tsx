@@ -68,17 +68,27 @@ export function FloralCorner({ position, className = "" }: FloralCornerProps) {
     "top-right": "top-0 right-0 w-40 sm:w-52 rotate-90",
   };
 
+  // The corner artwork is 1920×1280 (3:2) with the roses only in the
+  // top-left ~56% × ~76% — the right ~44% and bottom ~24% are empty
+  // cream field — so object-contain in a wide box rendered a small
+  // faded wisp ("sliver") at the page edge, and the old mask's small
+  // opaque core faded the sprig's tail away. Fix at layout level:
+  // a square box + object-cover/object-left-top crops the empty
+  // right field so the whole sprig fills the box, and the gentler
+  // .br-mask-floral-corner keeps the full sprig opaque. Rotations
+  // still land the artwork corner on the page corner (top-left art
+  // → bottom-right after rotate-180, top-right after rotate-90).
   return (
     <div
       aria-hidden="true"
-      className={`pointer-events-none absolute z-10 select-none ${positionStyles[position]} ${className}`}
+      className={`pointer-events-none absolute z-10 aspect-square select-none ${positionStyles[position]} ${className}`}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={FLORAL_CORNER_URL}
         alt=""
         referrerPolicy="no-referrer"
-        className="br-mask-floral-corner h-auto w-full object-contain opacity-95"
+        className="br-mask-floral-corner h-full w-full object-cover object-left-top opacity-95"
       />
     </div>
   );
