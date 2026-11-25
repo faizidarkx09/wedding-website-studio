@@ -337,7 +337,7 @@ export function EmeraldRoyaleRsvpSection({
 
   return (
     <div className="relative overflow-hidden bg-[#F7F3E8] px-4 pt-4 pb-20 sm:px-6 sm:pb-24">
-      <div className="relative mx-auto max-w-[760px]">
+      <div className="@container relative mx-auto max-w-[760px]">
         {/* Torn Paper Frame */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
@@ -366,36 +366,68 @@ export function EmeraldRoyaleRsvpSection({
               and the torn edge sits at ~84.2% of the FRAME height —
               while the button's bottom sits at frameH - pb. Margin
               above the edge = pb - 0.158 * frameH, so the margin
-              SHRINKS as the column grows: round 1's pb-24 (96px)
-              left only 17.5px at 390px (frameH 496.8) and 6.2px at
-              320px (frameH 568.7) — any font-metric growth on a real
-              phone (taller column) pushed the button onto / below
-              the edge, which is what live verification saw at 390px.
-              Fix: pb-32 (128px) + a shorter column (pt-28 so the
-              heading AND the RSVP eyebrow clear the TOP torn edge,
-              which the old pt-12 let the heading straddle, and
-              tighter gaps). Live-measured baseline 2026-11-25: new
-              margins are ~37px at 390px and ~26px at 320px, staying
-              >=8px even if the column grows +150px on a phone.
-              Desktop is untouched (sm:py-16 still governs; measured
-              18.7px margin there, correct). */}
-          <div className="relative z-10 mx-auto flex w-[62%] min-w-0 flex-col items-center pt-28 pb-32 text-center sm:w-[64%] sm:py-16">
-            <p className="er-font-display text-[10px] tracking-[0.34em] text-[#14543D] uppercase sm:text-xs">
+              SHRINKS as the column grows.
+              ROUND 3 ROOT CAUSE (live-measured 2026-11-25): the
+              guest page at a REAL 390px viewport is FINE (button
+              bottom 415.3, torn edge 452.8, margin +37.5px; at 320px
+              margin +26.1px). The defect exists ONLY in the editor
+              Mobile preview, where this section renders inside a
+              390px-wide div on a DESKTOP-width viewport: viewport
+              media queries (`sm:`) and the heading's `5vw` clamp
+              resolve against the OUTER viewport, so the section
+              rendered DESKTOP geometry (sm:py-16 = 64px padding,
+              12px/44px-tall button, 30.4px heading) inside a 390px
+              column. Live reproduction (same DOM + live CSS in a
+              390px div at 1440px viewport): button bottom 535.8 vs
+              torn edge 507.6 (pixel-confirmed at vp ~506), margin
+              -28.2px — 64% of the button on the green band — and
+              the RSVP eyebrow sat on the green top band too (top
+              edge ~112, eyebrow 80-98). Fix: CONTAINER QUERIES.
+              The frame's parent is now `@container`, and every
+              `sm:` in this section is `@min-[40rem]:` (container
+              >= 640px) while the heading's `clamp(...,5vw,...)` is
+              replaced by fixed 1.35rem / @min-[40rem]:1.9rem — so
+              the layout now follows the CONTAINER's width, not the
+              viewport's. DO NOT "simplify" this to `@sm:`: Tailwind
+              v4's container `@sm` breakpoint is 24rem (384px), NOT
+              the 40rem viewport `sm:` — verified by compiling the
+              real Tailwind build, which emits `@container
+              (width >= 24rem)` for `@sm:`. At 24rem, containers
+              384-639px (guest viewports ~416-671px, e.g. 430px
+              phones) would get desktop geometry (py-16) in a narrow
+              column and the button would fall ~29px below the edge
+              again. `@min-[40rem]:` keeps the original 640px
+              threshold, measured on the container. Desktop is
+              unchanged (container 760px -> desktop styles apply,
+              identical to before); the editor 390px preview now gets
+              the same mobile geometry as a real 390px phone. The
+              section root's own sm:px-6 is left viewport-based
+              (harmless: frame 342 vs 358px in the editor preview,
+              margin stays >= +30px). Post-fix live-measured
+              margins (harness, real compiled Tailwind CSS):
+              editor-preview 390px +37.5px, guest 390px +37.5px,
+              guest 320px +30.1px, guest 430px +37.5px, desktop
+              ~+20px (pixel-measured torn edge vp ~409 vs button
+              bottom 389.1; the 0.842 model does NOT apply at
+              desktop aspect — width-driven bg-cover puts the edge
+              at 274*s + frameH/2, s = frameW/1200). */}
+          <div className="relative z-10 mx-auto flex w-[62%] min-w-0 flex-col items-center pt-28 pb-32 text-center @min-[40rem]:w-[64%] @min-[40rem]:py-16">
+            <p className="er-font-display text-[10px] tracking-[0.34em] text-[#14543D] uppercase @min-[40rem]:text-xs">
               RSVP
             </p>
-            <h3 className="er-font-display mt-3 text-[clamp(1.35rem,5vw,1.9rem)] leading-[1.15] font-normal tracking-[0.02em] text-balance text-[#0B3D2E]">
+            <h3 className="er-font-display mt-3 text-[1.35rem] leading-[1.15] font-normal tracking-[0.02em] text-balance text-[#0B3D2E] @min-[40rem]:text-[1.9rem]">
               Will You Join Us?
             </h3>
 
-            <BotanicalCardDivider className="mt-3 h-8 w-28 sm:mt-4 sm:h-10 sm:w-32" />
+            <BotanicalCardDivider className="mt-3 h-8 w-28 @min-[40rem]:mt-4 @min-[40rem]:h-10 @min-[40rem]:w-32" />
 
-            <p className="er-font-editorial mt-3 max-w-[520px] text-[1rem] leading-[1.75] text-[#06231B]/85 sm:mt-4 sm:text-[1.06rem]">
+            <p className="er-font-editorial mt-3 max-w-[520px] text-[1rem] leading-[1.75] text-[#06231B]/85 @min-[40rem]:mt-4 @min-[40rem]:text-[1.06rem]">
               Your presence is the greatest gift. Please let us know if you can
               share in our joy — we cannot wait to celebrate with you.
             </p>
 
             {replyBy && (
-              <p className="er-font-display mt-4 text-[10px] leading-[1.9] tracking-[0.12em] text-balance text-[#14543D] uppercase sm:mt-5 sm:text-xs sm:tracking-[0.2em]">
+              <p className="er-font-display mt-4 text-[10px] leading-[1.9] tracking-[0.12em] text-balance text-[#14543D] uppercase @min-[40rem]:mt-5 @min-[40rem]:text-xs @min-[40rem]:tracking-[0.2em]">
                 {replyBy}
               </p>
             )}
@@ -403,11 +435,11 @@ export function EmeraldRoyaleRsvpSection({
             <button
               type="button"
               onClick={onJumpToRsvp}
-              className="group mt-4 inline-flex items-center gap-2 bg-[#0B3D2E] px-3.5 py-2.5 er-font-display text-[9px] tracking-[0.1em] whitespace-nowrap text-[#F7F3E8] uppercase shadow-[0_10px_22px_-8px_rgba(11,61,46,0.6)] transition-colors duration-300 hover:bg-[#14543D] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0B3D2E] sm:mt-7 sm:px-7 sm:py-3.5 sm:text-xs sm:tracking-[0.26em]"
+              className="group mt-4 inline-flex items-center gap-2 bg-[#0B3D2E] px-3.5 py-2.5 er-font-display text-[9px] tracking-[0.1em] whitespace-nowrap text-[#F7F3E8] uppercase shadow-[0_10px_22px_-8px_rgba(11,61,46,0.6)] transition-colors duration-300 hover:bg-[#14543D] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0B3D2E] @min-[40rem]:mt-7 @min-[40rem]:px-7 @min-[40rem]:py-3.5 @min-[40rem]:text-xs @min-[40rem]:tracking-[0.26em]"
             >
-              <Heart className="h-3.5 w-3.5 fill-[#F7F3E8]/20 sm:h-4 sm:w-4" />
+              <Heart className="h-3.5 w-3.5 fill-[#F7F3E8]/20 @min-[40rem]:h-4 @min-[40rem]:w-4" />
               Kindly Respond
-              <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1 sm:h-3.5 sm:w-3.5" />
+              <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1 @min-[40rem]:h-3.5 @min-[40rem]:w-3.5" />
             </button>
           </div>
         </motion.div>

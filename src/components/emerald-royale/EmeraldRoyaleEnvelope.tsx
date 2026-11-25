@@ -23,7 +23,7 @@ import {
 function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
   return (
     <div
-      className={`relative mx-auto w-full overflow-hidden bg-[#FBF8EF] px-4 py-3 text-center text-[#0B3D2E] transition-shadow duration-700 max-[380px]:py-2 sm:px-6 sm:py-7 ${
+      className={`relative mx-auto w-full overflow-hidden bg-[#FBF8EF] px-4 py-3 text-center text-[#0B3D2E] transition-shadow duration-700 max-[380px]:py-2 @sm:px-6 @sm:py-5 ${
         isOpen
           ? "shadow-[0_22px_42px_-12px_rgba(4,26,19,0.52),0_4px_12px_rgba(4,26,19,0.22)]"
           : "shadow-[0_10px_24px_-8px_rgba(4,26,19,0.45)]"
@@ -65,27 +65,27 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
       />
 
       {/* Editable HTML Letterpress Typography */}
-      <div className="relative z-10 flex flex-col items-center py-1 max-[380px]:py-0.5 sm:py-3">
-        <p className="er-font-display text-[9px] tracking-[0.26em] text-[#14543D] uppercase sm:text-[10px]">
+      <div className="relative z-10 flex flex-col items-center py-1 max-[380px]:py-0.5 @sm:py-3">
+        <p className="er-font-display text-[9px] tracking-[0.26em] text-[#14543D] uppercase @sm:text-[10px]">
           WE INVITE YOU
         </p>
 
-        <h2 className="er-font-display mt-2 text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#0B3D2E] uppercase max-[380px]:mt-1.5 max-[380px]:text-[15px] max-[380px]:tracking-[0.08em] sm:mt-4 sm:text-[1.75rem] sm:tracking-[0.18em]">
+        <h2 className="er-font-display mt-2 text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#0B3D2E] uppercase max-[380px]:mt-1.5 max-[380px]:text-[15px] max-[380px]:tracking-[0.08em] @sm:mt-3 @sm:text-[22px] @sm:tracking-[0.12em]">
           {site.content.partnerA}
         </h2>
-        <span className="er-font-editorial my-0.5 text-base italic text-[#14543D] max-[380px]:text-sm sm:my-1 sm:text-lg">
+        <span className="er-font-editorial my-0.5 text-base italic text-[#14543D] max-[380px]:text-sm @sm:text-lg">
           &amp;
         </span>
-        <h2 className="er-font-display text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#0B3D2E] uppercase max-[380px]:text-[15px] max-[380px]:tracking-[0.08em] sm:text-[1.75rem] sm:tracking-[0.18em]">
+        <h2 className="er-font-display text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#0B3D2E] uppercase max-[380px]:text-[15px] max-[380px]:tracking-[0.08em] @sm:text-[22px] @sm:tracking-[0.12em]">
           {site.content.partnerB}
         </h2>
 
-        <BotanicalCardDivider className="mt-4 mb-2 h-6 w-24 max-[380px]:mb-1.5 max-[380px]:h-5 sm:my-3.5 sm:h-10 sm:w-28" />
+        <BotanicalCardDivider className="mt-4 mb-2 h-6 w-24 max-[380px]:mb-1.5 max-[380px]:h-5 @sm:my-3.5 @sm:h-8 @sm:w-28" />
 
-        <p className="er-font-display text-[9px] tracking-[0.24em] text-[#0B3D2E] uppercase sm:text-[10px]">
+        <p className="er-font-display text-[9px] tracking-[0.24em] text-[#0B3D2E] uppercase @sm:text-[10px]">
           {formatCardDate(site.weddingDate, site.timezone)}
         </p>
-        <p className="er-font-display mt-1 text-[8.5px] tracking-[0.22em] text-[#14543D] uppercase sm:text-[9.5px]">
+        <p className="er-font-display mt-1 text-[8.5px] tracking-[0.22em] text-[#14543D] uppercase @sm:text-[9.5px]">
           {locationLabel(site)}
         </p>
       </div>
@@ -165,7 +165,7 @@ export default function EmeraldRoyaleEnvelope({ site }: { site: WeddingSite }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.25 }}
           transition={{ duration: 0.95, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-[490px]"
+          className="relative w-full max-w-[490px] @container"
         >
           <div
             role="button"
@@ -207,7 +207,7 @@ export default function EmeraldRoyaleEnvelope({ site }: { site: WeddingSite }) {
                   duration: prefersReducedMotion ? 0.2 : 0.9,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 max-[380px]:top-[23%] sm:w-[46%]"
+                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 max-[380px]:top-[23%] @sm:w-[46%]"
               >
                 <InvitationCard site={site} isOpen={isCardLifted} />
               </motion.div>
@@ -222,21 +222,51 @@ export default function EmeraldRoyaleEnvelope({ site }: { site: WeddingSite }) {
                   ~57%), so the polygon's top edge sits BELOW the fold
                   everywhere and the overlay is pixel-seamless with
                   Layer 1 (same image, same object-cover mapping).
-                  Two overlays because the card is taller, relative to
-                  the container, on desktop (sm:) than on mobile: the
-                  flat of the V must sit just below Partner B's
-                  baseline and just above the divider at each width.
-                  Live-measured 2026-11-25 (390px: container 268.5px,
-                  Partner B bottom 62.0%, divider top 68.0% after the
-                  card tightening above; 1280px: Partner B bottom
-                  69.4%, divider top 73.2%):
-                  - mobile flat at 65% → 8px clear of both lines;
-                  - desktop flat at 71.3% → 7px clear of both lines.
-                  On tap the clip's top edge drops to ~97% (the pocket
-                  opens) while the card lifts 48px, so divider + date +
-                  location are fully revealed with no top clipping
-                  (a pure 80px+ card lift would push "WE INVITE YOU"
-                  out of the overflow-hidden container at 320px). */}
+                  ONE polygon for every width (round 3): round 2 kept
+                  separate mobile/desktop polygons keyed to `sm:`, but
+                  `sm:` is a VIEWPORT query — in the editor's Mobile
+                  (390px) preview the envelope renders inside a
+                  390px-wide div on a DESKTOP viewport, so the desktop
+                  polygon (flat 71.3%) and desktop card (28px names,
+                  py-7, h-10 divider — ~304px tall in a 256.5px
+                  container, because the section root's sm:px-6 makes
+                  the editor container 342px wide) applied in a
+                  mobile-sized box: Partner B ended below the flat
+                  ("& HINA" hidden at rest) and the card bottom stayed
+                  below the container's bottom edge after the tap
+                  (divider visible, date/location clipped). The card
+                  now sizes by CONTAINER width instead (@container on
+                  the outer wrapper, @sm: = container >= 384px — the
+                  same fix Lane 2 applied to the RSVP section): the
+                  editor 390px preview gets the mobile card, desktop
+                  (490px container) gets the larger card. The larger
+                  card is also shortened so it fits: names 28px ->
+                  22px @ 0.12em tracking ("PARTNER B" fits one line in
+                  the 177px content box — at 28px it wrapped, which
+                  alone made the desktop card 360px tall in a 367.5px
+                  container), py-7 -> py-5, divider h-10 -> h-8.
+                  Live-measured 2026-11-25 (pre-fix): 390px direct —
+                  container 358x268.5, Hina bottom 62.1%, divider top
+                  68.0%, card 25%->97.2% (rest OK, tap OK: card
+                  6%->80.4%, everything visible); 320px — Hina bottom
+                  61.7%, divider top 69.1% (rest/tap OK); desktop
+                  1280px — container 490x367.5, "Partner A" wrapped
+                  to 2 lines (44.3-59.6%), "Partner B" 69.4-84.6%
+                  with its 2nd line pocket-covered, date/location
+                  103.1-112.1% (clipped by overflow-hidden), card
+                  25%->123%; after tap, location 96.2-100.2%
+                  (half-clipped at the photo's bottom edge).
+                  The single flat at 65% sits inside the
+                  Partner-B-bottom / divider-top gap in every case:
+                  direct 390 (62.1-68.0%), direct 320 (61.7-69.1%),
+                  editor preview (342x256.5 container: Hina bottom
+                  ~63.8%, divider top ~70.0%), desktop fixed card
+                  (~61.8-65.6%). On tap the clip's top edge drops to
+                  ~97% (the pocket opens) while the card lifts 48px,
+                  so divider + date + location are fully revealed
+                  with no top clipping (a pure 80px+ card lift would
+                  push "WE INVITE YOU" out of the overflow-hidden
+                  container at 320px). */}
               <motion.div
                 aria-hidden="true"
                 initial={false}
@@ -249,29 +279,7 @@ export default function EmeraldRoyaleEnvelope({ site }: { site: WeddingSite }) {
                   duration: prefersReducedMotion ? 0.2 : 0.9,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="pointer-events-none absolute inset-0 z-20 sm:hidden"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
-                />
-              </motion.div>
-              <motion.div
-                aria-hidden="true"
-                initial={false}
-                animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(19% 96%, 32% 97.5%, 68% 97.5%, 81% 96%, 81% 98%, 19% 98%)"
-                    : "polygon(19% 58%, 32% 71.3%, 68% 71.3%, 81% 58%, 81% 98%, 19% 98%)",
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="pointer-events-none absolute inset-0 z-20 hidden sm:block"
+                className="pointer-events-none absolute inset-0 z-20"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img

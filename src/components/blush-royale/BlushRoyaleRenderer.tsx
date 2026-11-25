@@ -53,10 +53,28 @@ export default function BlushRoyaleRenderer({
   // template renderers).
   const [currentView, setCurrentView] = useState<View>(envelope ? "cover" : "invitation");
   const savedScrollRef = useRef(0);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // On template preview pages (/templates/[id]) this renderer sits far
+  // down a long page (SiteNav + facts + How-to-buy above it), so
+  // document top 0 is NOT the cover — scrolling there yanks the
+  // viewport ~2 screens above the cover at the exact moment its exit
+  // starts, and the ~2s ceremony plays off-screen while the user sees
+  // the template facts. On guest sites the renderer IS the whole page,
+  // so top 0 is correct there. In preview, scroll to this renderer's
+  // own top instead, keeping the viewport on the cover.
+  const scrollToRendererTop = () => {
+    if (preview && rootRef.current) {
+      const top = rootRef.current.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top, behavior: "instant" as ScrollBehavior });
+    } else {
+      window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    }
+  };
 
   const openInvitation = () => {
     setCurrentView("invitation");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    scrollToRendererTop();
   };
 
   const openStory = () => {
@@ -85,7 +103,7 @@ export default function BlushRoyaleRenderer({
 
   const goToCover = () => {
     setCurrentView("cover");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    scrollToRendererTop();
   };
 
   const navigateFromFooter = (view: "cover" | "story" | "details") => {
@@ -100,7 +118,7 @@ export default function BlushRoyaleRenderer({
   const showRsvp = willRenderSection(site, "rsvp");
 
   return (
-    <div className="blush-royale min-h-dvh w-full bg-[#FBF6F3]">
+    <div ref={rootRef} className="blush-royale min-h-dvh w-full bg-[#FBF6F3]">
       {/* Root bg matches the invitation's first (cream) surface so the
           cover-exit → invitation-entrance dissolve passes through cream,
           never a white flash. The cover itself is full-bleed blush, so
