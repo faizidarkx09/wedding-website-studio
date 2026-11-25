@@ -1,0 +1,237 @@
+// Emerald Royale envelope — interactive emerald leather envelope
+// with a gold wax seal and the sliding ivory letterpress card (tap
+// the seal to break it and reveal / tuck the card back). Gold-leaf
+// corner sprigs. No music on this template — the seal is the
+// interaction, not a vinyl medallion.
+"use client";
+
+import { useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import type { WeddingSite } from "@/lib/types";
+import { BotanicalCardDivider, GoldLeafSprig } from "./Decor";
+import {
+  ENVELOPE_IMAGE_URL,
+  WAX_SEAL_URL,
+  formatCardDate,
+  locationLabel,
+} from "./tokens";
+
+/* ------------------------------------------------------------------ */
+/* InvitationCard — the sliding ivory letterpress card                */
+/* ------------------------------------------------------------------ */
+
+function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
+  return (
+    <div
+      className={`relative mx-auto w-full overflow-hidden bg-[#FBF8EF] px-4 py-5 text-center text-[#0B3D2E] transition-shadow duration-700 sm:px-6 sm:py-7 ${
+        isOpen
+          ? "shadow-[0_22px_42px_-12px_rgba(4,26,19,0.52),0_4px_12px_rgba(4,26,19,0.22)]"
+          : "shadow-[0_10px_24px_-8px_rgba(4,26,19,0.45)]"
+      }`}
+    >
+      {/* Handmade cotton parchment fibers texture */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-55"
+        style={{ backgroundImage: `url(/images/themes/emerald-royale/bg_ivory_parchment.jpg)` }}
+      />
+
+      {/* Fine double antique gold & emerald letterpress border */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2.5 border border-[#C9A227]/75 sm:inset-3"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[13px] border border-[#14543D]/30 sm:inset-[15px]"
+      />
+
+      {/* Delicate corner botanical ticks */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute top-3 left-3 h-2.5 w-2.5 border-t border-l border-[#14543D]/65 sm:top-3.5 sm:left-3.5"
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute top-3 right-3 h-2.5 w-2.5 border-t border-r border-[#14543D]/65 sm:top-3.5 sm:right-3.5"
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-3 left-3 h-2.5 w-2.5 border-b border-l border-[#14543D]/65 sm:bottom-3.5 sm:left-3.5"
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute right-3 bottom-3 h-2.5 w-2.5 border-r border-b border-[#14543D]/65 sm:right-3.5 sm:bottom-3.5"
+      />
+
+      {/* Editable HTML Letterpress Typography */}
+      <div className="relative z-10 flex flex-col items-center py-2 sm:py-3">
+        <p className="er-font-display text-[9px] tracking-[0.26em] text-[#14543D] uppercase sm:text-[10px]">
+          WE INVITE YOU
+        </p>
+
+        <h2 className="er-font-display mt-3 text-xl leading-none font-normal tracking-[0.18em] text-[#0B3D2E] uppercase sm:mt-4 sm:text-[1.75rem]">
+          {site.content.partnerA}
+        </h2>
+        <span className="er-font-editorial my-1 text-base italic text-[#14543D] sm:text-lg">
+          &amp;
+        </span>
+        <h2 className="er-font-display text-xl leading-none font-normal tracking-[0.18em] text-[#0B3D2E] uppercase sm:text-[1.75rem]">
+          {site.content.partnerB}
+        </h2>
+
+        <BotanicalCardDivider className="my-2.5 h-8 w-24 sm:my-3.5 sm:h-10 sm:w-28" />
+
+        <p className="er-font-display text-[9px] tracking-[0.24em] text-[#0B3D2E] uppercase sm:text-[10px]">
+          {formatCardDate(site.weddingDate, site.timezone)}
+        </p>
+        <p className="er-font-display mt-1 text-[8.5px] tracking-[0.22em] text-[#14543D] uppercase sm:text-[9.5px]">
+          {locationLabel(site)}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* WaxSeal — the gold wax-seal open button. Tapping it "breaks" the  */
+/* seal (it splits and fades) and the card slides up; tapping again  */
+/* reseals it.                                                        */
+/* ------------------------------------------------------------------ */
+
+function WaxSeal({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
+  return (
+    <div className="relative flex flex-col items-center">
+      <motion.button
+        type="button"
+        onClick={onToggle}
+        aria-pressed={isOpen}
+        aria-label={
+          isOpen
+            ? "Reseal the emerald envelope"
+            : "Break the gold wax seal and open the envelope"
+        }
+        animate={isOpen ? { rotate: -8, scale: 0.94 } : { rotate: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        whileHover={{ scale: 1.04 }}
+        whileTap={{ scale: 0.96 }}
+        className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full shadow-[0_16px_30px_-8px_rgba(4,26,19,0.6),0_4px_10px_rgba(4,26,19,0.35)] ring-2 ring-[#C9A227]/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0B3D2E] sm:h-28 sm:w-28"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={WAX_SEAL_URL}
+          alt=""
+          referrerPolicy="no-referrer"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        {/* Crack line once broken */}
+        {isOpen && (
+          <span
+            aria-hidden="true"
+            className="absolute inset-x-2 top-1/2 h-px rotate-[-14deg] bg-[#06231B]/50"
+          />
+        )}
+      </motion.button>
+
+      <span className="er-font-editorial mt-3 text-xs tracking-[0.18em] text-[#14543D]/85 uppercase">
+        {isOpen ? "Sealed Again · Tap to Reseal" : "Tap the Seal to Open"}
+      </span>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* EnvelopeInvitation                                                */
+/* ------------------------------------------------------------------ */
+
+export default function EmeraldRoyaleEnvelope({ site }: { site: WeddingSite }) {
+  const [isCardLifted, setIsCardLifted] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+
+  const toggleEnvelope = () => {
+    setIsCardLifted((prev) => !prev);
+  };
+
+  return (
+    <div className="relative px-4 pt-16 pb-10 sm:px-6 sm:pt-24 sm:pb-14">
+      {/* Corner Gold-Leaf Sprigs */}
+      <GoldLeafSprig position="top-left" />
+      <GoldLeafSprig position="bottom-right" />
+
+      <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
+        {/* Interactive Emerald Envelope + Sliding Letterpress Card */}
+        <motion.div
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.25 }}
+          transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
+          className="relative w-full max-w-[490px]"
+        >
+          <div
+            role="button"
+            tabIndex={0}
+            aria-expanded={isCardLifted}
+            aria-label={
+              isCardLifted
+                ? "Tuck wedding invitation card back into the envelope"
+                : "Open emerald envelope and slide up wedding invitation card"
+            }
+            onClick={toggleEnvelope}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleEnvelope();
+              }
+            }}
+            className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0B3D2E]"
+          >
+            {/* Envelope Container preserving the 4:3 geometry of the emerald envelope */}
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(4,26,19,0.28)]">
+              {/* Layer 1: Emerald leather envelope artwork */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={ENVELOPE_IMAGE_URL}
+                alt="Deep emerald leather wedding envelope with embossed antique gold botanical ornaments"
+                referrerPolicy="no-referrer"
+                className="pointer-events-none block h-full w-full object-cover"
+              />
+
+              {/* Layer 2: Interactive Sliding Ivory Letterpress Invitation Card */}
+              <motion.div
+                initial={false}
+                animate={{
+                  y: isCardLifted ? (prefersReducedMotion ? -28 : -54) : 0,
+                  scale: isCardLifted ? 1.03 : 1,
+                }}
+                transition={{
+                  duration: prefersReducedMotion ? 0.2 : 0.85,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 sm:w-[46%]"
+              >
+                <InvitationCard site={site} isOpen={isCardLifted} />
+              </motion.div>
+
+              {/* Layer 3: Emerald pocket fold — a soft bottom gradient so
+                  the card reads as sliding out of the pocket */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-1/3 bg-gradient-to-t from-[#06231B]/55 via-[#06231B]/15 to-transparent"
+              />
+            </div>
+
+            {/* Subtle interactive cue */}
+            <p className="er-font-display mt-1 text-center text-[10px] tracking-[0.26em] text-[#14543D]/80 uppercase transition-colors group-hover:text-[#0B3D2E]">
+              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
+            </p>
+          </div>
+
+          {/* Gold Wax Seal */}
+          <div className="relative z-30 mt-4 flex justify-center">
+            <WaxSeal isOpen={isCardLifted} onToggle={toggleEnvelope} />
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}

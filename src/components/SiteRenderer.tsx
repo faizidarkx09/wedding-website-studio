@@ -9,6 +9,9 @@ import Reveal from "./Reveal";
 import EternelRenderer from "./eternel/EternelRenderer";
 import BlossomRenderer from "./blossom/BlossomRenderer";
 import RoyalBurgundyRenderer from "./royal-burgundy/RoyalBurgundyRenderer";
+import EmeraldRoyaleRenderer from "./emerald-royale/EmeraldRoyaleRenderer";
+import SapphireRoyaleRenderer from "./sapphire-royale/SapphireRoyaleRenderer";
+import BlushRoyaleRenderer from "./blush-royale/BlushRoyaleRenderer";
 import SacredGardenRenderer from "./sacred-garden/SacredGardenRenderer";
 import DolceVitaRenderer from "./dolce-vita/DolceVitaRenderer";
 
@@ -1524,6 +1527,28 @@ export default function SiteRenderer({ site, preview = false, envelope = false }
   // waltz, film-strip story, details page). Same gate as ÉTERNEL.
   if (comp === "royal-burgundy") {
     return <RoyalBurgundyRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // EMERALD ROYALE renders through its own renderer — regal
+  // botanical (emerald leather cover, wax-seal envelope, gold-tape
+  // film-strip story, details page). Same gate as Royal Burgundy.
+  if (comp === "emerald-royale") {
+    return <EmeraldRoyaleRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // SAPPHIRE ROYALE renders through its own renderer — art-deco night
+  // (navy velvet cover, silver seal, three horizontal photo cards,
+  // navy-panel details, no music). Same gate as Royal Burgundy.
+  if (comp === "sapphire-royale") {
+    return <SapphireRoyaleRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // BLUSH ROYALE renders through its own renderer — soft blush
+  // watercolor invitation (wash cover, sliding envelope, circular
+  // floral-ring story, blush rounded detail cards). Same gate as
+  // Royal Burgundy above. No music engine.
+  if (comp === "blush-royale") {
+    return <BlushRoyaleRenderer site={effective} envelope={envelope} preview={preview} />;
   }
 
   // DOLCE VITA renders through its own renderer — a 1:1 port of the

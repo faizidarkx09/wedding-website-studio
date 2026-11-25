@@ -166,3 +166,294 @@ export function royalBurgundySeed(weddingDay: string): RoyalBurgundySeed {
     })),
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* EMERALD ROYALE — the same pattern as Royal Burgundy. The seed is   */
+/* the ONE source of truth for the template's sample content: both    */
+/* the template PREVIEW (src/lib/preview.ts) and buyer ACTIVATION     */
+/* (createSiteFromTemplate in store-neon.ts / store-local.ts) build   */
+/* from emeraldRoyaleSeed, so preview and activation can never drift. */
+/* All copy is ORIGINAL placeholder text — never a real couple,       */
+/* venue, hotels or words — and every field is editable in the        */
+/* editor. The 5-event schedule, dress code, accommodations, travel  */
+/* + registry notes are seeded so a fresh buyer site renders full.   */
+/*                                                                     */
+/* EXCEPTION — the gallery: seed.gallery is PREVIEW-ONLY. Its photos  */
+/* are demo assets and must never land on a real buyer's site (the    */
+/* buyer uploads their own photos in the editor). Activation           */
+/* deliberately does not copy seed.gallery.                            */
+/* ------------------------------------------------------------------ */
+
+export interface EmeraldRoyaleSeed {
+  content: Partial<SiteContent>;
+  events: SiteEvent[];
+  details: import("./types").DetailBlock[];
+  gallery: GalleryImage[];
+}
+
+const EMERALD_ROYALE_GALLERY_URLS = [
+  "/images/themes/emerald-royale-detail.jpg",
+  "/images/themes/royal-burgundy/photo-hands.jpg",
+  "/images/themes/royal-burgundy/photo-veil.jpg",
+  "/images/themes/royal-burgundy/photo-sunset.jpg",
+  "/images/themes/royal-burgundy/photo-toast.jpg",
+  "/images/themes/royal-burgundy/photo-meadow.jpg",
+];
+
+export function emeraldRoyaleSeed(weddingDay: string): EmeraldRoyaleSeed {
+  return {
+    content: {
+      welcome:
+        "Together with our families, we invite you to share in the joy of our wedding day. Your love, your laughter and your friendship have shaped our story, and we would be so happy to celebrate the beginning of our married life with you beside us.\n\nSample welcome text — replace it with your own words in the editor.",
+      story:
+        "Every love story is beautiful, but ours is our favourite. It began with a first hello that neither of us expected, and grew — slowly, then all at once — into the life we share today.\n\nThrough quiet mornings and loud celebrations, through every ordinary day in between, we kept choosing each other. This wedding is our promise to keep choosing each other, for all the days to come.\n\nSample story — replace these paragraphs with your own story in the editor.",
+      dressCode: "Black Tie Optional",
+      mealOptions: [
+        "Herb-Crusted Filet Mignon",
+        "Pan-Seared Sea Bass",
+        "Wild Mushroom & Truffle Risotto (Vegetarian)",
+        "Roasted Heirloom Vegetable Tart (Vegan)",
+        "Children’s Entrée",
+      ],
+      venueName: "The Grand Ballroom",
+      venueAddress: "123 Rosewood Avenue, Your Town, ST 12345",
+    },
+    events: [
+      { id: "ev-sample-arrival", name: "Guest Arrival", date: weddingDay, time: "4:00 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own arrival details." },
+      { id: "ev-sample-ceremony", name: "Ceremony", date: weddingDay, time: "4:30 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own ceremony details." },
+      { id: "ev-sample-cocktail", name: "Cocktail Hour", date: weddingDay, time: "5:45 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own cocktail-hour details." },
+      { id: "ev-sample-dinner", name: "Dinner", date: weddingDay, time: "7:15 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own dinner details." },
+      { id: "ev-sample-first-dance", name: "First Dance", date: weddingDay, time: "9:30 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own first-dance details." },
+    ],
+    details: [
+      {
+        id: "d-sample-hotel-1",
+        kind: "accommodation",
+        title: "The Grand Hotel",
+        body: "0.5 miles from the venue\nA block of rooms is held under the couple's name — sample text, replace it in the editor.\nBooking Code: WEDDING",
+        hidden: false,
+      },
+      {
+        id: "d-sample-hotel-2",
+        kind: "accommodation",
+        title: "The Rosewood Inn",
+        body: "1.2 miles from the venue\nA cosy boutique stay a short walk from the venue — sample text, replace it in the editor.\nBooking Code: ROSEWOOD",
+        hidden: false,
+      },
+      {
+        id: "d-sample-travel",
+        kind: "travel",
+        title: "Getting there",
+        body: "Sample travel notes — the venue is a short drive from the city centre, with parking on site. Replace this with your own travel guidance in the editor.",
+        hidden: false,
+      },
+      {
+        id: "d-sample-registry",
+        kind: "registry",
+        title: "Gifts & Registry",
+        body: "Your presence is the greatest gift. If you would like to give something more, a wishing well will be at the reception. Sample text — replace it in the editor.",
+        hidden: false,
+      },
+    ],
+    gallery: EMERALD_ROYALE_GALLERY_URLS.map((url, i) => ({
+      id: `g-emerald-${i + 1}`,
+      url,
+      caption: `Your photo ${i + 1}`,
+    })),
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* SAPPHIRE ROYALE — the same pattern as Royal Burgundy. The seed is */
+/* the ONE source of truth for the template's sample content: both    */
+/* the template PREVIEW (src/lib/preview.ts) and buyer ACTIVATION     */
+/* (createSiteFromTemplate in store-neon.ts / store-local.ts) build   */
+/* from sapphireRoyaleSeed, so preview and activation can never drift.*/
+/* All copy is ORIGINAL placeholder text — never any other template's */
+/* real couple, venue, hotels or words — and every field is editable  */
+/* in the editor. The 5-event schedule, dress code, accommodations,   */
+/* travel + registry notes are seeded so a fresh buyer site renders   */
+/* full (the Sacred Garden lesson: empty sections read as broken).    */
+/*                                                                     */
+/* EXCEPTION — the gallery: seed.gallery is PREVIEW-ONLY. Its photos  */
+/* are demo assets and must never land on a real buyer's site (the    */
+/* buyer uploads their own photos in the editor, and the three        */
+/* horizontal photo cards use them then). Activation deliberately      */
+/* does not copy seed.gallery.                                         */
+/* ------------------------------------------------------------------ */
+
+export interface SapphireRoyaleSeed {
+  content: Partial<SiteContent>;
+  events: SiteEvent[];
+  details: import("./types").DetailBlock[];
+  gallery: GalleryImage[];
+}
+
+const SAPPHIRE_ROYALE_GALLERY_URLS = [
+  "/images/themes/sapphire-royale-detail.jpg",
+  "/images/themes/royal-burgundy/photo-hands.jpg",
+  "/images/themes/royal-burgundy/photo-veil.jpg",
+  "/images/themes/royal-burgundy/photo-sunset.jpg",
+  "/images/themes/royal-burgundy/photo-toast.jpg",
+  "/images/themes/royal-burgundy/photo-meadow.jpg",
+];
+
+export function sapphireRoyaleSeed(weddingDay: string): SapphireRoyaleSeed {
+  return {
+    content: {
+      welcome:
+        "Together with our families, we invite you to share in the joy of our wedding day — an evening under a midnight sky, lit in silver. Your love, your laughter and your friendship have shaped our story, and we would be so happy to celebrate the beginning of our married life with you beside us.\n\nSample welcome text — replace it with your own words in the editor.",
+      story:
+        "Every love story is beautiful, but ours is our favourite. It began with a first hello that neither of us expected, and grew — slowly, then all at once — into the life we share today.\n\nThrough quiet mornings and loud celebrations, through every ordinary day in between, we kept choosing each other. This wedding is our promise to keep choosing each other, for all the days to come.\n\nSample story — replace these paragraphs with your own story in the editor.",
+      dressCode: "Black Tie Optional",
+      mealOptions: [
+        "Herb-Crusted Filet Mignon",
+        "Pan-Seared Sea Bass",
+        "Wild Mushroom & Truffle Risotto (Vegetarian)",
+        "Roasted Heirloom Vegetable Tart (Vegan)",
+        "Children’s Entrée",
+      ],
+      venueName: "The Grand Ballroom",
+      venueAddress: "123 Rosewood Avenue, Your Town, ST 12345",
+    },
+    events: [
+      { id: "ev-sample-arrival", name: "Guest Arrival", date: weddingDay, time: "4:00 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own arrival details." },
+      { id: "ev-sample-ceremony", name: "Ceremony", date: weddingDay, time: "4:30 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own ceremony details." },
+      { id: "ev-sample-cocktail", name: "Cocktail Hour", date: weddingDay, time: "5:45 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own cocktail-hour details." },
+      { id: "ev-sample-dinner", name: "Dinner", date: weddingDay, time: "7:15 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own dinner details." },
+      { id: "ev-sample-first-dance", name: "First Dance", date: weddingDay, time: "9:30 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own first-dance details." },
+    ],
+    details: [
+      {
+        id: "d-sample-hotel-1",
+        kind: "accommodation",
+        title: "The Grand Hotel",
+        body: "0.5 miles from the venue\nA block of rooms is held under the couple's name — sample text, replace it in the editor.\nBooking Code: WEDDING",
+        hidden: false,
+      },
+      {
+        id: "d-sample-hotel-2",
+        kind: "accommodation",
+        title: "The Rosewood Inn",
+        body: "1.2 miles from the venue\nA cosy boutique stay a short walk from the venue — sample text, replace it in the editor.\nBooking Code: ROSEWOOD",
+        hidden: false,
+      },
+      {
+        id: "d-sample-travel",
+        kind: "travel",
+        title: "Getting there",
+        body: "Sample travel notes — the venue is a short drive from the city centre, with parking on site. Replace this with your own travel guidance in the editor.",
+        hidden: false,
+      },
+      {
+        id: "d-sample-registry",
+        kind: "registry",
+        title: "Gifts & Registry",
+        body: "Your presence is the greatest gift. If you would like to give something more, a wishing well will be at the reception. Sample text — replace it in the editor.",
+        hidden: false,
+      },
+    ],
+    gallery: SAPPHIRE_ROYALE_GALLERY_URLS.map((url, i) => ({
+      id: `g-sapphire-${i + 1}`,
+      url,
+      caption: `Your photo ${i + 1}`,
+    })),
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* BLUSH ROYALE — the same pattern as Royal Burgundy. The seed is    */
+/* the ONE source of truth for the template's sample content: both    */
+/* the template PREVIEW (src/lib/preview.ts) and buyer ACTIVATION     */
+/* (createSiteFromTemplate in store-neon.ts / store-local.ts) build   */
+/* from blushRoyaleSeed, so preview and activation can never drift.   */
+/* All copy is ORIGINAL placeholder text — never invented couple,     */
+/* venue or words — and every field is editable in the editor. The    */
+/* 5-event schedule, dress code, accommodations, travel + registry    */
+/* notes are seeded so a fresh buyer site renders full.               */
+/*                                                                     */
+/* EXCEPTION — the gallery: seed.gallery is PREVIEW-ONLY. Its photos  */
+/* are demo assets and must never land on a real buyer's site (the    */
+/* buyer uploads their own photos in the editor, and the floral-ring  */
+/* circles use them then). Activation deliberately does not copy       */
+/* seed.gallery.                                                       */
+/* ------------------------------------------------------------------ */
+
+export interface BlushRoyaleSeed {
+  content: Partial<SiteContent>;
+  events: SiteEvent[];
+  details: import("./types").DetailBlock[];
+  gallery: GalleryImage[];
+}
+
+const BLUSH_ROYALE_GALLERY_URLS = [
+  "/images/themes/blush-royale-detail.jpg",
+  "/images/themes/royal-burgundy/photo-hands.jpg",
+  "/images/themes/royal-burgundy/photo-veil.jpg",
+  "/images/themes/royal-burgundy/photo-sunset.jpg",
+  "/images/themes/royal-burgundy/photo-toast.jpg",
+  "/images/themes/royal-burgundy/photo-meadow.jpg",
+];
+
+export function blushRoyaleSeed(weddingDay: string): BlushRoyaleSeed {
+  return {
+    content: {
+      welcome:
+        "Together with our families, we invite you to share in the joy of our wedding day. Your love, your laughter and your friendship have coloured our story in the softest shades of blush, and we would be so happy to celebrate the beginning of our married life with you beside us.\n\nSample welcome text — replace it with your own words in the editor.",
+      story:
+        "Every love story is beautiful, but ours is our favourite. It began with a first hello that neither of us expected, and grew — slowly, then all at once — into the life we share today.\n\nThrough quiet mornings and loud celebrations, through every ordinary day in between, we kept choosing each other. This wedding is our promise to keep choosing each other, for all the days to come.\n\nSample story — replace these paragraphs with your own story in the editor.",
+      dressCode: "Formal Attire in Soft Pastel Tones",
+      mealOptions: [
+        "Herb-Crusted Chicken",
+        "Pan-Seared Salmon",
+        "Wild Mushroom & Truffle Risotto (Vegetarian)",
+        "Roasted Garden Vegetable Tart (Vegan)",
+        "Children’s Entrée",
+      ],
+      venueName: "The Grand Ballroom",
+      venueAddress: "123 Rosewood Avenue, Your Town, ST 12345",
+    },
+    events: [
+      { id: "ev-sample-arrival", name: "Guest Arrival", date: weddingDay, time: "4:00 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own arrival details." },
+      { id: "ev-sample-ceremony", name: "Ceremony", date: weddingDay, time: "4:30 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own ceremony details." },
+      { id: "ev-sample-cocktail", name: "Cocktail Hour", date: weddingDay, time: "5:30 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own cocktail-hour details." },
+      { id: "ev-sample-dinner", name: "Dinner", date: weddingDay, time: "7:00 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own dinner details." },
+      { id: "ev-sample-first-dance", name: "First Dance", date: weddingDay, time: "9:00 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own first-dance details." },
+    ],
+    details: [
+      {
+        id: "d-sample-hotel-1",
+        kind: "accommodation",
+        title: "The Grand Hotel",
+        body: "0.5 miles from the venue\nA block of rooms is held under the couple's name — sample text, replace it in the editor.\nBooking Code: WEDDING",
+        hidden: false,
+      },
+      {
+        id: "d-sample-hotel-2",
+        kind: "accommodation",
+        title: "The Rosewood Inn",
+        body: "1.2 miles from the venue\nA cosy boutique stay a short walk from the venue — sample text, replace it in the editor.\nBooking Code: ROSEWOOD",
+        hidden: false,
+      },
+      {
+        id: "d-sample-travel",
+        kind: "travel",
+        title: "Getting there",
+        body: "Sample travel notes — the venue is a short drive from the city centre, with parking on site. Replace this with your own travel guidance in the editor.",
+        hidden: false,
+      },
+      {
+        id: "d-sample-registry",
+        kind: "registry",
+        title: "Gifts & Registry",
+        body: "Your presence is the greatest gift. If you would like to give something more, a wishing well will be at the reception. Sample text — replace it in the editor.",
+        hidden: false,
+      },
+    ],
+    gallery: BLUSH_ROYALE_GALLERY_URLS.map((url, i) => ({
+      id: `g-blush-${i + 1}`,
+      url,
+      caption: `Your photo ${i + 1}`,
+    })),
+  };
+}

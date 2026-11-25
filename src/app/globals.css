@@ -60,6 +60,15 @@ body {
 .font-royal-burgundy {
   font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
 }
+.font-emerald-royale {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+.font-sapphire-royale {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+.font-blush-royale {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
 
 /* Legacy font classes kept for sites snapshotted before the six themes. */
 .font-editorial {
@@ -1542,4 +1551,165 @@ body {
   .rb-animate-vinyl-spin {
     animation: none;
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* EMERALD ROYALE — same font set as Royal Burgundy, only prefixed    */
+/* er-* (the source's bare names would collide with other templates). */
+/* Fonts: Great Vibes script, Allura alternate script, Cinzel         */
+/* display caps, Cormorant Garamond editorial serif, Lora body. The   */
+/* font variables are set on <html> by layout.tsx.                    */
+/* ------------------------------------------------------------------ */
+
+.er-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.er-font-script-alt {
+  font-family: var(--font-allura), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.er-font-display {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.er-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.er-font-body {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* Wax-embossed gold monogram text (cover crest). */
+.er-wax-embossed-text {
+  color: #e8d5a0;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35),
+    0 -1px 0 rgba(0, 0, 0, 0.45),
+    0 2px 3px rgba(0, 0, 0, 0.45),
+    0 0 14px rgba(232, 213, 160, 0.3);
+}
+
+/* Soft radial mask — blends rectangular artwork edges into the paper. */
+.er-mask-radial-soft {
+  -webkit-mask-image: radial-gradient(ellipse 68% 64% at 50% 50%, #000 58%, rgba(0, 0, 0, 0.75) 78%, transparent 98%);
+  mask-image: radial-gradient(ellipse 68% 64% at 50% 50%, #000 58%, rgba(0, 0, 0, 0.75) 78%, transparent 98%);
+}
+
+/* Floral-corner mask — corner artwork fades diagonally toward the card. */
+.er-mask-floral-corner {
+  -webkit-mask-image: radial-gradient(ellipse 80% 82% at 12% 8%, #000 46%, rgba(0, 0, 0, 0.78) 68%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 82% at 12% 8%, #000 46%, rgba(0, 0, 0, 0.78) 68%, transparent 100%);
+}
+
+/* Fine letterpress inner border — hand-cut stationery edge. */
+.er-stationery-shadow {
+  box-shadow:
+    0 0 0 1px rgba(201, 162, 39, 0.28),
+    0 14px 28px -12px rgba(6, 35, 27, 0.38);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .er-animate-shimmer {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* SAPPHIRE ROYALE — art-deco night. Same class roles as Royal       */
+/* Burgundy, only prefixed sr-* (the source's bare names would       */
+/* collide with other templates). Fonts: Great Vibes script, Allura  */
+/* alternate script, Cinzel display caps, Cormorant Garamond         */
+/* editorial serif, Lora body. The font variables are set on <html>  */
+/* by layout.tsx.                                                     */
+/* ------------------------------------------------------------------ */
+
+.sr-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.sr-font-script-alt {
+  font-family: var(--font-allura), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.sr-font-display {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.sr-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.sr-font-body {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* Silver-embossed monogram text (cover seal). */
+.sr-silver-embossed-text {
+  color: #e8ecf2;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4),
+    0 -1px 0 rgba(0, 0, 0, 0.45),
+    0 2px 3px rgba(0, 0, 0, 0.45),
+    0 0 14px rgba(217, 217, 222, 0.35);
+}
+
+/* Soft radial mask — blends rectangular artwork edges into the page. */
+.sr-mask-radial-soft {
+  -webkit-mask-image: radial-gradient(ellipse 68% 64% at 50% 50%, #000 58%, rgba(0, 0, 0, 0.75) 78%, transparent 98%);
+  mask-image: radial-gradient(ellipse 68% 64% at 50% 50%, #000 58%, rgba(0, 0, 0, 0.75) 78%, transparent 98%);
+}
+
+/* ------------------------------------------------------------------ */
+/* Blush Royale scoped classes (.br- prefix, so the names never      */
+/* collide with other templates). Fonts: Great Vibes script, Allura  */
+/* alternate script, Cinzel display caps, Cormorant Garamond         */
+/* editorial serif, Lora body. The font variables are set on <html>  */
+/* by layout.tsx (already loaded for Royal Burgundy).                 */
+/* ------------------------------------------------------------------ */
+
+.br-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.br-font-script-alt {
+  font-family: var(--font-allura), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.br-font-display {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.br-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.br-font-body {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* Rose-gold embossed monogram text (cover wax seal). */
+.br-rose-embossed-text {
+  color: #d9a5a0;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5),
+    0 -1px 0 rgba(92, 50, 59, 0.35),
+    0 2px 3px rgba(92, 50, 59, 0.35),
+    0 0 14px rgba(217, 165, 160, 0.4);
+}
+
+/* Soft radial mask — blends rectangular artwork edges into the wash. */
+.br-mask-radial-soft {
+  -webkit-mask-image: radial-gradient(ellipse 68% 64% at 50% 50%, #000 58%, rgba(0, 0, 0, 0.75) 78%, transparent 98%);
+  mask-image: radial-gradient(ellipse 68% 64% at 50% 50%, #000 58%, rgba(0, 0, 0, 0.75) 78%, transparent 98%);
+}
+
+/* Floral-corner mask — corner artwork fades diagonally toward the card. */
+.br-mask-floral-corner {
+  -webkit-mask-image: radial-gradient(ellipse 80% 82% at 12% 8%, #000 46%, rgba(0, 0, 0, 0.78) 68%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 82% at 12% 8%, #000 46%, rgba(0, 0, 0, 0.78) 68%, transparent 100%);
 }

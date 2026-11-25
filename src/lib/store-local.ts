@@ -23,7 +23,7 @@ import type {
   WeddingSite,
 } from "./types";
 import { TEMPLATES } from "./templates";
-import { royalBurgundySeed, sacredGardenSeed } from "./template-seeds";
+import { blushRoyaleSeed, emeraldRoyaleSeed, royalBurgundySeed, sacredGardenSeed, sapphireRoyaleSeed } from "./template-seeds";
 import { sha256 } from "./auth";
 
 interface Db {
@@ -252,6 +252,31 @@ export async function createSiteFromTemplate(
   // land on a real buyer's site).
   if (template.composition === "royal-burgundy") {
     const seed = royalBurgundySeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+
+  // EMERALD / SAPPHIRE / BLUSH ROYALE: same pattern — seed the
+  // activation from the shared template seeds (the 5-event schedule,
+  // dress code, meal menu, venue + the 2 accommodations, travel +
+  // registry notes). The galleries are deliberately NOT seeded
+  // (preview-only, same rule as Royal Burgundy — demo photos must
+  // never land on a real buyer's site).
+  if (template.composition === "emerald-royale") {
+    const seed = emeraldRoyaleSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "sapphire-royale") {
+    const seed = sapphireRoyaleSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "blush-royale") {
+    const seed = blushRoyaleSeed(site.weddingDate.slice(0, 10));
     site.content = { ...site.content, ...seed.content };
     site.events = seed.events;
     site.content.details = seed.details;
