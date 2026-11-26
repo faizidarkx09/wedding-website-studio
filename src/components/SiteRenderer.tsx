@@ -14,6 +14,24 @@ import SapphireRoyaleRenderer from "./sapphire-royale/SapphireRoyaleRenderer";
 import BlushRoyaleRenderer from "./blush-royale/BlushRoyaleRenderer";
 import GoldenHourRenderer from "./golden-hour/GoldenHourRenderer";
 import SilverMoonlightRenderer from "./silver-moonlight/SilverMoonlightRenderer";
+import RoseGardenRenderer from "./rose-garden/RoseGardenRenderer";
+import OceanPearlRenderer from "./ocean-pearl/OceanPearlRenderer";
+import ForestWhisperRenderer from "./forest-whisper/ForestWhisperRenderer";
+import WinterFrostRenderer from "./winter-frost/WinterFrostRenderer";
+import AutumnHarvestRenderer from "./autumn-harvest/AutumnHarvestRenderer";
+import PeacockRoyaleRenderer from "./peacock-royale/PeacockRoyaleRenderer";
+import SakuraDreamRenderer from "./sakura-dream/SakuraDreamRenderer";
+import DesertDuskRenderer from "./desert-dusk/DesertDuskRenderer";
+import VintageLaceRenderer from "./vintage-lace/VintageLaceRenderer";
+import StarlightNoirRenderer from "./starlight-noir/StarlightNoirRenderer";
+import CoralSunsetRenderer from "./coral-sunset/CoralSunsetRenderer";
+import AmethystRoyaleRenderer from "./amethyst-royale/AmethystRoyaleRenderer";
+import MarbleLuxeRenderer from "./marble-luxe/MarbleLuxeRenderer";
+import TropicalPalmRenderer from "./tropical-palm/TropicalPalmRenderer";
+import AuroraRenderer from "./aurora/AuroraRenderer";
+import RusticCharmRenderer from "./rustic-charm/RusticCharmRenderer";
+import SunflowerFieldsRenderer from "./sunflower-fields/SunflowerFieldsRenderer";
+import MintSerenityRenderer from "./mint-serenity/MintSerenityRenderer";
 import SacredGardenRenderer from "./sacred-garden/SacredGardenRenderer";
 import DolceVitaRenderer from "./dolce-vita/DolceVitaRenderer";
 
@@ -1568,6 +1586,156 @@ export default function SiteRenderer({ site, preview = false, envelope = false }
   // details). Same gate as Royal Burgundy above. No music engine.
   if (comp === "silver-moonlight") {
     return <SilverMoonlightRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // ROSE GARDEN renders through its own renderer — deep rose garden
+  // (arch cover with falling petals, classic-pocket envelope with a
+  // live rose wax seal, vertical-timeline story, seed-packet details,
+  // rose-bordered letter RSVP). Same gate as Golden Hour above.
+  // No music engine.
+  if (comp === "rose-garden") {
+    return <RoseGardenRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // OCEAN PEARL renders through its own renderer — seaside aqua
+  // (wave-photo cover with wave divider and rising bubbles,
+  // shell-seal envelope with scalloped pocket, horizontal-scroll
+  // story strip, bubble-card details, message-in-a-bottle RSVP).
+  // Same gate as Royal Burgundy above. No music engine.
+  if (comp === "ocean-pearl") {
+    return <OceanPearlRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // FOREST WHISPER renders through its own renderer — deep forest
+  // (split-screen cover with leaf crest and fireflies, leaf-seal
+  // twine envelope, zigzag story, trail-map details, wooden
+  // signboard RSVP). Same gate as Royal Burgundy above. No music
+  // engine.
+  if (comp === "forest-whisper") {
+    return <ForestWhisperRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // WINTER FROST renders through its own renderer — ice blue
+  // (snowflake-crest cover with falling snowflakes, snowflake-seal
+  // envelope, snow-globe carousel story, frosted-glass details,
+  // ice-blue ticket RSVP). Same gate as Golden Hour above. No music
+  // engine.
+  if (comp === "winter-frost") {
+    return <WinterFrostRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // AUTUMN HARVEST renders through its own renderer — burnt orange
+  // (typographic cover with big serif names over a leaf pattern,
+  // leaf-seal envelope, masonry story grid, harvest-table details,
+  // kraft-tag RSVP). Same gate as Golden Hour above. No music engine.
+  if (comp === "autumn-harvest") {
+    return <AutumnHarvestRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // PEACOCK ROYALE renders through its own renderer — teal & gold
+  // (feather-fan cover with photo in a fan arc, feather-seal
+  // envelope, fan-arc story, jewel-box details, feather-framed
+  // RSVP). Same gate as Golden Hour above. No music engine.
+  if (comp === "peacock-royale") {
+    return <PeacockRoyaleRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // SAKURA DREAM renders through its own renderer — pink (branch-
+  // framed circle-photo cover with falling petals, sakura-seal
+  // envelope, petal-path story, folding-fan details, petal-card
+  // RSVP). Same gate as Golden Hour above. No music engine.
+  if (comp === "sakura-dream") {
+    return <SakuraDreamRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // DESERT DUSK renders through its own renderer — terracotta
+  // (dune-horizon cover with big gradient sky, sun-seal envelope,
+  // caravan-route story, oasis details, sand postcard RSVP). Same
+  // gate as Golden Hour above. No music engine.
+  if (comp === "desert-dusk") {
+    return <DesertDuskRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // VINTAGE LACE renders through its own renderer — ivory (lace-
+  // frame cover, lace-seal envelope, album-spread story, vintage
+  // postcard details, lace-letter RSVP). Same gate as Golden Hour
+  // above. No music engine.
+  if (comp === "vintage-lace") {
+    return <VintageLaceRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // STARLIGHT NOIR renders through its own renderer — black & gold
+  // (constellation cover with gold lines, gold-star-seal envelope,
+  // constellation-card story, gold ledger details, gold-foil ticket
+  // RSVP). Same gate as Golden Hour above. No music engine.
+  if (comp === "starlight-noir") {
+    return <StarlightNoirRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // CORAL SUNSET renders through its own renderer — coral (sunset-
+  // gradient cover with sun disc and embers, coral-sun-seal
+  // envelope, sunset-strip story, coral-tile details, sunset
+  // postcard RSVP). Same gate as Golden Hour above. No music engine.
+  if (comp === "coral-sunset") {
+    return <CoralSunsetRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // AMETHYST ROYALE renders through its own renderer — amethyst
+  // (crystal-cluster cover with hexagonal crest and crystal
+  // sparkles, crystal-seal envelope, hexagon gem-card story,
+  // crystal panels, gem hexagon RSVP). Same gate as Golden Hour
+  // above. No music engine.
+  if (comp === "amethyst-royale") {
+    return <AmethystRoyaleRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // MARBLE LUXE renders through its own renderer — white & gold
+  // (marble-slab cover with thin gold rules, gold-monogram-seal
+  // envelope, gallery-wall story, line-divided details, white card
+  // with gold rule RSVP). Same gate as Golden Hour above. No music
+  // engine.
+  if (comp === "marble-luxe") {
+    return <MarbleLuxeRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // TROPICAL PALM renders through its own renderer — green (palm-
+  // shadow cover over a beach photo, palm-seal envelope, island-hop
+  // story, palm-tile details, palm-leaf RSVP). Same gate as Golden
+  // Hour above. No music engine.
+  if (comp === "tropical-palm") {
+    return <TropicalPalmRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // AURORA renders through its own renderer — teal & violet
+  // (aurora-ribbon cover over a night photo, aurora-seal envelope,
+  // ribbon-flow story, aurora-glass details, glowing-edge RSVP).
+  // Same gate as Golden Hour above. No music engine.
+  if (comp === "aurora") {
+    return <AuroraRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // RUSTIC CHARM renders through its own renderer — brown (barn-
+  // wood cover with wooden sign, twine-seal envelope, clothesline
+  // story, chalkboard details, burlap-tag RSVP). Same gate as
+  // Golden Hour above. No music engine.
+  if (comp === "rustic-charm") {
+    return <RusticCharmRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // SUNFLOWER FIELDS renders through its own renderer — yellow
+  // (sunflower-field cover with names over the sky, sunflower-seal
+  // envelope, field-row story, yellow-block details, seed-packet
+  // RSVP). Same gate as Golden Hour above. No music engine.
+  if (comp === "sunflower-fields") {
+    return <SunflowerFieldsRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // MINT SERENITY renders through its own renderer — mint (mint-
+  // wash cover with soft circles, mint-leaf-seal envelope, bubble-
+  // photo story, pill-card details, bubble-card RSVP). Same gate as
+  // Golden Hour above. No music engine.
+  if (comp === "mint-serenity") {
+    return <MintSerenityRenderer site={effective} envelope={envelope} preview={preview} />;
   }
 
   // DOLCE VITA renders through its own renderer — a 1:1 port of the

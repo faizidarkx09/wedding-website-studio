@@ -20,7 +20,7 @@ import type {
   WeddingSite,
 } from "./types";
 import { TEMPLATES } from "./templates";
-import { blushRoyaleSeed, emeraldRoyaleSeed, goldenHourSeed, royalBurgundySeed, sacredGardenSeed, sapphireRoyaleSeed, silverMoonlightSeed } from "./template-seeds";
+import { amethystRoyaleSeed, auroraSeed, autumnHarvestSeed, blushRoyaleSeed, coralSunsetSeed, desertDuskSeed, emeraldRoyaleSeed, forestWhisperSeed, goldenHourSeed, marbleLuxeSeed, mintSerenitySeed, oceanPearlSeed, peacockRoyaleSeed, roseGardenSeed, royalBurgundySeed, rusticCharmSeedFor, sacredGardenSeed, sakuraDreamSeed, sapphireRoyaleSeed, silverMoonlightSeed, starlightNoirSeed, sunflowerFieldsSeed, tropicalPalmSeed, vintageLaceSeed, winterFrostSeed } from "./template-seeds";
 import { sha256 } from "./auth";
 import { neonQuery } from "./neon";
 
@@ -321,6 +321,114 @@ export async function createSiteFromTemplate(
   }
   if (template.composition === "silver-moonlight") {
     const seed = silverMoonlightSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "rose-garden") {
+    const seed = roseGardenSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "ocean-pearl") {
+    const seed = oceanPearlSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "forest-whisper") {
+    const seed = forestWhisperSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "winter-frost") {
+    const seed = winterFrostSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "autumn-harvest") {
+    const seed = autumnHarvestSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "peacock-royale") {
+    const seed = peacockRoyaleSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "sakura-dream") {
+    const seed = sakuraDreamSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "desert-dusk") {
+    const seed = desertDuskSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "vintage-lace") {
+    const seed = vintageLaceSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "starlight-noir") {
+    const seed = starlightNoirSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "coral-sunset") {
+    const seed = coralSunsetSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "amethyst-royale") {
+    const seed = amethystRoyaleSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "marble-luxe") {
+    const seed = marbleLuxeSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "tropical-palm") {
+    const seed = tropicalPalmSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "aurora") {
+    const seed = auroraSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "rustic-charm") {
+    const seed = rusticCharmSeedFor(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "sunflower-fields") {
+    const seed = sunflowerFieldsSeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  if (template.composition === "mint-serenity") {
+    const seed = mintSerenitySeed(site.weddingDate.slice(0, 10));
     site.content = { ...site.content, ...seed.content };
     site.events = seed.events;
     site.content.details = seed.details;

@@ -6,7 +6,7 @@
 // Preview sites are never saved to the store (slug "preview-<template>").
 
 import type { TemplateMeta, WeddingSite } from "./types";
-import { blushRoyaleSeed, emeraldRoyaleSeed, goldenHourSeed, royalBurgundySeed, sacredGardenSeed, sapphireRoyaleSeed, silverMoonlightSeed } from "./template-seeds";
+import { amethystRoyaleSeed, auroraSeed, autumnHarvestSeed, blushRoyaleSeed, coralSunsetSeed, desertDuskSeed, emeraldRoyaleSeed, forestWhisperSeed, goldenHourSeed, marbleLuxeSeed, mintSerenitySeed, oceanPearlSeed, peacockRoyaleSeed, roseGardenSeed, royalBurgundySeed, rusticCharmSeedFor, sacredGardenSeed, sakuraDreamSeed, sapphireRoyaleSeed, silverMoonlightSeed, starlightNoirSeed, sunflowerFieldsSeed, tropicalPalmSeed, vintageLaceSeed, winterFrostSeed } from "./template-seeds";
 
 // ÉTERNEL template photography (public/images/themes/eternel/*) — the full
 // 30-image masonry gallery for the template preview: the detail close-up
@@ -122,6 +122,24 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
   const blushSeed = blushRoyaleSeed(weddingDay);
   const goldenSeed = goldenHourSeed(weddingDay);
   const silverSeed = silverMoonlightSeed(weddingDay);
+  const roseSeed = roseGardenSeed(weddingDay);
+  const oceanSeed = oceanPearlSeed(weddingDay);
+  const forestSeed = forestWhisperSeed(weddingDay);
+  const winterSeed = winterFrostSeed(weddingDay);
+  const autumnSeed = autumnHarvestSeed(weddingDay);
+  const peacockSeed = peacockRoyaleSeed(weddingDay);
+  const sakuraSeed = sakuraDreamSeed(weddingDay);
+  const desertSeed = desertDuskSeed(weddingDay);
+  const vintageSeed = vintageLaceSeed(weddingDay);
+  const starlightSeed = starlightNoirSeed(weddingDay);
+  const coralSeed = coralSunsetSeed(weddingDay);
+  const amethystSeed = amethystRoyaleSeed(weddingDay);
+  const marbleSeed = marbleLuxeSeed(weddingDay);
+  const tropicalSeed = tropicalPalmSeed(weddingDay);
+  const auroraSiteSeed = auroraSeed(weddingDay);
+  const rusticSeed = rusticCharmSeedFor(weddingDay);
+  const sunflowerSeed = sunflowerFieldsSeed(weddingDay);
+  const mintSeed = mintSerenitySeed(weddingDay);
 
   // The template's own AI-generated artwork (original, made for this
   // theme). Templates without one fall back to the old placeholder seeds.
@@ -277,6 +295,24 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
       ...(template.composition === "blush-royale" ? blushSeed.content : {}),
       ...(template.composition === "golden-hour" ? goldenSeed.content : {}),
       ...(template.composition === "silver-moonlight" ? silverSeed.content : {}),
+      ...(template.composition === "rose-garden" ? roseSeed.content : {}),
+      ...(template.composition === "ocean-pearl" ? oceanSeed.content : {}),
+      ...(template.composition === "forest-whisper" ? forestSeed.content : {}),
+      ...(template.composition === "winter-frost" ? winterSeed.content : {}),
+      ...(template.composition === "autumn-harvest" ? autumnSeed.content : {}),
+      ...(template.composition === "peacock-royale" ? peacockSeed.content : {}),
+      ...(template.composition === "sakura-dream" ? sakuraSeed.content : {}),
+      ...(template.composition === "desert-dusk" ? desertSeed.content : {}),
+      ...(template.composition === "vintage-lace" ? vintageSeed.content : {}),
+      ...(template.composition === "starlight-noir" ? starlightSeed.content : {}),
+      ...(template.composition === "coral-sunset" ? coralSeed.content : {}),
+      ...(template.composition === "amethyst-royale" ? amethystSeed.content : {}),
+      ...(template.composition === "marble-luxe" ? marbleSeed.content : {}),
+      ...(template.composition === "tropical-palm" ? tropicalSeed.content : {}),
+      ...(template.composition === "aurora" ? auroraSiteSeed.content : {}),
+      ...(template.composition === "rustic-charm" ? rusticSeed.content : {}),
+      ...(template.composition === "sunflower-fields" ? sunflowerSeed.content : {}),
+      ...(template.composition === "mint-serenity" ? mintSeed.content : {}),
       dressCode: "Your dress code goes here — for example, semi-formal.",
       // DOLCE VITA only: the standalone's own letter + dress-code
       // copy as the template defaults (template copy, not couple
@@ -348,6 +384,132 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
             dressCode: silverSeed.content.dressCode,
           }
         : {}),
+      ...(template.composition === "rose-garden"
+        ? {
+            venueName: roseSeed.content.venueName,
+            venueAddress: roseSeed.content.venueAddress,
+            dressCode: roseSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "ocean-pearl"
+        ? {
+            venueName: oceanSeed.content.venueName,
+            venueAddress: oceanSeed.content.venueAddress,
+            dressCode: oceanSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "forest-whisper"
+        ? {
+            venueName: forestSeed.content.venueName,
+            venueAddress: forestSeed.content.venueAddress,
+            dressCode: forestSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "winter-frost"
+        ? {
+            venueName: winterSeed.content.venueName,
+            venueAddress: winterSeed.content.venueAddress,
+            dressCode: winterSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "autumn-harvest"
+        ? {
+            venueName: autumnSeed.content.venueName,
+            venueAddress: autumnSeed.content.venueAddress,
+            dressCode: autumnSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "peacock-royale"
+        ? {
+            venueName: peacockSeed.content.venueName,
+            venueAddress: peacockSeed.content.venueAddress,
+            dressCode: peacockSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "sakura-dream"
+        ? {
+            venueName: sakuraSeed.content.venueName,
+            venueAddress: sakuraSeed.content.venueAddress,
+            dressCode: sakuraSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "desert-dusk"
+        ? {
+            venueName: desertSeed.content.venueName,
+            venueAddress: desertSeed.content.venueAddress,
+            dressCode: desertSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "vintage-lace"
+        ? {
+            venueName: vintageSeed.content.venueName,
+            venueAddress: vintageSeed.content.venueAddress,
+            dressCode: vintageSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "starlight-noir"
+        ? {
+            venueName: starlightSeed.content.venueName,
+            venueAddress: starlightSeed.content.venueAddress,
+            dressCode: starlightSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "coral-sunset"
+        ? {
+            venueName: coralSeed.content.venueName,
+            venueAddress: coralSeed.content.venueAddress,
+            dressCode: coralSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "amethyst-royale"
+        ? {
+            venueName: amethystSeed.content.venueName,
+            venueAddress: amethystSeed.content.venueAddress,
+            dressCode: amethystSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "marble-luxe"
+        ? {
+            venueName: marbleSeed.content.venueName,
+            venueAddress: marbleSeed.content.venueAddress,
+            dressCode: marbleSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "tropical-palm"
+        ? {
+            venueName: tropicalSeed.content.venueName,
+            venueAddress: tropicalSeed.content.venueAddress,
+            dressCode: tropicalSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "aurora"
+        ? {
+            venueName: auroraSiteSeed.content.venueName,
+            venueAddress: auroraSiteSeed.content.venueAddress,
+            dressCode: auroraSiteSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "rustic-charm"
+        ? {
+            venueName: rusticSeed.content.venueName,
+            venueAddress: rusticSeed.content.venueAddress,
+            dressCode: rusticSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "sunflower-fields"
+        ? {
+            venueName: sunflowerSeed.content.venueName,
+            venueAddress: sunflowerSeed.content.venueAddress,
+            dressCode: sunflowerSeed.content.dressCode,
+          }
+        : {}),
+      ...(template.composition === "mint-serenity"
+        ? {
+            venueName: mintSeed.content.venueName,
+            venueAddress: mintSeed.content.venueAddress,
+            dressCode: mintSeed.content.dressCode,
+          }
+        : {}),
       mapLink: "",
       postWeddingMessage: "Just married! Thank you for celebrating with us.",
       // ROYAL BURGUNDY: the seed's own detail blocks (2 accommodations,
@@ -364,6 +526,42 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
         ? goldenSeed.details
       : template.composition === "silver-moonlight"
         ? silverSeed.details
+      : template.composition === "rose-garden"
+        ? roseSeed.details
+      : template.composition === "ocean-pearl"
+        ? oceanSeed.details
+      : template.composition === "forest-whisper"
+        ? forestSeed.details
+      : template.composition === "winter-frost"
+        ? winterSeed.details
+      : template.composition === "autumn-harvest"
+        ? autumnSeed.details
+      : template.composition === "peacock-royale"
+        ? peacockSeed.details
+      : template.composition === "sakura-dream"
+        ? sakuraSeed.details
+      : template.composition === "desert-dusk"
+        ? desertSeed.details
+      : template.composition === "vintage-lace"
+        ? vintageSeed.details
+      : template.composition === "starlight-noir"
+        ? starlightSeed.details
+      : template.composition === "coral-sunset"
+        ? coralSeed.details
+      : template.composition === "amethyst-royale"
+        ? amethystSeed.details
+      : template.composition === "marble-luxe"
+        ? marbleSeed.details
+      : template.composition === "tropical-palm"
+        ? tropicalSeed.details
+      : template.composition === "aurora"
+        ? auroraSiteSeed.details
+      : template.composition === "rustic-charm"
+        ? rusticSeed.details
+      : template.composition === "sunflower-fields"
+        ? sunflowerSeed.details
+      : template.composition === "mint-serenity"
+        ? mintSeed.details
       : template.composition === "royal-burgundy"
         ? royalSeed.details
         : [
@@ -450,6 +648,42 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
           ? goldenSeed.events
         : template.composition === "silver-moonlight"
           ? silverSeed.events
+        : template.composition === "rose-garden"
+          ? roseSeed.events
+        : template.composition === "ocean-pearl"
+          ? oceanSeed.events
+        : template.composition === "forest-whisper"
+          ? forestSeed.events
+        : template.composition === "winter-frost"
+          ? winterSeed.events
+        : template.composition === "autumn-harvest"
+          ? autumnSeed.events
+        : template.composition === "peacock-royale"
+          ? peacockSeed.events
+        : template.composition === "sakura-dream"
+          ? sakuraSeed.events
+        : template.composition === "desert-dusk"
+          ? desertSeed.events
+        : template.composition === "vintage-lace"
+          ? vintageSeed.events
+        : template.composition === "starlight-noir"
+          ? starlightSeed.events
+        : template.composition === "coral-sunset"
+          ? coralSeed.events
+        : template.composition === "amethyst-royale"
+          ? amethystSeed.events
+        : template.composition === "marble-luxe"
+          ? marbleSeed.events
+        : template.composition === "tropical-palm"
+          ? tropicalSeed.events
+        : template.composition === "aurora"
+          ? auroraSiteSeed.events
+        : template.composition === "rustic-charm"
+          ? rusticSeed.events
+        : template.composition === "sunflower-fields"
+          ? sunflowerSeed.events
+        : template.composition === "mint-serenity"
+          ? mintSeed.events
         : template.composition === "royal-burgundy"
           ? royalSeed.events
         : [
@@ -509,6 +743,42 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
             ? goldenSeed.gallery
           : template.composition === "silver-moonlight"
             ? silverSeed.gallery
+          : template.composition === "rose-garden"
+            ? roseSeed.gallery
+          : template.composition === "ocean-pearl"
+            ? oceanSeed.gallery
+          : template.composition === "forest-whisper"
+            ? forestSeed.gallery
+          : template.composition === "winter-frost"
+            ? winterSeed.gallery
+          : template.composition === "autumn-harvest"
+            ? autumnSeed.gallery
+          : template.composition === "peacock-royale"
+            ? peacockSeed.gallery
+          : template.composition === "sakura-dream"
+            ? sakuraSeed.gallery
+          : template.composition === "desert-dusk"
+            ? desertSeed.gallery
+          : template.composition === "vintage-lace"
+            ? vintageSeed.gallery
+          : template.composition === "starlight-noir"
+            ? starlightSeed.gallery
+          : template.composition === "coral-sunset"
+            ? coralSeed.gallery
+          : template.composition === "amethyst-royale"
+            ? amethystSeed.gallery
+          : template.composition === "marble-luxe"
+            ? marbleSeed.gallery
+          : template.composition === "tropical-palm"
+            ? tropicalSeed.gallery
+          : template.composition === "aurora"
+            ? auroraSiteSeed.gallery
+          : template.composition === "rustic-charm"
+            ? rusticSeed.gallery
+          : template.composition === "sunflower-fields"
+            ? sunflowerSeed.gallery
+          : template.composition === "mint-serenity"
+            ? mintSeed.gallery
           : template.composition === "royal-burgundy"
             ? royalSeed.gallery
           : template.composition === "dolce-vita"

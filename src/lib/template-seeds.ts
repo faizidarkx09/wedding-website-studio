@@ -651,3 +651,53 @@ export function silverMoonlightSeed(weddingDay: string): SilverMoonlightSeed {
     })),
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* BATCH 1 seeds live in per-template files (src/lib/seeds/<slug>.ts) */
+/* so the fleet follows one pattern; re-exported here so preview.ts   */
+/* and the stores keep importing from "./template-seeds" exactly as    */
+/* before.                                                             */
+/* ------------------------------------------------------------------ */
+export { roseGardenSeed } from "./seeds/rose-garden";
+export type { RoseGardenSeed } from "./seeds/rose-garden";
+export { oceanPearlSeed } from "./seeds/ocean-pearl";
+export type { OceanPearlSeed } from "./seeds/ocean-pearl";
+export { forestWhisperSeed } from "./seeds/forest-whisper";
+export type { ForestWhisperSeed } from "./seeds/forest-whisper";
+
+/* ------------------------------------------------------------------ */
+/* FLEET seeds live in per-template files (src/lib/seeds/<slug>.ts)   */
+/* so the fleet follows one pattern; re-exported here so preview.ts   */
+/* and the stores keep importing from "./template-seeds" exactly as    */
+/* before.                                                             */
+/* ------------------------------------------------------------------ */
+export { winterFrostSeed } from "./seeds/winter-frost";
+export type { WinterFrostSeed } from "./seeds/winter-frost";
+export { autumnHarvestSeed } from "./seeds/autumn-harvest";
+export type { AutumnHarvestSeed } from "./seeds/autumn-harvest";
+export { peacockRoyaleSeed } from "./seeds/peacock-royale";
+export type { PeacockRoyaleSeed } from "./seeds/peacock-royale";
+export { sakuraDreamSeed } from "./seeds/sakura-dream";
+export type { SakuraDreamSeed } from "./seeds/sakura-dream";
+export { desertDuskSeed } from "./seeds/desert-dusk";
+export type { DesertDuskSeed } from "./seeds/desert-dusk";
+export { vintageLaceSeed } from "./seeds/vintage-lace";
+export type { VintageLaceSeed } from "./seeds/vintage-lace";
+export { starlightNoirSeed } from "./seeds/starlight-noir";
+export type { StarlightNoirSeed } from "./seeds/starlight-noir";
+export { coralSunsetSeed } from "./seeds/coral-sunset";
+export type { CoralSunsetSeed } from "./seeds/coral-sunset";
+export { amethystRoyaleSeed } from "./seeds/amethyst-royale";
+export type { AmethystRoyaleSeed } from "./seeds/amethyst-royale";
+export { marbleLuxeSeed } from "./seeds/marble-luxe";
+export type { MarbleLuxeSeed } from "./seeds/marble-luxe";
+export { tropicalPalmSeed } from "./seeds/tropical-palm";
+export type { TropicalPalmSeed } from "./seeds/tropical-palm";
+export { auroraSeed } from "./seeds/aurora";
+export type { AuroraSeed } from "./seeds/aurora";
+export { rusticCharmSeedFor } from "./seeds/rustic-charm";
+export type { RusticCharmSeed } from "./seeds/rustic-charm";
+export { sunflowerFieldsSeed } from "./seeds/sunflower-fields";
+export type { SunflowerFieldsSeed } from "./seeds/sunflower-fields";
+export { mintSerenitySeed } from "./seeds/mint-serenity";
+export type { MintSerenitySeed } from "./seeds/mint-serenity";

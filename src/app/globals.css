@@ -1781,3 +1781,470 @@ body {
 .font-silver-moonlight {
   font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
 }
+
+/* ------------------------------------------------------------------ */
+/* ROSE GARDEN — deep rose, cream and leaf green. Same class roles   */
+/* as Golden Hour, only prefixed rg-* (the source's bare names would  */
+/* collide with other templates). Fonts: Great Vibes script, Allura  */
+/* alternate script, Cinzel display caps, Cormorant Garamond         */
+/* editorial serif, Lora body. The font variables are set on <html>  */
+/* by layout.tsx (already loaded for Royal Burgundy).                 */
+/* ------------------------------------------------------------------ */
+
+.font-rose-garden {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+.rg-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.rg-font-script-alt {
+  font-family: var(--font-allura), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.rg-font-display {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.rg-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.rg-font-body {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* ------------------------------------------------------------------ */
+/* OCEAN PEARL — aqua / pearl / deep sea. Clean sans throughout:      */
+/* Manrope display caps (already loaded by layout.tsx as              */
+/* --font-manrope) and Inter body (already loaded as --font-inter).   */
+/* Scoped .op-* classes so nothing collides with other templates.    */
+/* ------------------------------------------------------------------ */
+
+.font-ocean-pearl {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+.op-font-display {
+  font-family: var(--font-manrope), system-ui, sans-serif;
+  font-weight: 600;
+}
+.op-font-body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 400;
+}
+
+/* ------------------------------------------------------------------ */
+/* FOREST WHISPER — deep forest green. Same class roles as Golden     */
+/* Hour, only prefixed fw-* (the source's bare names would collide    */
+/* with other templates). Fonts: Great Vibes script, Allura           */
+/* alternate script, Cinzel display caps, Cormorant Garamond         */
+/* editorial serif, Lora body. The font variables are set on <html>   */
+/* by layout.tsx (already loaded for Royal Burgundy).                 */
+/* ------------------------------------------------------------------ */
+
+.font-forest-whisper {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+.fw-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.fw-font-script-alt {
+  font-family: var(--font-allura), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.fw-font-display {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.fw-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.fw-font-body {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* ------------------------------------------------------------------ */
+/* WINTER FROST — ice blue #BDE0F5, white, deep blue #12395B. Same   */
+/* class roles as Golden Hour, only prefixed wf-* (the source's bare */
+/* names would collide with other templates). Fonts: Great Vibes     */
+/* script, Allura alternate script, Cinzel display caps, Cormorant  */
+/* Garamond editorial serif, Manrope body. The font variables are    */
+/* set on <html> by layout.tsx (already loaded for Royal Burgundy).  */
+/* ------------------------------------------------------------------ */
+
+.font-winter-frost {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+.wf-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.wf-font-script-alt {
+  font-family: var(--font-allura), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.wf-font-display {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.wf-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.wf-font-body {
+  font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+}
+
+/* Frost-embossed monogram text (cover snowflake-crest medallion). */
+.wf-frost-embossed-text {
+  color: #d6ebf9;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.45),
+    0 -1px 0 rgba(11, 37, 64, 0.45),
+    0 2px 3px rgba(11, 37, 64, 0.5),
+    0 0 14px rgba(214, 235, 249, 0.45);
+}
+
+/* ------------------------------------------------------------------ */
+/* AUTUMN HARVEST — burnt orange, cream and brown. The template's     */
+/* own font classes live inline in its renderer; only the template    */
+/* fontClass one-liner lives here (used by the gallery / admin).      */
+/* ------------------------------------------------------------------ */
+
+.font-autumn-harvest {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+/* ------------------------------------------------------------------ */
+/* PEACOCK ROYALE — teal, gold and deep green. The template reuses    */
+/* Emerald Royale's .er-* font classes (already defined above); only  */
+/* the template fontClass one-liner lives here.                       */
+/* ------------------------------------------------------------------ */
+
+.font-peacock-royale {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+/* ------------------------------------------------------------------ */
+/* SAKURA DREAM — pink, white and deep plum. Same class roles as      */
+/* Golden Hour, only prefixed sd-*. Fonts: Great Vibes script, Allura */
+/* alternate script, Cinzel display caps, Cormorant Garamond         */
+/* editorial serif, Lora body. The font variables are set on <html>  */
+/* by layout.tsx (already loaded for Royal Burgundy).                 */
+/* ------------------------------------------------------------------ */
+
+.font-sakura-dream {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+.sd-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.sd-font-script-alt {
+  font-family: var(--font-allura), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.sd-font-display {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.sd-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.sd-font-body {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* ------------------------------------------------------------------ */
+/* DESERT DUSK — terracotta, sand and dusk purple. Same class roles   */
+/* as Golden Hour, only prefixed dd-*. Fonts: Great Vibes script,     */
+/* Allura alternate script, Cinzel display caps, Cormorant Garamond  */
+/* editorial serif, Lora body. The font variables are set on <html>  */
+/* by layout.tsx (already loaded for Royal Burgundy).                 */
+/* ------------------------------------------------------------------ */
+
+.font-desert-dusk {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+.dd-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.dd-font-script-alt {
+  font-family: var(--font-allura), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.dd-font-display {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.dd-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.dd-font-body {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* Sand-embossed monogram text (cover dune-horizon sun). */
+.dd-sun-embossed-text {
+  color: #f5e6d3;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5),
+    0 -1px 0 rgba(194, 112, 61, 0.45),
+    0 2px 3px rgba(74, 44, 26, 0.4),
+    0 0 14px rgba(245, 230, 211, 0.5);
+}
+
+/* ------------------------------------------------------------------ */
+/* VINTAGE LACE — ivory, sepia and dusty rose. The template's own     */
+/* font classes live inline in its renderer; only the template        */
+/* fontClass one-liner lives here (used by the gallery / admin).      */
+/* ------------------------------------------------------------------ */
+
+.font-vintage-lace {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+/* ------------------------------------------------------------------ */
+/* STARLIGHT NOIR — black, gold and white. The template uses no       */
+/* xx-font-* role classes; only the template fontClass one-liner      */
+/* lives here (used by the gallery / admin).                          */
+/* ------------------------------------------------------------------ */
+
+.font-starlight-noir {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+/* ------------------------------------------------------------------ */
+/* CORAL SUNSET — coral sunset, peach and deep plum. Same class roles */
+/* as Golden Hour, only prefixed cs-* (the source's bare names would  */
+/* collide with other templates). Fonts: Great Vibes script, Allura   */
+/* alternate script, Cinzel display caps, Cormorant Garamond         */
+/* editorial serif, Lora body. The font variables are set on <html>   */
+/* by layout.tsx (already loaded for Royal Burgundy).                 */
+/* ------------------------------------------------------------------ */
+
+.font-coral-sunset {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+.cs-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.cs-font-script-alt {
+  font-family: var(--font-allura), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.cs-font-display {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.cs-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.cs-font-body {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* Coral-embossed monogram text (cover sun disc). */
+.cs-sun-embossed-text {
+  color: #3d1f2b;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55),
+    0 -1px 0 rgba(201, 74, 46, 0.45),
+    0 2px 3px rgba(46, 20, 32, 0.35),
+    0 0 14px rgba(255, 218, 185, 0.5);
+}
+
+/* ------------------------------------------------------------------ */
+/* AMETHYST ROYALE — amethyst crystal, lavender & white. Same class   */
+/* roles as Golden Hour, only prefixed ar-* (the source's bare names  */
+/* would collide with other templates). Fonts: Great Vibes script,    */
+/* Cinzel display caps, Cormorant Garamond editorial serif, Lora     */
+/* body. The font variables are set on <html> by layout.tsx (already */
+/* loaded for Royal Burgundy).                                        */
+/* ------------------------------------------------------------------ */
+
+.font-amethyst-royale {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+.ar-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.ar-font-display {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.ar-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.ar-font-body {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* Amethyst-embossed monogram text (cover hexagonal crystal crest). */
+.ar-amethyst-embossed-text {
+  color: #e9d5ff;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4),
+    0 -1px 0 rgba(46, 16, 101, 0.45),
+    0 2px 3px rgba(46, 16, 101, 0.5),
+    0 0 14px rgba(233, 213, 255, 0.4);
+}
+
+/* ------------------------------------------------------------------ */
+/* MARBLE LUXE — white, grey and gold. Same class roles as Golden     */
+/* Hour, only prefixed ml-*. Fonts: Great Vibes script, Allura        */
+/* alternate script, Cinzel display caps, Cormorant Garamond         */
+/* editorial serif, Lora body. The font variables are set on <html>  */
+/* by layout.tsx (already loaded for Royal Burgundy).                 */
+/* ------------------------------------------------------------------ */
+
+.font-marble-luxe {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+.ml-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.ml-font-script-alt {
+  font-family: var(--font-allura), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.ml-font-display {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.ml-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.ml-font-body {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* ------------------------------------------------------------------ */
+/* TROPICAL PALM — green, sand and turquoise. Same class roles as     */
+/* Golden Hour, only prefixed tp-*. Fonts: Great Vibes script,        */
+/* Playfair display, Cormorant Garamond editorial serif, Lora body.  */
+/* The font variables are set on <html> by layout.tsx (already       */
+/* loaded for Royal Burgundy).                                        */
+/* ------------------------------------------------------------------ */
+
+.font-tropical-palm {
+  font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
+}
+
+.tp-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.tp-font-display {
+  font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.tp-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.tp-font-body {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* Sand-embossed monogram text (cover palm-leaf crest). */
+.tp-palm-embossed-text {
+  color: #fde68a;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.4),
+    0 -1px 0 rgba(10, 46, 25, 0.45),
+    0 2px 3px rgba(10, 46, 25, 0.5),
+    0 0 14px rgba(253, 230, 138, 0.4);
+}
+
+/* ------------------------------------------------------------------ */
+/* AURORA — teal, violet and night. The template's own font classes   */
+/* live inline in its renderer; only the template fontClass           */
+/* one-liner lives here (used by the gallery / admin).                */
+/* ------------------------------------------------------------------ */
+
+.font-aurora {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+/* ------------------------------------------------------------------ */
+/* RUSTIC CHARM — brown, cream and green. Same class roles as Golden  */
+/* Hour, only prefixed rc-*. Fonts: Great Vibes script, Allura        */
+/* alternate script, Cinzel display caps, Cormorant Garamond         */
+/* editorial serif, Lora body. The font variables are set on <html>  */
+/* by layout.tsx (already loaded for Royal Burgundy).                 */
+/* ------------------------------------------------------------------ */
+
+.font-rustic-charm {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+.rc-font-script {
+  font-family: var(--font-great-vibes), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.rc-font-script-alt {
+  font-family: var(--font-allura), "Snell Roundhand", cursive;
+  font-weight: 400;
+}
+.rc-font-display {
+  font-family: var(--font-cinzel), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.rc-font-editorial {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+.rc-font-body {
+  font-family: var(--font-lora), Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+/* ------------------------------------------------------------------ */
+/* SUNFLOWER FIELDS — yellow, green and cream. The template uses no   */
+/* xx-font-* role classes; only the template fontClass one-liner      */
+/* lives here (used by the gallery / admin).                          */
+/* ------------------------------------------------------------------ */
+
+.font-sunflower-fields {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}
+
+/* ------------------------------------------------------------------ */
+/* MINT SERENITY — mint, white and sage. The template uses no         */
+/* xx-font-* role classes; only the template fontClass one-liner      */
+/* lives here (used by the gallery / admin).                          */
+/* ------------------------------------------------------------------ */
+
+.font-mint-serenity {
+  font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
+}

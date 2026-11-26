@@ -1,0 +1,163 @@
+// Winter Frost opening cover — view 01. Full-bleed snowy
+// photograph, "WITH LOVE", the couple names in white script, the
+// snowflake-crest medallion with the LIVE monogram overlaid as HTML
+// text (never baked in), a falling-snow particle layer, and "OPEN
+// THE INVITATION". Only the data comes from the site (Partner A /
+// Partner B placeholders). No music on this template.
+"use client";
+
+import { motion, useReducedMotion } from "framer-motion";
+import type { WeddingSite } from "@/lib/types";
+import { Snowfall, SnowflakeCrest } from "./Decor";
+import { COVER_IMAGE_URL, coupleNames, initials } from "./tokens";
+
+export default function WinterFrostCover({
+  site,
+  onOpen,
+}: {
+  site: WeddingSite;
+  onOpen: () => void;
+}) {
+  const prefersReducedMotion = useReducedMotion();
+
+  return (
+    <motion.div
+      role="region"
+      aria-label="Wedding Invitation Cover"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }}
+      onClick={onOpen}
+      className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden bg-[#0B2540] px-5 py-12 text-[#FDFEFF] select-none"
+    >
+      {/* Full-bleed snowy photograph */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={COVER_IMAGE_URL}
+        alt="A couple in winter wedding attire in a snowy pine forest at dusk"
+        referrerPolicy="no-referrer"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+      />
+      {/* Cool dark overlays so the white type stays readable over the
+          bright snow: heavier at top and bottom, lighter in the middle
+          where the couple stands. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(11, 37, 64, 0.78) 0%, rgba(11, 37, 64, 0.22) 30%, rgba(11, 37, 64, 0.16) 55%, rgba(11, 37, 64, 0.68) 100%)",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 42%, rgba(127, 179, 217, 0.14) 0%, rgba(11, 37, 64, 0.3) 100%)",
+        }}
+      />
+
+      {/* Falling snow — ~60 slow snowflakes over the photograph */}
+      {!prefersReducedMotion && <Snowfall />}
+
+      {/* Double ice hairline inner border framing the luxury card feel */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-4 border border-[#BDE0F5]/45"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[22px] border border-[#BDE0F5]/20"
+      />
+
+      {/* Top spacer for classic upper-middle placement */}
+      <div className="h-6" />
+
+      {/* Upper-Middle Couple Typography */}
+      <div className="relative z-10 flex flex-col items-center text-center">
+        <motion.p
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          className="wf-font-display text-xs tracking-[0.38em] text-[#D6EBF9] uppercase drop-shadow-[0_2px_6px_rgba(11,37,64,0.85)]"
+        >
+          WITH LOVE
+        </motion.p>
+
+        <motion.h1
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          className="wf-font-script mt-4 px-3 text-[3.4rem] leading-[1.08] font-normal tracking-normal text-[#FFFFFF] drop-shadow-[0_3px_14px_rgba(11,37,64,0.8)]"
+        >
+          {coupleNames(site)}
+        </motion.h1>
+
+        {/* Ice rule under the names */}
+        <motion.div
+          initial={prefersReducedMotion ? false : { opacity: 0, scaleX: 0 }}
+          animate={{ opacity: 1, scaleX: 1 }}
+          transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          aria-hidden="true"
+          className="mt-5 h-px w-40 bg-gradient-to-r from-transparent via-[#BDE0F5] to-transparent"
+        />
+      </div>
+
+      {/* Central-Lower Snowflake-Crest Medallion with the live monogram */}
+      <motion.div
+        initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.93 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 my-4 w-full max-w-[420px]"
+      >
+        <motion.div
+          animate={prefersReducedMotion ? undefined : { y: [0, -5, 0] }}
+          transition={{
+            duration: 6.5,
+            repeat: Infinity,
+            ease: [0.25, 0.1, 0.25, 1],
+          }}
+          className="relative mx-auto aspect-square w-full max-w-[300px]"
+        >
+          <SnowflakeCrest className="absolute inset-0 h-full w-full drop-shadow-[0_10px_24px_rgba(11,37,64,0.65)]" />
+
+          {/* Real HTML Typography Monogram Overlaid Inside the Crest Center */}
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <motion.span
+              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="wf-font-display wf-frost-embossed-text text-[1.95rem] font-medium tracking-[0.06em]"
+            >
+              {initials(site)}
+            </motion.span>
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Bottom Invitation Open Action */}
+      <motion.div
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 pb-2 text-center"
+      >
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpen();
+          }}
+          className="group relative inline-flex min-h-[48px] items-center justify-center px-6 py-3 wf-font-display text-xs tracking-[0.34em] text-[#FDFEFF] uppercase transition-colors duration-300 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#BDE0F5]"
+        >
+          <span className="drop-shadow-[0_2px_6px_rgba(11,37,64,0.85)]">OPEN THE INVITATION</span>
+          <span
+            aria-hidden="true"
+            className="absolute bottom-2 left-1/2 h-px w-20 -translate-x-1/2 bg-gradient-to-r from-transparent via-[#BDE0F5]/80 to-transparent transition-all duration-300 group-hover:w-36 group-hover:via-[#FFFFFF]"
+          />
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+}

@@ -1,0 +1,83 @@
+// FOREST WHISPER seed — the single source of truth for this template's sample
+// content (preview + activation). Per-template file so the fleet follows
+// one pattern; re-exported from src/lib/template-seeds.ts.
+// Gallery is PREVIEW-ONLY — activation never copies seed.gallery.
+
+import type { GalleryImage, SiteContent, SiteEvent } from "../types";
+
+export interface ForestWhisperSeed {
+  content: Partial<SiteContent>;
+  events: SiteEvent[];
+  details: import("../types").DetailBlock[];
+  gallery: GalleryImage[];
+}
+
+const FOREST_WHISPER_GALLERY_URLS = [
+  "/images/themes/forest-whisper-detail.jpg",
+  "/images/themes/forest-whisper-story-1.jpg",
+  "/images/themes/forest-whisper.jpg",
+  "/images/themes/royal-burgundy/photo-meadow.jpg",
+];
+
+export function forestWhisperSeed(weddingDay: string): ForestWhisperSeed {
+  return {
+    content: {
+      welcome:
+        "Together with our families, we invite you to share in the joy of our wedding day — an afternoon beneath the canopy, where the forest holds its breath and the fireflies come out to celebrate with us. Your love, your laughter and your friendship have shaped our story, and we would be so happy to celebrate the beginning of our married life with you beside us.\n\nSample welcome text — replace it with your own words in the editor.",
+      story:
+        "Every love story is beautiful, but ours is our favourite. It began with a first hello on a quiet forest trail that neither of us expected, and grew — slowly, then all at once — into the life we share today.\n\nThrough quiet mornings and loud celebrations, through every ordinary day in between, we kept choosing each other. This wedding is our promise to keep choosing each other, for all the days to come.\n\nSample story — replace these paragraphs with your own story in the editor.",
+      dressCode: "Black Tie Optional",
+      mealOptions: [
+        "Cedar-Plank Salmon",
+        "Herb-Roasted Chicken",
+        "Wild Mushroom & Truffle Risotto (Vegetarian)",
+        "Roasted Garden Vegetable Tart (Vegan)",
+        "Children’s Entrée",
+      ],
+      venueName: "The Grand Ballroom",
+      venueAddress: "123 Rosewood Avenue, Your Town, ST 12345",
+    },
+    events: [
+      { id: "ev-sample-arrival", name: "Guest Arrival", date: weddingDay, time: "4:00 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own arrival details." },
+      { id: "ev-sample-ceremony", name: "Ceremony", date: weddingDay, time: "4:30 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own ceremony details." },
+      { id: "ev-sample-cocktail", name: "Cocktail Hour", date: weddingDay, time: "5:45 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own cocktail-hour details." },
+      { id: "ev-sample-dinner", name: "Dinner", date: weddingDay, time: "7:15 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own dinner details." },
+      { id: "ev-sample-first-dance", name: "First Dance", date: weddingDay, time: "9:30 PM", venue: "Your venue", address: "Your venue address", description: "Sample event — replace this with your own first-dance details." },
+    ],
+    details: [
+      {
+        id: "d-sample-hotel-1",
+        kind: "accommodation",
+        title: "The Grand Hotel",
+        body: "0.5 miles from the venue\nA block of rooms is held under the couple's name — sample text, replace it in the editor.\nBooking Code: WEDDING",
+        hidden: false,
+      },
+      {
+        id: "d-sample-hotel-2",
+        kind: "accommodation",
+        title: "The Rosewood Inn",
+        body: "1.2 miles from the venue\nA cosy boutique stay a short walk from the venue — sample text, replace it in the editor.\nBooking Code: ROSEWOOD",
+        hidden: false,
+      },
+      {
+        id: "d-sample-travel",
+        kind: "travel",
+        title: "Getting there",
+        body: "Sample travel notes — the venue is a short drive from the city centre, with parking on site. Replace this with your own travel guidance in the editor.",
+        hidden: false,
+      },
+      {
+        id: "d-sample-registry",
+        kind: "registry",
+        title: "Gifts & Registry",
+        body: "Your presence is the greatest gift. If you would like to give something more, a wishing well will be at the reception. Sample text — replace it in the editor.",
+        hidden: false,
+      },
+    ],
+    gallery: FOREST_WHISPER_GALLERY_URLS.map((url, i) => ({
+      id: `g-forest-${i + 1}`,
+      url,
+      caption: `Your photo ${i + 1}`,
+    })),
+  };
+}
