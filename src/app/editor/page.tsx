@@ -65,17 +65,78 @@ function uid(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 }
 
-/** ISO datetime → value for <input type="datetime-local">. */
-function toLocalInput(iso: string | null): string {
+/** ISO datetime → value for <input type="datetime-local">, as wall time
+ * in the given IANA timezone (not browser-local time — the browser's
+ * timezone may differ from the wedding's). Falls back to browser-local
+ * components when the timezone is unknown/invalid. */
+function toLocalInput(iso: string | null, timeZone?: string): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
   const pad = (n: number) => String(n).padStart(2, "0");
+  if (timeZone) {
+    try {
+      const parts = new Intl.DateTimeFormat("en-US", {
+        timeZone,
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+      }).formatToParts(d);
+      const get = (type: Intl.DateTimeFormatPartTypes) => parts.find((p) => p.type === type)?.value ?? "";
+      const year = get("year");
+      const month = get("month");
+      const day = get("day");
+      const hour = get("hour");
+      const minute = get("minute");
+      if (year && month && day && hour && minute) {
+        return `${year}-${month}-${day}T${hour}:${minute}`;
+      }
+    } catch {
+      // Unknown/invalid timezone — fall through to browser-local.
+    }
+  }
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function fromLocalInput(value: string): string | null {
+/** <input type="datetime-local"> value → UTC ISO string, interpreting the
+ * input as wall time in the given IANA timezone. Falls back to the old
+ * browser-local interpretation when the timezone is unknown/invalid. */
+function fromLocalInput(value: string, timeZone?: string): string | null {
   if (!value) return null;
+  if (timeZone) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
+    if (m) {
+      const [, y, mo, d, h, mi] = m;
+      const wallAsUtc = Date.UTC(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi));
+      if (!Number.isNaN(wallAsUtc)) {
+        try {
+          let guess = wallAsUtc;
+          for (let i = 0; i < 2; i++) {
+            const parts = new Intl.DateTimeFormat("en-US", {
+              timeZone,
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hourCycle: "h23",
+            }).formatToParts(new Date(guess));
+            const get = (type: Intl.DateTimeFormatPartTypes) =>
+              Number(parts.find((p) => p.type === type)?.value ?? 0);
+            const wallAtGuess = Date.UTC(get("year"), get("month") - 1, get("day"), get("hour"), get("minute"), get("second"));
+            guess = wallAsUtc - (wallAtGuess - guess);
+          }
+          return new Date(guess).toISOString();
+        } catch {
+          // Unknown/invalid timezone — fall through to browser-local.
+        }
+      }
+    }
+  }
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
@@ -660,9 +721,9 @@ export default function EditorPage() {
                   <input
                     id="wedding-date"
                     type="datetime-local"
-                    value={toLocalInput(draft.weddingDate)}
+                    value={toLocalInput(draft.weddingDate, draft.timezone)}
                     onChange={(e) => {
-                      const iso = fromLocalInput(e.target.value);
+                      const iso = fromLocalInput(e.target.value, draft.timezone);
                       if (iso) updateDraft((d) => ({ ...d, weddingDate: iso }));
                     }}
                     className={inputCls}
@@ -1277,8 +1338,8 @@ export default function EditorPage() {
                   <input
                     id="rsvp-deadline"
                     type="datetime-local"
-                    value={toLocalInput(draft.settings.rsvpDeadline)}
-                    onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, rsvpDeadline: fromLocalInput(e.target.value) } }))}
+                    value={toLocalInput(draft.settings.rsvpDeadline, draft.timezone)}
+                    onChange={(e) => updateDraft((d) => ({ ...d, settings: { ...d.settings, rsvpDeadline: fromLocalInput(e.target.value, draft.timezone) } }))}
                     className={inputCls}
                   />
                   <p className="mt-1 text-xs text-stone-500">Dates and times use the timezone set on the Couple tab.</p>

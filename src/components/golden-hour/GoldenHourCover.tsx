@@ -79,7 +79,7 @@ export default function GoldenHourCover({
         <motion.p
           initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           className="gh-font-display text-xs tracking-[0.38em] text-[#FBEED3] uppercase drop-shadow-[0_2px_6px_rgba(36,23,8,0.8)]"
         >
           WITH LOVE
@@ -88,7 +88,7 @@ export default function GoldenHourCover({
         <motion.h1
           initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.9, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
           className="gh-font-script mt-4 px-3 text-[3.4rem] leading-[1.08] font-normal tracking-normal text-[#FFFDF9] drop-shadow-[0_3px_14px_rgba(36,23,8,0.75)]"
         >
           {coupleNames(site)}
@@ -98,7 +98,7 @@ export default function GoldenHourCover({
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, scaleX: 0 }}
           animate={{ opacity: 1, scaleX: 1 }}
-          transition={{ duration: 1.1, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
           aria-hidden="true"
           className="mt-5 h-px w-40 bg-gradient-to-r from-transparent via-[#E8A93D] to-transparent"
         />
@@ -108,7 +108,7 @@ export default function GoldenHourCover({
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.93 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.15, delay: 0.75, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 my-4 w-full max-w-[420px]"
       >
         <motion.div
@@ -127,7 +127,7 @@ export default function GoldenHourCover({
             <motion.span
               initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.9, delay: 1.15, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.6, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
               className="gh-font-display gh-gold-embossed-text text-[1.95rem] font-medium tracking-[0.06em]"
             >
               {initials(site)}
@@ -140,7 +140,7 @@ export default function GoldenHourCover({
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, delay: 1.25, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.6, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 pb-2 text-center"
       >
         <button

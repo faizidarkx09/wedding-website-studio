@@ -16,10 +16,20 @@ interface GuestCounts {
 type Filter = "all" | "attending" | "declined";
 type Sort = "date-desc" | "date-asc" | "name-asc" | "name-desc";
 
-function fmtDate(iso: string | null): string {
+/** Date only, in the site's timezone when one is given (browser-local
+ * formatting can shift the day near midnight in other timezones). */
+function fmtDate(iso: string | null, timeZone?: string): string {
   if (!iso) return "—";
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "—" : d.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+  if (Number.isNaN(d.getTime())) return "—";
+  if (timeZone) {
+    try {
+      return new Intl.DateTimeFormat("en-US", { timeZone, year: "numeric", month: "long", day: "numeric" }).format(d);
+    } catch {
+      // Unknown/invalid timezone — fall through to browser-local.
+    }
+  }
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
 }
 
 export default function DashboardPage() {
@@ -260,9 +270,9 @@ export default function DashboardPage() {
         <div className="rounded-xl border border-stone-200 bg-white p-4">
           <p className="text-sm text-stone-500">Wedding countdown</p>
           <div className="mt-1">
-            <Countdown date={site.weddingDate} timezone={site.timezone} style={site.settings.countdownStyle} />
+            <Countdown date={site.weddingDate} timezone={site.timezone} style={site.settings.countdownStyle} size="compact" />
           </div>
-          <p className="mt-2 text-sm text-stone-600">{fmtDate(site.weddingDate)}</p>
+          <p className="mt-2 text-sm text-stone-600">{fmtDate(site.weddingDate, site.timezone)}</p>
         </div>
         <div className="rounded-xl border border-stone-200 bg-white p-4">
           <p className="text-sm text-stone-500">RSVP responses</p>
@@ -279,7 +289,7 @@ export default function DashboardPage() {
             {counts.attending} / {counts.declined}
           </p>
           <p className="mt-1 text-sm text-stone-600">
-            RSVP deadline: {site.settings.rsvpDeadline ? fmtDate(site.settings.rsvpDeadline) : "not set"}
+            RSVP deadline: {site.settings.rsvpDeadline ? fmtDate(site.settings.rsvpDeadline, site.timezone) : "not set"}
           </p>
         </div>
       </section>

@@ -72,9 +72,9 @@ export default async function TemplateDetailPage({
                 <dt className="text-sm text-stone-500">Etsy listing</dt>
                 <dd className="font-mono text-sm font-semibold">{template.etsyListingId ?? "—"}</dd>
               </div>
-              <div className="mt-3 flex justify-between gap-4 border-t border-stone-100 pt-3">
+              <div className="mt-3 border-t border-stone-100 pt-3">
                 <dt className="text-sm text-stone-500">Layout</dt>
-                <dd className="text-right text-sm font-medium">{template.layout}</dd>
+                <dd className="mt-1 text-sm font-medium">{template.layout}</dd>
               </div>
               <div className="mt-3 border-t border-stone-100 pt-3">
                 <dt className="text-sm text-stone-500">Sections included</dt>

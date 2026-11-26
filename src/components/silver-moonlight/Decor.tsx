@@ -156,7 +156,13 @@ export function TwinklingStars({
 /** CrescentMoon — a silver crescent drawn with an SVG mask (a
  * bright disc with an offset disc cut out). Used on the cover seal
  * and as a small ornament. */
-export function CrescentMoon({ className = "" }: { className?: string }) {
+export function CrescentMoon({
+  className = "",
+  fill = "#E8EBF0",
+}: {
+  className?: string;
+  fill?: string;
+}) {
   return (
     <svg aria-hidden="true" viewBox="0 0 100 100" fill="none" className={className}>
       <defs>
@@ -165,7 +171,7 @@ export function CrescentMoon({ className = "" }: { className?: string }) {
           <circle cx="62" cy="42" r="34" fill="black" />
         </mask>
       </defs>
-      <circle cx="46" cy="52" r="36" fill="#E8EBF0" mask="url(#sm-crescent-mask)" />
+      <circle cx="46" cy="52" r="36" fill={fill} mask="url(#sm-crescent-mask)" />
     </svg>
   );
 }
@@ -176,9 +182,9 @@ export function CrescentMoon({ className = "" }: { className?: string }) {
 export function MoonDivider({ className = "" }: { className?: string }) {
   return (
     <div aria-hidden="true" className={`flex items-center justify-center gap-3 ${className}`}>
-      <span className="h-px w-12 bg-gradient-to-r from-transparent to-[#C9CDD6]" />
-      <CrescentMoon className="h-4 w-4 shrink-0" />
-      <span className="h-px w-12 bg-gradient-to-l from-transparent to-[#C9CDD6]" />
+      <span className="h-[2px] w-12 bg-gradient-to-r from-transparent to-[#8A94A3]" />
+      <CrescentMoon className="h-5 w-5 shrink-0" fill="#9AA3B0" />
+      <span className="h-[2px] w-12 bg-gradient-to-l from-transparent to-[#8A94A3]" />
     </div>
   );
 }

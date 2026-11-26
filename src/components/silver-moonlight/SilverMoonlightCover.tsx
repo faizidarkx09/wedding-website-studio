@@ -67,8 +67,8 @@ export default function SilverMoonlightCover({
         <motion.p
           initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="er-font-display text-xs tracking-[0.38em] text-[#DDE1E8]/95 uppercase sm:text-sm"
+          transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          className="er-font-display text-xs font-semibold tracking-[0.38em] text-[#FFFFFF] uppercase drop-shadow-[0_2px_6px_rgba(14,22,32,0.8)] sm:text-sm"
         >
           UNDER A SILVER MOON
         </motion.p>
@@ -79,7 +79,7 @@ export default function SilverMoonlightCover({
         <motion.h1
           initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.9, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
           className="er-font-script mt-4 px-3 text-[3.4rem] leading-[1.08] font-normal tracking-normal text-[#FFFFFF] drop-shadow-[0_3px_14px_rgba(14,22,32,0.65)] sm:text-[4.6rem] md:text-[5.5rem]"
         >
           {coupleNames(site)}
@@ -89,7 +89,7 @@ export default function SilverMoonlightCover({
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, scaleX: 0 }}
           animate={{ opacity: 1, scaleX: 1 }}
-          transition={{ duration: 1.1, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
           aria-hidden="true"
           className="mt-5 h-px w-40 bg-gradient-to-r from-transparent via-[#C9CDD6] to-transparent sm:w-56"
         />
@@ -99,7 +99,7 @@ export default function SilverMoonlightCover({
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.93 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.15, delay: 0.75, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 my-4 w-full max-w-[420px] sm:my-6"
       >
         <motion.div
@@ -135,7 +135,7 @@ export default function SilverMoonlightCover({
           <motion.span
             initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.9, delay: 1.15, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.6, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
             className="er-font-display relative z-10 mt-8 text-[1.95rem] font-medium tracking-[0.06em] text-[#16202E] sm:mt-9 sm:text-[2.4rem]"
             style={{
               textShadow:
@@ -151,7 +151,7 @@ export default function SilverMoonlightCover({
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, delay: 1.25, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.6, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 pb-2 text-center"
       >
         <button
