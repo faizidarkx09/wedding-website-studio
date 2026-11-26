@@ -22,7 +22,7 @@ import {
 function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
   return (
     <div
-      className={`relative mx-auto w-full overflow-hidden bg-[#FFFDF6] px-4 py-3 text-center text-[#3B2A12] transition-shadow duration-700 @sm:px-6 @sm:py-5 @max-[22rem]:py-2 ${
+      className={`relative mx-auto w-full overflow-hidden bg-[#FFFDF6] px-4 py-3 text-center text-[#3B2A12] transition-shadow duration-700 @min-[29.375rem]:px-6 @min-[29.375rem]:py-5 @max-[22rem]:py-2 ${
         isOpen
           ? "shadow-[0_22px_42px_-12px_rgba(36,23,8,0.52),0_4px_12px_rgba(36,23,8,0.22)]"
           : "shadow-[0_10px_24px_-8px_rgba(36,23,8,0.45)]"
@@ -41,11 +41,11 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
       {/* Fine double honey-gold & brown letterpress border */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-2.5 border border-[#C9920E]/75 @sm:inset-3"
+        className="pointer-events-none absolute inset-2.5 border border-[#C9920E]/75 @min-[29.375rem]:inset-3"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-[13px] border border-[#5C4423]/30 @sm:inset-[15px]"
+        className="pointer-events-none absolute inset-[13px] border border-[#5C4423]/30 @min-[29.375rem]:inset-[15px]"
       />
 
       {/* Delicate corner ticks */}
@@ -67,27 +67,27 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
       />
 
       {/* Editable HTML Letterpress Typography */}
-      <div className="relative z-10 flex flex-col items-center py-1 @sm:py-3 @max-[22rem]:py-0.5">
-        <p className="gh-font-display text-[9px] tracking-[0.26em] text-[#8A6408] uppercase @sm:text-[10px]">
+      <div className="relative z-10 flex flex-col items-center py-1 @min-[29.375rem]:py-3 @max-[22rem]:py-0.5">
+        <p className="gh-font-display text-[9px] tracking-[0.26em] text-[#8A6408] uppercase @min-[29.375rem]:text-[10px]">
           WE INVITE YOU
         </p>
 
-        <h2 className="gh-font-display mt-2 text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#3B2A12] uppercase @sm:mt-3 @sm:text-[22px] @sm:tracking-[0.12em] @max-[22rem]:mt-1.5 @max-[22rem]:text-[15px] @max-[22rem]:tracking-[0.08em]">
+        <h2 className="gh-font-display mt-2 text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#3B2A12] uppercase @min-[29.375rem]:mt-3 @min-[29.375rem]:text-[22px] @min-[29.375rem]:tracking-[0.12em] @max-[22rem]:mt-1.5 @max-[22rem]:text-[15px] @max-[22rem]:tracking-[0.08em]">
           {site.content.partnerA}
         </h2>
-        <span className="gh-font-editorial my-0.5 text-base italic text-[#8A6408] @sm:text-lg @max-[22rem]:text-sm">
+        <span className="gh-font-editorial my-0.5 text-base italic text-[#8A6408] @min-[29.375rem]:text-lg @max-[22rem]:text-sm">
           &amp;
         </span>
-        <h2 className="gh-font-display text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#3B2A12] uppercase @sm:text-[22px] @sm:tracking-[0.12em] @max-[22rem]:text-[15px] @max-[22rem]:tracking-[0.08em]">
+        <h2 className="gh-font-display text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#3B2A12] uppercase @min-[29.375rem]:text-[22px] @min-[29.375rem]:tracking-[0.12em] @max-[22rem]:text-[15px] @max-[22rem]:tracking-[0.08em]">
           {site.content.partnerB}
         </h2>
 
-        <SunburstDivider className="mt-4 mb-2 h-6 w-24 @sm:my-3.5 @sm:h-8 @sm:w-28 @max-[22rem]:mb-1.5 @max-[22rem]:h-5" />
+        <SunburstDivider className="mt-4 mb-2 h-6 w-24 @min-[24rem]:mt-10 @min-[29.375rem]:my-3.5 @min-[29.375rem]:h-8 @min-[29.375rem]:w-28 @max-[22rem]:mb-1.5 @max-[22rem]:h-5" />
 
-        <p className="gh-font-display text-[9px] tracking-[0.24em] text-[#3B2A12] uppercase @sm:text-[10px]">
+        <p className="gh-font-display text-[9px] tracking-[0.24em] text-[#3B2A12] uppercase @min-[29.375rem]:text-[10px]">
           {formatCardDate(site.weddingDate, site.timezone)}
         </p>
-        <p className="gh-font-display mt-1 text-[8.5px] tracking-[0.22em] text-[#8A6408] uppercase @sm:text-[9.5px]">
+        <p className="gh-font-display mt-1 text-[8.5px] tracking-[0.22em] text-[#8A6408] uppercase @min-[29.375rem]:text-[9.5px]">
           {locationLabel(site)}
         </p>
       </div>
@@ -205,7 +205,7 @@ export default function GoldenHourEnvelope({ site }: { site: WeddingSite }) {
                   duration: prefersReducedMotion ? 0.2 : 0.9,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2"
+                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[28%] @min-[29.375rem]:top-[25%]"
               >
                 <InvitationCard site={site} isOpen={isCardLifted} />
               </motion.div>
@@ -226,21 +226,41 @@ export default function GoldenHourEnvelope({ site }: { site: WeddingSite }) {
                   point at centre (65% vs 63% true) — a ~7px sliver
                   where the card peeks just past the fold point, which
                   reads as the card emerging from behind the fold.
-                  The card's internals are Emerald's exact sizes
-                  (17px names / 22px @sm, divider h-6/h-8 @sm), so its
-                  measured rest positions transfer: Partner B bottom
-                  ~62% of container height (above the 65% clip),
-                  divider top ~68% (below it) — names peek, divider /
-                  date / location stay hidden at rest. On tap the
-                  clip's top edge drops to ~97% (the pocket opens)
-                  while the card lifts 48px, so divider + date +
-                  location are fully revealed with no top clipping.
-                  ONE polygon for every width: the card sizes by
-                  CONTAINER width (@container on the outer wrapper,
-                  @sm: = container >= 384px, @max-[22rem]: for narrow
-                  containers) — never viewport `sm:` — so the editor's
-                  Mobile (390px) preview gets the mobile card and
-                  desktop (490px container) gets the larger card. */}
+                  The card is sized by CONTAINER width (@container on
+                  the outer wrapper — never viewport `sm:` — so the
+                  editor's Mobile (390px) preview gets the mobile card
+                  and desktop (490px container) gets the larger card),
+                  in THREE bands, because the card's content is fixed
+                  px while the 4:3 container shrinks with the viewport:
+                  - <352px: compact card (@max-[22rem]: 15px names,
+                    tight padding) — 320px: Partner B bottom 63.7%,
+                    divider top 71.1%, card bottom 107.6% (behind the
+                    pocket, invisible). Verified live.
+                  - 352–383px: small card (17px names), top 25% —
+                    390px: Partner B bottom 62.1%, divider top 68%.
+                  - 384–469px: small card, top 28%, divider mt-10 —
+                    the large card does NOT fit here (see below).
+                  - >=470px: large card (22px names, py-5), top 25% —
+                    desktop 490px container: Partner B bottom 61.7%,
+                    divider top 65.5%, card bottom 95.8%.
+                  WHY the large card starts at 470px, not 384px: its
+                  content is ~260px tall and the names WRAP below
+                  ~443px container width (inner width < ~160px), so at
+                  430px viewport (398x299 container) it spanned
+                  25%→131.7% — only PARTNER A peeked (wrapped to two
+                  lines), Partner B sat at 85% behind the pocket, and
+                  when open the location line was clipped mid-glyph at
+                  the container's bottom edge. The large card only
+                  fits once Partner B bottom (25% + 135px) clears the
+                  65% pocket line with margin, i.e. container >=470px
+                  (63.3% there, 61.7% at 490px). In the 384–469 band
+                  the small card is used with top 28% + divider mt-10
+                  (divider offset 139.6px from card top), which keeps
+                  Partner B bottom <=62.7% and divider top >=67.6%
+                  across the whole band. On tap the clip's top edge
+                  drops to ~97% (the pocket opens) while the card
+                  lifts 48px, so divider + date + location are fully
+                  revealed with no top clipping. */}
               <motion.div
                 aria-hidden="true"
                 initial={false}

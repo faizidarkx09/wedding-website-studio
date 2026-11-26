@@ -22,7 +22,7 @@ import {
 function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
   return (
     <div
-      className={`relative mx-auto w-full overflow-hidden bg-[#F4F7FA] px-4 py-2 text-center text-[#2E3A4A] transition-shadow duration-700 @min-[24rem]:px-6 @min-[24rem]:py-3 ${
+      className={`relative mx-auto w-full overflow-hidden bg-[#F4F7FA] px-4 py-2 text-center text-[#2E3A4A] transition-shadow duration-700 @min-[29.375rem]:px-6 @min-[29.375rem]:py-3 ${
         isOpen
           ? "shadow-[0_22px_42px_-12px_rgba(14,22,32,0.52),0_4px_12px_rgba(14,22,32,0.22)]"
           : "shadow-[0_10px_24px_-8px_rgba(14,22,32,0.45)]"
@@ -31,53 +31,53 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
       {/* Fine double silver & slate letterpress border */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-2.5 border border-[#C9CDD6]/90 @min-[24rem]:inset-3"
+        className="pointer-events-none absolute inset-2.5 border border-[#C9CDD6]/90 @min-[29.375rem]:inset-3"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-[13px] border border-[#2E3A4A]/25 @min-[24rem]:inset-[15px]"
+        className="pointer-events-none absolute inset-[13px] border border-[#2E3A4A]/25 @min-[29.375rem]:inset-[15px]"
       />
 
       {/* Delicate corner ticks */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute top-3 left-3 h-2.5 w-2.5 border-t border-l border-[#2E3A4A]/65 @min-[24rem]:top-3.5 @min-[24rem]:left-3.5"
+        className="pointer-events-none absolute top-3 left-3 h-2.5 w-2.5 border-t border-l border-[#2E3A4A]/65 @min-[29.375rem]:top-3.5 @min-[29.375rem]:left-3.5"
       />
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute top-3 right-3 h-2.5 w-2.5 border-t border-r border-[#2E3A4A]/65 @min-[24rem]:top-3.5 @min-[24rem]:right-3.5"
+        className="pointer-events-none absolute top-3 right-3 h-2.5 w-2.5 border-t border-r border-[#2E3A4A]/65 @min-[29.375rem]:top-3.5 @min-[29.375rem]:right-3.5"
       />
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-3 left-3 h-2.5 w-2.5 border-b border-l border-[#2E3A4A]/65 @min-[24rem]:bottom-3.5 @min-[24rem]:left-3.5"
+        className="pointer-events-none absolute bottom-3 left-3 h-2.5 w-2.5 border-b border-l border-[#2E3A4A]/65 @min-[29.375rem]:bottom-3.5 @min-[29.375rem]:left-3.5"
       />
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute right-3 bottom-3 h-2.5 w-2.5 border-r border-b border-[#2E3A4A]/65 @min-[24rem]:right-3.5 @min-[24rem]:bottom-3.5"
+        className="pointer-events-none absolute right-3 bottom-3 h-2.5 w-2.5 border-r border-b border-[#2E3A4A]/65 @min-[29.375rem]:right-3.5 @min-[29.375rem]:bottom-3.5"
       />
 
       {/* Editable HTML Letterpress Typography */}
-      <div className="relative z-10 flex flex-col items-center py-1 @min-[24rem]:py-2">
-        <p className="er-font-display text-[9px] leading-none tracking-[0.26em] text-[#2E3A4A] uppercase @min-[24rem]:text-[10px]">
+      <div className="relative z-10 flex flex-col items-center py-1 @min-[29.375rem]:py-2">
+        <p className="er-font-display text-[9px] leading-none tracking-[0.26em] text-[#2E3A4A] uppercase @min-[29.375rem]:text-[10px]">
           WE INVITE YOU
         </p>
 
-        <h2 className="er-font-display mt-2 text-[15px] leading-none font-normal tracking-[0.1em] break-words text-[#16202E] uppercase @min-[24rem]:mt-3 @min-[24rem]:text-[18px] @min-[24rem]:tracking-[0.12em]">
+        <h2 className="er-font-display mt-2 text-[15px] leading-none font-normal tracking-[0.1em] break-words text-[#16202E] uppercase @min-[29.375rem]:mt-3 @min-[29.375rem]:text-[18px] @min-[29.375rem]:tracking-[0.12em]">
           {site.content.partnerA}
         </h2>
-        <span className="er-font-editorial my-0.5 text-sm leading-none italic text-[#2E3A4A] @min-[24rem]:text-base">
+        <span className="er-font-editorial my-0.5 text-sm leading-none italic text-[#2E3A4A] @min-[29.375rem]:text-base">
           &amp;
         </span>
-        <h2 className="er-font-display text-[15px] leading-none font-normal tracking-[0.1em] break-words text-[#16202E] uppercase @min-[24rem]:text-[18px] @min-[24rem]:tracking-[0.12em]">
+        <h2 className="er-font-display text-[15px] leading-none font-normal tracking-[0.1em] break-words text-[#16202E] uppercase @min-[29.375rem]:text-[18px] @min-[29.375rem]:tracking-[0.12em]">
           {site.content.partnerB}
         </h2>
 
-        <MoonDivider className="mt-6 mb-2 h-5 w-24 @min-[24rem]:h-6 @min-[24rem]:w-28" />
+        <MoonDivider className="mt-6 mb-2 h-5 w-24 @min-[24rem]:mt-10 @min-[29.375rem]:mt-6 @min-[29.375rem]:h-6 @min-[29.375rem]:w-28" />
 
-        <p className="er-font-display text-[9px] leading-none tracking-[0.24em] text-[#16202E] uppercase @min-[24rem]:text-[10px]">
+        <p className="er-font-display text-[9px] leading-none tracking-[0.24em] text-[#16202E] uppercase @min-[29.375rem]:text-[10px]">
           {formatCardDate(site.weddingDate, site.timezone)}
         </p>
-        <p className="er-font-display mt-1 text-[8.5px] leading-none tracking-[0.22em] text-[#2E3A4A] uppercase @min-[24rem]:text-[9.5px]">
+        <p className="er-font-display mt-1 text-[8.5px] leading-none tracking-[0.22em] text-[#2E3A4A] uppercase @min-[29.375rem]:text-[9.5px]">
           {locationLabel(site)}
         </p>
       </div>
@@ -195,17 +195,31 @@ export default function SilverMoonlightEnvelope({ site }: { site: WeddingSite })
 
               {/* Layer 2: Interactive Sliding Ice-White Letterpress
                   Invitation Card.
-                  Card top is a CONTAINER query (@min-[24rem]: =
-                  container >= 384px — the desktop 490px container
-                  qualifies, the 342–358px mobile containers do not;
-                  NEVER a viewport `sm:` here, or the editor's
-                  Mobile (390px) preview on a desktop viewport gets
-                  desktop geometry in a mobile-sized box, exactly
-                  the Emerald round-2 failure). Mobile top 16% and
-                  desktop top 26% land the card so the names peek
-                  above the pocket line while the divider, date and
-                  location sit below it at BOTH sizes (see the
-                  pocket-geometry note on Layer 3). */}
+                  Card top and size are CONTAINER queries (NEVER a
+                  viewport `sm:` here, or the editor's Mobile (390px)
+                  preview on a desktop viewport gets desktop geometry
+                  in a mobile-sized box, exactly the Emerald round-2
+                  failure). Three bands, because the card's content is
+                  fixed px while the 4:3 container shrinks with the
+                  viewport — the large card does NOT fit at 430px
+                  (398x299 container): with top 26% + 18px names,
+                  Partner B bottom sat at 58.8%, 20px below the 52%
+                  pocket line.
+                  - <384px: small card (15px names), top 16% — 390px:
+                    Partner B bottom 44.7%, divider top 53.6%;
+                    320px: Partner B bottom 51.6% (~1px clearance,
+                    reads complete by eye).
+                  - 384–469px: small card, top 22%, divider mt-10.
+                  - >=470px: large card (18px names), top 23% —
+                    lowered from 26% because the live-measured names
+                    section is ~98px, not the 88px the builder assumed:
+                    at 26% Partner B bottom was 52.7% at desktop,
+                    2.6px BELOW the pocket line. At 23% it is 49.7%
+                    (~12px clearance) at the 490px container and
+                    50.9% (~4px) at 470px.
+                  At every band the names peek above the pocket line
+                  while the divider, date and location sit below it
+                  (see the pocket-geometry note on Layer 3). */}
               <motion.div
                 initial={false}
                 animate={{
@@ -216,7 +230,7 @@ export default function SilverMoonlightEnvelope({ site }: { site: WeddingSite })
                   duration: prefersReducedMotion ? 0.2 : 0.9,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="absolute top-[16%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[26%] @min-[24rem]:w-[46%]"
+                className="absolute top-[16%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[22%] @min-[24rem]:w-[46%] @min-[29.375rem]:top-[23%]"
               >
                 <InvitationCard site={site} isOpen={isCardLifted} />
               </motion.div>
@@ -233,22 +247,26 @@ export default function SilverMoonlightEnvelope({ site }: { site: WeddingSite })
                   follows that edge exactly, so the overlay is
                   pixel-seamless with Layer 1 (same image, same
                   object-cover mapping).
-                  Rest geometry, verified arithmetically at both
-                  container sizes (card content is fixed px, so the
-                  card top differs by container — mobile 16%,
-                  desktop 26% via @min-[24rem]:):
-                  - Mobile (editor 342x256.5): card top 41px,
-                    names bottom ≈ 116px (45.2%), pocket line
-                    134px (52.2%) — names peek with ~17px margin;
-                    divider top ≈ 140px (54.6%) — hidden with
-                    ~7px margin; card bottom ≈ 210px (82%), hidden
-                    behind the pocket.
-                  - Desktop (490x367.5): card top 96px, names
-                    bottom ≈ 184px (50.0%) — peek with ~8px margin;
-                    divider top ≈ 208px (56.5%) — hidden with
-                    ~16px margin; card bottom ≈ 269px (73%), hidden.
+                  Rest geometry, LIVE-MEASURED at each container size
+                  (card content is fixed px, so the card top differs
+                  by container):
+                  - Mobile small card, top 16%: 390px (358x269) —
+                    names bottom 44.7%, divider top 53.6% (hidden,
+                    ~4px margin); card bottom 76.5%, hidden behind
+                    the pocket. 320px (288x216) — names bottom 51.6%
+                    (~1px clearance, reads complete by eye), divider
+                    top 62.8%.
+                  - Band 384–469px, small card, top 22%, divider
+                    mt-10 (divider offset 117.2px from card top):
+                    Partner B bottom 43.9–48.8%, divider top
+                    55.2–62.7% — both clear of the 52% line across
+                    the whole band.
+                  - Desktop large card, top 23% (490x367.5): names
+                    bottom 49.7% (~12px clearance), divider top
+                    56.3% — hidden with ~16px margin; card bottom
+                    ~80%, hidden.
                   The card bottom sits below the pocket line in
-                  both cases (invisible behind the overlay), which
+                  every case (invisible behind the overlay), which
                   is what "tucked" means here — the 85–95% nominal
                   bottom from the Emerald rounds cannot apply to
                   this artwork, whose pocket line is at 52%
