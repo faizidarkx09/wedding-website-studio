@@ -93,7 +93,7 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
         <h2 className="vl-font-display mt-2 text-[17px] leading-none font-semibold tracking-[0.1em] break-words text-[#4A3A2E] uppercase @min-[29.375rem]:mt-3 @min-[29.375rem]:text-[22px] @min-[29.375rem]:tracking-[0.12em] @max-[22rem]:mt-1.5 @max-[22rem]:text-[15px] @max-[22rem]:tracking-[0.08em]">
           {site.content.partnerA}
         </h2>
-        <span className="vl-font-editorial my-0.5 text-base italic text-[#A66A6E] @min-[29.375rem]:text-lg @max-[22rem]:text-sm">
+        <span className="vl-font-editorial my-0.5 text-base italic text-[#96585D] @min-[29.375rem]:text-lg @max-[22rem]:text-sm">
           &amp;
         </span>
         <h2 className="vl-font-display text-[17px] leading-none font-semibold tracking-[0.1em] break-words text-[#4A3A2E] uppercase @min-[29.375rem]:text-[22px] @min-[29.375rem]:tracking-[0.12em] @max-[22rem]:text-[15px] @max-[22rem]:tracking-[0.08em]">

@@ -165,7 +165,7 @@ export function AutumnHarvestCountdown({ site }: { site: WeddingSite }) {
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
         className="relative mx-auto flex max-w-[640px] flex-col items-center px-4 pt-14 pb-14 text-center"
       >
-        <p className="ah-font-display text-[10px] font-semibold tracking-[0.34em] text-[#FBEED3] uppercase">
+        <p className="ah-font-display text-[10px] font-semibold tracking-[0.34em] text-white uppercase">
           THE COUNTDOWN BEGINS
         </p>
 
@@ -178,7 +178,7 @@ export function AutumnHarvestCountdown({ site }: { site: WeddingSite }) {
           className="mt-4 h-px w-40 bg-gradient-to-r from-transparent via-[#E8A05C]/90 to-transparent"
         />
 
-        <p className="ah-font-editorial mt-4 max-w-[540px] text-[1rem] leading-[1.75] text-[#FBEED3]/90">
+        <p className="ah-font-editorial mt-4 max-w-[540px] text-[1rem] leading-[1.75] text-white">
           Join us as we count down to a day of falling leaves, warm light, and cherished memories.
         </p>
 
@@ -204,7 +204,7 @@ export function AutumnHarvestCountdown({ site }: { site: WeddingSite }) {
               <span className="ah-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#E8A05C]/70 bg-[#3A2412]/70 text-[1.55rem] font-semibold text-[#FFFDF9] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(58,36,18,0.4)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]">
                 {String(unit.value).padStart(2, "0")}
               </span>
-              <span className="ah-font-display mt-2.5 text-[9px] font-semibold tracking-[0.3em] text-[#E8A05C] uppercase">
+              <span className="ah-font-display mt-2.5 text-[9px] font-semibold tracking-[0.3em] text-white uppercase">
                 {unit.label}
               </span>
             </motion.div>
@@ -212,13 +212,13 @@ export function AutumnHarvestCountdown({ site }: { site: WeddingSite }) {
         </div>
 
         <div className="mt-9 flex flex-col items-center gap-1.5">
-          <p className="ah-font-display text-xs font-semibold tracking-[0.3em] text-[#FFF7E8] uppercase">
+          <p className="ah-font-display text-xs font-semibold tracking-[0.3em] text-white uppercase">
             {formatLongDate(site.weddingDate, site.timezone)}
           </p>
           {lines.map((line, i) => (
             <p
               key={i}
-              className="ah-font-editorial flex items-center gap-1.5 text-sm text-[#FBEED3]/85 italic"
+              className="ah-font-editorial flex items-center gap-1.5 text-sm text-white italic"
             >
               <MapPin className="h-3.5 w-3.5 shrink-0 text-[#E8A05C]" />
               {line}
