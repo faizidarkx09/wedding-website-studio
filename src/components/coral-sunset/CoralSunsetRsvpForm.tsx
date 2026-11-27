@@ -231,7 +231,7 @@ export default function CoralSunsetRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="cs-rsvp-email" className="cs-font-display block text-[11px] tracking-[0.22em] text-[#3D1F2B] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="cs-rsvp-email"
@@ -242,7 +242,7 @@ export default function CoralSunsetRsvpForm({
               autoComplete="email"
               className="mt-2 w-full rounded-[10px] border border-[#E85D3D]/60 bg-[#FFF6EE] px-4 py-3 cs-font-editorial text-[1rem] text-[#3D1F2B] placeholder:text-[#3D1F2B]/40 focus:border-[#3D1F2B] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#C94A2E]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

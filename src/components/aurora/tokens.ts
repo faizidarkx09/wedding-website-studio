@@ -52,12 +52,21 @@ export const ENVELOPE_IMAGE_URL = "/images/themes/aurora/aurora-envelope.jpg";
 export const RSVP_IMAGE_URL = "/images/themes/aurora/aurora-rsvp.jpg";
 export const STORY_DANCE_URL = "/images/themes/aurora/aurora-story-1.jpg";
 export const STORY_WALK_URL = "/images/themes/aurora/aurora-story-2.jpg";
+/** The template's own couple photographs — AI-generated for Aurora,
+ * used first in the story and gallery. */
+export const COUPLE_1_URL = "/images/themes/aurora-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/aurora-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/aurora-couple-3.jpg";
 
 /** The template's own wedding photographs, in ribbon-flow order
- * (dance, lakeshore hero, walk) — used as the story fallback chrome
- * when the buyer has not uploaded their own photos yet (same
- * pattern as ÉTERNEL's template hero fallback). */
+ * (couple photos first, then dance, lakeshore hero, walk) — used as
+ * the story fallback chrome when the buyer has not uploaded their
+ * own photos yet (same pattern as ÉTERNEL's template hero
+ * fallback). */
 export const TEMPLATE_PHOTOS = [
+  COUPLE_1_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
   STORY_DANCE_URL,
   COVER_IMAGE_URL,
   STORY_WALK_URL,

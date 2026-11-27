@@ -4,21 +4,107 @@
 // layer, and "OPEN THE INVITATION". NOT a full-bleed centred cover.
 // Only the data comes from the site (Partner A / Partner B
 // placeholders). No music on this template.
+//
+// Cinematic opening "Bloom" (plays once per page session, never
+// under prefers-reduced-motion): Phase 1 anticipation — falling
+// petals, a soft glow pulse on the arch; Phase 2 bloom on tap
+// (~1.5s) — a burst of rose petals from the medallion, a rose chime
+// (A major), one gentle arch pulse, a light sweep across the arch
+// photo; Phase 3+4 live in the renderer (GardenGatesOverlay): the
+// cover exits instantly, the invitation mounts underneath, two
+// rose-trellis gates swing open from their outer hinges, then
+// dissolve with a blooming rose + rose shimmer. A reload in the same
+// session, or a reduced-motion tap, takes the plain 1.05s ceremony
+// instead. Skip jumps straight to the invitation.
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { FallingPetals, RoseDivider } from "./Decor";
 import { COVER_IMAGE_URL, coupleNames, formatDateDisplay, initials } from "./tokens";
+import {
+  PetalBurstCanvas,
+  RoseGardenSkipButton,
+  RoseGardenSoundToggle,
+} from "./RoseGardenCinematic";
+
+const SESSION_FLAG = "rg-cinematic-played";
+
+function alreadyPlayed(): boolean {
+  try {
+    return sessionStorage.getItem(SESSION_FLAG) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function markPlayed() {
+  try {
+    sessionStorage.setItem(SESSION_FLAG, "1");
+  } catch {
+    /* sessionStorage unavailable — sequence just replays on reload */
+  }
+}
 
 export default function RoseGardenCover({
   site,
   onOpen,
+  instantExit = false,
+  soundEnabled = true,
+  onToggleSound = () => {},
 }: {
   site: WeddingSite;
-  onOpen: () => void;
+  onOpen: (opts?: { cinematic?: boolean }) => void;
+  instantExit?: boolean;
+  soundEnabled?: boolean;
+  onToggleSound?: () => void;
 }) {
   const prefersReducedMotion = useReducedMotion();
+  // "idle" = Phase 1 anticipation; "seal" = Phase 2 bloom.
+  const [phase, setPhase] = useState<"idle" | "seal">("idle");
+  const [burstKey, setBurstKey] = useState(0);
+  const startedRef = useRef(false);
+  const sealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (sealTimerRef.current) clearTimeout(sealTimerRef.current);
+    },
+    []
+  );
+
+  const startCinematic = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    markPlayed();
+    setPhase("seal");
+    setBurstKey((k) => k + 1);
+    // Phase 2 lasts ~1.5s; then the renderer takes over (gates).
+    sealTimerRef.current = setTimeout(() => {
+      onOpen({ cinematic: true });
+    }, 1500);
+  };
+
+  const handleOpen = () => {
+    if (startedRef.current) return;
+    // Reduced motion, or a replay in the same session: plain ceremony.
+    if (prefersReducedMotion || alreadyPlayed()) {
+      startedRef.current = true;
+      onOpen();
+      return;
+    }
+    startCinematic();
+  };
+
+  const handleSkip = () => {
+    if (sealTimerRef.current) clearTimeout(sealTimerRef.current);
+    startedRef.current = true;
+    markPlayed();
+    onOpen();
+  };
+
+  const sealing = phase === "seal";
 
   return (
     <motion.div
@@ -26,12 +112,21 @@ export default function RoseGardenCover({
       aria-label="Wedding Invitation Cover"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }}
-      onClick={onOpen}
+      exit={
+        instantExit
+          ? { opacity: 0, transition: { duration: 0.05, ease: [0.65, 0, 0.35, 1] } }
+          : { opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }
+      }
+      onClick={handleOpen}
       className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-center overflow-hidden bg-[#FFF7F2] px-5 py-12 text-[#3D1420] select-none"
     >
       {/* Falling rose petals over the cream field */}
       {!prefersReducedMotion && <FallingPetals />}
+
+      {/* Phase 2 — rose petal burst from the medallion on tap */}
+      {!prefersReducedMotion && (
+        <PetalBurstCanvas burstKey={burstKey} burstOrigin={{ x: 0.5, y: 0.55 }} />
+      )}
 
       {/* Double hairline inner border framing the garden-card feel */}
       <div
@@ -42,6 +137,12 @@ export default function RoseGardenCover({
         aria-hidden="true"
         className="pointer-events-none absolute inset-[22px] border border-[#3E6B3A]/25"
       />
+
+      {/* Sound toggle — visible through the whole sequence, SFX only */}
+      <RoseGardenSoundToggle enabled={soundEnabled} onToggle={onToggleSound} />
+
+      {/* Skip — only while the bloom sequence is running */}
+      {sealing && <RoseGardenSkipButton onSkip={handleSkip} />}
 
       <div className="relative z-10 flex w-full max-w-[480px] flex-col items-center text-center">
         <motion.p
@@ -56,10 +157,30 @@ export default function RoseGardenCover({
         {/* The garden arch — the cover photo inside a tall arch */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 18, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 1.15, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          animate={
+            sealing
+              ? { opacity: 1, y: 0, scale: [1, 1.02, 1] }
+              : { opacity: 1, y: 0, scale: 1 }
+          }
+          transition={
+            sealing
+              ? { duration: 1.5, ease: [0.22, 1, 0.36, 1] }
+              : { duration: 1.15, delay: 0.35, ease: [0.22, 1, 0.36, 1] }
+          }
           className="relative mt-6 w-full max-w-[340px]"
         >
+          {/* Phase 2 — soft rose glow around the arch, once */}
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-[-10%] rounded-t-[999px] rounded-b-[6px]"
+            style={{
+              background:
+                "radial-gradient(ellipse 60% 50% at 50% 45%, rgba(179, 18, 79, 0.35) 0%, rgba(244, 167, 185, 0.12) 60%, transparent 75%)",
+            }}
+            initial={{ opacity: 0 }}
+            animate={sealing ? { opacity: [0, 0.9, 0.35] } : { opacity: 0 }}
+            transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+          />
           <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-[999px] rounded-b-[6px] shadow-[0_28px_48px_-16px_rgba(61,20,32,0.5)] ring-1 ring-[#B3124F]/40">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -78,6 +199,31 @@ export default function RoseGardenCover({
                   "linear-gradient(to bottom, rgba(179, 18, 79, 0.05) 0%, rgba(179, 18, 79, 0) 30%, rgba(61, 20, 32, 0.08) 100%)",
               }}
             />
+            {/* Phase 1 — gentle rose shimmer drifting across the arch;
+                Phase 2 — one faster sweep. */}
+            {!prefersReducedMotion && (
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 overflow-hidden"
+              >
+                <motion.div
+                  aria-hidden="true"
+                  className="absolute inset-y-[-10%] w-1/3"
+                  style={{
+                    background:
+                      "linear-gradient(100deg, transparent 0%, rgba(255,247,242,0.55) 50%, transparent 100%)",
+                    transform: "skewX(-12deg)",
+                  }}
+                  initial={{ x: "-160%" }}
+                  animate={sealing ? { x: "360%" } : { x: ["-160%", "360%"] }}
+                  transition={
+                    sealing
+                      ? { duration: 1.1, ease: [0.65, 0, 0.35, 1] }
+                      : { duration: 6, repeat: Infinity, ease: [0.45, 0.05, 0.55, 0.95], repeatDelay: 2.5 }
+                  }
+                />
+              </div>
+            )}
           </div>
           {/* Inner arch hairline */}
           <div
@@ -121,20 +267,21 @@ export default function RoseGardenCover({
           {formatDateDisplay(site.weddingDate, site.timezone)}
         </motion.p>
 
-        {/* Bottom Invitation Open Action */}
+        {/* Bottom Invitation Open Action — fades out as the bloom activates */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          animate={{ opacity: sealing ? 0 : 1, y: 0 }}
+          transition={{ duration: 0.9, delay: sealing ? 0 : 1.2, ease: [0.16, 1, 0.3, 1] }}
           className="relative z-10 mt-8 pb-2 text-center"
         >
           <button
             type="button"
+            disabled={sealing}
             onClick={(e) => {
               e.stopPropagation();
-              onOpen();
+              handleOpen();
             }}
-            className="group relative inline-flex min-h-[48px] items-center justify-center bg-[#B3124F] px-7 py-3 rg-font-display text-xs tracking-[0.3em] text-[#FFF7F2] uppercase shadow-[0_12px_24px_-8px_rgba(126,12,55,0.6)] transition-colors duration-300 hover:bg-[#7E0C37] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#B3124F]"
+            className="group relative inline-flex min-h-[48px] items-center justify-center bg-[#B3124F] px-7 py-3 rg-font-display text-xs tracking-[0.3em] text-[#FFF7F2] uppercase shadow-[0_12px_24px_-8px_rgba(126,12,55,0.6)] transition-colors duration-300 hover:bg-[#7E0C37] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#B3124F] disabled:pointer-events-none"
           >
             OPEN THE INVITATION
           </button>

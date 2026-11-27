@@ -27,9 +27,9 @@ const SAKURA_DREAM_GALLERY_URLS = [
   "/images/themes/sakura-dream-detail.jpg",
   "/images/themes/sakura-dream-story-1.jpg",
   "/images/themes/sakura-dream.jpg",
-  "/images/themes/royal-burgundy/photo-hands.jpg",
-  "/images/themes/royal-burgundy/photo-veil.jpg",
-  "/images/themes/royal-burgundy/photo-sunset.jpg",
+  "/images/themes/sakura-dream-couple-1.jpg",
+  "/images/themes/sakura-dream-couple-2.jpg",
+  "/images/themes/sakura-dream-couple-3.jpg",
   "/images/themes/royal-burgundy/photo-toast.jpg",
 ];
 

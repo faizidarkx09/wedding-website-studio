@@ -5,19 +5,89 @@
 // (Partner A / Partner B placeholders). No music on this template.
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { AuroraLights, AuroraRibbon } from "./Decor";
 import { COVER_IMAGE_URL, coupleNames, formatDateDisplay, initials } from "./tokens";
+import { AuroraCanvas, SkipButton, SoundToggle } from "./CinematicOpening";
+
+const SESSION_FLAG = "au-cinematic-played";
+
+function alreadyPlayed(): boolean {
+  try {
+    return sessionStorage.getItem(SESSION_FLAG) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function markPlayed() {
+  try {
+    sessionStorage.setItem(SESSION_FLAG, "1");
+  } catch {
+    /* sessionStorage unavailable — sequence just replays on reload */
+  }
+}
 
 export default function AuroraCover({
   site,
   onOpen,
+  instantExit = false,
+  soundEnabled = true,
+  onToggleSound = () => {},
 }: {
   site: WeddingSite;
-  onOpen: () => void;
+  onOpen: (opts?: { cinematic?: boolean }) => void;
+  instantExit?: boolean;
+  soundEnabled?: boolean;
+  onToggleSound?: () => void;
 }) {
   const prefersReducedMotion = useReducedMotion();
+  // "idle" = Phase 1 anticipation; "seal" = Phase 2 activation.
+  const [phase, setPhase] = useState<"idle" | "seal">("idle");
+  const [burstKey, setBurstKey] = useState(0);
+  const startedRef = useRef(false);
+  const sealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (sealTimerRef.current) clearTimeout(sealTimerRef.current);
+    },
+    []
+  );
+
+  const startCinematic = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    markPlayed();
+    setPhase("seal");
+    setBurstKey((k) => k + 1);
+    // Phase 2 lasts ~1.5s; then the renderer takes over (sky panels).
+    sealTimerRef.current = setTimeout(() => {
+      onOpen({ cinematic: true });
+    }, 1500);
+  };
+
+  const handleOpen = () => {
+    if (startedRef.current) return;
+    // Reduced motion, or a replay in the same session: plain ceremony.
+    if (prefersReducedMotion || alreadyPlayed()) {
+      startedRef.current = true;
+      onOpen();
+      return;
+    }
+    startCinematic();
+  };
+
+  const handleSkip = () => {
+    if (sealTimerRef.current) clearTimeout(sealTimerRef.current);
+    startedRef.current = true;
+    markPlayed();
+    onOpen();
+  };
+
+  const sealing = phase === "seal";
 
   return (
     <motion.div
@@ -25,9 +95,13 @@ export default function AuroraCover({
       aria-label="Wedding Invitation Cover"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }}
-      onClick={onOpen}
-      className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden bg-[#0F172A] px-5 py-12 text-[#F4F7FB] select-none"
+      exit={
+        instantExit
+          ? { opacity: 0, transition: { duration: 0.05, ease: [0.65, 0, 0.35, 1] } }
+          : { opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }
+      }
+      onClick={handleOpen}
+      className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden bg-[#0F172A] px-5 pt-20 pb-12 text-[#F4F7FB] select-none"
     >
       {/* Full-bleed night-lake aurora photograph */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -82,6 +156,17 @@ export default function AuroraCover({
       {/* Aurora light streaks + stars */}
       {!prefersReducedMotion && <AuroraLights />}
 
+      {/* Cinematic Phase 1 — twinkling stars + falling snow (+ star burst on tap) */}
+      {!prefersReducedMotion && (
+        <AuroraCanvas particleCount={16} burstKey={burstKey} burstOrigin={{ x: 0.5, y: 0.42 }} />
+      )}
+
+      {/* Sound toggle — visible through the whole sequence, SFX only */}
+      <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />
+
+      {/* Skip — only while the seal sequence is running */}
+      {sealing && <SkipButton onSkip={handleSkip} />}
+
       {/* Thin double hairline inner border framing the night card feel */}
       <div
         aria-hidden="true"
@@ -106,8 +191,16 @@ export default function AuroraCover({
       <div className="relative z-10 flex flex-col items-center text-center">
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          animate={
+            sealing
+              ? { opacity: 1, scale: [1, 1.05, 1] }
+              : { opacity: 1, scale: 1 }
+          }
+          transition={
+            sealing
+              ? { duration: 1.5, ease: [0.22, 1, 0.36, 1] }
+              : { duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }
+          }
           className="relative flex h-[92px] w-[92px] items-center justify-center rounded-full"
           style={{
             background:
@@ -115,6 +208,18 @@ export default function AuroraCover({
             boxShadow: "0 0 0 1px rgba(94,234,212,0.55), 0 0 34px rgba(20,184,166,0.35)",
           }}
         >
+          {/* Phase 2 — teal→violet glow flare around the ring, once */}
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-[-45%] rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle at 50% 50%, rgba(94, 234, 212, 0.55) 0%, rgba(139, 92, 246, 0.18) 55%, transparent 75%)",
+            }}
+            initial={{ opacity: 0 }}
+            animate={sealing ? { opacity: [0, 0.95, 0.35] } : { opacity: 0 }}
+            transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+          />
           <motion.span
             animate={prefersReducedMotion ? undefined : { rotate: 360 }}
             transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
@@ -156,15 +261,16 @@ export default function AuroraCover({
       {/* Bottom Invitation Open Action */}
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        animate={{ opacity: sealing ? 0 : 1, y: 0 }}
+        transition={{ duration: 0.6, delay: sealing ? 0 : 0.9, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 pb-2 text-center"
       >
         <button
           type="button"
+          disabled={sealing}
           onClick={(e) => {
             e.stopPropagation();
-            onOpen();
+            handleOpen();
           }}
           className="group relative inline-flex min-h-[48px] items-center justify-center px-6 py-3 au-font-display text-xs font-semibold tracking-[0.34em] text-[#F4F7FB] uppercase transition-colors duration-300 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#5EEAD4]"
         >

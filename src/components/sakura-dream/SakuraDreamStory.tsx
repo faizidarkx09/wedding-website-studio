@@ -10,9 +10,9 @@ import { ArrowLeft, Camera, Heart } from "lucide-react";
 import type { WeddingSite } from "@/lib/types";
 import { Blossom, PaperSurface, PetalDivider } from "./Decor";
 import {
-  PHOTO_SUNSET_URL,
-  PHOTO_TOAST_URL,
-  STORY_BLOSSOM_URL,
+  COUPLE_1_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
   STORY_CAPTIONS,
   TEMPLATE_PHOTOS,
   coupleNames,
@@ -36,7 +36,7 @@ export default function SakuraDreamStory({
   const closingPhotos =
     gallery.length >= 3
       ? [gallery[0], gallery[2], gallery[1]]
-      : [STORY_BLOSSOM_URL, PHOTO_TOAST_URL, PHOTO_SUNSET_URL];
+      : [COUPLE_1_URL, COUPLE_2_URL, COUPLE_3_URL];
 
   // Interleave: each petal-path stop pairs one photo with one
   // paragraph (extra paragraphs append after the last stop).

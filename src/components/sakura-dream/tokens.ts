@@ -44,6 +44,16 @@ export const DETAIL_IMAGE_URL = "/images/themes/sakura-dream-detail.jpg";
 export const ENVELOPE_IMAGE_URL = "/images/themes/sakura-dream-detail.jpg";
 export const PETAL_CARD_RSVP_URL = "/images/themes/sakura-dream-rsvp.jpg";
 export const STORY_BLOSSOM_URL = "/images/themes/sakura-dream-story-1.jpg";
+/** The 3 AI couple photos under the cherry blossoms (soft pink
+ * spring light), staged from ~/workspace/sakura-dream-assets/
+ * optimized/ — each ≤ 258 KB, max 1200px long side, progressive
+ * JPEG. GitHub target: public/images/themes/sakura-dream-couple-{1,2,3}.jpg
+ * (upload pending — the parent uploads them; until then these paths
+ * 404 on the live site and the petal path falls back to the
+ * buyer's own gallery when present). */
+export const COUPLE_1_URL = "/images/themes/sakura-dream-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/sakura-dream-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/sakura-dream-couple-3.jpg";
 /** The 5 neutral couple photos from Royal Burgundy — palette-neutral,
  * reused by path (never re-generated). */
 export const PHOTO_HANDS_URL = "/images/themes/royal-burgundy/photo-hands.jpg";
@@ -53,14 +63,15 @@ export const PHOTO_TOAST_URL = "/images/themes/royal-burgundy/photo-toast.jpg";
 export const PHOTO_MEADOW_URL = "/images/themes/royal-burgundy/photo-meadow.jpg";
 
 /** The template's own wedding photographs, in petal-path order
- * (blossom hands, hands, veil, sunset) — used as the petal-path
- * fallback chrome when the buyer has not uploaded their own photos
- * yet (same pattern as ÉTERNEL's template hero fallback). */
+ * (the 3 cherry-blossom couple photos, then the blossom close-up)
+ * — used as the petal-path fallback chrome when the buyer has not
+ * uploaded their own photos yet (same pattern as ÉTERNEL's
+ * template hero fallback). */
 export const TEMPLATE_PHOTOS = [
+  COUPLE_1_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
   STORY_BLOSSOM_URL,
-  PHOTO_HANDS_URL,
-  PHOTO_VEIL_URL,
-  PHOTO_SUNSET_URL,
 ] as const;
 
 /** Petal-path captions (generic captions, not couple data). */

@@ -60,11 +60,21 @@ export const STORY_TRAIL_URL = "/images/themes/forest-whisper-story-1.jpg";
  * (same reuse pattern as Golden Hour's Royal Burgundy photos). */
 export const PHOTO_MEADOW_URL = "/images/themes/royal-burgundy/photo-meadow.jpg";
 
-/** The template's own photographs, in zigzag order (lantern hands,
- * meadow) — used as the story fallback when the buyer has not
- * uploaded their own photos yet (same pattern as ÉTERNEL's template
- * hero fallback). */
-export const TEMPLATE_PHOTOS = [STORY_TRAIL_URL, PHOTO_MEADOW_URL] as const;
+/** The template's own couple photographs — three AI-generated
+ * forest scenes (misty trail walk, canopy portrait, golden-hour
+ * clearing dance), staged from
+ * ~/workspace/forest-whisper-assets/optimized/ as
+ * public/images/themes/forest-whisper-couple-N.jpg. Used as the
+ * story fallback when the buyer has not uploaded their own photos
+ * yet (same pattern as ÉTERNEL's template hero fallback). */
+export const COUPLE_PHOTO_1_URL = "/images/themes/forest-whisper-couple-1.jpg";
+export const COUPLE_PHOTO_2_URL = "/images/themes/forest-whisper-couple-2.jpg";
+export const COUPLE_PHOTO_3_URL = "/images/themes/forest-whisper-couple-3.jpg";
+
+/** The template's own photographs, in zigzag order (trail walk,
+ * canopy portrait, clearing dance) — used as the story fallback
+ * when the buyer has not uploaded their own photos yet. */
+export const TEMPLATE_PHOTOS = [COUPLE_PHOTO_1_URL, COUPLE_PHOTO_2_URL, COUPLE_PHOTO_3_URL] as const;
 
 /** Zigzag row captions (generic captions, not couple data). */
 export const STORY_CAPTIONS = ["The First Hello", "The Lantern Lit", "The Trail Ahead"] as const;

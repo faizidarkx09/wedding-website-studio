@@ -8,19 +8,86 @@
 // No music on this template.
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { FloatingLeaves, PalmCrest } from "./Decor";
 import { COVER_IMAGE_URL, coupleNames, formatDateDisplay, initials } from "./tokens";
+import { LeafCanvas, SkipButton, SoundToggle, playWaveSound } from "./CinematicOpening";
 
 export default function TropicalPalmCover({
   site,
   onOpen,
+  instantExit,
+  soundEnabled = true,
+  onToggleSound,
 }: {
   site: WeddingSite;
-  onOpen: () => void;
+  onOpen: (opts?: { cinematic?: boolean }) => void;
+  instantExit?: boolean;
+  soundEnabled?: boolean;
+  onToggleSound?: () => void;
 }) {
   const prefersReducedMotion = useReducedMotion();
+
+  // Cinematic opening (Phase 1 ambience + Phase 2 crest glow):
+  // plays once per session; reduced-motion or a repeat visit opens
+  // the invitation directly. Double-taps are guarded by startedRef.
+  const SESSION_FLAG = "tp-cinematic-played";
+  const [sealing, setSealing] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const startedRef = useRef(false);
+  const sealTimerRef = useRef<number | null>(null);
+
+  const alreadyPlayed = () => {
+    try {
+      return sessionStorage.getItem(SESSION_FLAG) === "1";
+    } catch {
+      return false;
+    }
+  };
+  const markPlayed = () => {
+    try {
+      sessionStorage.setItem(SESSION_FLAG, "1");
+    } catch {
+      /* session storage unavailable — cinematic may replay */
+    }
+  };
+
+  useEffect(
+    () => () => {
+      if (sealTimerRef.current !== null) window.clearTimeout(sealTimerRef.current);
+    },
+    [],
+  );
+
+  const startCinematic = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    markPlayed();
+    setSealing(true);
+    setBurstKey((k) => k + 1);
+    playWaveSound();
+    sealTimerRef.current = window.setTimeout(() => {
+      onOpen({ cinematic: true });
+    }, 1500);
+  };
+
+  const handleOpen = () => {
+    if (startedRef.current) return;
+    if (prefersReducedMotion || alreadyPlayed()) {
+      startedRef.current = true;
+      onOpen();
+      return;
+    }
+    startCinematic();
+  };
+
+  const handleSkip = () => {
+    if (sealTimerRef.current !== null) window.clearTimeout(sealTimerRef.current);
+    startedRef.current = true;
+    onOpen();
+  };
 
   return (
     <motion.div
@@ -28,9 +95,13 @@ export default function TropicalPalmCover({
       aria-label="Wedding Invitation Cover"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }}
-      onClick={onOpen}
-      className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden bg-[#14532D] px-5 pt-10 pb-8 text-[#FFFBEB] select-none"
+      exit={
+        instantExit
+          ? { opacity: 0, transition: { duration: 0.35, ease: [0.33, 0, 0.67, 1] } }
+          : { opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }
+      }
+      onClick={handleOpen}
+      className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden bg-[#14532D] px-5 pt-20 pb-8 text-[#FFFBEB] select-none"
     >
       {/* Full-bleed beach photograph with palm shadows */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -63,6 +134,13 @@ export default function TropicalPalmCover({
       {/* Floating leaves — ~40 slow drifting palm leaves over the photo */}
       {!prefersReducedMotion && <FloatingLeaves />}
 
+      {/* Cinematic layer — falling leaves + dappled light + Phase 2 burst */}
+      {!prefersReducedMotion && <LeafCanvas burstKey={burstKey} burstOrigin={{ x: 0.5, y: 0.4 }} />}
+
+      {/* Sound toggle — always visible; Skip appears while sealing */}
+      {onToggleSound && <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />}
+      {sealing && <SkipButton onSkip={handleSkip} />}
+
       {/* Double sand hairline inner border framing the beach-card feel */}
       <div
         aria-hidden="true"
@@ -91,15 +169,48 @@ export default function TropicalPalmCover({
         className="relative z-10 my-4 w-full max-w-[420px]"
       >
         <motion.div
-          animate={prefersReducedMotion ? undefined : { y: [0, -5, 0] }}
-          transition={{
-            duration: 6.5,
-            repeat: Infinity,
-            ease: [0.25, 0.1, 0.25, 1],
-          }}
+          animate={
+            sealing
+              ? { y: 0, scale: [1, 1.04, 1] }
+              : prefersReducedMotion
+                ? undefined
+                : { y: [0, -5, 0] }
+          }
+          transition={
+            sealing
+              ? { duration: 1.5, ease: [0.22, 1, 0.36, 1] }
+              : { duration: 6.5, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }
+          }
           className="relative mx-auto aspect-square w-full max-w-[260px]"
         >
           <PalmCrest className="absolute inset-0 h-full w-full drop-shadow-[0_10px_24px_rgba(10,46,25,0.6)]" />
+
+          {/* Phase 2 glow — warm island light + sweep across the crest */}
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-[-18%] rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(255,236,180,0.95) 0%, rgba(46,125,91,0.5) 45%, rgba(46,125,91,0) 72%)",
+            }}
+            initial={{ opacity: 0 }}
+            animate={sealing ? { opacity: [0, 0.9, 0.4] } : { opacity: 0 }}
+            transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+          />
+          {sealing && (
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
+              <motion.div
+                className="absolute inset-y-0 w-1/4"
+                style={{
+                  background:
+                    "linear-gradient(100deg, transparent 0%, rgba(255,236,180,0.6) 50%, transparent 100%)",
+                }}
+                initial={{ x: "-160%" }}
+                animate={{ x: "360%" }}
+                transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </div>
+          )}
 
           {/* Real HTML Typography Monogram Overlaid Inside the Crest Center */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -153,11 +264,12 @@ export default function TropicalPalmCover({
 
             <button
               type="button"
+              disabled={sealing}
               onClick={(e) => {
                 e.stopPropagation();
-                onOpen();
+                handleOpen();
               }}
-              className="group relative mt-4 inline-flex min-h-[48px] items-center justify-center px-6 py-3 tp-font-display text-xs tracking-[0.34em] text-[#14532D] uppercase transition-colors duration-300 hover:text-[#15803D] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#15803D]"
+              className="group relative mt-4 inline-flex min-h-[48px] items-center justify-center px-6 py-3 tp-font-display text-xs tracking-[0.34em] text-[#14532D] uppercase transition-colors duration-300 hover:text-[#15803D] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#15803D] disabled:opacity-0"
             >
               <span>OPEN THE INVITATION</span>
               <span

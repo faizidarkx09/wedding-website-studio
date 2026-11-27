@@ -11,8 +11,7 @@ import type { WeddingSite } from "@/lib/types";
 import { PaperSurface, RoseDivider, RoseMark } from "./Decor";
 import {
   STORY_CHAPTERS,
-  STORY_HANDS_URL,
-  STORY_PATH_URL,
+  TEMPLATE_PHOTOS,
   coupleNames,
   formatLongDate,
   storyParagraphs,
@@ -181,33 +180,58 @@ export function RoseGardenCountdown({ site }: { site: WeddingSite }) {
         Join us as we count down to a day filled with love, laughter, and cherished memories.
       </p>
 
-      {/* Countdown — 5 units, 2 lines of 3 + 2 in narrow containers,
-          one row in wide containers (container queries, so the
-          editor preview renders the mobile layout). */}
-      <div
-        role="timer"
-        aria-live="off"
-        className="@container mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-6"
-      >
-        {units.map((unit, idx) => (
-          <motion.div
-            key={unit.label}
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
-              idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
-            }`}
-          >
-            <span className="rg-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#F4A7B9]/65 bg-[#2F5230]/70 text-[1.55rem] font-normal text-[#FFF7F2] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(20,40,20,0.4)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]">
-              {String(unit.value).padStart(2, "0")}
-            </span>
-            <span className="rg-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#F4A7B9] uppercase">
-              {unit.label}
-            </span>
-          </motion.div>
-        ))}
+      {/* Countdown — "Garden trellis": the five units hang from a
+          horizontal vine line like seed-packet tags, at staggered
+          lengths, gently swaying. Tags are cream cards on the
+          leaf-green band; numbers and labels are deep rose on cream
+          (contrast ~10:1). Container queries, so the editor preview
+          renders the mobile layout. */}
+      <div role="timer" aria-live="off" className="@container relative mx-auto mt-8 w-full max-w-[560px]">
+        {/* The vine line the tags hang from */}
+        <div
+          aria-hidden="true"
+          className="absolute top-0 right-2 left-2 h-px bg-gradient-to-r from-transparent via-[#3E6B3A] to-transparent"
+        />
+        <div className="flex items-start justify-center gap-2 @min-[40rem]:gap-3">
+          {units.map((unit, idx) => {
+            const stringH = ["8px", "20px", "12px", "24px", "16px"][idx] ?? "12px";
+            return (
+              <motion.div
+                key={unit.label}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: -10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.7, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col items-center"
+              >
+                <motion.div
+                  animate={
+                    prefersReducedMotion
+                      ? undefined
+                      : { rotate: [0, 1.4, 0, -1.4, 0] }
+                  }
+                  transition={{ duration: 5, delay: idx * 0.45, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }}
+                  style={{ transformOrigin: "top center" }}
+                  className="flex flex-col items-center"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="block w-px bg-[#3E6B3A]"
+                    style={{ height: stringH }}
+                  />
+                  <span className="flex w-[60px] flex-col items-center rounded-md border border-[#B3124F]/30 bg-[#FFF7F2] px-1 py-2.5 shadow-[0_8px_18px_-6px_rgba(20,40,20,0.5)] @min-[40rem]:w-[74px] @min-[40rem]:py-3">
+                    <span className="rg-font-display text-[1.3rem] leading-none font-normal text-[#7E0C37] tabular-nums @min-[40rem]:text-[1.55rem]">
+                      {String(unit.value).padStart(2, "0")}
+                    </span>
+                    <span className="rg-font-display mt-1.5 text-[8px] tracking-[0.22em] text-[#7E0C37] uppercase @min-[40rem]:text-[9px]">
+                      {unit.label}
+                    </span>
+                  </span>
+                </motion.div>
+              </motion.div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="mt-9 flex flex-col items-center gap-1.5">
@@ -243,7 +267,7 @@ export function RoseGardenStoryPreview({
   const paragraphs = storyParagraphs(site);
   const gallery = (site.gallery ?? []).map((g) => g.url);
   const photos =
-    gallery.length >= 2 ? [gallery[0], gallery[1]] : [STORY_HANDS_URL, STORY_PATH_URL];
+    gallery.length >= 3 ? gallery.slice(0, 3) : [...TEMPLATE_PHOTOS];
   const entries = paragraphs.slice(0, 3).map((text, i) => ({
     title: STORY_CHAPTERS[i % STORY_CHAPTERS.length],
     text,

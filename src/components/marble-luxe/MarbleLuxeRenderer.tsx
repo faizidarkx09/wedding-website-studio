@@ -22,7 +22,7 @@
 // the interaction instead.
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { PaperSurface } from "./Decor";
@@ -42,6 +42,14 @@ import MarbleLuxeStory from "./MarbleLuxeStory";
 import MarbleLuxeDetails from "./MarbleLuxeDetails";
 import MarbleLuxeRsvpForm from "./MarbleLuxeRsvpForm";
 import { resolveHeroSrc, willRenderSection } from "./tokens";
+import {
+  MarbleOverlay,
+  isCinematicSoundEnabled,
+  playGoldShimmer,
+  playMarbleBell,
+  setCinematicSoundEnabled,
+  type MarblePhase,
+} from "./CinematicOpening";
 
 type View = "cover" | "invitation" | "story" | "details";
 
@@ -61,6 +69,49 @@ export default function MarbleLuxeRenderer({
   const savedScrollRef = useRef(0);
   const rootRef = useRef<HTMLDivElement>(null);
 
+  // Cinematic opening (Phases 3 + 4): the white marble slabs part
+  // left/right slowly while the invitation mounts underneath, then
+  // a gold line expands and a soft shimmer dissolves them away.
+  // Timers are tracked so Skip / goToCover can cancel them cleanly.
+  // (Slower cadence than the other templates — the slabs take 3.0s
+  // to part, so fading starts at 3200ms.)
+  const [panels, setPanels] = useState<"hidden" | MarblePhase>("hidden");
+  const [instantExit, setInstantExit] = useState(false);
+  const [revealZoom, setRevealZoom] = useState(false);
+  const [soundOn, setSoundOn] = useState(isCinematicSoundEnabled());
+  const soundOnRef = useRef(isCinematicSoundEnabled());
+  const cinematicTimersRef = useRef<number[]>([]);
+
+  useEffect(
+    () => () => {
+      for (const t of cinematicTimersRef.current) window.clearTimeout(t);
+      cinematicTimersRef.current = [];
+    },
+    [],
+  );
+
+  const later = (ms: number, fn: () => void) => {
+    cinematicTimersRef.current.push(window.setTimeout(fn, ms));
+  };
+
+  const clearCinematicTimers = () => {
+    for (const t of cinematicTimersRef.current) window.clearTimeout(t);
+    cinematicTimersRef.current = [];
+  };
+
+  const finishCinematic = () => {
+    clearCinematicTimers();
+    setPanels("hidden");
+    setInstantExit(false);
+  };
+
+  const toggleSound = () => {
+    const next = !soundOnRef.current;
+    soundOnRef.current = next;
+    setSoundOn(next);
+    setCinematicSoundEnabled(next);
+  };
+
   // On template preview pages (/templates/[id]) this renderer sits far
   // down a long page (SiteNav + facts + How-to-buy above it), so
   // document top 0 is NOT the cover — scrolling there yanks the
@@ -79,7 +130,25 @@ export default function MarbleLuxeRenderer({
     }
   };
 
-  const openInvitation = () => {
+  const openInvitation = (opts?: { cinematic?: boolean }) => {
+    if (opts?.cinematic) {
+      setInstantExit(true);
+      setRevealZoom(true);
+      setPanels("closed");
+      setCurrentView("invitation");
+      scrollToRendererTop();
+      playMarbleBell();
+      later(80, () => setPanels("parting"));
+      later(3200, () => {
+        setPanels("fading");
+        playGoldShimmer();
+      });
+      later(4400, () => {
+        setPanels("hidden");
+        setInstantExit(false);
+      });
+      return;
+    }
     setCurrentView("invitation");
     scrollToRendererTop();
   };
@@ -87,13 +156,13 @@ export default function MarbleLuxeRenderer({
   const openStory = () => {
     savedScrollRef.current = window.scrollY;
     setCurrentView("story");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    scrollToRendererTop();
   };
 
   const openDetails = () => {
     savedScrollRef.current = window.scrollY;
     setCurrentView("details");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    scrollToRendererTop();
   };
 
   const backToInvitation = () => {
@@ -109,6 +178,8 @@ export default function MarbleLuxeRenderer({
   };
 
   const goToCover = () => {
+    finishCinematic();
+    setRevealZoom(false);
     setCurrentView("cover");
     scrollToRendererTop();
   };
@@ -144,14 +215,21 @@ export default function MarbleLuxeRenderer({
 
       <AnimatePresence mode="wait">
         {currentView === "cover" && envelope && (
-          <MarbleLuxeCover key="cover" site={site} onOpen={openInvitation} />
+          <MarbleLuxeCover
+            key="cover"
+            site={site}
+            onOpen={openInvitation}
+            instantExit={instantExit}
+            soundEnabled={soundOn}
+            onToggleSound={toggleSound}
+          />
         )}
 
         {currentView === "invitation" && (
           <motion.div
             key="invitation"
-            initial={{ opacity: 0, y: 36 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 36, scale: revealZoom ? 1.04 : 1 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* White invitation body */}
@@ -203,6 +281,20 @@ export default function MarbleLuxeRenderer({
           />
         )}
       </AnimatePresence>
+
+      {/* Cinematic overlay (Phases 3 + 4) — outside AnimatePresence
+          so it survives the cover → invitation view swap. */}
+      {panels !== "hidden" && (
+        <MarbleOverlay
+          phase={panels}
+          soundEnabled={soundOn}
+          onToggleSound={toggleSound}
+          onSkip={() => {
+            finishCinematic();
+            setRevealZoom(false);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -6,19 +6,89 @@
 // Partner B placeholders). No music on this template.
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { Fireflies, WoodSign } from "./Decor";
 import { COVER_IMAGE_URL, coupleNames, formatDateDisplay, initials } from "./tokens";
+import { DustCanvas, SkipButton, SoundToggle } from "./CinematicOpening";
+
+const SESSION_FLAG = "rc-cinematic-played";
+
+function alreadyPlayed(): boolean {
+  try {
+    return sessionStorage.getItem(SESSION_FLAG) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function markPlayed() {
+  try {
+    sessionStorage.setItem(SESSION_FLAG, "1");
+  } catch {
+    /* sessionStorage unavailable — sequence just replays on reload */
+  }
+}
 
 export default function RusticCharmCover({
   site,
   onOpen,
+  instantExit = false,
+  soundEnabled = true,
+  onToggleSound = () => {},
 }: {
   site: WeddingSite;
-  onOpen: () => void;
+  onOpen: (opts?: { cinematic?: boolean }) => void;
+  instantExit?: boolean;
+  soundEnabled?: boolean;
+  onToggleSound?: () => void;
 }) {
   const prefersReducedMotion = useReducedMotion();
+  // "idle" = Phase 1 anticipation; "seal" = Phase 2 activation.
+  const [phase, setPhase] = useState<"idle" | "seal">("idle");
+  const [burstKey, setBurstKey] = useState(0);
+  const startedRef = useRef(false);
+  const sealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (sealTimerRef.current) clearTimeout(sealTimerRef.current);
+    },
+    []
+  );
+
+  const startCinematic = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    markPlayed();
+    setPhase("seal");
+    setBurstKey((k) => k + 1);
+    // Phase 2 lasts ~1.5s; then the renderer takes over (barn doors).
+    sealTimerRef.current = setTimeout(() => {
+      onOpen({ cinematic: true });
+    }, 1500);
+  };
+
+  const handleOpen = () => {
+    if (startedRef.current) return;
+    // Reduced motion, or a replay in the same session: plain ceremony.
+    if (prefersReducedMotion || alreadyPlayed()) {
+      startedRef.current = true;
+      onOpen();
+      return;
+    }
+    startCinematic();
+  };
+
+  const handleSkip = () => {
+    if (sealTimerRef.current) clearTimeout(sealTimerRef.current);
+    startedRef.current = true;
+    markPlayed();
+    onOpen();
+  };
+
+  const sealing = phase === "seal";
 
   return (
     <motion.div
@@ -26,8 +96,12 @@ export default function RusticCharmCover({
       aria-label="Wedding Invitation Cover"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }}
-      onClick={onOpen}
+      exit={
+        instantExit
+          ? { opacity: 0, transition: { duration: 0.05, ease: [0.65, 0, 0.35, 1] } }
+          : { opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }
+      }
+      onClick={handleOpen}
       className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden bg-[#2D1F14] px-5 py-12 text-[#FEF3C7] select-none"
     >
       {/* Full-bleed barn photograph */}
@@ -61,6 +135,17 @@ export default function RusticCharmCover({
       {/* Fireflies — ~36 warm fireflies drifting over the photograph */}
       {!prefersReducedMotion && <Fireflies />}
 
+      {/* Cinematic Phase 1 — fireflies + dust motes (+ firefly burst on tap) */}
+      {!prefersReducedMotion && (
+        <DustCanvas particleCount={14} burstKey={burstKey} burstOrigin={{ x: 0.5, y: 0.55 }} />
+      )}
+
+      {/* Sound toggle — visible through the whole sequence, SFX only */}
+      <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />
+
+      {/* Skip — only while the seal sequence is running */}
+      {sealing && <SkipButton onSkip={handleSkip} />}
+
       {/* Double twine hairline inner border framing the sign */}
       <div
         aria-hidden="true"
@@ -87,8 +172,16 @@ export default function RusticCharmCover({
 
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 16, rotate: -1.2 }}
-          animate={{ opacity: 1, y: 0, rotate: -1.2 }}
-          transition={{ duration: 0.9, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          animate={
+            sealing
+              ? { opacity: 1, y: 0, rotate: [-1.2, 0.8, -1.2] }
+              : { opacity: 1, y: 0, rotate: -1.2 }
+          }
+          transition={
+            sealing
+              ? { duration: 1.5, ease: [0.22, 1, 0.36, 1] }
+              : { duration: 0.9, delay: 0.25, ease: [0.22, 1, 0.36, 1] }
+          }
           className="mt-5 w-full"
         >
           <WoodSign className="px-6 py-8">
@@ -111,10 +204,30 @@ export default function RusticCharmCover({
         {/* Wood-disc monogram badge hung below the sign */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          animate={
+            sealing
+              ? { opacity: 1, scale: [1, 1.06, 1] }
+              : { opacity: 1, scale: 1 }
+          }
+          transition={
+            sealing
+              ? { duration: 1.5, ease: [0.22, 1, 0.36, 1] }
+              : { duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }
+          }
           className="relative mt-6"
         >
+          {/* Phase 2 — warm lantern glow flare around the wood disc, once */}
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-[-55%] rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle at 50% 50%, rgba(253, 230, 138, 0.6) 0%, rgba(253, 230, 138, 0.15) 55%, transparent 75%)",
+            }}
+            initial={{ opacity: 0 }}
+            animate={sealing ? { opacity: [0, 0.95, 0.35] } : { opacity: 0 }}
+            transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+          />
           <motion.div
             animate={prefersReducedMotion ? undefined : { y: [0, -5, 0] }}
             transition={{ duration: 6.5, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }}
@@ -134,15 +247,16 @@ export default function RusticCharmCover({
       {/* Bottom Invitation Open Action */}
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        animate={{ opacity: sealing ? 0 : 1, y: 0 }}
+        transition={{ duration: 0.6, delay: sealing ? 0 : 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 pb-2 text-center"
       >
         <button
           type="button"
+          disabled={sealing}
           onClick={(e) => {
             e.stopPropagation();
-            onOpen();
+            handleOpen();
           }}
           className="group relative inline-flex min-h-[48px] items-center justify-center px-6 py-3 rc-font-display text-xs tracking-[0.34em] text-[#FEF3C7] uppercase transition-colors duration-300 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FDE68A]"
         >

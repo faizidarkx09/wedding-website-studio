@@ -180,9 +180,12 @@ export function AmethystRoyaleCountdown({ site }: { site: WeddingSite }) {
         Join us as we count down to a day filled with love, laughter, and cherished memories.
       </p>
 
-      {/* Countdown — 5 hexagonal tiles, 2 lines of 3 + 2 in narrow
-          containers, one row in wide containers (container queries,
-          so the editor preview renders the mobile layout). */}
+      {/* Countdown — CRYSTAL PILLARS: tall narrow faceted cards in
+          deep violet with a gem-gradient top edge, white numerals and
+          lavender labels inside (replaces the old hexagon tiles).
+          5 units, 2 lines of 3 + 2 in narrow containers, one row in
+          wide containers (container queries, so the editor preview
+          renders the mobile layout). */}
       <div
         role="timer"
         aria-live="off"
@@ -199,17 +202,22 @@ export function AmethystRoyaleCountdown({ site }: { site: WeddingSite }) {
               idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
             }`}
           >
-            <span
-              className="ar-font-display flex h-16 w-16 items-center justify-center bg-[#2E1065]/80 text-[1.55rem] font-normal text-[#FFFDFF] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(46,16,101,0.4)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]"
-              style={{
-                clipPath: "polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%)",
-              }}
-            >
-              {String(unit.value).padStart(2, "0")}
-            </span>
-            <span className="ar-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#C4B5FD] uppercase">
-              {unit.label}
-            </span>
+            <div className="relative flex w-[3.6rem] flex-col items-center overflow-hidden rounded-t-[1.1rem] rounded-b-md border border-[#A78BFA]/60 bg-[#4C1D95] px-1 pt-2 pb-3 shadow-[0_8px_20px_-6px_rgba(46,16,101,0.6)] @min-[40rem]:w-[4.2rem] @min-[40rem]:pt-2.5 @min-[40rem]:pb-3.5">
+              <div
+                aria-hidden="true"
+                className="absolute inset-x-0 top-0 h-[7px]"
+                style={{
+                  background: "linear-gradient(135deg, #A78BFA 0%, #DDD6FE 50%, #7C3AED 100%)",
+                  clipPath: "polygon(0 0, 100% 0, 80% 100%, 20% 100%)",
+                }}
+              />
+              <span className="ar-font-display mt-1.5 text-[1.55rem] leading-none font-normal text-white tabular-nums @min-[40rem]:text-[1.85rem]">
+                {String(unit.value).padStart(2, "0")}
+              </span>
+              <span className="ar-font-display mt-2 text-[9px] tracking-[0.2em] text-[#DDD6FE] uppercase">
+                {unit.label}
+              </span>
+            </div>
           </motion.div>
         ))}
       </div>

@@ -197,39 +197,73 @@ export function SunflowerFieldsCountdown({ site }: { site: WeddingSite }) {
         Join us as we count down to a day filled with love, laughter, and cherished memories.
       </p>
 
-      {/* Countdown — 5 sunflower discs, 2 lines of 3 + 2 in narrow
-          containers, one row in wide containers (container queries,
-          so the editor preview renders the mobile layout). */}
-      <div
-        role="timer"
-        aria-live="off"
-        className="@container mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-6"
-      >
-        {units.map((unit, idx) => (
-          <motion.div
-            key={unit.label}
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
-              idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
-            }`}
-          >
-            <span
-              style={{ fontFamily: FONT_DISPLAY }}
-              className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-[#14532D] bg-[#FACC15] text-[1.55rem] font-semibold text-[#14532D] shadow-[0_6px_16px_rgba(0,0,0,0.4)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]"
-            >
-              {String(unit.value).padStart(2, "0")}
-            </span>
-            <span
-              style={{ fontFamily: FONT_DISPLAY }}
-              className="mt-2.5 text-[9px] tracking-[0.3em] text-[#FACC15] uppercase"
-            >
-              {unit.label}
-            </span>
-          </motion.div>
-        ))}
+      {/* Countdown — sunflower field: five sunflower heads on stems
+          of different heights, numbers in the brown centres, labels
+          below in white; the seconds flower sways in the breeze.
+          3 + 2 grid in narrow containers (container queries, so the
+          editor preview renders the mobile layout). */}
+      <div role="timer" aria-live="off" className="@container relative z-10 mt-8 w-full">
+        <div className="relative grid grid-cols-3 items-end justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-end @min-[40rem]:justify-center @min-[40rem]:gap-x-6">
+          {units.map((unit, idx) => {
+            const stemH = [72, 56, 64, 48, 40][idx];
+            return (
+              <motion.div
+                key={unit.label}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
+                className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
+                  idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
+                }`}
+              >
+                {/* Sunflower head — petal ring + brown centre with the number */}
+                <motion.span
+                  animate={
+                    idx === 4 && !prefersReducedMotion
+                      ? { rotate: [0, 3, -3, 0] }
+                      : undefined
+                  }
+                  transition={{ duration: 3, repeat: Infinity, ease: [0.45, 0.05, 0.55, 0.95] }}
+                  style={{ transformOrigin: "50% 100%" }}
+                  className="relative flex h-16 w-16 items-center justify-center rounded-full shadow-[0_6px_16px_rgba(0,0,0,0.4)] @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem]"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-full"
+                    style={{
+                      background:
+                        "repeating-conic-gradient(from 0deg, #FACC15 0deg 15deg, #EAB308 15deg 30deg)",
+                    }}
+                  />
+                  <span
+                    style={{ fontFamily: FONT_DISPLAY }}
+                    className="relative flex h-11 w-11 items-center justify-center rounded-full bg-[#451A03] text-[1.35rem] font-semibold text-[#FFFBEB] tabular-nums @min-[40rem]:h-[3.3rem] @min-[40rem]:w-[3.3rem] @min-[40rem]:text-[1.6rem]"
+                  >
+                    {String(unit.value).padStart(2, "0")}
+                  </span>
+                </motion.span>
+                {/* Stem */}
+                <span
+                  aria-hidden="true"
+                  className="mt-1 w-[3px] bg-[#15803D]"
+                  style={{ height: `${stemH}px` }}
+                />
+                <span
+                  style={{ fontFamily: FONT_DISPLAY }}
+                  className="mt-2 text-[9px] tracking-[0.3em] text-[#FFFFFF] uppercase"
+                >
+                  {unit.label}
+                </span>
+              </motion.div>
+            );
+          })}
+        </div>
+        {/* Ground line the stems stand on */}
+        <div
+          aria-hidden="true"
+          className="mx-auto mt-2 h-[2px] w-4/5 bg-[#15803D]/60"
+        />
       </div>
 
       <div className="mt-9 flex flex-col items-center gap-1.5">

@@ -231,7 +231,7 @@ export default function WinterFrostRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="wf-rsvp-email" className="wf-font-display block text-[11px] tracking-[0.22em] text-[#12395B] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="wf-rsvp-email"
@@ -242,7 +242,7 @@ export default function WinterFrostRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#7FB3D9]/60 bg-[#FDFEFF] px-4 py-3 wf-font-editorial text-[1rem] text-[#12395B] placeholder:text-[#12395B]/40 focus:border-[#12395B] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#1B4A6B]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm font-medium text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

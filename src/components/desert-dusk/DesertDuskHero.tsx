@@ -185,13 +185,69 @@ export function DesertDuskCountdown({ site }: { site: WeddingSite }) {
           Join us as we count down to a day that ends beneath the desert stars.
         </p>
 
-        {/* Countdown — 5 units, 2 lines of 3 + 2 in narrow containers,
-            one row in wide containers (container queries, so the
-            editor preview renders the mobile layout). */}
+        {/* Countdown — RISING-SUN ARC design (unique to Desert Dusk):
+            a sun disc rising on an arc over a dune horizon, with the
+            five units as sandstone ARCH tablets (rounded-t-full, like
+            oasis arches) — not Blush's circular badges, not the old
+            flat circles. Every text colour is ≥4.5:1 against its
+            background (values #3D2133 on cream #FFF8EC = 13.59:1,
+            labels #8A4A22 on cream = 6.45:1, eyebrow #D9A05B on dusk
+            #3D2133 = 6.24:1 — the Autumn Harvest lesson). 5 units in
+            one row in wide containers, 3 + 2 in narrow containers
+            (container queries, so the editor preview renders the
+            mobile layout). */}
+        <div
+          aria-hidden="true"
+          className="relative z-10 mt-7 w-full max-w-[560px]"
+        >
+          <svg viewBox="0 0 640 118" fill="none" className="h-auto w-full">
+            {/* Rising-sun arc */}
+            <path
+              d="M 70 108 A 250 250 0 0 1 570 108"
+              stroke="#D9A05B"
+              strokeWidth="1.6"
+              strokeDasharray="1 7"
+              strokeLinecap="round"
+            />
+            {/* Sun disc on the arc, with rays */}
+            {Array.from({ length: 12 }, (_, i) => {
+              const angle = Math.PI + (i * Math.PI) / 11;
+              return (
+                <line
+                  key={i}
+                  x1={320 + 34 * Math.cos(angle)}
+                  y1={58 + 34 * Math.sin(angle)}
+                  x2={320 + 46 * Math.cos(angle)}
+                  y2={58 + 46 * Math.sin(angle)}
+                  stroke="#D9A05B"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              );
+            })}
+            <circle cx="320" cy="58" r="26" fill="#D9A05B" />
+            <circle cx="320" cy="58" r="26" fill="none" stroke="#FFF8EC" strokeOpacity="0.35" strokeWidth="1.5" />
+            {/* Dune horizon the arc rises over */}
+            <path
+              d="M 0 108 Q 160 84 320 102 T 640 100"
+              stroke="#C2703D"
+              strokeWidth="1.6"
+              fill="none"
+            />
+            <path
+              d="M 0 112 Q 200 94 400 108 T 640 110"
+              stroke="#C2703D"
+              strokeWidth="1"
+              strokeOpacity="0.6"
+              fill="none"
+            />
+          </svg>
+        </div>
+
         <div
           role="timer"
           aria-live="off"
-          className="@container relative z-10 mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-6"
+          className="@container relative z-10 mt-2 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-5"
         >
           {units.map((unit, idx) => (
             <motion.div
@@ -204,14 +260,33 @@ export function DesertDuskCountdown({ site }: { site: WeddingSite }) {
                 idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
               }`}
             >
-              <span className="dd-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#D9A05B]/65 bg-[#3D2133]/70 text-[1.55rem] font-normal text-[#FFFDF9] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(61,33,51,0.4)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]">
-                {String(unit.value).padStart(2, "0")}
-              </span>
-              <span className="dd-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#D9A05B] uppercase">
-                {unit.label}
+              {/* Sandstone arch tablet — cream, gold rim, deep-dusk value */}
+              <span className="dd-font-display flex h-[6.4rem] w-[4.5rem] flex-col items-center justify-center rounded-t-full rounded-b-lg border border-[#D9A05B]/80 bg-[#FFF8EC] pt-3 shadow-[0_10px_24px_-8px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.9)] @min-[40rem]:h-[7.2rem] @min-[40rem]:w-[5.2rem]">
+                <span className="text-[1.55rem] leading-none font-normal text-[#3D2133] tabular-nums @min-[40rem]:text-[1.85rem]">
+                  {String(unit.value).padStart(2, "0")}
+                </span>
+                <span aria-hidden="true" className="mt-2 h-px w-8 bg-gradient-to-r from-transparent via-[#C2703D] to-transparent" />
+                <span className="mt-2 text-[9px] tracking-[0.28em] text-[#8A4A22] uppercase">
+                  {unit.label}
+                </span>
               </span>
             </motion.div>
           ))}
+        </div>
+
+        {/* Dune line under the tablets — wide containers only, where
+            the five tablets sit in one row and the dots can align. */}
+        <div
+          aria-hidden="true"
+          className="relative z-10 mt-6 hidden w-full max-w-[560px] items-center @min-[40rem]:flex"
+        >
+          <span className="h-px flex-1 bg-gradient-to-r from-transparent via-[#D9A05B]/70 to-transparent" />
+          <span className="mx-3 flex items-center gap-8">
+            {units.map((unit) => (
+              <span key={unit.label} className="h-1.5 w-1.5 rounded-full bg-[#D9A05B]" />
+            ))}
+          </span>
+          <span className="h-px flex-1 bg-gradient-to-r from-transparent via-[#D9A05B]/70 to-transparent" />
         </div>
 
         <div className="relative z-10 mt-9 flex flex-col items-center gap-1.5">

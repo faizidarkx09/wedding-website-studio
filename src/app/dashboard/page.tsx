@@ -88,6 +88,24 @@ export default function DashboardPage() {
     void load();
   }, [load]);
 
+  // Keep the counts fresh without a manual reload. The dashboard is
+  // often left open while a guest RSVPs on the public site (or while
+  // activation happens in another tab), and client-side navigation can
+  // reuse a cached page — re-fetch whenever the tab becomes visible
+  // again so RSVP counts and status never sit stale.
+  useEffect(() => {
+    const onFocus = () => void load();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [load]);
+
   const visibleRsvps = useMemo(() => {
     const q = search.trim().toLowerCase();
     const filtered = rsvps.filter((r) => {
@@ -124,6 +142,9 @@ export default function DashboardPage() {
       if (!res.ok || !data.ok) throw new Error(data.error || "Could not change publishing status");
       setSite({ ...site, status: next });
       setNotice(next === "published" ? "Your website is now published." : "Your website is now unpublished.");
+      // Re-fetch so the overview (countdown, RSVP counts, deadline)
+      // reflects the just-published state instead of the pre-publish one.
+      void load();
     } catch (e) {
       setNotice(e instanceof Error ? e.message : "Could not change publishing status");
     } finally {

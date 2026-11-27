@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Camera, MapPin, Heart, Moon } from "lucide-react";
 import type { WeddingSite } from "@/lib/types";
-import { MoonDivider, NightSurface, TwinklingStars } from "./Decor";
+import { CrescentMoon, MoonDivider, NightSurface, TwinklingStars } from "./Decor";
 import {
   MOON_CAPTIONS,
   TEMPLATE_PHOTOS,
@@ -179,31 +179,55 @@ export function SilverMoonlightCountdown({ site }: { site: WeddingSite }) {
         under a silver moon.
       </p>
 
-      {/* Countdown — 5 units, 2 lines of 3 + 2 on mobile, one row on desktop */}
+      {/* Countdown — "Moon dial": the five units orbit a central
+          crescent moon like a clock face, instead of a row of
+          circles. The dial is a square whose units sit at fixed
+          percentages, so it scales with its container (container
+          queries, so the editor preview renders correctly). Labels
+          are white on the deep-night band (contrast ~15:1). */}
       <div
         role="timer"
         aria-live="off"
-        className="mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 sm:mt-10 sm:flex sm:flex-row sm:items-start sm:justify-center sm:gap-x-6 md:gap-x-9"
+        className="@container relative mx-auto mt-8 aspect-square w-full max-w-[400px]"
       >
-        {units.map((unit, idx) => (
-          <motion.div
-            key={unit.label}
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
-              idx === 3 ? "col-start-1 sm:col-start-auto" : ""
-            }`}
-          >
-            <span className="er-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#C9CDD6]/65 bg-[#0E1620]/70 text-[1.55rem] font-normal text-[#FFFFFF] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(14,22,32,0.4)] tabular-nums sm:h-[4.6rem] sm:w-[4.6rem] sm:text-[1.85rem]">
-              {String(unit.value).padStart(2, "0")}
-            </span>
-            <span className="er-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#C9CDD6] uppercase sm:text-[10px]">
-              {unit.label}
-            </span>
-          </motion.div>
-        ))}
+        {/* Central crescent moon */}
+        <div
+          aria-hidden="true"
+          className="absolute top-1/2 left-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 opacity-90 @min-[28rem]:h-28 @min-[28rem]:w-28"
+        >
+          <CrescentMoon className="h-full w-full" />
+        </div>
+        <div
+          aria-hidden="true"
+          className="absolute top-1/2 left-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#C9CDD6]/15 @min-[28rem]:h-40 @min-[28rem]:w-40"
+        />
+        {units.map((unit, idx) => {
+          const pos = [
+            { left: "50%", top: "7%" },
+            { left: "87%", top: "30%" },
+            { left: "75%", top: "79%" },
+            { left: "25%", top: "79%" },
+            { left: "13%", top: "30%" },
+          ][idx] ?? { left: "50%", top: "50%" };
+          return (
+            <motion.div
+              key={unit.label}
+              initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
+              style={{ left: pos.left, top: pos.top }}
+            >
+              <span className="er-font-display flex h-14 w-14 items-center justify-center rounded-full border border-[#C9CDD6]/65 bg-[#0E1620]/80 text-[1.25rem] font-normal text-[#FFFFFF] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(14,22,32,0.4)] tabular-nums @min-[28rem]:h-16 @min-[28rem]:w-16 @min-[28rem]:text-[1.45rem]">
+                {String(unit.value).padStart(2, "0")}
+              </span>
+              <span className="er-font-display mt-1.5 text-[8px] tracking-[0.28em] text-[#FFFFFF] uppercase @min-[28rem]:text-[9px]">
+                {unit.label}
+              </span>
+            </motion.div>
+          );
+        })}
       </div>
 
       <div className="mt-9 flex flex-col items-center gap-1.5 sm:mt-11">

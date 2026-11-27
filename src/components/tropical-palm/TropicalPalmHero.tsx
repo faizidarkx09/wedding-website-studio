@@ -180,9 +180,11 @@ export function TropicalPalmCountdown({ site }: { site: WeddingSite }) {
         Join us as we count down to a day of sun, sea and sand — and the beginning of forever.
       </p>
 
-      {/* Countdown — 5 units, 2 lines of 3 + 2 in narrow containers,
-          one row in wide containers (container queries, so the
-          editor preview renders the mobile layout). */}
+      {/* Countdown — BEACH TILES: sand-cream tiles with a teal top
+          edge, deep-green numerals + labels inside (replaces the old
+          palm circles). 5 units, 2 lines of 3 + 2 in narrow
+          containers, one row in wide containers (container queries,
+          so the editor preview renders the mobile layout). */}
       <div
         role="timer"
         aria-live="off"
@@ -199,12 +201,15 @@ export function TropicalPalmCountdown({ site }: { site: WeddingSite }) {
               idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
             }`}
           >
-            <span className="tp-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#06B6D4]/70 bg-[#0A2E19]/70 text-[1.55rem] font-normal text-[#FFFDF9] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(10,46,25,0.4)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]">
-              {String(unit.value).padStart(2, "0")}
-            </span>
-            <span className="tp-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#4ADE80] uppercase">
-              {unit.label}
-            </span>
+            <div className="relative flex w-[4.4rem] flex-col items-center overflow-hidden rounded-xl border border-[#D9C98A]/70 bg-[#FEF3C7] px-1 pt-3 pb-3 shadow-[0_8px_20px_-6px_rgba(10,46,25,0.45)] @min-[40rem]:w-[5rem] @min-[40rem]:pb-3.5">
+              <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[3px] bg-[#06B6D4]" />
+              <span className="tp-font-display text-[1.55rem] leading-none font-normal text-[#14301C] tabular-nums @min-[40rem]:text-[1.85rem]">
+                {String(unit.value).padStart(2, "0")}
+              </span>
+              <span className="tp-font-display mt-2 text-[9px] tracking-[0.24em] text-[#14301C] uppercase">
+                {unit.label}
+              </span>
+            </div>
           </motion.div>
         ))}
       </div>

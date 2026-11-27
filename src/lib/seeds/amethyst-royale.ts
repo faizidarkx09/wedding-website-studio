@@ -26,9 +26,9 @@ export interface AmethystRoyaleSeed {
 const AMETHYST_ROYALE_GALLERY_URLS = [
   "/images/themes/amethyst-royale-detail.jpg",
   "/images/themes/amethyst-royale/story-1.jpg",
-  "/images/themes/royal-burgundy/photo-hands.jpg",
-  "/images/themes/royal-burgundy/photo-veil.jpg",
-  "/images/themes/royal-burgundy/photo-sunset.jpg",
+  "/images/themes/amethyst-royale-couple-1.jpg",
+  "/images/themes/amethyst-royale-couple-2.jpg",
+  "/images/themes/amethyst-royale-couple-3.jpg",
   "/images/themes/royal-burgundy/photo-toast.jpg",
   "/images/themes/royal-burgundy/photo-meadow.jpg",
 ];

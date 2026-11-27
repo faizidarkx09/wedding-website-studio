@@ -13,9 +13,9 @@ export interface OceanPearlSeed {
 }
 
 const OCEAN_PEARL_GALLERY_URLS = [
-  "/images/themes/ocean-pearl-story-1.jpg",
-  "/images/themes/ocean-pearl.jpg",
-  "/images/themes/ocean-pearl-rsvp.jpg",
+  "/images/themes/ocean-pearl-couple-1.jpg",
+  "/images/themes/ocean-pearl-couple-2.jpg",
+  "/images/themes/ocean-pearl-couple-3.jpg",
   "/images/themes/ocean-pearl-detail.jpg",
 ];
 

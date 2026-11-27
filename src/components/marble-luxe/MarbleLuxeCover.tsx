@@ -9,19 +9,86 @@
 // template.
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { GoldDust, MonogramRing } from "./Decor";
 import { COVER_IMAGE_URL, coupleNames, initials } from "./tokens";
+import { GoldDustCanvas, SkipButton, SoundToggle, playGoldShimmer } from "./CinematicOpening";
 
 export default function MarbleLuxeCover({
   site,
   onOpen,
+  instantExit,
+  soundEnabled = true,
+  onToggleSound,
 }: {
   site: WeddingSite;
-  onOpen: () => void;
+  onOpen: (opts?: { cinematic?: boolean }) => void;
+  instantExit?: boolean;
+  soundEnabled?: boolean;
+  onToggleSound?: () => void;
 }) {
   const prefersReducedMotion = useReducedMotion();
+
+  // Cinematic opening (Phase 1 ambience + Phase 2 ring glow):
+  // plays once per session; reduced-motion or a repeat visit opens
+  // the invitation directly. Double-taps are guarded by startedRef.
+  const SESSION_FLAG = "ml-cinematic-played";
+  const [sealing, setSealing] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const startedRef = useRef(false);
+  const sealTimerRef = useRef<number | null>(null);
+
+  const alreadyPlayed = () => {
+    try {
+      return sessionStorage.getItem(SESSION_FLAG) === "1";
+    } catch {
+      return false;
+    }
+  };
+  const markPlayed = () => {
+    try {
+      sessionStorage.setItem(SESSION_FLAG, "1");
+    } catch {
+      /* session storage unavailable — cinematic may replay */
+    }
+  };
+
+  useEffect(
+    () => () => {
+      if (sealTimerRef.current !== null) window.clearTimeout(sealTimerRef.current);
+    },
+    [],
+  );
+
+  const startCinematic = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    markPlayed();
+    setSealing(true);
+    setBurstKey((k) => k + 1);
+    playGoldShimmer();
+    sealTimerRef.current = window.setTimeout(() => {
+      onOpen({ cinematic: true });
+    }, 1500);
+  };
+
+  const handleOpen = () => {
+    if (startedRef.current) return;
+    if (prefersReducedMotion || alreadyPlayed()) {
+      startedRef.current = true;
+      onOpen();
+      return;
+    }
+    startCinematic();
+  };
+
+  const handleSkip = () => {
+    if (sealTimerRef.current !== null) window.clearTimeout(sealTimerRef.current);
+    startedRef.current = true;
+    onOpen();
+  };
 
   return (
     <motion.div
@@ -29,8 +96,12 @@ export default function MarbleLuxeCover({
       aria-label="Wedding Invitation Cover"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }}
-      onClick={onOpen}
+      exit={
+        instantExit
+          ? { opacity: 0, transition: { duration: 0.35, ease: [0.33, 0, 0.67, 1] } }
+          : { opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }
+      }
+      onClick={handleOpen}
       className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden bg-white px-5 py-12 text-[#1F2937] select-none"
     >
       {/* Full-bleed white-marble photograph */}
@@ -51,6 +122,13 @@ export default function MarbleLuxeCover({
 
       {/* Subtle gold dust — ~40 slow gold particles over the marble */}
       {!prefersReducedMotion && <GoldDust />}
+
+      {/* Cinematic layer — drifting gold dust + the Phase 2 burst */}
+      {!prefersReducedMotion && <GoldDustCanvas burstKey={burstKey} burstOrigin={{ x: 0.5, y: 0.45 }} />}
+
+      {/* Sound toggle — always visible; Skip appears while sealing */}
+      {onToggleSound && <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />}
+      {sealing && <SkipButton onSkip={handleSkip} />}
 
       {/* Thin gold hairline inner border framing the slab */}
       <div
@@ -112,15 +190,48 @@ export default function MarbleLuxeCover({
         className="relative z-10 my-4 w-full max-w-[420px]"
       >
         <motion.div
-          animate={prefersReducedMotion ? undefined : { y: [0, -5, 0] }}
-          transition={{
-            duration: 6.5,
-            repeat: Infinity,
-            ease: [0.25, 0.1, 0.25, 1],
-          }}
+          animate={
+            sealing
+              ? { y: 0, scale: [1, 1.04, 1] }
+              : prefersReducedMotion
+                ? undefined
+                : { y: [0, -5, 0] }
+          }
+          transition={
+            sealing
+              ? { duration: 1.5, ease: [0.22, 1, 0.36, 1] }
+              : { duration: 6.5, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }
+          }
           className="relative mx-auto aspect-square w-full max-w-[220px]"
         >
           <MonogramRing className="absolute inset-0 h-full w-full" />
+
+          {/* Phase 2 glow — soft gold halo + light sweep across the ring */}
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-[-18%] rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(212,175,105,0.55) 0%, rgba(196,162,98,0.3) 45%, rgba(196,162,98,0) 72%)",
+            }}
+            initial={{ opacity: 0 }}
+            animate={sealing ? { opacity: [0, 0.9, 0.4] } : { opacity: 0 }}
+            transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+          />
+          {sealing && (
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
+              <motion.div
+                className="absolute inset-y-0 w-1/4"
+                style={{
+                  background:
+                    "linear-gradient(100deg, transparent 0%, rgba(212,175,105,0.5) 50%, transparent 100%)",
+                }}
+                initial={{ x: "-160%" }}
+                animate={{ x: "360%" }}
+                transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </div>
+          )}
 
           {/* Real HTML Typography Monogram Overlaid Inside the Ring */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -139,15 +250,16 @@ export default function MarbleLuxeCover({
       {/* Bottom Invitation Open Action */}
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
+        animate={{ opacity: sealing ? 0 : 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 pb-2 text-center"
       >
         <button
           type="button"
+          disabled={sealing}
           onClick={(e) => {
             e.stopPropagation();
-            onOpen();
+            handleOpen();
           }}
           className="group relative inline-flex min-h-[48px] items-center justify-center px-6 py-3 ml-font-display text-xs font-medium tracking-[0.34em] text-[#1F2937] uppercase transition-colors duration-300 hover:text-[#8C7355] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#B49A70]"
         >

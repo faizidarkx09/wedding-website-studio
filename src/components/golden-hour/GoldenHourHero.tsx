@@ -179,13 +179,15 @@ export function GoldenHourCountdown({ site }: { site: WeddingSite }) {
         Join us as we count down to a day filled with love, laughter, and cherished memories.
       </p>
 
-      {/* Countdown — 5 units, 2 lines of 3 + 2 in narrow containers,
-          one row in wide containers (container queries, so the
-          editor preview renders the mobile layout). */}
+      {/* Countdown — "Sunset ledger": five full-width rows, each a
+          big pale-gold number on the left and its white label on the
+          right, divided by gold hairlines. Rows (not circles) so this
+          clock looks nothing like the other templates'. Labels are
+          white on the deep-brown band (contrast ~13:1). */}
       <div
         role="timer"
         aria-live="off"
-        className="@container mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-6"
+        className="@container mt-8 w-full max-w-[520px]"
       >
         {units.map((unit, idx) => (
           <motion.div
@@ -193,15 +195,13 @@ export function GoldenHourCountdown({ site }: { site: WeddingSite }) {
             initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
-              idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
-            }`}
+            transition={{ duration: 0.7, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            className="flex items-baseline justify-between gap-4 border-b border-[#E8A93D]/25 py-3.5 first:border-t"
           >
-            <span className="gh-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#E8A93D]/65 bg-[#241708]/70 text-[1.55rem] font-normal text-[#FFFDF9] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(36,23,8,0.4)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]">
+            <span className="gh-font-display text-[2.1rem] leading-none font-normal text-[#F6D68A] tabular-nums @min-[40rem]:text-[2.5rem]">
               {String(unit.value).padStart(2, "0")}
             </span>
-            <span className="gh-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#E8A93D] uppercase">
+            <span className="gh-font-display text-[11px] tracking-[0.34em] text-[#FFF8EC] uppercase @min-[40rem]:text-xs">
               {unit.label}
             </span>
           </motion.div>

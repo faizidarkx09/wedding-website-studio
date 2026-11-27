@@ -47,12 +47,20 @@ export const ENVELOPE_IMAGE_URL = "/images/themes/rose-garden-detail.jpg";
 export const RSVP_LETTER_URL = "/images/themes/rose-garden-rsvp.jpg";
 export const STORY_HANDS_URL = "/images/themes/rose-garden-story-1.jpg";
 export const STORY_PATH_URL = "/images/themes/rose-garden-story-2.jpg";
+/** The template's own couple photos (new — generated for the
+ * animation rebuild; staged from
+ * ~/workspace/rose-garden-assets/optimized/). */
+export const COUPLE_1_URL = "/images/themes/rose-garden-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/rose-garden-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/rose-garden-couple-3.jpg";
 
 /** The template's own wedding photographs, in timeline order
- * (hands with bouquet, garden path) — used as the timeline-chapter
- * fallback chrome when the buyer has not uploaded their own photos
- * yet (same pattern as ÉTERNEL's template hero fallback). */
-export const TEMPLATE_PHOTOS = [STORY_HANDS_URL, STORY_PATH_URL] as const;
+ * (couple under the rose arch, close portrait among the roses,
+ * holding hands on the garden path) — one photo per chapter, used
+ * as the timeline-chapter fallback chrome when the buyer has not
+ * uploaded their own photos yet (same pattern as ÉTERNEL's
+ * template hero fallback). */
+export const TEMPLATE_PHOTOS = [COUPLE_1_URL, COUPLE_2_URL, COUPLE_3_URL] as const;
 
 /** Vertical-timeline chapter titles, in order. Chapters pair with
  * the story paragraphs (first paragraph → first chapter, and so

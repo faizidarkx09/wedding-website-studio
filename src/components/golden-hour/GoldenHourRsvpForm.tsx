@@ -231,7 +231,7 @@ export default function GoldenHourRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="gh-rsvp-email" className="gh-font-display block text-[11px] tracking-[0.22em] text-[#3B2A12] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="gh-rsvp-email"
@@ -242,7 +242,7 @@ export default function GoldenHourRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#C9920E]/60 bg-[#FFFDF9] px-4 py-3 gh-font-editorial text-[1rem] text-[#3B2A12] placeholder:text-[#3B2A12]/40 focus:border-[#3B2A12] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#8A6408]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm font-medium text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

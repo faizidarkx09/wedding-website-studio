@@ -9,9 +9,8 @@ import { ArrowLeft, Camera, Heart, TreePine } from "lucide-react";
 import type { WeddingSite } from "@/lib/types";
 import { PaperSurface } from "./Decor";
 import {
-  PHOTO_MEADOW_URL,
+  COUPLE_PHOTO_3_URL,
   STORY_CAPTIONS,
-  STORY_TRAIL_URL,
   TEMPLATE_PHOTOS,
   coupleNames,
   storyParagraphs,
@@ -45,19 +44,19 @@ export default function ForestWhisperStory({
         ]
       : [
           {
-            src: STORY_TRAIL_URL,
+            src: TEMPLATE_PHOTOS[0],
             caption: STORY_CAPTIONS[0],
             title: "Where It All Began",
             text: "Every love story has a first chapter — ours began on a quiet trail, with a first hello neither of us expected.",
           },
           {
-            src: PHOTO_MEADOW_URL,
+            src: COUPLE_PHOTO_3_URL,
             caption: STORY_CAPTIONS[2],
             title: "The Trail Ahead",
             text: "And now the trail leads here — to a clearing in the forest, to family and friends, to a day we will never forget.",
           },
         ];
-  const cards = gallery.length >= 2 ? gallery.slice(0, 2) : TEMPLATE_PHOTOS.slice(0, 2);
+  const cards = gallery.length >= 2 ? gallery.slice(0, 2) : TEMPLATE_PHOTOS.slice(0, 3);
 
   return (
     <motion.div
@@ -187,9 +186,9 @@ export default function ForestWhisperStory({
         ))}
       </div>
 
-      {/* Closing photos — the two template photos side by side */}
+      {/* Closing photos — the three template couple photos side by side */}
       <div className="mx-auto max-w-[980px] px-4 pb-16">
-        <div className="grid grid-cols-2 gap-4 @min-[40rem]:gap-5">
+        <div className="grid grid-cols-3 gap-3 @min-[40rem]:gap-5">
           {cards.map((src, i) => (
             <motion.figure
               key={`${src}-${i}`}
@@ -203,7 +202,13 @@ export default function ForestWhisperStory({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={src}
-                  alt={i === 0 ? "Two hands holding a glowing lantern in the forest" : "A sunlit meadow"}
+                  alt={
+                    i === 0
+                      ? "The couple walking a misty forest trail"
+                      : i === 1
+                        ? "The couple under a leafy forest canopy"
+                        : "The couple dancing in a forest clearing at golden hour"
+                  }
                   loading="lazy"
                   decoding="async"
                   referrerPolicy="no-referrer"

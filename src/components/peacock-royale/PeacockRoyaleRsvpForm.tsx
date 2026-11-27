@@ -239,7 +239,7 @@ export default function PeacockRoyaleRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="pr-rsvp-email" className="er-font-display block text-[11px] tracking-[0.22em] text-[#062E2B] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="pr-rsvp-email"
@@ -250,7 +250,7 @@ export default function PeacockRoyaleRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#D4AF37]/70 bg-[#FFFFFF] px-4 py-3 er-font-editorial text-[1rem] text-[#062E2B] placeholder:text-[#062E2B]/40 focus:border-[#062E2B] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#0B4F4A]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm font-medium text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

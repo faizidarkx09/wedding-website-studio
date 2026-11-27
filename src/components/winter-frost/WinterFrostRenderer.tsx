@@ -5,7 +5,7 @@
 // Views, in order:
 //   cover      — WinterFrostCover (full-bleed snowy photo,
 //                snowflake-crest medallion with live monogram,
-//                falling snow)
+//                falling snow, cinematic opening)
 //   invitation — WinterFrostEnvelope (snowflake wax-seal envelope +
 //                welcome + countdown on a deep-blue band) +
 //                StoryPreview (snow-globe carousel) + DetailsCard +
@@ -14,16 +14,25 @@
 //   details    — WinterFrostDetails (schedule, dress code, venue +
 //                travel, accommodations, registry, RSVP jump)
 //
-// NO music on this template — there is no ambientMusic engine and
-// no music toggle anywhere. The envelope's snowflake wax seal is
+// Cinematic opening (Phases 3–4 in PanelsOverlay): frosted-glass
+// ice panels slide apart, then dissolve with a snowflake burst +
+// aurora shimmer. NO music on this template — SFX only, via Web
+// Audio created lazily on tap. The envelope's snowflake wax seal is
 // the interaction instead.
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { FrostSurface } from "./Decor";
 import WinterFrostCover from "./WinterFrostCover";
+import {
+  PanelsOverlay,
+  playFrostSound,
+  playIceChimeSound,
+  setCinematicSoundEnabled,
+  type PanelsPhase,
+} from "./CinematicOpening";
 import WinterFrostEnvelope from "./WinterFrostEnvelope";
 import {
   WinterFrostCountdown,
@@ -58,6 +67,49 @@ export default function WinterFrostRenderer({
   const savedScrollRef = useRef(0);
   const rootRef = useRef<HTMLDivElement>(null);
 
+  // Cinematic opening state (cover Phases 3–4). "hidden" = no panels;
+  // "closed" = panels covering the screen; "opening" = panels slide
+  // apart; "fading" = panels dissolve + snowflake burst + shimmer.
+  const [panels, setPanels] = useState<"hidden" | PanelsPhase>("hidden");
+  // Instant cover exit while the panels cover the screen, and a subtle
+  // 1.04 → 1 reveal zoom on the invitation mounting underneath.
+  const [instantExit, setInstantExit] = useState(false);
+  const [revealZoom, setRevealZoom] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
+  const soundOnRef = useRef(true);
+  const cinematicTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(
+    () => () => {
+      cinematicTimersRef.current.forEach((t) => clearTimeout(t));
+    },
+    []
+  );
+
+  const later = (ms: number, fn: () => void) => {
+    cinematicTimersRef.current.push(setTimeout(fn, ms));
+  };
+
+  const clearCinematicTimers = () => {
+    cinematicTimersRef.current.forEach((t) => clearTimeout(t));
+    cinematicTimersRef.current = [];
+  };
+
+  const finishCinematic = () => {
+    clearCinematicTimers();
+    setPanels("hidden");
+    setInstantExit(false);
+  };
+
+  const toggleSound = () => {
+    setSoundOn((v) => {
+      const next = !v;
+      soundOnRef.current = next;
+      setCinematicSoundEnabled(next);
+      return next;
+    });
+  };
+
   // On template preview pages (/templates/[id]) this renderer sits far
   // down a long page (SiteNav + facts + How-to-buy above it), so
   // document top 0 is NOT the cover — scrolling there yanks the
@@ -76,7 +128,29 @@ export default function WinterFrostRenderer({
     }
   };
 
-  const openInvitation = () => {
+  const openInvitation = (opts?: { cinematic?: boolean }) => {
+    if (opts?.cinematic) {
+      // Phase 3: cover exits instantly, invitation mounts underneath
+      // while the two frosted-glass ice panels cover the screen,
+      // then slide apart.
+      setInstantExit(true);
+      setRevealZoom(true);
+      setPanels("closed");
+      setCurrentView("invitation");
+      scrollToRendererTop();
+      if (soundOnRef.current) playFrostSound();
+      later(80, () => setPanels("opening"));
+      // Phase 4: panels dissolve, snowflake burst, aurora shimmer, chime.
+      later(2580, () => {
+        setPanels("fading");
+        if (soundOnRef.current) playIceChimeSound();
+      });
+      later(3780, () => {
+        setPanels("hidden");
+        setInstantExit(false);
+      });
+      return;
+    }
     setCurrentView("invitation");
     scrollToRendererTop();
   };
@@ -84,13 +158,15 @@ export default function WinterFrostRenderer({
   const openStory = () => {
     savedScrollRef.current = window.scrollY;
     setCurrentView("story");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    // Relayed from bug-fix lane 2026-11-27: top-0 jump yanked preview
+    // pages above the template — scroll to this renderer's own top.
+    scrollToRendererTop();
   };
 
   const openDetails = () => {
     savedScrollRef.current = window.scrollY;
     setCurrentView("details");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    scrollToRendererTop();
   };
 
   const backToInvitation = () => {
@@ -106,6 +182,8 @@ export default function WinterFrostRenderer({
   };
 
   const goToCover = () => {
+    finishCinematic();
+    setRevealZoom(false);
     setCurrentView("cover");
     scrollToRendererTop();
   };
@@ -122,7 +200,15 @@ export default function WinterFrostRenderer({
   const showRsvp = willRenderSection(site, "rsvp");
 
   return (
-    <div ref={rootRef} className="winter-frost min-h-dvh w-full bg-[#EAF4FB]">
+    <div ref={rootRef} className="winter-frost @container min-h-dvh w-full bg-[#EAF4FB]">
+      {/* @container on the root: the countdown grid's
+          `@min-[40rem]:flex` is a container query on the grid itself —
+          an element cannot query itself, so without an ancestor
+          container that variant never fired and the hexagons stayed
+          3+2 at every width instead of one row on wide screens. The
+          root is the ancestor container: viewport width on guest
+          pages, preview-pane width in the editor, so the wide layout
+          now applies exactly where intended. */}
       {/* Root bg matches the invitation's first (pale ice) surface so
           the cover-exit → invitation-entrance dissolve passes through
           pale ice, never a white flash. The cover itself is full-bleed
@@ -141,14 +227,21 @@ export default function WinterFrostRenderer({
 
       <AnimatePresence mode="wait">
         {currentView === "cover" && envelope && (
-          <WinterFrostCover key="cover" site={site} onOpen={openInvitation} />
+          <WinterFrostCover
+            key="cover"
+            site={site}
+            onOpen={openInvitation}
+            instantExit={instantExit}
+            soundEnabled={soundOn}
+            onToggleSound={toggleSound}
+          />
         )}
 
         {currentView === "invitation" && (
           <motion.div
             key="invitation"
-            initial={{ opacity: 0, y: 36 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 36, scale: revealZoom ? 1.04 : 1 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Pale-ice invitation body */}
@@ -198,6 +291,17 @@ export default function WinterFrostRenderer({
           />
         )}
       </AnimatePresence>
+
+      {/* Cinematic Phases 3–4: ice panels + snowflake burst, rendered
+          outside AnimatePresence so they survive the cover unmount. */}
+      {panels !== "hidden" && (
+        <PanelsOverlay
+          phase={panels}
+          soundEnabled={soundOn}
+          onToggleSound={toggleSound}
+          onSkip={finishCinematic}
+        />
+      )}
     </div>
   );
 }

@@ -220,7 +220,7 @@ export function WinterFrostDetailsCard({
                   ))}
                   {site.events.length > 3 && (
                     <p className="wf-font-editorial pl-11 text-sm text-[#1B4A6B]/80 italic">
-                      + {site.events.length - 3} more moment{site.events.length - 3 === 1 ? "" : "s"} on the day
+                      {`+ ${site.events.length - 3} more moment${site.events.length - 3 === 1 ? "" : "s"} on the day`}
                     </p>
                   )}
                 </div>

@@ -41,11 +41,11 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
       {/* Fine double amethyst & violet letterpress border */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-2.5 border border-[#7C3AED]/75 @min-[29.375rem]:inset-3"
+        className="pointer-events-none absolute inset-2.5 border border-[#7C3AED]/75 @min-[29.375rem]:inset-3 @max-[22rem]:inset-1"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-[13px] border border-[#4C1D95]/30 @min-[29.375rem]:inset-[15px]"
+        className="pointer-events-none absolute inset-[13px] border border-[#4C1D95]/30 @min-[29.375rem]:inset-[15px] @max-[22rem]:inset-[7px]"
       />
 
       {/* Delicate corner ticks */}

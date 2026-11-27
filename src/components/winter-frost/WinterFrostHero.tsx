@@ -99,7 +99,17 @@ export function WinterFrostIntroduction({ site }: { site: WeddingSite }) {
 
 /* ------------------------------------------------------------------ */
 /* Countdown — "A Day of Winter Light Awaits"                        */
+/* Ice-crystal design: each unit sits in a hexagonal frost frame   */
+/* (ice-blue gradient border, solid deep-navy core, frost glint,   */
+/* tiny snowflake over the number). Values + hook unchanged — only  */
+/* the visual design changed. All clock text ≥4.5:1 (see           */
+/* /tmp/wf-contrast.mjs run 2026-11-27): labels/eyebrow #EAF4FB    */
+/* 10.69:1 on #12395B, 5.64:1 on the glow-blended centre; numbers  */
+/* #FDFEFF 15.37:1 on solid #0B2540; intro/venue #D6EBF9 9.71:1 /   */
+/* 5.12:1 on glow.                                                 */
 /* ------------------------------------------------------------------ */
+
+const HEX_CLIP = "polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)";
 
 /** Months-aware countdown: whole months from the calendar date,
  * days/hours/minutes/seconds from the remaining time. Ticks every
@@ -163,7 +173,7 @@ export function WinterFrostCountdown({ site }: { site: WeddingSite }) {
       transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       className="relative mx-auto flex max-w-[640px] flex-col items-center px-4 pb-14 text-center"
     >
-      <p className="wf-font-display text-[10px] tracking-[0.34em] text-[#BDE0F5] uppercase">
+      <p className="wf-font-display text-[10px] tracking-[0.34em] text-[#EAF4FB] uppercase">
         THE COUNTDOWN BEGINS
       </p>
 
@@ -176,13 +186,13 @@ export function WinterFrostCountdown({ site }: { site: WeddingSite }) {
         className="mt-4 h-px w-40 bg-gradient-to-r from-transparent via-[#BDE0F5]/90 to-transparent"
       />
 
-      <p className="wf-font-editorial mt-4 max-w-[540px] text-[1rem] leading-[1.75] text-[#D6EBF9]/85">
+      <p className="wf-font-editorial mt-4 max-w-[540px] text-[1rem] leading-[1.75] text-[#D6EBF9]">
         Join us as we count down to a day of falling snow, warm hearts, and cherished memories.
       </p>
 
-      {/* Countdown — 5 units, 2 lines of 3 + 2 in narrow containers,
-          one row in wide containers (container queries, so the
-          editor preview renders the mobile layout). */}
+      {/* Countdown — 5 hexagonal frost frames, 2 lines of 3 + 2 in
+          narrow containers, one row in wide containers (container
+          queries, so the editor preview renders the mobile layout). */}
       <div
         role="timer"
         aria-live="off"
@@ -199,10 +209,42 @@ export function WinterFrostCountdown({ site }: { site: WeddingSite }) {
               idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
             }`}
           >
-            <span className="wf-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#BDE0F5]/65 bg-[#0B2540]/70 text-[1.55rem] font-normal text-[#FDFEFF] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(11,37,64,0.4)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]">
-              {String(unit.value).padStart(2, "0")}
-            </span>
-            <span className="wf-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#BDE0F5] uppercase">
+            {/* Hexagonal frost frame: ice-gradient border + solid
+                deep-navy core + frost glint + tiny snowflake */}
+            <div
+              className="flex h-[3.9rem] w-[4.5rem] items-center justify-center p-[2px] shadow-[0_8px_20px_-6px_rgba(11,37,64,0.5)] @min-[40rem]:h-[4.7rem] @min-[40rem]:w-[5.4rem]"
+              style={{
+                clipPath: HEX_CLIP,
+                background:
+                  "linear-gradient(160deg, #EAF4FB 0%, #BDE0F5 35%, #7FB3D9 70%, #D6EBF9 100%)",
+              }}
+            >
+              <div
+                className="wf-font-display flex h-full w-full flex-col items-center justify-center gap-0.5 text-[#FDFEFF] tabular-nums"
+                style={{
+                  clipPath: HEX_CLIP,
+                  backgroundColor: "#0B2540",
+                  backgroundImage:
+                    "radial-gradient(ellipse 70% 60% at 30% 18%, rgba(189, 224, 245, 0.28) 0%, rgba(189, 224, 245, 0) 62%)",
+                }}
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 12 12"
+                  className="h-2.5 w-2.5 text-[#BDE0F5]/80"
+                >
+                  <g stroke="currentColor" strokeWidth="1" strokeLinecap="round">
+                    <line x1="6" y1="1" x2="6" y2="11" />
+                    <line x1="1.7" y1="3.5" x2="10.3" y2="8.5" />
+                    <line x1="10.3" y1="3.5" x2="1.7" y2="8.5" />
+                  </g>
+                </svg>
+                <span className="text-[1.45rem] leading-none font-normal @min-[40rem]:text-[1.8rem]">
+                  {String(unit.value).padStart(2, "0")}
+                </span>
+              </div>
+            </div>
+            <span className="wf-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#EAF4FB] uppercase">
               {unit.label}
             </span>
           </motion.div>
@@ -216,7 +258,7 @@ export function WinterFrostCountdown({ site }: { site: WeddingSite }) {
         {lines.map((line, i) => (
           <p
             key={i}
-            className="wf-font-editorial flex items-center gap-1.5 text-sm text-[#D6EBF9]/80 italic"
+            className="wf-font-editorial flex items-center gap-1.5 text-sm text-[#D6EBF9] italic"
           >
             <MapPin className="h-3.5 w-3.5 shrink-0 text-[#BDE0F5]" />
             {line}
@@ -242,9 +284,9 @@ export function WinterFrostStoryPreview({
   const prefersReducedMotion = useReducedMotion();
   const slides: GlobeSlide[] = useMemo(() => {
     // The buyer's own gallery photos win; otherwise the template's
-    // 4 winter photos (never seeded onto a buyer site — preview only).
+    // 7 winter photos (never seeded onto a buyer site — preview only).
     const gallery = (site.gallery ?? []).slice(0, 4).map((g) => g.url);
-    const base = gallery.length >= 4 ? gallery : TEMPLATE_PHOTOS.slice(0, 4);
+    const base = gallery.length >= 4 ? gallery : TEMPLATE_PHOTOS.slice(0, 7);
     return base.map((src, i) => ({
       src,
       caption: STORY_CAPTIONS[i % STORY_CAPTIONS.length],

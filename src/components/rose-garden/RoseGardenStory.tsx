@@ -11,8 +11,7 @@ import type { WeddingSite } from "@/lib/types";
 import { RoseMark } from "./Decor";
 import {
   STORY_CHAPTERS,
-  STORY_HANDS_URL,
-  STORY_PATH_URL,
+  TEMPLATE_PHOTOS,
   coupleNames,
   storyParagraphs,
 } from "./tokens";
@@ -28,7 +27,7 @@ export default function RoseGardenStory({
   const paragraphs = storyParagraphs(site);
   const gallery = (site.gallery ?? []).map((g) => g.url);
   const photos =
-    gallery.length >= 2 ? [gallery[0], gallery[1]] : [STORY_HANDS_URL, STORY_PATH_URL];
+    gallery.length >= 3 ? gallery.slice(0, 3) : [...TEMPLATE_PHOTOS];
   const entries = paragraphs.map((text, i) => ({
     title: STORY_CHAPTERS[i % STORY_CHAPTERS.length],
     text,

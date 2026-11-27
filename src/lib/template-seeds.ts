@@ -486,9 +486,9 @@ export interface GoldenHourSeed {
 const GOLDEN_HOUR_GALLERY_URLS = [
   "/images/themes/golden-hour-detail.jpg",
   "/images/themes/golden-hour/story-wheat.jpg",
-  "/images/themes/royal-burgundy/photo-hands.jpg",
-  "/images/themes/royal-burgundy/photo-veil.jpg",
-  "/images/themes/royal-burgundy/photo-sunset.jpg",
+  "/images/themes/golden-hour-couple-1.jpg",
+  "/images/themes/golden-hour-couple-2.jpg",
+  "/images/themes/golden-hour-couple-3.jpg",
   "/images/themes/royal-burgundy/photo-toast.jpg",
   "/images/themes/royal-burgundy/photo-meadow.jpg",
 ];
@@ -584,9 +584,9 @@ export interface SilverMoonlightSeed {
 
 const SILVER_MOONLIGHT_GALLERY_URLS = [
   "/images/themes/silver-moonlight-detail.jpg",
-  "/images/themes/silver-moonlight-story-1.jpg",
-  "/images/themes/silver-moonlight-story-2.jpg",
-  "/images/themes/silver-moonlight.jpg",
+  "/images/themes/silver-moonlight-couple-1.jpg",
+  "/images/themes/silver-moonlight-couple-2.jpg",
+  "/images/themes/silver-moonlight-couple-3.jpg",
 ];
 
 export function silverMoonlightSeed(weddingDay: string): SilverMoonlightSeed {

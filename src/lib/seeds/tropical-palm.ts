@@ -30,9 +30,9 @@ export interface TropicalPalmSeed {
 const TROPICAL_PALM_GALLERY_URLS = [
   "/images/themes/tropical-palm-detail.jpg",
   "/images/themes/tropical-palm/story-beach.jpg",
-  "/images/themes/royal-burgundy/photo-hands.jpg",
-  "/images/themes/royal-burgundy/photo-veil.jpg",
-  "/images/themes/royal-burgundy/photo-sunset.jpg",
+  "/images/themes/tropical-palm-couple-1.jpg",
+  "/images/themes/tropical-palm-couple-2.jpg",
+  "/images/themes/tropical-palm-couple-3.jpg",
   "/images/themes/royal-burgundy/photo-toast.jpg",
   "/images/themes/royal-burgundy/photo-meadow.jpg",
 ];

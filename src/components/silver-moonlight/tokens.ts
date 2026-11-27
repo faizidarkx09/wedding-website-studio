@@ -51,17 +51,19 @@ export const ENVELOPE_IMAGE_URL = "/images/themes/silver-moonlight-detail.jpg";
 export const RSVP_CARD_URL = "/images/themes/silver-moonlight-rsvp.jpg";
 export const PHOTO_MOONLIT_COUPLE_URL = "/images/themes/silver-moonlight-story-1.jpg";
 export const PHOTO_MOONLIT_HANDS_URL = "/images/themes/silver-moonlight-story-2.jpg";
+/** The template's own moonlit couple photos (new — generated for
+ * the animation rebuild; staged from
+ * ~/workspace/silver-moonlight-assets/optimized/). */
+export const COUPLE_1_URL = "/images/themes/silver-moonlight-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/silver-moonlight-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/silver-moonlight-couple-3.jpg";
 
-/** The template's own moonlit photographs, in story order
- * (couple under the crescent moon, joined hands with silver rings,
- * night sky) — used as the moonlit photo cards when the buyer has
- * not uploaded their own photos yet (same pattern as ÉTERNEL's
- * template hero fallback). */
-export const TEMPLATE_PHOTOS = [
-  PHOTO_MOONLIT_COUPLE_URL,
-  PHOTO_MOONLIT_HANDS_URL,
-  COVER_IMAGE_URL,
-] as const;
+/** The template's own moonlit couple photographs, in story order
+ * (crescent moon by the lake, joined hands with silver rings,
+ * dancing under the stars) — used as the moonlit photo cards when
+ * the buyer has not uploaded their own photos yet (same pattern as
+ * ÉTERNEL's template hero fallback). */
+export const TEMPLATE_PHOTOS = [COUPLE_1_URL, COUPLE_2_URL, COUPLE_3_URL] as const;
 
 /** Moonlit-card captions (generic captions, not couple data). */
 export const MOON_CAPTIONS = ["Moonrise", "The Promise", "Starlight"] as const;

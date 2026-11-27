@@ -45,6 +45,12 @@ export const ENVELOPE_IMAGE_URL = "/images/themes/golden-hour-detail.jpg";
 export const WAX_SEAL_URL = "/images/themes/golden-hour/wax-seal.jpg";
 export const TORN_PAPER_RSVP_URL = "/images/themes/golden-hour/rsvp-paper.jpg";
 export const STORY_WHEAT_URL = "/images/themes/golden-hour/story-wheat.jpg";
+/** The template's own golden-hour couple photos (new — generated
+ * for the animation rebuild; staged from
+ * ~/workspace/golden-hour-assets/optimized/). */
+export const COUPLE_1_URL = "/images/themes/golden-hour-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/golden-hour-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/golden-hour-couple-3.jpg";
 /** The 5 neutral golden-hour couple photos from Royal Burgundy —
  * palette-neutral, reused by path (never re-generated). */
 export const PHOTO_HANDS_URL = "/images/themes/royal-burgundy/photo-hands.jpg";
@@ -54,14 +60,14 @@ export const PHOTO_TOAST_URL = "/images/themes/royal-burgundy/photo-toast.jpg";
 export const PHOTO_MEADOW_URL = "/images/themes/royal-burgundy/photo-meadow.jpg";
 
 /** The template's own wedding photographs, in story-card order
- * (wheat, hands, veil, sunset) — used as the warm photo-card
- * fallback chrome when the buyer has not uploaded their own photos
- * yet (same pattern as ÉTERNEL's template hero fallback). */
+ * (wheat + the three golden-hour couple photos) — used as the warm
+ * photo-card fallback chrome when the buyer has not uploaded their
+ * own photos yet (same pattern as ÉTERNEL's template hero fallback). */
 export const TEMPLATE_PHOTOS = [
   STORY_WHEAT_URL,
-  PHOTO_HANDS_URL,
-  PHOTO_VEIL_URL,
-  PHOTO_SUNSET_URL,
+  COUPLE_1_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
 ] as const;
 
 /** Warm photo-card captions (generic captions, not couple data). */

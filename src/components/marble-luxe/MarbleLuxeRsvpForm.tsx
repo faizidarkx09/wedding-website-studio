@@ -232,7 +232,7 @@ export default function MarbleLuxeRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="ml-rsvp-email" className="ml-font-display block text-[11px] font-medium tracking-[0.22em] text-[#1F2937] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="ml-rsvp-email"
@@ -243,7 +243,7 @@ export default function MarbleLuxeRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#B49A70]/60 bg-[#FDFDFC] px-4 py-3 ml-font-editorial text-[1rem] text-[#1F2937] placeholder:text-[#1F2937]/40 focus:border-[#1F2937] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#8C7355]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

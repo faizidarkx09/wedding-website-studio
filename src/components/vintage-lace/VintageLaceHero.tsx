@@ -4,7 +4,7 @@
 // centre spine, not photo cards). Only the data comes from the site.
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, BookOpen, Heart, MapPin } from "lucide-react";
 import type { WeddingSite } from "@/lib/types";
@@ -177,32 +177,62 @@ export function VintageLaceCountdown({ site }: { site: WeddingSite }) {
         Join us as we count down to a day filled with love, laughter, and cherished memories.
       </p>
 
-      {/* Countdown — 5 units, 2 lines of 3 + 2 in narrow containers,
-          one row in wide containers (container queries, so the
-          editor preview renders the mobile layout). */}
+      {/* Countdown — cream vintage lace cards hung on a thin thread
+          line: each card is ivory paper with a sepia border, a
+          dashed dusty-rose lace inner border, a thread-knot diamond
+          where it hangs, and a serif numeral above its label. 5
+          units, 2 lines of 3 + 2 in narrow containers, one row in
+          wide containers (container queries, so the editor preview
+          renders the mobile layout). Contrast (WCAG, computed, not
+          eyeballed): numerals #4A3A2E on #FFFDF8 = 10.67:1, labels
+          #6B563E on #FFFDF8 = 6.83:1 — both ≥ 4.5. The thread line
+          and knots are decorative only. */}
       <div
         role="timer"
         aria-live="off"
-        className="@container relative z-10 mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-6"
+        className="@container relative z-10 mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-3"
       >
+        {/* Thin thread line behind the cards (wide row only) */}
+        <div
+          aria-hidden="true"
+          className="absolute top-1/2 right-[4%] left-[4%] hidden h-px bg-[#C08A8E]/70 @min-[40rem]:block"
+        />
         {units.map((unit, idx) => (
-          <motion.div
-            key={unit.label}
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
-              idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
-            }`}
-          >
-            <span className="vl-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#C08A8E]/70 bg-[#FDF8F0] text-[1.55rem] font-semibold text-[#4A3A2E] shadow-[inset_0_1px_4px_rgba(74,58,46,0.15),0_6px_16px_rgba(0,0,0,0.35)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]">
-              {String(unit.value).padStart(2, "0")}
-            </span>
-            <span className="vl-font-display mt-2.5 text-[9px] font-semibold tracking-[0.3em] text-[#EAD3D3] uppercase">
-              {unit.label}
-            </span>
-          </motion.div>
+          <Fragment key={unit.label}>
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
+              className={`relative flex w-[4.5rem] flex-col items-center rounded-[4px] border border-[#8B7355]/70 bg-[#FFFDF8] px-1 pt-3 pb-2.5 shadow-[0_8px_20px_-6px_rgba(0,0,0,0.45)] @min-[40rem]:w-[5.4rem] @min-[40rem]:pt-3.5 @min-[40rem]:pb-3 ${
+                idx >= 3 ? "col-span-1" : ""
+              } ${idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""}`}
+            >
+              {/* Delicate lace inner border */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-[5px] rounded-[2px] border border-dashed border-[#C08A8E]/70"
+              />
+              {/* Thread-knot diamond where the card hangs from the thread */}
+              <div
+                aria-hidden="true"
+                className="absolute -top-[5px] left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border border-[#8B7355]/60 bg-[#C08A8E]"
+              />
+              <span className="vl-font-display relative text-[1.6rem] leading-none font-semibold text-[#4A3A2E] tabular-nums @min-[40rem]:text-[1.9rem]">
+                {String(unit.value).padStart(2, "0")}
+              </span>
+              <span className="vl-font-display relative mt-2 text-[9px] font-semibold tracking-[0.24em] text-[#6B563E] uppercase @min-[40rem]:text-[10px]">
+                {unit.label}
+              </span>
+            </motion.div>
+            {/* Thread knot between cards (wide row only) */}
+            {idx < units.length - 1 && (
+              <div
+                aria-hidden="true"
+                className="hidden h-2.5 w-2.5 shrink-0 self-center rounded-full border border-[#C08A8E] bg-[#FDF8F0] shadow-sm @min-[40rem]:block"
+              />
+            )}
+          </Fragment>
         ))}
       </div>
 

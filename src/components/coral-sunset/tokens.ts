@@ -49,15 +49,22 @@ export const PHOTO_SUNSET_URL = "/images/themes/royal-burgundy/photo-sunset.jpg"
 export const PHOTO_TOAST_URL = "/images/themes/royal-burgundy/photo-toast.jpg";
 export const PHOTO_MEADOW_URL = "/images/themes/royal-burgundy/photo-meadow.jpg";
 
+/** AI-generated couple photos for this template's sunset theme
+ * (2026-11-27) — golden-hour beach portraits. */
+export const COUPLE_1_URL = "/images/themes/coral-sunset-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/coral-sunset-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/coral-sunset-couple-3.jpg";
+
 /** The template's own wedding photographs, in strip order
- * (story-sunset, hands, veil, sunset) — used as the sunset-strip
- * fallback chrome when the buyer has not uploaded their own photos
- * yet (same pattern as ÉTERNEL's template hero fallback). */
+ * (couple-1, couple-2, couple-3, story-sunset) — used as the
+ * sunset-strip fallback chrome when the buyer has not uploaded
+ * their own photos yet (same pattern as ÉTERNEL's template hero
+ * fallback). */
 export const TEMPLATE_PHOTOS = [
+  COUPLE_1_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
   STORY_SUNSET_URL,
-  PHOTO_HANDS_URL,
-  PHOTO_VEIL_URL,
-  PHOTO_SUNSET_URL,
 ] as const;
 
 /** Sunset-strip captions (generic captions, not couple data). */

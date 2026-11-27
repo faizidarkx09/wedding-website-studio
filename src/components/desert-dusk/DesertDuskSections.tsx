@@ -181,7 +181,7 @@ export function DesertDuskDetailsCard({
                     ))}
                     {site.events.length > 3 && (
                       <p className="dd-font-editorial pl-11 text-sm text-[#8A4A22]/80 italic">
-                        + {site.events.length - 3} more moment{site.events.length - 3 === 1 ? "" : "s"} on the day
+                        {`+ ${site.events.length - 3} more moment${site.events.length - 3 === 1 ? "" : "s"} on the day`}
                       </p>
                     )}
                   </div>

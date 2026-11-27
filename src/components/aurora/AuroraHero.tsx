@@ -190,33 +190,80 @@ export function AuroraCountdown({ site }: { site: WeddingSite }) {
         under the northern lights.
       </p>
 
-      {/* Countdown — 5 units, 2 lines of 3 + 2 in narrow containers,
-          one row in wide containers (container queries, so the
+      {/* Countdown — aurora orbit rings: five glass rings on a wavy
+          aurora ribbon (wide containers), each ring carrying a small
+          orbiting light; the seconds ring orbits fastest and pulses.
+          3 + 2 grid in narrow containers (container queries, so the
           editor preview renders the mobile layout). */}
-      <div
-        role="timer"
-        aria-live="off"
-        className="@container relative z-10 mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-6"
-      >
-        {units.map((unit, idx) => (
-          <motion.div
-            key={unit.label}
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
-              idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
-            }`}
-          >
-            <span className="au-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#5EEAD4]/60 bg-[#1E293B]/80 text-[1.55rem] font-semibold text-[#F8FAFC] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_0_24px_rgba(20,184,166,0.25)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]">
-              {String(unit.value).padStart(2, "0")}
-            </span>
-            <span className="au-font-display mt-2.5 text-[9px] font-semibold tracking-[0.3em] text-[#5EEAD4] uppercase">
-              {unit.label}
-            </span>
-          </motion.div>
-        ))}
+      <div role="timer" aria-live="off" className="@container relative z-10 mt-8 w-full">
+        {/* Wavy aurora ribbon behind the rings — wide containers only */}
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute top-[30px] right-0 left-0 hidden h-10 w-full @min-[40rem]:block"
+          viewBox="0 0 640 40"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          <defs>
+            <linearGradient id="au-ribbon-grad" x1="0" y1="0" x2="640" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#2DD4BF" />
+              <stop offset="50%" stopColor="#5EEAD4" />
+              <stop offset="100%" stopColor="#8B5CF6" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M0 22 C 80 6, 160 34, 240 20 S 400 6, 480 22 S 600 34, 640 18"
+            stroke="url(#au-ribbon-grad)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            opacity="0.75"
+          />
+        </svg>
+        <div className="relative grid grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-6">
+          {units.map((unit, idx) => (
+            <motion.div
+              key={unit.label}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
+              className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
+                idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
+              }`}
+            >
+              <span className="au-font-display relative flex h-16 w-16 items-center justify-center rounded-full border border-[#5EEAD4]/60 bg-[#1E293B]/80 text-[1.55rem] font-semibold text-[#F8FAFC] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_0_24px_rgba(20,184,166,0.25)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]">
+                {/* Orbiting light circling the ring (seconds fastest) */}
+                {!prefersReducedMotion && (
+                  <motion.span
+                    aria-hidden="true"
+                    className="absolute inset-0"
+                    animate={{ rotate: 360 }}
+                    transition={{
+                      duration: idx === 4 ? 3 : 8 + idx * 2,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  >
+                    <span className="absolute top-[-3px] left-1/2 h-2 w-2 -translate-x-1/2 rounded-full bg-[#5EEAD4] shadow-[0_0_8px_rgba(94,234,212,0.9)]" />
+                  </motion.span>
+                )}
+                {/* Seconds ring pulse */}
+                {idx === 4 && !prefersReducedMotion && (
+                  <motion.span
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-full border border-[#5EEAD4]/70"
+                    animate={{ opacity: [0.6, 0.05, 0.6], scale: [1, 1.14, 1] }}
+                    transition={{ duration: 1.6, repeat: Infinity, ease: [0.45, 0.05, 0.55, 0.95] }}
+                  />
+                )}
+                {String(unit.value).padStart(2, "0")}
+              </span>
+              <span className="au-font-display mt-2.5 text-[9px] font-semibold tracking-[0.3em] text-[#FFFFFF] uppercase">
+                {unit.label}
+              </span>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       <div className="relative z-10 mt-9 flex flex-col items-center gap-1.5">

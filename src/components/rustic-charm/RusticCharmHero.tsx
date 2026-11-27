@@ -250,33 +250,58 @@ export function RusticCharmCountdown({ site }: { site: WeddingSite }) {
         Join us as we count down to a day filled with love, laughter, and cherished memories.
       </p>
 
-      {/* Countdown — 5 units, 2 lines of 3 + 2 in narrow containers,
-          one row in wide containers (container queries, so the
-          editor preview renders the mobile layout). */}
-      <div
-        role="timer"
-        aria-live="off"
-        className="@container mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-6"
-      >
-        {units.map((unit, idx) => (
-          <motion.div
-            key={unit.label}
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
-              idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
-            }`}
-          >
-            <span className="rc-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#A16207]/65 bg-[#451A03]/70 text-[1.55rem] font-normal text-[#FFFDF9] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(45,26,3,0.4)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]">
-              {String(unit.value).padStart(2, "0")}
-            </span>
-            <span className="rc-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#D9F99D] uppercase">
-              {unit.label}
-            </span>
-          </motion.div>
-        ))}
+      {/* Countdown — clothesline tags: five kraft tags hang from a
+          twine line, each stamped with its number; the seconds tag
+          swings gently like a tag in the breeze. 3 + 2 grid in narrow
+          containers (container queries, so the editor preview renders
+          the mobile layout). */}
+      <div role="timer" aria-live="off" className="@container relative z-10 mt-8 w-full">
+        {/* Twine line across the band — wide containers only */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-0 right-0 left-0 hidden h-[2px] @min-[40rem]:block"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent, #A16207 12%, #D9A441 50%, #A16207 88%, transparent)",
+          }}
+        />
+        <div className="relative grid grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-5 @min-[40rem]:pt-3">
+          {units.map((unit, idx) => (
+            <motion.div
+              key={unit.label}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
+              className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
+                idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
+              }`}
+            >
+              {/* String from the twine to the tag — wide containers only */}
+              <span aria-hidden="true" className="hidden h-3 w-px bg-[#A16207]/70 @min-[40rem]:block" />
+              <motion.span
+                animate={
+                  idx === 4 && !prefersReducedMotion
+                    ? { rotate: [0, 2.5, -2.5, 0] }
+                    : undefined
+                }
+                transition={{ duration: 2.4, repeat: Infinity, ease: [0.45, 0.05, 0.55, 0.95] }}
+                style={{ transformOrigin: "top center" }}
+                className="rc-font-display relative flex h-16 w-16 items-center justify-center rounded-lg border border-[#A16207]/60 bg-[#FEF3C7] text-[1.55rem] font-normal text-[#451A03] shadow-[0_6px_16px_rgba(45,26,3,0.45)] tabular-nums @min-[40rem]:h-[4.4rem] @min-[40rem]:w-[4.4rem] @min-[40rem]:text-[1.85rem]"
+              >
+                {/* Tag hole */}
+                <span
+                  aria-hidden="true"
+                  className="absolute top-1.5 left-1/2 h-2 w-2 -translate-x-1/2 rounded-full bg-[#2D1F14]/20 ring-1 ring-[#451A03]/40"
+                />
+                {String(unit.value).padStart(2, "0")}
+              </motion.span>
+              <span className="rc-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#FEF3C7] uppercase">
+                {unit.label}
+              </span>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       <div className="mt-9 flex flex-col items-center gap-1.5">

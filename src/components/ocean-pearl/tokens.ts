@@ -43,15 +43,22 @@ export const DETAIL_IMAGE_URL = "/images/themes/ocean-pearl-detail.jpg";
 export const ENVELOPE_IMAGE_URL = "/images/themes/ocean-pearl-detail.jpg";
 export const RSVP_IMAGE_URL = "/images/themes/ocean-pearl-rsvp.jpg";
 export const STORY_BEACH_URL = "/images/themes/ocean-pearl-story-1.jpg";
+/** The template's own couple photos (new — generated for the
+ * animation rebuild; staged from
+ * ~/workspace/ocean-pearl-assets/optimized/). */
+export const COUPLE_1_URL = "/images/themes/ocean-pearl-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/ocean-pearl-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/ocean-pearl-couple-3.jpg";
 
-/** The template's own photographs, in story-strip order (beach walk,
- * wave, message in a bottle) — used as the horizontal-scroll strip
- * fallback when the buyer has not uploaded their own photos yet
- * (same pattern as ÉTERNEL's template hero fallback). */
+/** The template's own photographs, in story-strip order (barefoot
+ * beach walk, sunset embrace, laughing on a boat) — used as the
+ * horizontal-scroll strip fallback when the buyer has not uploaded
+ * their own photos yet (same pattern as ÉTERNEL's template hero
+ * fallback). */
 export const TEMPLATE_PHOTOS = [
-  STORY_BEACH_URL,
-  COVER_IMAGE_URL,
-  RSVP_IMAGE_URL,
+  COUPLE_1_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
 ] as const;
 
 /** Horizontal-strip captions (generic captions, not couple data). */

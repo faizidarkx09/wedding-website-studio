@@ -19,6 +19,13 @@
 // NO music on this template — there is no ambientMusic engine and
 // no music toggle anywhere. The lace seal is the interaction instead.
 //
+// Cinematic opening (Phases 1–2 in the cover, 3–4 here): the lace
+// veil unfurls over the cover, the medallion warms on tap, then
+// two lace-veil panels part sideways like curtains and dissolve
+// with a lace-rosette transition + warm light sweep. Plays once
+// per page session; reduced motion or a replay takes the plain
+// ~1.05s ceremony instead.
+//
 // FONTS: this template touches no shared file, so it cannot add
 // classes to globals.css. The .vl-font-* classes are defined by the
 // self-contained <style> block below, using the Google-font
@@ -26,11 +33,18 @@
 // Cormorant Garamond, Lora) with Georgia fallbacks.
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { PaperSurface } from "./Decor";
 import VintageLaceCover from "./VintageLaceCover";
+import {
+  VeilPanelsOverlay,
+  playLaceSound,
+  playSoftChimeSound,
+  setCinematicSoundEnabled,
+  type VeilPhase,
+} from "./VintageCinematicOpening";
 import VintageLaceEnvelope from "./VintageLaceEnvelope";
 import {
   VintageLaceCountdown,
@@ -72,6 +86,50 @@ export default function VintageLaceRenderer({
   const savedScrollRef = useRef(0);
   const rootRef = useRef<HTMLDivElement>(null);
 
+  // Cinematic opening state (cover Phases 3–4). "hidden" = no panels;
+  // "closed" = veil panels covering the screen; "parting" = panels
+  // sliding apart like curtains; "fading" = panels dissolve +
+  // lace-rosette transition + warm light sweep.
+  const [panels, setPanels] = useState<"hidden" | VeilPhase>("hidden");
+  // Instant cover exit while the panels cover the screen, and a subtle
+  // 1.04 → 1 reveal zoom on the invitation mounting underneath.
+  const [instantExit, setInstantExit] = useState(false);
+  const [revealZoom, setRevealZoom] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
+  const soundOnRef = useRef(true);
+  const cinematicTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(
+    () => () => {
+      cinematicTimersRef.current.forEach((t) => clearTimeout(t));
+    },
+    []
+  );
+
+  const later = (ms: number, fn: () => void) => {
+    cinematicTimersRef.current.push(setTimeout(fn, ms));
+  };
+
+  const clearCinematicTimers = () => {
+    cinematicTimersRef.current.forEach((t) => clearTimeout(t));
+    cinematicTimersRef.current = [];
+  };
+
+  const finishCinematic = () => {
+    clearCinematicTimers();
+    setPanels("hidden");
+    setInstantExit(false);
+  };
+
+  const toggleSound = () => {
+    setSoundOn((v) => {
+      const next = !v;
+      soundOnRef.current = next;
+      setCinematicSoundEnabled(next);
+      return next;
+    });
+  };
+
   // On template preview pages (/templates/[id]) this renderer sits far
   // down a long page (SiteNav + facts + How-to-buy above it), so
   // document top 0 is NOT the cover — scrolling there yanks the
@@ -90,7 +148,28 @@ export default function VintageLaceRenderer({
     }
   };
 
-  const openInvitation = () => {
+  const openInvitation = (opts?: { cinematic?: boolean }) => {
+    if (opts?.cinematic) {
+      // Phase 3: cover exits instantly, invitation mounts underneath
+      // while the two lace-veil panels cover the screen, then part.
+      setInstantExit(true);
+      setRevealZoom(true);
+      setPanels("closed");
+      setCurrentView("invitation");
+      scrollToRendererTop();
+      if (soundOnRef.current) playLaceSound();
+      later(80, () => setPanels("parting"));
+      // Phase 4: panels dissolve, rosette transition, light sweep, chime.
+      later(2380, () => {
+        setPanels("fading");
+        if (soundOnRef.current) playSoftChimeSound();
+      });
+      later(3580, () => {
+        setPanels("hidden");
+        setInstantExit(false);
+      });
+      return;
+    }
     setCurrentView("invitation");
     scrollToRendererTop();
   };
@@ -98,13 +177,17 @@ export default function VintageLaceRenderer({
   const openStory = () => {
     savedScrollRef.current = window.scrollY;
     setCurrentView("story");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    // Relayed fix from bug-fix agent 1 (2026-11-27): the old top-0
+    // jump yanked the viewport above the renderer on /templates/[id]
+    // preview pages; scrollToRendererTop() is top 0 on guest sites
+    // and the renderer's own top in preview, so it is correct in both.
+    scrollToRendererTop();
   };
 
   const openDetails = () => {
     savedScrollRef.current = window.scrollY;
     setCurrentView("details");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    scrollToRendererTop();
   };
 
   const backToInvitation = () => {
@@ -120,6 +203,8 @@ export default function VintageLaceRenderer({
   };
 
   const goToCover = () => {
+    finishCinematic();
+    setRevealZoom(false);
     setCurrentView("cover");
     scrollToRendererTop();
   };
@@ -156,14 +241,21 @@ export default function VintageLaceRenderer({
 
       <AnimatePresence mode="wait">
         {currentView === "cover" && envelope && (
-          <VintageLaceCover key="cover" site={site} onOpen={openInvitation} />
+          <VintageLaceCover
+            key="cover"
+            site={site}
+            onOpen={openInvitation}
+            instantExit={instantExit}
+            soundEnabled={soundOn}
+            onToggleSound={toggleSound}
+          />
         )}
 
         {currentView === "invitation" && (
           <motion.div
             key="invitation"
-            initial={{ opacity: 0, y: 36 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 36, scale: revealZoom ? 1.04 : 1 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Ivory invitation body */}
@@ -215,6 +307,17 @@ export default function VintageLaceRenderer({
           />
         )}
       </AnimatePresence>
+
+      {/* Cinematic Phases 3–4: lace-veil panels + rosette transition,
+          rendered outside AnimatePresence so they survive the cover unmount. */}
+      {panels !== "hidden" && (
+        <VeilPanelsOverlay
+          phase={panels}
+          soundEnabled={soundOn}
+          onToggleSound={toggleSound}
+          onSkip={finishCinematic}
+        />
+      )}
     </div>
   );
 }

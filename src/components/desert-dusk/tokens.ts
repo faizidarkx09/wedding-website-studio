@@ -43,6 +43,13 @@ export const ENVELOPE_IMAGE_URL = "/images/themes/desert-dusk-detail.jpg";
 export const SUN_SEAL_URL = "/images/themes/desert-dusk/sun-seal.jpg";
 export const RSVP_POSTCARD_URL = "/images/themes/desert-dusk/rsvp-postcard.jpg";
 export const STORY_DUNES_URL = "/images/themes/desert-dusk/story-dunes.jpg";
+/** The template's own desert-sunset couple photos (AI-generated
+ * originals, 1200px, staged from ~/workspace/desert-dusk-assets/
+ * optimized/) — 1: walking the dune ridge, 2: close embrace,
+ * 3: facing the setting sun. */
+export const COUPLE_1_URL = "/images/themes/desert-dusk-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/desert-dusk-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/desert-dusk-couple-3.jpg";
 /** The 5 neutral golden-hour couple photos from Royal Burgundy —
  * palette-neutral, reused by path (never re-generated). */
 export const PHOTO_HANDS_URL = "/images/themes/royal-burgundy/photo-hands.jpg";
@@ -52,14 +59,15 @@ export const PHOTO_TOAST_URL = "/images/themes/royal-burgundy/photo-toast.jpg";
 export const PHOTO_MEADOW_URL = "/images/themes/royal-burgundy/photo-meadow.jpg";
 
 /** The template's own wedding photographs, in caravan-route order
- * (hands, dunes, veil, sunset) — used as the route-stop fallback
- * chrome when the buyer has not uploaded their own photos yet
- * (same pattern as ÉTERNEL's template hero fallback). */
+ * (couple on the ridge, dunes, close embrace, facing the sun) —
+ * used as the route-stop fallback chrome when the buyer has not
+ * uploaded their own photos yet (same pattern as ÉTERNEL's template
+ * hero fallback). */
 export const TEMPLATE_PHOTOS = [
-  PHOTO_HANDS_URL,
+  COUPLE_1_URL,
   STORY_DUNES_URL,
-  PHOTO_VEIL_URL,
-  PHOTO_SUNSET_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
 ] as const;
 
 /** Caravan-route stop captions (generic captions, not couple data). */

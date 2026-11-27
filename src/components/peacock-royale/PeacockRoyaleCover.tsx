@@ -5,21 +5,104 @@
 // as HTML text (never baked in), and "OPEN THE INVITATION". Only
 // the data comes from the site (Partner A / Partner B
 // placeholders). No music on this template.
+//
+// Cinematic opening (plays once per page session, never under
+// prefers-reduced-motion): Phase 1 anticipation — a floating
+// peacock feather, rising jewel sparkles, a teal-gold shimmer
+// across the seal; Phase 2 seal activation on tap (~1.5s) —
+// feather-eye glow, one gentle pulse, a burst of jewel particles,
+// button fades out; Phase 3+4 live in the renderer
+// (FanPanelsOverlay): the cover exits instantly, the invitation
+// mounts underneath, two jewel panels rotate open as a feather
+// fan blooms, then dissolve with a feather-eye transition +
+// shimmer. A reload in the same session, or a reduced-motion tap,
+// takes the plain 1.05s ceremony instead. Skip jumps straight to
+// the invitation.
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { FeatherEye, FeatherFan, ShimmeringSparkles } from "./Decor";
+import { JewelCanvas, SkipButton, SoundToggle } from "./CinematicOpening";
 import { COVER_IMAGE_URL, coupleNames, formatDateDisplay, initials } from "./tokens";
+
+const SESSION_FLAG = "pr-cinematic-played";
+
+function alreadyPlayed(): boolean {
+  try {
+    return sessionStorage.getItem(SESSION_FLAG) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function markPlayed() {
+  try {
+    sessionStorage.setItem(SESSION_FLAG, "1");
+  } catch {
+    /* sessionStorage unavailable — sequence just replays on reload */
+  }
+}
 
 export default function PeacockRoyaleCover({
   site,
   onOpen,
+  instantExit = false,
+  soundEnabled = true,
+  onToggleSound = () => {},
 }: {
   site: WeddingSite;
-  onOpen: () => void;
+  onOpen: (opts?: { cinematic?: boolean }) => void;
+  instantExit?: boolean;
+  soundEnabled?: boolean;
+  onToggleSound?: () => void;
 }) {
   const prefersReducedMotion = useReducedMotion();
+  // "idle" = Phase 1 anticipation; "seal" = Phase 2 activation.
+  const [phase, setPhase] = useState<"idle" | "seal">("idle");
+  const [burstKey, setBurstKey] = useState(0);
+  const startedRef = useRef(false);
+  const sealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (sealTimerRef.current) clearTimeout(sealTimerRef.current);
+    },
+    []
+  );
+
+  const startCinematic = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    markPlayed();
+    setPhase("seal");
+    setBurstKey((k) => k + 1);
+    // Phase 2 lasts ~1.5s; then the renderer takes over (fan panels).
+    sealTimerRef.current = setTimeout(() => {
+      onOpen({ cinematic: true });
+    }, 1500);
+  };
+
+  const handleOpen = () => {
+    if (startedRef.current) return;
+    // Reduced motion, or a replay in the same session: plain ceremony.
+    if (prefersReducedMotion || alreadyPlayed()) {
+      startedRef.current = true;
+      onOpen();
+      return;
+    }
+    startCinematic();
+  };
+
+  const handleSkip = () => {
+    if (sealTimerRef.current) clearTimeout(sealTimerRef.current);
+    startedRef.current = true;
+    markPlayed();
+    onOpen();
+  };
+
+  const sealing = phase === "seal";
 
   return (
     <motion.div
@@ -27,8 +110,12 @@ export default function PeacockRoyaleCover({
       aria-label="Wedding Invitation Cover"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }}
-      onClick={onOpen}
+      exit={
+        instantExit
+          ? { opacity: 0, transition: { duration: 0.05, ease: [0.65, 0, 0.35, 1] } }
+          : { opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }
+      }
+      onClick={handleOpen}
       className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden bg-[#062E2B] px-5 py-10 text-[#FDFBF5] select-none sm:py-14"
     >
       {/* Deep teal backdrop + gold shimmer */}
@@ -41,6 +128,29 @@ export default function PeacockRoyaleCover({
         }}
       />
       <ShimmeringSparkles count={64} />
+
+      {/* Phase 1 — rising jewel diamonds (+ jewel burst on seal tap) */}
+      {!prefersReducedMotion && (
+        <JewelCanvas jewelCount={12} burstKey={burstKey} burstOrigin={{ x: 0.5, y: 0.72 }} />
+      )}
+
+      {/* Phase 1 — one loose feather eye drifting gently, top right */}
+      {!prefersReducedMotion && (
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-[16%] right-[9%] z-10 sm:right-[16%]"
+          animate={{ y: [0, -12, 0], rotate: [-8, 6, -8] }}
+          transition={{ duration: 7, repeat: Infinity, ease: [0.45, 0.05, 0.55, 0.95] }}
+        >
+          <FeatherEye className="h-12 w-9 opacity-80 drop-shadow-[0_2px_8px_rgba(4,33,31,0.6)] sm:h-14 sm:w-10" />
+        </motion.div>
+      )}
+
+      {/* Sound toggle — visible through the whole sequence, SFX only */}
+      <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />
+
+      {/* Skip — only while the seal sequence is running */}
+      {sealing && <SkipButton onSkip={handleSkip} />}
 
       {/* Double gold hairline inner border framing the card feel */}
       <div
@@ -120,15 +230,58 @@ export default function PeacockRoyaleCover({
         transition={{ duration: 0.8, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 mt-6"
       >
+        {/* Phase 2 — soft teal-gold glow around the feather eye, once */}
         <motion.div
-          animate={prefersReducedMotion ? undefined : { y: [0, -5, 0] }}
-          transition={{
-            duration: 6.5,
-            repeat: Infinity,
-            ease: [0.25, 0.1, 0.25, 1],
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-[-14%] rounded-full"
+          style={{
+            background:
+              "radial-gradient(ellipse 50% 50% at 50% 50%, rgba(231, 200, 106, 0.6) 0%, rgba(18, 140, 126, 0.25) 55%, transparent 75%)",
           }}
+          initial={{ opacity: 0 }}
+          animate={sealing ? { opacity: [0, 0.95, 0.4] } : { opacity: 0 }}
+          transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+        />
+        <motion.div
+          animate={
+            prefersReducedMotion
+              ? undefined
+              : sealing
+                ? { y: [0, -5, 0], scale: [1, 1.05, 1] }
+                : { y: [0, -5, 0] }
+          }
+          transition={
+            sealing
+              ? { duration: 1.5, ease: [0.22, 1, 0.36, 1] }
+              : { duration: 6.5, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }
+          }
           className="relative mx-auto flex h-32 w-32 items-center justify-center sm:h-36 sm:w-36"
         >
+          {/* Phase 1 — gentle teal-gold sheen drifting across the seal;
+              Phase 2 — one faster sweep across its metallic surface. */}
+          {!prefersReducedMotion && (
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 z-20 overflow-hidden rounded-full"
+            >
+              <motion.div
+                aria-hidden="true"
+                className="absolute inset-y-[-10%] w-1/3"
+                style={{
+                  background:
+                    "linear-gradient(100deg, transparent 0%, rgba(255,255,255,0.5) 50%, transparent 100%)",
+                  transform: "skewX(-12deg)",
+                }}
+                initial={{ x: "-160%" }}
+                animate={sealing ? { x: "360%" } : { x: ["-160%", "360%"] }}
+                transition={
+                  sealing
+                    ? { duration: 1.1, ease: [0.65, 0, 0.35, 1] }
+                    : { duration: 5.5, repeat: Infinity, ease: [0.45, 0.05, 0.55, 0.95], repeatDelay: 2.5 }
+                }
+              />
+            </div>
+          )}
           {/* Gold seal disc — radial gold gradient + ring */}
           <div
             aria-hidden="true"
@@ -161,20 +314,21 @@ export default function PeacockRoyaleCover({
         </motion.div>
       </motion.div>
 
-      {/* Bottom Invitation Open Action */}
+      {/* Bottom Invitation Open Action — fades out as the seal activates */}
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.95, ease: [0.16, 1, 0.3, 1] }}
+        animate={{ opacity: sealing ? 0 : 1, y: 0 }}
+        transition={{ duration: 0.6, delay: sealing ? 0 : 0.95, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 mt-6 pb-2 text-center"
       >
         <button
           type="button"
+          disabled={sealing}
           onClick={(e) => {
             e.stopPropagation();
-            onOpen();
+            handleOpen();
           }}
-          className="group relative inline-flex min-h-[48px] items-center justify-center px-6 py-3 er-font-display text-xs tracking-[0.34em] text-[#FDFBF5] uppercase transition-colors duration-300 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D4AF37] sm:text-sm"
+          className="group relative inline-flex min-h-[48px] items-center justify-center px-6 py-3 er-font-display text-xs tracking-[0.34em] text-[#FDFBF5] uppercase transition-colors duration-300 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D4AF37] disabled:pointer-events-none sm:text-sm"
         >
           <span>OPEN THE INVITATION</span>
           <span

@@ -50,8 +50,14 @@ export const DETAIL_IMAGE_URL = "/images/themes/rustic-charm-detail.jpg";
 export const ENVELOPE_IMAGE_URL = "/images/themes/rustic-charm-detail.jpg";
 export const BURLAP_TAG_RSVP_URL = "/images/themes/rustic-charm-rsvp.jpg";
 export const STORY_HANDS_URL = "/images/themes/rustic-charm-story-1.jpg";
+/** The template's own couple photographs — AI-generated for Rustic
+ * Charm, used in the story in place of the Royal Burgundy reuse. */
+export const COUPLE_1_URL = "/images/themes/rustic-charm-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/rustic-charm-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/rustic-charm-couple-3.jpg";
 /** The 3 neutral golden-hour couple photos from Royal Burgundy —
- * palette-neutral, reused by path (never re-generated). */
+ * palette-neutral, reused by path (never re-generated). Kept for
+ * reference; the story now uses the template's own couple photos. */
 export const PHOTO_HANDS_URL = "/images/themes/royal-burgundy/photo-hands.jpg";
 export const PHOTO_VEIL_URL = "/images/themes/royal-burgundy/photo-veil.jpg";
 export const PHOTO_SUNSET_URL = "/images/themes/royal-burgundy/photo-sunset.jpg";
@@ -59,15 +65,15 @@ export const PHOTO_TOAST_URL = "/images/themes/royal-burgundy/photo-toast.jpg";
 export const PHOTO_MEADOW_URL = "/images/themes/royal-burgundy/photo-meadow.jpg";
 
 /** The template's own wedding photographs, in clothesline order
- * (hands + wildflowers, hands, meadow, sunset) — used as the
+ * (hands + wildflowers, then the three couple photos) — used as the
  * clothesline fallback chrome when the buyer has not uploaded their
  * own photos yet (same pattern as ÉTERNEL's template hero
  * fallback). */
 export const TEMPLATE_PHOTOS = [
   STORY_HANDS_URL,
-  PHOTO_HANDS_URL,
-  PHOTO_MEADOW_URL,
-  PHOTO_SUNSET_URL,
+  COUPLE_1_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
 ] as const;
 
 /** Clothesline captions (generic captions, not couple data). */

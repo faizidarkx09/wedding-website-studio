@@ -169,22 +169,30 @@ export function AutumnHarvestCountdown({ site }: { site: WeddingSite }) {
           THE COUNTDOWN BEGINS
         </p>
 
-        <h3 className="ah-font-display mt-3 text-[1.7rem] leading-[1.12] font-semibold tracking-[0.01em] text-[#FFF7E8]">
+        <h3 className="ah-font-display mt-3 text-[1.7rem] leading-[1.12] font-semibold tracking-[0.01em] text-white">
           An Autumn Day Awaits
         </h3>
 
         <div
           aria-hidden="true"
-          className="mt-4 h-px w-40 bg-gradient-to-r from-transparent via-[#E8A05C]/90 to-transparent"
+          className="mt-4 h-px w-40 bg-gradient-to-r from-transparent via-[#FFF7E8]/90 to-transparent"
         />
 
         <p className="ah-font-editorial mt-4 max-w-[540px] text-[1rem] leading-[1.75] text-white">
           Join us as we count down to a day of falling leaves, warm light, and cherished memories.
         </p>
 
-        {/* Countdown — 5 units, 2 lines of 3 + 2 in narrow containers,
-            one row in wide containers (container queries, so the
-            editor preview renders the mobile layout). */}
+        {/* Countdown — kraft ticket stubs: a cream ticket card with a
+            dashed perforation edge, a leaf marker, a dark-brown
+            number and a deep-orange label. The clock VALUES sit on
+            cream (#FFF7E8), never on the orange band, so they stay
+            high-contrast at every size; the eyebrow / heading /
+            intro / date / venue lines stay white on the burnt-orange
+            band (#C05621, 4.57 — the live-verified combo). The old
+            light-orange #E8A05C labels (2.09) are gone for good.
+            5 units, 2 lines of 3 + 2 in narrow containers, one row
+            in wide containers (container queries, so the editor
+            preview renders the mobile layout). */}
         <div
           role="timer"
           aria-live="off"
@@ -201,12 +209,36 @@ export function AutumnHarvestCountdown({ site }: { site: WeddingSite }) {
                 idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
               }`}
             >
-              <span className="ah-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#E8A05C]/70 bg-[#3A2412]/70 text-[1.55rem] font-semibold text-[#FFFDF9] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(58,36,18,0.4)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]">
-                {String(unit.value).padStart(2, "0")}
-              </span>
-              <span className="ah-font-display mt-2.5 text-[9px] font-semibold tracking-[0.3em] text-white uppercase">
-                {unit.label}
-              </span>
+              <div className="relative w-[4.4rem] @min-[40rem]:w-[5rem]">
+                {/* Ticket punch-hole notches on the stub edges */}
+                <span
+                  aria-hidden="true"
+                  className="absolute top-1/2 -left-[5px] z-10 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-[#3A2412]"
+                />
+                <span
+                  aria-hidden="true"
+                  className="absolute top-1/2 -right-[5px] z-10 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-[#3A2412]"
+                />
+                {/* Dashed perforation edge around the stub */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-[5px] z-10 rounded-[4px] border border-dashed border-[#C05621]/30"
+                />
+                <div className="flex flex-col items-center rounded-[6px] bg-[#FFF7E8] px-1 pt-2.5 pb-2 shadow-[0_10px_24px_-8px_rgba(58,36,18,0.55)] ring-1 ring-[#7A2E0D]/20">
+                  <Leaf aria-hidden="true" className="h-3.5 w-3.5 text-[#9C3D12]" />
+                  <span className="ah-font-display mt-1 text-[1.5rem] leading-none font-bold text-[#3A2412] tabular-nums @min-[40rem]:text-[1.8rem]">
+                    {String(unit.value).padStart(2, "0")}
+                  </span>
+                  {/* Tear line between the number and the label */}
+                  <span
+                    aria-hidden="true"
+                    className="mt-2 w-3/4 border-t border-dashed border-[#C05621]/50"
+                  />
+                  <span className="ah-font-display mt-1.5 text-[8px] font-bold tracking-[0.22em] text-[#9C3D12] uppercase @min-[40rem]:text-[9px]">
+                    {unit.label}
+                  </span>
+                </div>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -220,7 +252,7 @@ export function AutumnHarvestCountdown({ site }: { site: WeddingSite }) {
               key={i}
               className="ah-font-editorial flex items-center gap-1.5 text-sm text-white italic"
             >
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-[#E8A05C]" />
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-[#FFF7E8]" />
               {line}
             </p>
           ))}

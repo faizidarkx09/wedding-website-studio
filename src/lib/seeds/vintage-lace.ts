@@ -25,9 +25,9 @@ export interface VintageLaceSeed {
 
 const VINTAGE_LACE_GALLERY_URLS = [
   "/images/themes/vintage-lace-detail.jpg",
-  "/images/themes/royal-burgundy/photo-hands.jpg",
-  "/images/themes/royal-burgundy/photo-veil.jpg",
-  "/images/themes/royal-burgundy/photo-sunset.jpg",
+  "/images/themes/vintage-lace-couple-1.jpg",
+  "/images/themes/vintage-lace-couple-2.jpg",
+  "/images/themes/vintage-lace-couple-3.jpg",
   "/images/themes/royal-burgundy/photo-toast.jpg",
   "/images/themes/royal-burgundy/photo-meadow.jpg",
 ];

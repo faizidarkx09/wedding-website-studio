@@ -211,7 +211,7 @@ export function SakuraDreamDetailsCard({
                     ))}
                     {site.events.length > 3 && (
                       <p className="sd-font-editorial pl-11 text-sm text-[#6B21A8]/80 italic">
-                        + {site.events.length - 3} more moment{site.events.length - 3 === 1 ? "" : "s"} on the day
+                        {`+ ${site.events.length - 3} more moment${site.events.length - 3 === 1 ? "" : "s"} on the day`}
                       </p>
                     )}
                   </div>

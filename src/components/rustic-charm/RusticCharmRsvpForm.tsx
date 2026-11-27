@@ -231,7 +231,7 @@ export default function RusticCharmRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="rc-rsvp-email" className="rc-font-display block text-[11px] tracking-[0.22em] text-[#451A03] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="rc-rsvp-email"
@@ -242,7 +242,7 @@ export default function RusticCharmRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#78350F]/60 bg-[#FFFDF9] px-4 py-3 rc-font-editorial text-[1rem] text-[#451A03] placeholder:text-[#451A03]/40 focus:border-[#451A03] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#92400E]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm font-medium text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

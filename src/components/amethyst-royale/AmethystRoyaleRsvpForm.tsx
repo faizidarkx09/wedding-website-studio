@@ -231,7 +231,7 @@ export default function AmethystRoyaleRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="ar-rsvp-email" className="ar-font-display block text-[11px] tracking-[0.22em] text-[#2E1065] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="ar-rsvp-email"
@@ -242,7 +242,7 @@ export default function AmethystRoyaleRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#7C3AED]/60 bg-[#FFFDFF] px-4 py-3 ar-font-editorial text-[1rem] text-[#2E1065] placeholder:text-[#2E1065]/40 focus:border-[#2E1065] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#5B21B6]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

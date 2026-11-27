@@ -33,9 +33,9 @@ export interface RusticCharmSeed {
 const RUSTIC_CHARM_GALLERY_URLS = [
   "/images/themes/rustic-charm-detail.jpg",
   "/images/themes/rustic-charm-story-1.jpg",
-  "/images/themes/royal-burgundy/photo-hands.jpg",
-  "/images/themes/royal-burgundy/photo-meadow.jpg",
-  "/images/themes/royal-burgundy/photo-sunset.jpg",
+  "/images/themes/rustic-charm-couple-1.jpg",
+  "/images/themes/rustic-charm-couple-2.jpg",
+  "/images/themes/rustic-charm-couple-3.jpg",
   "/images/themes/rustic-charm.jpg",
 ];
 

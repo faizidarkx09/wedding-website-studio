@@ -15,11 +15,11 @@ export interface DesertDuskSeed {
 }
 
 const DESERT_DUSK_GALLERY_URLS = [
+  "/images/themes/desert-dusk-couple-1.jpg",
+  "/images/themes/desert-dusk-couple-2.jpg",
+  "/images/themes/desert-dusk-couple-3.jpg",
   "/images/themes/desert-dusk-detail.jpg",
   "/images/themes/desert-dusk/story-dunes.jpg",
-  "/images/themes/royal-burgundy/photo-hands.jpg",
-  "/images/themes/royal-burgundy/photo-veil.jpg",
-  "/images/themes/royal-burgundy/photo-sunset.jpg",
   "/images/themes/royal-burgundy/photo-toast.jpg",
   "/images/themes/royal-burgundy/photo-meadow.jpg",
 ];

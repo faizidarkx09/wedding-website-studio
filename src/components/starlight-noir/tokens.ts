@@ -52,17 +52,33 @@ export const STORY_CONSTELLATION_1_URL =
 export const STORY_CONSTELLATION_2_URL =
   "/images/themes/starlight-noir/story-constellation-2.jpg";
 
+/** AI couple photos — elegant couple under a starry night sky,
+ * black/gold, glamorous evening (photorealistic, no text).
+ * Staged from ~/workspace/starlight-noir-assets/optimized/
+ * (1200px long side, progressive JPEG q80, each <=175 KB). */
+export const COUPLE_1_URL = "/images/themes/starlight-noir-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/starlight-noir-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/starlight-noir-couple-3.jpg";
+
 /** The template's own star-map photographs, in story-card order —
  * used as the constellation-card fallback chrome when the buyer
  * has not uploaded their own photos yet (same pattern as
- * ÉTERNEL's template hero fallback). */
+ * ÉTERNEL's template hero fallback). The three AI couple photos
+ * lead; the star-map photo closes the 4-card chart. */
 export const TEMPLATE_PHOTOS = [
+  COUPLE_1_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
   STORY_CONSTELLATION_1_URL,
-  STORY_CONSTELLATION_2_URL,
 ] as const;
 
 /** Star-map captions (generic captions, not couple data). */
-export const STORY_CAPTIONS = ["First Light", "Written in the Stars"] as const;
+export const STORY_CAPTIONS = [
+  "First Light",
+  "Written in the Stars",
+  "Under the Stars",
+  "A Night to Remember",
+] as const;
 
 /** Server-side RSVP cap (matches POST /api/rsvp MAX_GUEST_COUNT). */
 export const MAX_GUESTS_SERVER = 10;

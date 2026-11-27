@@ -231,7 +231,7 @@ export default function ForestWhisperRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="fw-rsvp-email" className="fw-font-display block text-[11px] tracking-[0.22em] text-[#1B4332] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="fw-rsvp-email"
@@ -242,7 +242,7 @@ export default function ForestWhisperRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#6A994E]/60 bg-[#FDFCF7] px-4 py-3 fw-font-editorial text-[1rem] text-[#1B4332] placeholder:text-[#1B4332]/40 focus:border-[#1B4332] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#2D6A4F]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm font-medium text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

@@ -55,15 +55,21 @@ export const PHOTO_SUNSET_URL = "/images/themes/royal-burgundy/photo-sunset.jpg"
 export const PHOTO_TOAST_URL = "/images/themes/royal-burgundy/photo-toast.jpg";
 export const PHOTO_MEADOW_URL = "/images/themes/royal-burgundy/photo-meadow.jpg";
 
+/** AI-generated couple photos for this template's island theme
+ * (2026-11-27) — tropical beach portraits. */
+export const COUPLE_1_URL = "/images/themes/tropical-palm-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/tropical-palm-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/tropical-palm-couple-3.jpg";
+
 /** The template's own wedding photographs, in island-hop order
- * (beach walk, hands, veil, sunset) — used as the island-hop
+ * (couple-1, couple-2, couple-3, beach) — used as the island-hop
  * fallback chrome when the buyer has not uploaded their own photos
  * yet (same pattern as ÉTERNEL's template hero fallback). */
 export const TEMPLATE_PHOTOS = [
+  COUPLE_1_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
   STORY_BEACH_URL,
-  PHOTO_HANDS_URL,
-  PHOTO_VEIL_URL,
-  PHOTO_SUNSET_URL,
 ] as const;
 
 /** Island-hop stop names (generic captions, not couple data). */

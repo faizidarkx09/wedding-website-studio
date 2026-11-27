@@ -233,7 +233,7 @@ export default function SilverMoonlightRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="sm-rsvp-email" className="er-font-display block text-[11px] tracking-[0.22em] text-[#16202E] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="sm-rsvp-email"
@@ -244,7 +244,7 @@ export default function SilverMoonlightRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#C9CDD6] bg-[#FFFFFF] px-4 py-3 er-font-editorial text-[1rem] text-[#16202E] placeholder:text-[#16202E]/40 focus:border-[#16202E] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#2E3A4A]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm font-medium text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

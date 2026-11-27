@@ -213,7 +213,7 @@ export function PeacockRoyaleDetailsCard({
                     ))}
                     {site.events.length > 3 && (
                       <p className="er-font-editorial pl-11 text-sm text-[#0B4F4A]/80 italic">
-                        + {site.events.length - 3} more moment{site.events.length - 3 === 1 ? "" : "s"} on the day
+                        {`+ ${site.events.length - 3} more moment${site.events.length - 3 === 1 ? "" : "s"} on the day`}
                       </p>
                     )}
                   </div>

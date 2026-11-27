@@ -9,7 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Camera, Feather, Heart, MapPin } from "lucide-react";
 import type { WeddingSite } from "@/lib/types";
-import { FeatherDivider, PeacockSurface, ShimmeringSparkles } from "./Decor";
+import { FeatherDivider, FeatherEye, PeacockSurface, ShimmeringSparkles } from "./Decor";
 import {
   FAN_CAPTIONS,
   TEMPLATE_PHOTOS,
@@ -181,7 +181,10 @@ export function PeacockRoyaleCountdown({ site }: { site: WeddingSite }) {
       </p>
 
       {/* Countdown — 5 units, 2 lines of 3 + 2 on mobile, one row on desktop.
-          Jewel circles: gold rings on deep teal. */}
+          Jewel medallions: an octagonal emerald gem set in a gold frame,
+          crowned by a tiny feather eye — a peacock's jewel, not a plain
+          circle. The number sits in white on deep emerald; the label
+          below is pale gold on the deep-teal band. */}
       <div
         role="timer"
         aria-live="off"
@@ -194,14 +197,50 @@ export function PeacockRoyaleCountdown({ site }: { site: WeddingSite }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
+            className={`flex flex-col items-center pt-2 ${idx >= 3 ? "col-span-1" : ""} ${
               idx === 3 ? "col-start-1 sm:col-start-auto" : ""
             }`}
           >
-            <span className="er-font-display flex h-16 w-16 items-center justify-center rounded-full border-2 border-[#D4AF37]/80 bg-[#04211F]/80 text-[1.55rem] font-normal text-[#FFFFFF] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(4,33,31,0.5)] tabular-nums sm:h-[4.6rem] sm:w-[4.6rem] sm:text-[1.85rem]">
-              {String(unit.value).padStart(2, "0")}
+            {/* Octagonal jewel: gold outer facet, emerald inner gem */}
+            <span className="relative block h-[4.4rem] w-[4.4rem] sm:h-[5.2rem] sm:w-[5.2rem]">
+              <span
+                aria-hidden="true"
+                className="absolute inset-0"
+                style={{
+                  clipPath:
+                    "polygon(29% 0%, 71% 0%, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0% 71%, 0% 29%)",
+                  background:
+                    "linear-gradient(135deg, #F6E27A 0%, #D4AF37 38%, #9A7B2D 62%, #E7C86A 100%)",
+                }}
+              />
+              <span
+                aria-hidden="true"
+                className="absolute inset-[3px]"
+                style={{
+                  clipPath:
+                    "polygon(29% 0%, 71% 0%, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0% 71%, 0% 29%)",
+                  background:
+                    "linear-gradient(160deg, #0B4F4A 0%, #065F46 45%, #04211F 100%)",
+                }}
+              />
+              {/* Facet glint across the gem */}
+              <span
+                aria-hidden="true"
+                className="absolute inset-[3px] overflow-hidden"
+                style={{
+                  clipPath:
+                    "polygon(29% 0%, 71% 0%, 100% 29%, 100% 71%, 71% 100%, 29% 100%, 0% 71%, 0% 29%)",
+                  background:
+                    "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.22) 46%, transparent 62%)",
+                }}
+              />
+              {/* Feather-eye crest crowning the jewel */}
+              <FeatherEye className="absolute -top-2.5 left-1/2 h-5 w-4 -translate-x-1/2 drop-shadow-[0_1px_3px_rgba(4,33,31,0.8)]" />
+              <span className="er-font-display absolute inset-0 flex items-center justify-center pt-1 text-[1.55rem] font-normal text-[#FFFFFF] tabular-nums sm:text-[1.85rem]">
+                {String(unit.value).padStart(2, "0")}
+              </span>
             </span>
-            <span className="er-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#E7C86A] uppercase sm:text-[10px]">
+            <span className="er-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#F6E27A] uppercase sm:text-[10px]">
               {unit.label}
             </span>
           </motion.div>

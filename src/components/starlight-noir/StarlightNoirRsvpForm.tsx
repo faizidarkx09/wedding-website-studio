@@ -259,7 +259,7 @@ export default function StarlightNoirRsvpForm({
               style={{ fontFamily: FONT_DISPLAY }}
               className="block text-[11px] tracking-[0.22em] text-[#F5EFE0] uppercase"
             >
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-400">*</span>
             </label>
             <input
               id="sn-rsvp-email"
@@ -271,7 +271,7 @@ export default function StarlightNoirRsvpForm({
               style={{ fontFamily: FONT_EDITORIAL }}
               className="mt-2 w-full border border-[#D4AF37]/60 bg-[#0A0A0A] px-4 py-3 text-[1rem] text-[#F5EFE0] placeholder:text-[#F5EFE0]/40 focus:border-[#D4AF37] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#F2D98C]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm text-red-400">{errors.email}</p>}
           </div>
 
           {/* Attending */}

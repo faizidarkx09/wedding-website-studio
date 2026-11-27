@@ -29,9 +29,9 @@ export interface MarbleLuxeSeed {
 
 const MARBLE_LUXE_GALLERY_URLS = [
   "/images/themes/marble-luxe/story-1.jpg",
-  "/images/themes/royal-burgundy/photo-hands.jpg",
-  "/images/themes/royal-burgundy/photo-veil.jpg",
-  "/images/themes/royal-burgundy/photo-sunset.jpg",
+  "/images/themes/marble-luxe-couple-1.jpg",
+  "/images/themes/marble-luxe-couple-2.jpg",
+  "/images/themes/marble-luxe-couple-3.jpg",
   "/images/themes/marble-luxe-detail.jpg",
 ];
 

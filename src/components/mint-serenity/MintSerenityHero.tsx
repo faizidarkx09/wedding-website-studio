@@ -195,36 +195,60 @@ export function MintSerenityCountdown({ site }: { site: WeddingSite }) {
         Join us as we count down to a day filled with love, laughter, and cherished memories.
       </p>
 
-      {/* Countdown — 5 pill capsules, 2 lines of 3 + 2 in narrow
-          containers, one row in wide containers (container queries,
-          so the editor preview renders the mobile layout). */}
+      {/* Countdown — rising bubbles: five glass bubbles at staggered
+          heights, numbers and labels in white, tiny bubble trails
+          drifting up; the seconds bubble bobs gently. 3 + 2 grid in
+          narrow containers (container queries, so the editor preview
+          renders the mobile layout). */}
       <div
         role="timer"
         aria-live="off"
-        className="@container mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-6"
+        className="@container mt-8 grid w-full grid-cols-3 items-end justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-end @min-[40rem]:justify-center @min-[40rem]:gap-x-6"
       >
-        {units.map((unit, idx) => (
-          <motion.div
-            key={unit.label}
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
-              idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
-            }`}
-          >
-            <span
-              style={FONT_DISPLAY}
-              className="flex h-14 min-w-20 items-center justify-center rounded-full border border-[#A7F3D0]/70 bg-[#052E22]/70 px-3 text-[1.55rem] font-normal text-[#FFFFFF] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(5,46,34,0.4)] tabular-nums @min-[40rem]:h-16 @min-[40rem]:min-w-24 @min-[40rem]:text-[1.85rem]"
+        {units.map((unit, idx) => {
+          const bobH = [56, 28, 40, 16, 8][idx];
+          return (
+            <motion.div
+              key={unit.label}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
+              className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
+                idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
+              }`}
             >
-              {String(unit.value).padStart(2, "0")}
-            </span>
-            <span style={FONT_DISPLAY} className="mt-2.5 text-[9px] tracking-[0.3em] text-[#A7F3D0] uppercase">
-              {unit.label}
-            </span>
-          </motion.div>
-        ))}
+              {/* Bubble trail — tiny bubbles rising above the bubble */}
+              <span
+                aria-hidden="true"
+                className="mb-1 flex flex-col items-center justify-end gap-1"
+                style={{ height: `${bobH}px` }}
+              >
+                <span className="h-1 w-1 rounded-full border border-white/70" />
+                <span className="h-1.5 w-1.5 rounded-full border border-white/60" />
+                <span className="h-2 w-2 rounded-full border border-white/50" />
+              </span>
+              {/* Glass bubble with the number */}
+              <motion.span
+                animate={
+                  idx === 4 && !prefersReducedMotion ? { y: [0, -6, 0] } : undefined
+                }
+                transition={{ duration: 2.4, repeat: Infinity, ease: [0.45, 0.05, 0.55, 0.95] }}
+                style={FONT_DISPLAY}
+                className="relative flex h-16 w-16 items-center justify-center rounded-full border border-white/70 bg-white/10 text-[1.55rem] font-semibold text-[#FFFFFF] shadow-[0_6px_16px_rgba(0,0,0,0.25),inset_0_0_12px_rgba(255,255,255,0.25)] tabular-nums backdrop-blur-sm @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]"
+              >
+                <span
+                  aria-hidden="true"
+                  className="absolute top-[18%] left-[22%] h-2.5 w-2.5 rounded-full bg-white/80"
+                />
+                {String(unit.value).padStart(2, "0")}
+              </motion.span>
+              <span style={FONT_DISPLAY} className="mt-2.5 text-[9px] tracking-[0.3em] text-[#FFFFFF] uppercase">
+                {unit.label}
+              </span>
+            </motion.div>
+          );
+        })}
       </div>
 
       <div className="mt-9 flex flex-col items-center gap-1.5">

@@ -7,20 +7,87 @@
 // Partner B placeholders). No music on this template.
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { EmberParticles, SunDisc } from "./Decor";
 import { COVER_IMAGE_URL, coupleNames, initials, resolveHeroSrc } from "./tokens";
+import { EmberCanvas, SkipButton, SoundToggle, playWaveSound } from "./CinematicOpening";
 
 export default function CoralSunsetCover({
   site,
   onOpen,
+  instantExit,
+  soundEnabled = true,
+  onToggleSound,
 }: {
   site: WeddingSite;
-  onOpen: () => void;
+  onOpen: (opts?: { cinematic?: boolean }) => void;
+  instantExit?: boolean;
+  soundEnabled?: boolean;
+  onToggleSound?: () => void;
 }) {
   const prefersReducedMotion = useReducedMotion();
   const heroSrc = resolveHeroSrc(site);
+
+  // Cinematic opening (Phase 1 ambience + Phase 2 sun-disc flare):
+  // plays once per session; reduced-motion or a repeat visit opens
+  // the invitation directly. Double-taps are guarded by startedRef.
+  const SESSION_FLAG = "cs-cinematic-played";
+  const [sealing, setSealing] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const startedRef = useRef(false);
+  const sealTimerRef = useRef<number | null>(null);
+
+  const alreadyPlayed = () => {
+    try {
+      return sessionStorage.getItem(SESSION_FLAG) === "1";
+    } catch {
+      return false;
+    }
+  };
+  const markPlayed = () => {
+    try {
+      sessionStorage.setItem(SESSION_FLAG, "1");
+    } catch {
+      /* session storage unavailable — cinematic may replay */
+    }
+  };
+
+  useEffect(
+    () => () => {
+      if (sealTimerRef.current !== null) window.clearTimeout(sealTimerRef.current);
+    },
+    [],
+  );
+
+  const startCinematic = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    markPlayed();
+    setSealing(true);
+    setBurstKey((k) => k + 1);
+    playWaveSound();
+    sealTimerRef.current = window.setTimeout(() => {
+      onOpen({ cinematic: true });
+    }, 1500);
+  };
+
+  const handleOpen = () => {
+    if (startedRef.current) return;
+    if (prefersReducedMotion || alreadyPlayed()) {
+      startedRef.current = true;
+      onOpen();
+      return;
+    }
+    startCinematic();
+  };
+
+  const handleSkip = () => {
+    if (sealTimerRef.current !== null) window.clearTimeout(sealTimerRef.current);
+    startedRef.current = true;
+    onOpen();
+  };
 
   return (
     <motion.div
@@ -28,8 +95,12 @@ export default function CoralSunsetCover({
       aria-label="Wedding Invitation Cover"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }}
-      onClick={onOpen}
+      exit={
+        instantExit
+          ? { opacity: 0, transition: { duration: 0.35, ease: [0.33, 0, 0.67, 1] } }
+          : { opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }
+      }
+      onClick={handleOpen}
       className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden px-5 pt-10 pb-8 text-[#FFF6EE] select-none"
       style={{
         background:
@@ -38,6 +109,13 @@ export default function CoralSunsetCover({
     >
       {/* Warm embers — ~46 slow glowing particles over the gradient */}
       {!prefersReducedMotion && <EmberParticles />}
+
+      {/* Cinematic layer — rising embers + the Phase 2 burst */}
+      {!prefersReducedMotion && <EmberCanvas burstKey={burstKey} burstOrigin={{ x: 0.5, y: 0.42 }} />}
+
+      {/* Sound toggle — always visible; Skip appears while sealing */}
+      {onToggleSound && <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />}
+      {sealing && <SkipButton onSkip={handleSkip} />}
 
       {/* Double hairline inner border framing the sunset-card feel */}
       <div
@@ -69,15 +147,48 @@ export default function CoralSunsetCover({
         className="relative z-10 my-2 w-full max-w-[420px]"
       >
         <motion.div
-          animate={prefersReducedMotion ? undefined : { y: [0, -5, 0] }}
-          transition={{
-            duration: 6.5,
-            repeat: Infinity,
-            ease: [0.25, 0.1, 0.25, 1],
-          }}
+          animate={
+            sealing
+              ? { y: 0, scale: [1, 1.04, 1] }
+              : prefersReducedMotion
+                ? undefined
+                : { y: [0, -5, 0] }
+          }
+          transition={
+            sealing
+              ? { duration: 1.5, ease: [0.22, 1, 0.36, 1] }
+              : { duration: 6.5, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }
+          }
           className="relative mx-auto aspect-square w-full max-w-[248px]"
         >
           <SunDisc className="absolute inset-0 h-full w-full drop-shadow-[0_10px_28px_rgba(46,20,32,0.55)]" />
+
+          {/* Phase 2 flare — warm glow + light sweep across the disc */}
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-[-18%] rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(255,218,185,0.95) 0%, rgba(255,127,80,0.55) 45%, rgba(255,127,80,0) 72%)",
+            }}
+            initial={{ opacity: 0 }}
+            animate={sealing ? { opacity: [0, 0.9, 0.4] } : { opacity: 0 }}
+            transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+          />
+          {sealing && (
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
+              <motion.div
+                className="absolute inset-y-0 w-1/4"
+                style={{
+                  background:
+                    "linear-gradient(100deg, transparent 0%, rgba(255,218,185,0.6) 50%, transparent 100%)",
+                }}
+                initial={{ x: "-160%" }}
+                animate={{ x: "360%" }}
+                transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </div>
+          )}
 
           {/* Real HTML Typography Monogram Overlaid Inside the Sun Disc */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
@@ -149,15 +260,16 @@ export default function CoralSunsetCover({
       {/* Bottom Invitation Open Action */}
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
+        animate={{ opacity: sealing ? 0 : 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 pt-5 pb-1 text-center"
       >
         <button
           type="button"
+          disabled={sealing}
           onClick={(e) => {
             e.stopPropagation();
-            onOpen();
+            handleOpen();
           }}
           className="group relative inline-flex min-h-[48px] items-center justify-center rounded-full bg-[#2E1420]/70 px-7 py-3 cs-font-display text-xs tracking-[0.3em] text-[#FFF6EE] uppercase shadow-[0_10px_24px_-8px_rgba(46,20,32,0.7)] ring-1 ring-[#FFDAB9]/60 backdrop-blur-sm transition-colors duration-300 hover:bg-[#2E1420] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FFDAB9]"
         >

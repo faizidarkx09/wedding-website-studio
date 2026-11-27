@@ -257,7 +257,7 @@ export default function VintageLaceRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="vl-rsvp-email" className="vl-font-display block text-[11px] font-semibold tracking-[0.22em] text-[#4A3A2E] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="vl-rsvp-email"
@@ -268,7 +268,7 @@ export default function VintageLaceRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#8B7355]/60 bg-[#FDF8F0] px-4 py-3 vl-font-editorial text-[1rem] text-[#4A3A2E] placeholder:text-[#4A3A2E]/40 focus:border-[#4A3A2E] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#A66A6E]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

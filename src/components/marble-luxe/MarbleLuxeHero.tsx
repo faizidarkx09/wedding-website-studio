@@ -163,7 +163,7 @@ export function MarbleLuxeCountdown({ site }: { site: WeddingSite }) {
       transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       className="relative mx-auto flex max-w-[640px] flex-col items-center px-4 pt-14 pb-16 text-center"
     >
-      <p className="ml-font-display text-[10px] font-medium tracking-[0.34em] text-[#8C7355] uppercase">
+      <p className="ml-font-display text-[10px] font-medium tracking-[0.34em] text-[#6B5B3E] uppercase">
         THE COUNTDOWN BEGINS
       </p>
 
@@ -180,15 +180,21 @@ export function MarbleLuxeCountdown({ site }: { site: WeddingSite }) {
         Join us as we count down to a day of quiet elegance, love, and cherished memories.
       </p>
 
-      {/* Countdown — minimal numerals with hairline dividers between
-          units. 5 units, 2 lines of 3 + 2 in narrow containers, one
-          row in wide containers (container queries, so the editor
-          preview renders the mobile layout). */}
+      {/* Countdown — GOLD-FRAMED PANEL: a double gold-ruled panel
+          holding dark-ink numerals, gold diamonds and gold hairline
+          dividers (replaces the old bare numerals). 5 units, 2 lines
+          of 3 + 2 in narrow containers, one row in wide containers
+          (container queries, so the editor preview renders the mobile
+          layout). */}
       <div
         role="timer"
         aria-live="off"
-        className="@container mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-0"
+        className="@container relative mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 rounded-[4px] border border-[#B49A70] bg-[#FDFCF9] px-3 py-5 shadow-[0_10px_28px_-12px_rgba(31,41,55,0.25)] @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-0 @min-[40rem]:px-6 @min-[40rem]:py-6"
       >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-[5px] border border-[#B49A70]/40"
+        />
         {units.map((unit, idx) => (
           <motion.div
             key={unit.label}
@@ -196,14 +202,15 @@ export function MarbleLuxeCountdown({ site }: { site: WeddingSite }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col items-center @min-[40rem]:px-6 @min-[40rem]:[&:not(:last-child)]:border-r @min-[40rem]:[&:not(:last-child)]:border-[#E5E0D8] ${
+            className={`flex flex-col items-center @min-[40rem]:px-6 @min-[40rem]:[&:not(:last-child)]:border-r @min-[40rem]:[&:not(:last-child)]:border-[#D9C7A5] ${
               idx >= 3 ? "col-span-1" : ""
             } ${idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""}`}
           >
+            <span aria-hidden="true" className="mb-2 block h-1.5 w-1.5 rotate-45 bg-[#B49A70]" />
             <span className="ml-font-display text-[2rem] leading-none font-medium text-[#1F2937] tabular-nums @min-[40rem]:text-[2.4rem]">
               {String(unit.value).padStart(2, "0")}
             </span>
-            <span className="ml-font-display mt-2.5 text-[9px] font-medium tracking-[0.3em] text-[#8C7355] uppercase">
+            <span className="ml-font-display mt-2.5 text-[9px] font-medium tracking-[0.3em] text-[#6B5B3E] uppercase">
               {unit.label}
             </span>
           </motion.div>

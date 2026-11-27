@@ -23,7 +23,7 @@
 // the interaction instead.
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { PaperSurface } from "./Decor";
@@ -43,6 +43,14 @@ import AmethystRoyaleStory from "./AmethystRoyaleStory";
 import AmethystRoyaleDetails from "./AmethystRoyaleDetails";
 import AmethystRoyaleRsvpForm from "./AmethystRoyaleRsvpForm";
 import { resolveHeroSrc, willRenderSection } from "./tokens";
+import {
+  CrystalOverlay,
+  isCinematicSoundEnabled,
+  playCrystalChime,
+  playShimmerSound,
+  setCinematicSoundEnabled,
+  type CrystalPhase,
+} from "./CinematicOpening";
 
 type View = "cover" | "invitation" | "story" | "details";
 
@@ -62,6 +70,47 @@ export default function AmethystRoyaleRenderer({
   const savedScrollRef = useRef(0);
   const rootRef = useRef<HTMLDivElement>(null);
 
+  // Cinematic opening (Phases 3 + 4): the violet crystal panels
+  // part top/bottom while the invitation mounts underneath, then a
+  // spinning faceted gem dissolves into sparkles. Timers are
+  // tracked so Skip / goToCover can cancel them cleanly.
+  const [panels, setPanels] = useState<"hidden" | CrystalPhase>("hidden");
+  const [instantExit, setInstantExit] = useState(false);
+  const [revealZoom, setRevealZoom] = useState(false);
+  const [soundOn, setSoundOn] = useState(isCinematicSoundEnabled());
+  const soundOnRef = useRef(isCinematicSoundEnabled());
+  const cinematicTimersRef = useRef<number[]>([]);
+
+  useEffect(
+    () => () => {
+      for (const t of cinematicTimersRef.current) window.clearTimeout(t);
+      cinematicTimersRef.current = [];
+    },
+    [],
+  );
+
+  const later = (ms: number, fn: () => void) => {
+    cinematicTimersRef.current.push(window.setTimeout(fn, ms));
+  };
+
+  const clearCinematicTimers = () => {
+    for (const t of cinematicTimersRef.current) window.clearTimeout(t);
+    cinematicTimersRef.current = [];
+  };
+
+  const finishCinematic = () => {
+    clearCinematicTimers();
+    setPanels("hidden");
+    setInstantExit(false);
+  };
+
+  const toggleSound = () => {
+    const next = !soundOnRef.current;
+    soundOnRef.current = next;
+    setSoundOn(next);
+    setCinematicSoundEnabled(next);
+  };
+
   // On template preview pages (/templates/[id]) this renderer sits far
   // down a long page (SiteNav + facts + How-to-buy above it), so
   // document top 0 is NOT the cover — scrolling there yanks the
@@ -80,7 +129,25 @@ export default function AmethystRoyaleRenderer({
     }
   };
 
-  const openInvitation = () => {
+  const openInvitation = (opts?: { cinematic?: boolean }) => {
+    if (opts?.cinematic) {
+      setInstantExit(true);
+      setRevealZoom(true);
+      setPanels("closed");
+      setCurrentView("invitation");
+      scrollToRendererTop();
+      playShimmerSound();
+      later(80, () => setPanels("parting"));
+      later(2580, () => {
+        setPanels("fading");
+        playCrystalChime();
+      });
+      later(3780, () => {
+        setPanels("hidden");
+        setInstantExit(false);
+      });
+      return;
+    }
     setCurrentView("invitation");
     scrollToRendererTop();
   };
@@ -88,13 +155,13 @@ export default function AmethystRoyaleRenderer({
   const openStory = () => {
     savedScrollRef.current = window.scrollY;
     setCurrentView("story");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    scrollToRendererTop();
   };
 
   const openDetails = () => {
     savedScrollRef.current = window.scrollY;
     setCurrentView("details");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    scrollToRendererTop();
   };
 
   const backToInvitation = () => {
@@ -110,6 +177,8 @@ export default function AmethystRoyaleRenderer({
   };
 
   const goToCover = () => {
+    finishCinematic();
+    setRevealZoom(false);
     setCurrentView("cover");
     scrollToRendererTop();
   };
@@ -146,14 +215,21 @@ export default function AmethystRoyaleRenderer({
 
       <AnimatePresence mode="wait">
         {currentView === "cover" && envelope && (
-          <AmethystRoyaleCover key="cover" site={site} onOpen={openInvitation} />
+          <AmethystRoyaleCover
+            key="cover"
+            site={site}
+            onOpen={openInvitation}
+            instantExit={instantExit}
+            soundEnabled={soundOn}
+            onToggleSound={toggleSound}
+          />
         )}
 
         {currentView === "invitation" && (
           <motion.div
             key="invitation"
-            initial={{ opacity: 0, y: 36 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 36, scale: revealZoom ? 1.04 : 1 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Lavender invitation body */}
@@ -205,6 +281,20 @@ export default function AmethystRoyaleRenderer({
           />
         )}
       </AnimatePresence>
+
+      {/* Cinematic overlay (Phases 3 + 4) — outside AnimatePresence
+          so it survives the cover → invitation view swap. */}
+      {panels !== "hidden" && (
+        <CrystalOverlay
+          phase={panels}
+          soundEnabled={soundOn}
+          onToggleSound={toggleSound}
+          onSkip={() => {
+            finishCinematic();
+            setRevealZoom(false);
+          }}
+        />
+      )}
     </div>
   );
 }

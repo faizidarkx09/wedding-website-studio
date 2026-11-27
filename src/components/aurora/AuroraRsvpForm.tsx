@@ -231,7 +231,7 @@ export default function AuroraRsvpForm({
             {/* Email */}
             <div>
               <label htmlFor="au-rsvp-email" className="au-font-display block text-[11px] font-semibold tracking-[0.22em] text-[#F4F7FB] uppercase">
-                Email Address
+                Email Address <span aria-hidden="true" className="text-red-400">*</span>
               </label>
               <input
                 id="au-rsvp-email"
@@ -242,7 +242,7 @@ export default function AuroraRsvpForm({
                 autoComplete="email"
                 className="mt-2 w-full border border-[#5EEAD4]/50 bg-[#1E293B] px-4 py-3 au-font-editorial text-[1rem] text-[#F4F7FB] placeholder:text-[#E2E8F0]/40 focus:border-[#5EEAD4] focus:outline-none"
               />
-              {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#5EEAD4]">{errors.email}</p>}
+              {errors.email && <p role="alert" className="mt-1.5 text-sm font-medium text-red-400">{errors.email}</p>}
             </div>
 
             {/* Attending */}

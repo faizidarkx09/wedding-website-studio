@@ -70,21 +70,29 @@ export const ENVELOPE_IMAGE_URL = "/images/themes/mint-serenity-detail.jpg";
 export const RSVP_BG_URL = "/images/themes/mint-serenity/rsvp-bubbles.jpg";
 export const STORY_GARDEN_URL = "/images/themes/mint-serenity/story-1.jpg";
 export const STORY_HANDS_URL = "/images/themes/mint-serenity/story-2.jpg";
+/** The template's own couple photographs — AI-generated for Mint
+ * Serenity, used in the story in place of the Royal Burgundy
+ * reuse. */
+export const COUPLE_1_URL = "/images/themes/mint-serenity-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/mint-serenity-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/mint-serenity-couple-3.jpg";
 /** Two palette-neutral couple photos from Royal Burgundy, reused by
- * path (never re-generated). */
+ * path (never re-generated). Kept for reference; the story now uses
+ * the template's own couple photos. */
 export const PHOTO_HANDS_URL = "/images/themes/royal-burgundy/photo-hands.jpg";
 export const PHOTO_MEADOW_URL = "/images/themes/royal-burgundy/photo-meadow.jpg";
 
 /** The template's own wedding photographs, in story-bubble order
- * (garden laughs, joined hands, hands, meadow) — used as the
- * floating-bubble fallback chrome when the buyer has not uploaded
- * their own photos yet (same pattern as ÉTERNEL's template hero
- * fallback). */
+ * (the three couple photos first, then garden laughs, joined hands)
+ * — used as the floating-bubble fallback chrome when the buyer has
+ * not uploaded their own photos yet (same pattern as ÉTERNEL's
+ * template hero fallback). */
 export const TEMPLATE_PHOTOS = [
+  COUPLE_1_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
   STORY_GARDEN_URL,
   STORY_HANDS_URL,
-  PHOTO_HANDS_URL,
-  PHOTO_MEADOW_URL,
 ] as const;
 
 /** Bubble captions (generic captions, not couple data). */

@@ -9,7 +9,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, BookOpen, Heart } from "lucide-react";
 import type { WeddingSite } from "@/lib/types";
 import { LaceDivider, PaperSurface } from "./Decor";
-import { PHOTO_MEADOW_URL, PHOTO_TOAST_URL, STORY_CAPTIONS, TEMPLATE_PHOTOS, coupleNames, storyParagraphs } from "./tokens";
+import { STORY_CAPTIONS, TEMPLATE_PHOTOS, coupleNames, storyParagraphs } from "./tokens";
 
 function AlbumSpread({ photos, captions, index }: { photos: string[]; captions: readonly string[]; index: number }) {
   const prefersReducedMotion = useReducedMotion();
@@ -69,7 +69,7 @@ export default function VintageLaceStory({
   const spreadTwo =
     gallery.length >= 4
       ? [gallery[2], gallery[3]]
-      : [PHOTO_TOAST_URL, PHOTO_MEADOW_URL];
+      : [TEMPLATE_PHOTOS[2], TEMPLATE_PHOTOS[3]];
 
   return (
     <motion.div

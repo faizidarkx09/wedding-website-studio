@@ -106,7 +106,10 @@ export default function RsvpForm({ site, token }: RsvpFormProps) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  function validate(): boolean {
+  // Returns the errors object when validation fails (null when it
+  // passes) so the submit handler can move focus to the first problem
+  // field instead of leaving the guest staring at an unchanged form.
+  function validate(): Errors | null {
     const next: Errors = {};
     const answerErrors: Record<string, string> = {};
     if (!form.guestName.trim()) next.guestName = "Please enter your full name.";
@@ -115,7 +118,11 @@ export default function RsvpForm({ site, token }: RsvpFormProps) {
     if (form.attending === true && (!Number.isInteger(count) || count < 1 || count > 10)) {
       next.guestCount = "Guest count must be between 1 and 10.";
     }
-    if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+    // Email is required: the couple needs it to confirm the RSVP, and
+    // every template form already requires it — the standalone page
+    // must not silently accept a response the templates would reject.
+    if (!form.email.trim()) next.email = "Please share your email so we can confirm your RSVP.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
       next.email = "That email address does not look right.";
     }
     for (const q of site.customQuestions) {
@@ -125,13 +132,42 @@ export default function RsvpForm({ site, token }: RsvpFormProps) {
     }
     if (Object.keys(answerErrors).length > 0) next.answers = answerErrors;
     setErrors(next);
-    return Object.keys(next).length === 0;
+    return Object.keys(next).length === 0 ? null : next;
+  }
+
+  /** Move keyboard focus to the first field that failed validation, in
+   * the form's visual order, so a failed submit is never silent. */
+  function focusFirstError(errs: Errors) {
+    if (errs.guestName) {
+      document.getElementById("guestName")?.focus();
+      return;
+    }
+    if (errs.attending) {
+      document.querySelector<HTMLInputElement>('input[name="attending"]')?.focus();
+      return;
+    }
+    if (errs.guestCount) {
+      document.getElementById("guestCount")?.focus();
+      return;
+    }
+    if (errs.email) {
+      document.getElementById("email")?.focus();
+      return;
+    }
+    if (errs.answers) {
+      const firstId = Object.keys(errs.answers)[0];
+      if (firstId) document.getElementById(`q-${firstId}`)?.focus();
+    }
   }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErrors({});
-    if (!validate()) return;
+    const errs = validate();
+    if (errs) {
+      focusFirstError(errs);
+      return;
+    }
     setLoading(true);
     try {
       const body: Record<string, unknown> = {
@@ -316,19 +352,23 @@ export default function RsvpForm({ site, token }: RsvpFormProps) {
 
       <div className="mt-6 grid gap-6 sm:grid-cols-2">
         <div>
-          <label htmlFor="email" className={labelCls}>Email</label>
+          <label htmlFor="email" className={labelCls}>
+            Email <span aria-hidden="true" className="text-red-700">*</span>
+          </label>
           <input
             id="email"
             name="email"
             type="email"
             autoComplete="email"
+            required
             value={form.email}
             onChange={(e) => set("email", e.target.value)}
             aria-invalid={Boolean(errors.email)}
+            aria-describedby={errors.email ? "email-error" : undefined}
             className={inputCls}
           />
           {errors.email ? (
-            <p role="alert" className={errCls}>{errors.email}</p>
+            <p id="email-error" role="alert" className={errCls}>{errors.email}</p>
           ) : null}
         </div>
         <div>

@@ -57,8 +57,15 @@ export const DETAIL_IMAGE_URL = "/images/themes/sunflower-fields-detail.jpg";
 export const ENVELOPE_IMAGE_URL = "/images/themes/sunflower-fields-detail.jpg";
 export const STORY_FIELD_URL = "/images/themes/sunflower-fields/story-field.jpg";
 export const SEED_PACKET_URL = "/images/themes/sunflower-fields/seed-packet.jpg";
+/** The template's own couple photographs — AI-generated for
+ * Sunflower Fields, used in the story in place of the Royal
+ * Burgundy reuse. */
+export const COUPLE_1_URL = "/images/themes/sunflower-fields-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/sunflower-fields-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/sunflower-fields-couple-3.jpg";
 /** Palette-neutral shared-pool photos reused by path (never
- * re-generated) for the extra field-row frames. */
+ * re-generated) for the extra field-row frames. Kept for reference;
+ * the story now uses the template's own couple photos. */
 export const PHOTO_HANDS_URL = "/images/themes/royal-burgundy/photo-hands.jpg";
 export const PHOTO_VEIL_URL = "/images/themes/royal-burgundy/photo-veil.jpg";
 export const PHOTO_SUNSET_URL = "/images/themes/royal-burgundy/photo-sunset.jpg";
@@ -66,14 +73,15 @@ export const PHOTO_TOAST_URL = "/images/themes/royal-burgundy/photo-toast.jpg";
 export const PHOTO_MEADOW_URL = "/images/themes/royal-burgundy/photo-meadow.jpg";
 
 /** The template's own field photographs, in field-row order
- * (field path, hands, veil, sunset) — used as the story-row
- * fallback chrome when the buyer has not uploaded their own
- * photos yet (same pattern as ÉTERNEL's template hero fallback). */
+ * (field path, then the three couple photos) — used as the
+ * story-row fallback chrome when the buyer has not uploaded their
+ * own photos yet (same pattern as ÉTERNEL's template hero
+ * fallback). */
 export const TEMPLATE_PHOTOS = [
   STORY_FIELD_URL,
-  PHOTO_HANDS_URL,
-  PHOTO_VEIL_URL,
-  PHOTO_SUNSET_URL,
+  COUPLE_1_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
 ] as const;
 
 /** Field-row captions (generic captions, not couple data). */

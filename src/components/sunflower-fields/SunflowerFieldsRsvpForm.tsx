@@ -261,7 +261,7 @@ export default function SunflowerFieldsRsvpForm({
               style={{ fontFamily: FONT_DISPLAY }}
               className="block text-[11px] tracking-[0.22em] text-[#14532D] uppercase"
             >
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="sf-rsvp-email"
@@ -273,7 +273,7 @@ export default function SunflowerFieldsRsvpForm({
               style={{ fontFamily: FONT_EDITORIAL }}
               className="mt-2 w-full border border-[#EAB308]/60 bg-[#FFFEF5] px-4 py-3 text-[1rem] text-[#14532D] placeholder:text-[#14532D]/40 focus:border-[#14532D] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#B45309]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm font-medium text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

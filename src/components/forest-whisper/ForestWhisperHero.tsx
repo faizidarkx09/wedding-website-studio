@@ -10,9 +10,7 @@ import { ArrowRight, Camera, Heart, MapPin, Sparkles, TreePine } from "lucide-re
 import type { WeddingSite } from "@/lib/types";
 import { PaperSurface, LeafDivider } from "./Decor";
 import {
-  PHOTO_MEADOW_URL,
   STORY_CAPTIONS,
-  STORY_TRAIL_URL,
   TEMPLATE_PHOTOS,
   coupleNames,
   formatLongDate,
@@ -164,7 +162,7 @@ export function ForestWhisperCountdown({ site }: { site: WeddingSite }) {
       transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       className="relative mx-auto flex max-w-[640px] flex-col items-center px-4 pb-14 text-center"
     >
-      <p className="fw-font-display text-[10px] tracking-[0.34em] text-[#A7C957] uppercase">
+      <p className="fw-font-display text-[10px] tracking-[0.34em] text-[#D6E8B0] uppercase">
         THE COUNTDOWN BEGINS
       </p>
 
@@ -177,18 +175,26 @@ export function ForestWhisperCountdown({ site }: { site: WeddingSite }) {
         className="mt-4 h-px w-40 bg-gradient-to-r from-transparent via-[#A7C957]/90 to-transparent"
       />
 
-      <p className="fw-font-editorial mt-4 max-w-[540px] text-[1rem] leading-[1.75] text-[#E7EAD9]/85">
+      <p className="fw-font-editorial mt-4 max-w-[540px] text-[1rem] leading-[1.75] text-[#E7EAD9]">
         Join us as we count down to a day filled with love, laughter, and cherished memories.
       </p>
 
-      {/* Countdown — 5 units, 2 lines of 3 + 2 in narrow containers,
-          one row in wide containers (container queries, so the
-          editor preview renders the mobile layout). */}
+      {/* Countdown — a woodland TRAIL of five stepping stones: each
+          unit is a moss stone on a dashed forest path, a leaf sprig
+          above it, its label below. 3 + 2 in narrow containers, one
+          winding row in wide containers (container queries, so the
+          editor preview renders the mobile layout). The dashed trail
+          line runs behind the stones on wide containers only. */}
       <div
         role="timer"
         aria-live="off"
-        className="@container mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-6"
+        className="@container relative mt-10 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-8 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-4"
       >
+        {/* Dashed trail path behind the stones (wide containers) */}
+        <div
+          aria-hidden="true"
+          className="absolute top-[3.1rem] right-[8%] left-[8%] hidden border-t-2 border-dashed border-[#A7C957]/50 @min-[40rem]:block"
+        />
         {units.map((unit, idx) => (
           <motion.div
             key={unit.label}
@@ -196,14 +202,25 @@ export function ForestWhisperCountdown({ site }: { site: WeddingSite }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
             transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
+            className={`relative flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
               idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
             }`}
           >
-            <span className="fw-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#A7C957]/65 bg-[#14301F]/70 text-[1.55rem] font-normal text-[#FBF9F1] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(20,48,31,0.4)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]">
+            {/* Leaf sprig above the stone */}
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 14"
+              className="mb-1.5 h-3.5 w-6 text-[#A7C957]"
+              fill="currentColor"
+            >
+              <path d="M12 1 Q17 5 12 13 Q7 5 12 1 Z" />
+              <path d="M12 4 L12 12" stroke="#1B4332" strokeWidth="0.7" />
+            </svg>
+            {/* Stepping stone — moss-green oval with a leaf ring */}
+            <span className="fw-font-display relative flex h-[4.4rem] w-[4.4rem] items-center justify-center rounded-[46%] border-2 border-[#A7C957] bg-[#2D6A4F] text-[1.55rem] font-normal text-[#FBF9F1] shadow-[inset_0_2px_6px_rgba(255,255,255,0.12),0_8px_18px_rgba(20,48,31,0.5)] tabular-nums ring-4 ring-[#A7C957]/15 @min-[40rem]:h-[5rem] @min-[40rem]:w-[5rem] @min-[40rem]:text-[1.85rem]">
               {String(unit.value).padStart(2, "0")}
             </span>
-            <span className="fw-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#A7C957] uppercase">
+            <span className="fw-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#E7EAD9] uppercase">
               {unit.label}
             </span>
           </motion.div>
@@ -217,7 +234,7 @@ export function ForestWhisperCountdown({ site }: { site: WeddingSite }) {
         {lines.map((line, i) => (
           <p
             key={i}
-            className="fw-font-editorial flex items-center gap-1.5 text-sm text-[#E7EAD9]/80 italic"
+            className="fw-font-editorial flex items-center gap-1.5 text-sm text-[#E7EAD9] italic"
           >
             <MapPin className="h-3.5 w-3.5 shrink-0 text-[#A7C957]" />
             {line}

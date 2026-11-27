@@ -22,7 +22,7 @@ export default function WinterFrostStory({
   const paragraphs = storyParagraphs(site);
   const slides: GlobeSlide[] = useMemo(() => {
     const gallery = (site.gallery ?? []).map((g) => g.url);
-    const base = gallery.length >= 4 ? gallery.slice(0, 4) : TEMPLATE_PHOTOS.slice(0, 4);
+    const base = gallery.length >= 4 ? gallery.slice(0, 4) : TEMPLATE_PHOTOS.slice(0, 7);
     return base.map((src, i) => ({
       src,
       caption: STORY_CAPTIONS[i % STORY_CAPTIONS.length],

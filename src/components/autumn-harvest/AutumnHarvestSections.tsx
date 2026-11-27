@@ -212,7 +212,7 @@ export function AutumnHarvestDetailsCard({
                     ))}
                     {site.events.length > 3 && (
                       <p className="ah-font-editorial pt-2 pl-11 text-left text-sm text-[#9C3D12]/80 italic">
-                        + {site.events.length - 3} more moment{site.events.length - 3 === 1 ? "" : "s"} on the day
+                        {`+ ${site.events.length - 3} more moment${site.events.length - 3 === 1 ? "" : "s"} on the day`}
                       </p>
                     )}
                   </div>

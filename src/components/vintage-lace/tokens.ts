@@ -43,6 +43,15 @@ export const COVER_IMAGE_URL = "/images/themes/vintage-lace.jpg";
 export const DETAIL_IMAGE_URL = "/images/themes/vintage-lace-detail.jpg";
 export const ENVELOPE_IMAGE_URL = "/images/themes/vintage-lace-detail.jpg";
 export const RSVP_PAPER_URL = "/images/themes/vintage-lace/rsvp-paper.jpg";
+/** The template's own couple photographs (original AI-generated,
+ * photorealistic, cream/ivory vintage lace setting, no text;
+ * optimized progressive JPEG q80, max 1200px long side, each
+ * <=258 KB — masters in ~/workspace/vintage-lace-assets/optimized/).
+ * 1: rose-garden walk from behind; 2: lace-veil portrait at the
+ * window; 3: lace-draped table at the manor window. */
+export const VL_COUPLE_1_URL = "/images/themes/vintage-lace-couple-1.jpg";
+export const VL_COUPLE_2_URL = "/images/themes/vintage-lace-couple-2.jpg";
+export const VL_COUPLE_3_URL = "/images/themes/vintage-lace-couple-3.jpg";
 /** The 5 neutral couple photos from Royal Burgundy — palette-
  * neutral, reused by path (never re-generated). */
 export const PHOTO_HANDS_URL = "/images/themes/royal-burgundy/photo-hands.jpg";
@@ -52,13 +61,16 @@ export const PHOTO_TOAST_URL = "/images/themes/royal-burgundy/photo-toast.jpg";
 export const PHOTO_MEADOW_URL = "/images/themes/royal-burgundy/photo-meadow.jpg";
 
 /** The template's own wedding photographs, in album order
- * (hands, veil, sunset, toast) — used as the album-spread
- * fallback chrome when the buyer has not uploaded their own photos
- * yet (same pattern as ÉTERNEL's template hero fallback). */
+ * (rose-garden walk, lace-veil portrait, manor-window table,
+ * toast) — used as the album-spread fallback chrome when the
+ * buyer has not uploaded their own photos yet (same pattern as
+ * ÉTERNEL's template hero fallback). The first three are Vintage
+ * Lace's own couple photos; the fourth is the palette-neutral
+ * Royal Burgundy toast photo, reused by path (never re-generated). */
 export const TEMPLATE_PHOTOS = [
-  PHOTO_HANDS_URL,
-  PHOTO_VEIL_URL,
-  PHOTO_SUNSET_URL,
+  VL_COUPLE_1_URL,
+  VL_COUPLE_2_URL,
+  VL_COUPLE_3_URL,
   PHOTO_TOAST_URL,
 ] as const;
 

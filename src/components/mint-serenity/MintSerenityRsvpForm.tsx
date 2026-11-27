@@ -233,7 +233,7 @@ export default function MintSerenityRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="ms-rsvp-email" style={FONT_DISPLAY} className="block text-[11px] tracking-[0.22em] text-[#052E22] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="ms-rsvp-email"
@@ -245,7 +245,7 @@ export default function MintSerenityRsvpForm({
               style={FONT_EDITORIAL}
               className="mt-2 w-full rounded-full border border-[#A7F3D0] bg-[#FDFEFD] px-5 py-3 text-[1rem] text-[#052E22] placeholder:text-[#052E22]/40 focus:border-[#065F46] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#047857]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm font-medium text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

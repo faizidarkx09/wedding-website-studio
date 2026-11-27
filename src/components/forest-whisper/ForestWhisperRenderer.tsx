@@ -21,11 +21,18 @@
 // instead.
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { PaperSurface } from "./Decor";
 import ForestWhisperCover from "./ForestWhisperCover";
+import {
+  MistPanelsOverlay,
+  playDawnChimeSound,
+  playRustleSound,
+  setCinematicSoundEnabled,
+  type MistPanelsPhase,
+} from "./CinematicOpening";
 import ForestWhisperEnvelope from "./ForestWhisperEnvelope";
 import {
   ForestWhisperCountdown,
@@ -40,7 +47,7 @@ import {
 import ForestWhisperStory from "./ForestWhisperStory";
 import ForestWhisperDetails from "./ForestWhisperDetails";
 import ForestWhisperRsvpForm from "./ForestWhisperRsvpForm";
-import { resolveHeroSrc, willRenderSection } from "./tokens";
+import { COVER_IMAGE_URL, resolveHeroSrc, willRenderSection } from "./tokens";
 
 type View = "cover" | "invitation" | "story" | "details";
 
@@ -60,6 +67,49 @@ export default function ForestWhisperRenderer({
   const savedScrollRef = useRef(0);
   const rootRef = useRef<HTMLDivElement>(null);
 
+  // Cinematic opening state (cover Phases 3–4). "hidden" = no panels;
+  // "closed" = mist curtains covering the screen; "opening" = slide
+  // apart; "fading" = panels dissolve + firefly burst + leaf swirl.
+  const [panels, setPanels] = useState<"hidden" | MistPanelsPhase>("hidden");
+  // Instant cover exit while the mist covers the screen, and a subtle
+  // 1.04 → 1 reveal zoom on the invitation mounting underneath.
+  const [instantExit, setInstantExit] = useState(false);
+  const [revealZoom, setRevealZoom] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
+  const soundOnRef = useRef(true);
+  const cinematicTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(
+    () => () => {
+      cinematicTimersRef.current.forEach((t) => clearTimeout(t));
+    },
+    []
+  );
+
+  const later = (ms: number, fn: () => void) => {
+    cinematicTimersRef.current.push(setTimeout(fn, ms));
+  };
+
+  const clearCinematicTimers = () => {
+    cinematicTimersRef.current.forEach((t) => clearTimeout(t));
+    cinematicTimersRef.current = [];
+  };
+
+  const finishCinematic = () => {
+    clearCinematicTimers();
+    setPanels("hidden");
+    setInstantExit(false);
+  };
+
+  const toggleSound = () => {
+    setSoundOn((v) => {
+      const next = !v;
+      soundOnRef.current = next;
+      setCinematicSoundEnabled(next);
+      return next;
+    });
+  };
+
   // On template preview pages (/templates/[id]) this renderer sits far
   // down a long page (SiteNav + facts + How-to-buy above it), so
   // document top 0 is NOT the cover — scrolling there yanks the
@@ -78,7 +128,28 @@ export default function ForestWhisperRenderer({
     }
   };
 
-  const openInvitation = () => {
+  const openInvitation = (opts?: { cinematic?: boolean }) => {
+    if (opts?.cinematic) {
+      // Phase 3: cover exits instantly, invitation mounts underneath
+      // while the two mist curtains cover the screen, then slide apart.
+      setInstantExit(true);
+      setRevealZoom(true);
+      setPanels("closed");
+      setCurrentView("invitation");
+      scrollToRendererTop();
+      if (soundOnRef.current) playRustleSound();
+      later(80, () => setPanels("opening"));
+      // Phase 4: curtains dissolve, firefly burst + leaf swirl, chime.
+      later(2580, () => {
+        setPanels("fading");
+        if (soundOnRef.current) playDawnChimeSound();
+      });
+      later(3780, () => {
+        setPanels("hidden");
+        setInstantExit(false);
+      });
+      return;
+    }
     setCurrentView("invitation");
     scrollToRendererTop();
   };
@@ -86,13 +157,13 @@ export default function ForestWhisperRenderer({
   const openStory = () => {
     savedScrollRef.current = window.scrollY;
     setCurrentView("story");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    scrollToRendererTop();
   };
 
   const openDetails = () => {
     savedScrollRef.current = window.scrollY;
     setCurrentView("details");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    scrollToRendererTop();
   };
 
   const backToInvitation = () => {
@@ -108,6 +179,8 @@ export default function ForestWhisperRenderer({
   };
 
   const goToCover = () => {
+    finishCinematic();
+    setRevealZoom(false);
     setCurrentView("cover");
     scrollToRendererTop();
   };
@@ -124,7 +197,16 @@ export default function ForestWhisperRenderer({
   const showRsvp = willRenderSection(site, "rsvp");
 
   return (
-    <div ref={rootRef} className="forest-whisper min-h-dvh w-full bg-[#F4F1E6]">
+    <div ref={rootRef} className="forest-whisper @container min-h-dvh w-full bg-[#F4F1E6]">
+      {/* @container on the root: the Cover's `@min-[40rem]:flex-row`
+          and the countdown grid's `@min-[40rem]:flex` are container
+          queries on the elements themselves — an element cannot query
+          itself, so without an ancestor container those variants never
+          fired and the cover photo collapsed to height 0 at >=640px
+          (photo div got w-[55%]/h-auto but the cover stayed flex-col).
+          The root is the ancestor container: on guest pages it is the
+          viewport width, in the editor preview it is the preview-pane
+          width, so the wide layouts now apply exactly where intended. */}
       {/* Root bg matches the invitation's first (cream) surface so
           the cover-exit → invitation-entrance dissolve passes through
           cream, never a white flash. The cover itself is split-screen
@@ -144,14 +226,21 @@ export default function ForestWhisperRenderer({
 
       <AnimatePresence mode="wait">
         {currentView === "cover" && envelope && (
-          <ForestWhisperCover key="cover" site={site} onOpen={openInvitation} />
+          <ForestWhisperCover
+            key="cover"
+            site={site}
+            onOpen={openInvitation}
+            instantExit={instantExit}
+            soundEnabled={soundOn}
+            onToggleSound={toggleSound}
+          />
         )}
 
         {currentView === "invitation" && (
           <motion.div
             key="invitation"
-            initial={{ opacity: 0, y: 36 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 36, scale: revealZoom ? 1.04 : 1 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Cream invitation body */}
@@ -203,6 +292,18 @@ export default function ForestWhisperRenderer({
           />
         )}
       </AnimatePresence>
+
+      {/* Cinematic Phases 3–4: mist curtains + firefly burst, rendered
+          outside AnimatePresence so they survive the cover unmount. */}
+      {panels !== "hidden" && (
+        <MistPanelsOverlay
+          phase={panels}
+          coverUrl={COVER_IMAGE_URL}
+          soundEnabled={soundOn}
+          onToggleSound={toggleSound}
+          onSkip={finishCinematic}
+        />
+      )}
     </div>
   );
 }

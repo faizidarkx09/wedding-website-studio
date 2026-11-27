@@ -231,7 +231,7 @@ export default function DesertDuskRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="dd-rsvp-email" className="dd-font-display block text-[11px] tracking-[0.22em] text-[#3A2A20] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="dd-rsvp-email"
@@ -242,7 +242,7 @@ export default function DesertDuskRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#C2703D]/60 bg-[#FFFDF9] px-4 py-3 dd-font-editorial text-[1rem] text-[#3A2A20] placeholder:text-[#3A2A20]/40 focus:border-[#3A2A20] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#8A4A22]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm font-medium text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

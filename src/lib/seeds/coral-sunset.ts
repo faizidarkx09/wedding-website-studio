@@ -33,9 +33,9 @@ export interface CoralSunsetSeed {
 const CORAL_SUNSET_GALLERY_URLS = [
   "/images/themes/coral-sunset-detail.jpg",
   "/images/themes/coral-sunset/story-sunset.jpg",
-  "/images/themes/royal-burgundy/photo-hands.jpg",
-  "/images/themes/royal-burgundy/photo-veil.jpg",
-  "/images/themes/royal-burgundy/photo-sunset.jpg",
+  "/images/themes/coral-sunset-couple-1.jpg",
+  "/images/themes/coral-sunset-couple-2.jpg",
+  "/images/themes/coral-sunset-couple-3.jpg",
   "/images/themes/royal-burgundy/photo-toast.jpg",
   "/images/themes/royal-burgundy/photo-meadow.jpg",
 ];

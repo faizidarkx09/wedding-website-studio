@@ -398,19 +398,19 @@ export function ForestWhisperRsvpSection({
             <p className="fw-font-display text-[10px] tracking-[0.34em] text-[#2D6A4F] uppercase @min-[40rem]:text-xs">
               RSVP
             </p>
-            <h3 className="fw-font-display mt-3 text-[1.25rem] leading-[1.15] font-normal tracking-[0.02em] text-balance text-[#1B4332] @min-[40rem]:text-[1.9rem]">
+            <h3 className="fw-font-display mt-2 text-[1.25rem] leading-[1.15] font-normal tracking-[0.02em] text-balance text-[#1B4332] @min-[40rem]:mt-3 @min-[40rem]:text-[1.9rem]">
               Will You Join Us?
             </h3>
 
-            <LeafDivider className="mt-3 h-7 w-28 @min-[40rem]:mt-4 @min-[40rem]:h-8 @min-[40rem]:w-32" />
+            <LeafDivider className="mt-2 h-6 w-28 @min-[40rem]:mt-4 @min-[40rem]:h-8 @min-[40rem]:w-32" />
 
-            <p className="fw-font-editorial mt-3 max-w-[520px] text-[1rem] leading-[1.75] text-[#1B4332]/85 @min-[40rem]:mt-4 @min-[40rem]:text-[1.06rem]">
+            <p className="fw-font-editorial mt-2 max-w-[520px] text-[1rem] leading-[1.55] text-[#1B4332]/85 @min-[40rem]:mt-4 @min-[40rem]:text-[1.06rem] @min-[40rem]:leading-[1.75]">
               Your presence is the greatest gift. Please let us know if you can
               share in our joy.
             </p>
 
             {replyBy && (
-              <p className="fw-font-display mt-4 text-[10px] leading-[1.9] tracking-[0.12em] text-balance text-[#2D6A4F] uppercase @min-[40rem]:mt-5 @min-[40rem]:text-xs @min-[40rem]:tracking-[0.2em]">
+              <p className="fw-font-display mt-3 text-[10px] leading-[1.5] tracking-[0.12em] text-balance text-[#2D6A4F] uppercase @min-[40rem]:mt-5 @min-[40rem]:text-xs @min-[40rem]:leading-[1.9] @min-[40rem]:tracking-[0.2em]">
                 {replyBy}
               </p>
             )}
@@ -418,7 +418,7 @@ export function ForestWhisperRsvpSection({
             <button
               type="button"
               onClick={onJumpToRsvp}
-              className="group mt-4 inline-flex items-center gap-2 bg-[#1B4332] px-3.5 py-2.5 fw-font-display text-[9px] tracking-[0.1em] whitespace-nowrap text-[#F4F1E6] uppercase shadow-[0_10px_22px_-8px_rgba(27,67,50,0.6)] transition-colors duration-300 hover:bg-[#2D6A4F] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1B4332] @min-[40rem]:mt-6 @min-[40rem]:px-7 @min-[40rem]:py-3.5 @min-[40rem]:text-xs @min-[40rem]:tracking-[0.26em]"
+              className="group mt-3 inline-flex items-center gap-2 bg-[#1B4332] px-3.5 py-2 fw-font-display text-[9px] tracking-[0.1em] whitespace-nowrap text-[#F4F1E6] uppercase shadow-[0_10px_22px_-8px_rgba(27,67,50,0.6)] transition-colors duration-300 hover:bg-[#2D6A4F] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1B4332] @min-[40rem]:mt-6 @min-[40rem]:px-7 @min-[40rem]:py-3.5 @min-[40rem]:text-xs @min-[40rem]:tracking-[0.26em]"
             >
               <Heart className="h-3.5 w-3.5 fill-[#F4F1E6]/20 @min-[40rem]:h-4 @min-[40rem]:w-4" />
               Kindly Respond

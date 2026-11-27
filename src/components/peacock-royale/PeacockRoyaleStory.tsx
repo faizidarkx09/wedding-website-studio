@@ -170,10 +170,10 @@ export default function PeacockRoyaleStory({
                   src={src}
                   alt={
                     i === 0
-                      ? "Joined hands with a peacock-feather bouquet"
+                      ? "The couple smiling in a jewel-toned teal and gold ballroom"
                       : i === 1
-                        ? "Couple walking a feather-lined garden path"
-                        : "Bride and groom beneath a fan of peacock feathers"
+                        ? "Close portrait of the couple with peacock feathers"
+                        : "The couple dancing at a royal jewel-toned celebration"
                   }
                   loading="lazy"
                   decoding="async"

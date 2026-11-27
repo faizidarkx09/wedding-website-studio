@@ -31,6 +31,9 @@ export interface PeacockRoyaleSeed {
 }
 
 const PEACOCK_ROYALE_GALLERY_URLS = [
+  "/images/themes/peacock-royale-couple-1.jpg",
+  "/images/themes/peacock-royale-couple-2.jpg",
+  "/images/themes/peacock-royale-couple-3.jpg",
   "/images/themes/peacock-royale-detail.jpg",
   "/images/themes/peacock-royale-story-1.jpg",
   "/images/themes/peacock-royale-story-2.jpg",

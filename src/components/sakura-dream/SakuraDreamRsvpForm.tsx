@@ -238,7 +238,7 @@ export default function SakuraDreamRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="sd-rsvp-email" className="sd-font-display block text-[11px] tracking-[0.22em] text-[#2E0A3D] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="sd-rsvp-email"
@@ -249,7 +249,7 @@ export default function SakuraDreamRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#EC4899]/60 bg-[#FFFDFB] px-4 py-3 sd-font-editorial text-[1rem] text-[#2E0A3D] placeholder:text-[#2E0A3D]/40 focus:border-[#2E0A3D] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#6B21A8]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm font-medium text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

@@ -26,6 +26,9 @@ export interface WinterFrostSeed {
 }
 
 const WINTER_FROST_GALLERY_URLS = [
+  "/images/themes/winter-frost-couple-1.jpg",
+  "/images/themes/winter-frost-couple-2.jpg",
+  "/images/themes/winter-frost-couple-3.jpg",
   "/images/themes/winter-frost-detail.jpg",
   "/images/themes/winter-frost/story-1.jpg",
   "/images/themes/winter-frost/story-2.jpg",

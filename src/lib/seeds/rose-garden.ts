@@ -14,9 +14,9 @@ export interface RoseGardenSeed {
 
 const ROSE_GARDEN_GALLERY_URLS = [
   "/images/themes/rose-garden-detail.jpg",
-  "/images/themes/rose-garden-story-1.jpg",
-  "/images/themes/rose-garden-story-2.jpg",
-  "/images/themes/rose-garden.jpg",
+  "/images/themes/rose-garden-couple-1.jpg",
+  "/images/themes/rose-garden-couple-2.jpg",
+  "/images/themes/rose-garden-couple-3.jpg",
 ];
 
 export function roseGardenSeed(weddingDay: string): RoseGardenSeed {

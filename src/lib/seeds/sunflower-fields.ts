@@ -29,9 +29,9 @@ const SUNFLOWER_FIELDS_GALLERY_URLS = [
   "/images/themes/sunflower-fields/story-field.jpg",
   "/images/themes/sunflower-fields/seed-packet.jpg",
   "/images/themes/sunflower-fields.jpg",
-  "/images/themes/royal-burgundy/photo-hands.jpg",
-  "/images/themes/royal-burgundy/photo-veil.jpg",
-  "/images/themes/royal-burgundy/photo-sunset.jpg",
+  "/images/themes/sunflower-fields-couple-1.jpg",
+  "/images/themes/sunflower-fields-couple-2.jpg",
+  "/images/themes/sunflower-fields-couple-3.jpg",
 ];
 
 export const sunflowerFieldsSeed = (weddingDay: string): SunflowerFieldsSeed => {

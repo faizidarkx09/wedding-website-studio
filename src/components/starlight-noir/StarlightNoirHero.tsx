@@ -105,7 +105,31 @@ export function StarlightNoirIntroduction({ site }: { site: WeddingSite }) {
 
 /* ------------------------------------------------------------------ */
 /* Countdown — "A Night Written in the Stars Awaits"                 */
+/*                                                                   */
+/* Constellation-arc star clock (NOT circular badges): the five     */
+/* units are stars on a midnight field — a small gold star above    */
+/* each bare large number, the five stars joined by one thin        */
+/* constellation line in wide containers, a twinkling star accent  */
+/* beside the heading. Numbers/labels are bare type on black, so   */
+/* contrast is the raw gold-on-black value: #F2D98C on #0A0A0A =   */
+/* 14.22:1, #D4AF37 on #0A0A0A = 9.42:1, #F5EFE0 on #0A0A0A =      */
+/* 17.26:1 — all far above the 4.5:1 bar (Autumn Harvest lesson).   */
 /* ------------------------------------------------------------------ */
+
+/** Small five-pointed gold star (24×24 viewBox), for the clock. */
+function GoldStar({ className = "" }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className={className}>
+      <polygon
+        points="12,1 13.4,7.7 18.5,3.1 15.6,8.4 22.5,8.6 16.5,12 22.5,15.4 15.6,15.7 18.5,20.9 13.4,16.3 12,23 10.6,16.3 5.5,20.9 8.4,15.7 1.5,15.4 7.5,12 1.5,8.6 8.4,8.4 5.5,3.1 10.6,7.7"
+        fill="#D4AF37"
+        stroke="#F2D98C"
+        strokeWidth="0.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 /** Months-aware countdown: whole months from the calendar date,
  * days/hours/minutes/seconds from the remaining time. Ticks every
@@ -169,63 +193,103 @@ export function StarlightNoirCountdown({ site }: { site: WeddingSite }) {
       transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       className="relative mx-auto flex max-w-[640px] flex-col items-center px-4 pb-14 text-center"
     >
+      {/* Faint twinkling starfield behind the clock — the midnight field */}
+      {!prefersReducedMotion && <Starfield density={24} className="opacity-40" />}
+
+      {/* Twinkling star accent beside the heading */}
+      {!prefersReducedMotion && (
+        <motion.span
+          aria-hidden="true"
+          className="absolute top-1 right-6 z-10 sm:right-14"
+          animate={{ opacity: [0.35, 1, 0.35], scale: [0.9, 1.1, 0.9] }}
+          transition={{ duration: 2.6, repeat: Infinity, ease: [0.45, 0.05, 0.55, 0.95] }}
+        >
+          <GoldStar className="h-5 w-5" />
+        </motion.span>
+      )}
+
       <p
         style={{ fontFamily: FONT_DISPLAY }}
-        className="text-[10px] tracking-[0.34em] text-[#F2D98C] uppercase"
+        className="relative z-10 text-[10px] tracking-[0.34em] text-[#F2D98C] uppercase"
       >
         The Countdown Begins
       </p>
 
       <h3
         style={{ fontFamily: FONT_DISPLAY }}
-        className="mt-3 text-[1.7rem] leading-[1.12] font-normal tracking-[0.02em] text-[#F5EFE0]"
+        className="relative z-10 mt-3 text-[1.7rem] leading-[1.12] font-normal tracking-[0.02em] text-[#F5EFE0]"
       >
         A Night Written in the Stars Awaits
       </h3>
 
-      <ConstellationDivider className="mt-4 h-7 w-32" />
+      <ConstellationDivider className="relative z-10 mt-4 h-7 w-32" />
 
       <p
         style={{ fontFamily: FONT_EDITORIAL }}
-        className="mt-4 max-w-[540px] text-[1rem] leading-[1.75] text-[#F5EFE0]/80"
+        className="relative z-10 mt-4 max-w-[540px] text-[1rem] leading-[1.75] text-[#F5EFE0]/80"
       >
         Join us as we count down to a night beneath the stars, filled with love, laughter, and
         cherished memories.
       </p>
 
-      {/* Star clock — 5 units, 2 lines of 3 + 2 in narrow containers,
-          one row in wide containers (container queries, so the
-          editor preview renders the mobile layout). */}
+      {/* Star clock — 5 units as stars on a midnight field: a gold
+          star above each bare large number, joined by one thin
+          constellation line in wide containers (container queries,
+          so the editor preview renders the mobile layout). Narrow:
+          3 + 2 grid, no connecting line; wide: one row, arc line. */}
       <div
         role="timer"
         aria-live="off"
-        className="@container mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-6"
+        className="@container relative z-10 mt-8 w-full"
       >
-        {units.map((unit, idx) => (
-          <motion.div
-            key={unit.label}
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
-              idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
-            }`}
-          >
-            <span
-              style={{ fontFamily: FONT_DISPLAY }}
-              className="flex h-16 w-16 items-center justify-center rounded-full border border-[#D4AF37]/70 bg-[#0A0A0A]/80 text-[1.55rem] font-normal text-[#F2D98C] shadow-[inset_0_1px_4px_rgba(212,175,55,0.25),0_6px_16px_rgba(0,0,0,0.6)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]"
+        {/* Constellation arc line — wide row only */}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 100 20"
+          preserveAspectRatio="none"
+          className="pointer-events-none absolute top-0 right-0 left-0 hidden h-5 w-full @min-[40rem]:block"
+        >
+          <polyline
+            points="10,12 30,8 50,12 70,8 90,12"
+            fill="none"
+            stroke="#D4AF37"
+            strokeWidth="0.6"
+            opacity="0.7"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+        <div className="grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-7 @min-[40rem]:grid-cols-5 @min-[40rem]:gap-x-2">
+          {units.map((unit, idx) => (
+            <motion.div
+              key={unit.label}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
+              className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
+                idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
+              }`}
             >
-              {String(unit.value).padStart(2, "0")}
-            </span>
-            <span
-              style={{ fontFamily: FONT_DISPLAY }}
-              className="mt-2.5 text-[9px] tracking-[0.3em] text-[#D4AF37] uppercase"
-            >
-              {unit.label}
-            </span>
-          </motion.div>
-        ))}
+              <GoldStar className="h-4 w-4 @min-[40rem]:h-5 @min-[40rem]:w-5" />
+              <span
+                style={{ fontFamily: FONT_DISPLAY }}
+                className="mt-2 text-[2rem] leading-none font-normal text-[#F2D98C] tabular-nums @min-[40rem]:text-[2.4rem]"
+              >
+                {String(unit.value).padStart(2, "0")}
+              </span>
+              <span
+                style={{ fontFamily: FONT_DISPLAY }}
+                className="mt-2.5 text-[10px] tracking-[0.3em] text-[#D4AF37] uppercase"
+              >
+                {unit.label}
+              </span>
+              <span
+                aria-hidden="true"
+                className="mt-2 h-1 w-1 rounded-full bg-[#D4AF37]/70"
+              />
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       <div className="mt-9 flex flex-col items-center gap-1.5">

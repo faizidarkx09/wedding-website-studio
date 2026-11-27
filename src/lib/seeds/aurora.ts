@@ -28,6 +28,9 @@ export interface AuroraSeed {
 }
 
 const AURORA_GALLERY_URLS = [
+  "/images/themes/aurora-couple-1.jpg",
+  "/images/themes/aurora-couple-2.jpg",
+  "/images/themes/aurora-couple-3.jpg",
   "/images/themes/aurora/aurora-story-1.jpg",
   "/images/themes/aurora.jpg",
   "/images/themes/aurora/aurora-story-2.jpg",

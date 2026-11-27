@@ -55,15 +55,22 @@ export const PHOTO_HANDS_URL = "/images/themes/royal-burgundy/photo-hands.jpg";
 export const PHOTO_VEIL_URL = "/images/themes/royal-burgundy/photo-veil.jpg";
 export const PHOTO_SUNSET_URL = "/images/themes/royal-burgundy/photo-sunset.jpg";
 
+/** AI-generated couple photos for this template's marble theme
+ * (2026-11-27) — white-marble hall portraits. */
+export const COUPLE_1_URL = "/images/themes/marble-luxe-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/marble-luxe-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/marble-luxe-couple-3.jpg";
+
 /** The template's own wedding photographs, in gallery-wall order
- * (colonnade, hands, veil, sunset) — used as the gallery-wall
- * fallback chrome when the buyer has not uploaded their own photos
- * yet (same pattern as ÉTERNEL's template hero fallback). */
+ * (couple-1, couple-2, couple-3, colonnade) — used as the
+ * gallery-wall fallback chrome when the buyer has not uploaded
+ * their own photos yet (same pattern as ÉTERNEL's template hero
+ * fallback). */
 export const TEMPLATE_PHOTOS = [
+  COUPLE_1_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
   STORY_COLONNADE_URL,
-  PHOTO_HANDS_URL,
-  PHOTO_VEIL_URL,
-  PHOTO_SUNSET_URL,
 ] as const;
 
 /** Gallery-wall captions (generic captions, not couple data). */

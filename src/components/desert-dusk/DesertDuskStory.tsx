@@ -1,8 +1,9 @@
 // Desert Dusk story page — the full story along the caravan
-// ROUTE: a dotted path with four photo stops (hands, dunes, veil,
-// sunset), the story paragraphs, and a dune-ridge triptych. When
-// the buyer has gallery photos they win, otherwise the template's
-// own photos show.
+// ROUTE: a dotted path with four photo stops (couple on the ridge,
+// dunes, close embrace, facing the sun), the story paragraphs, and
+// a dune-ridge triptych of the three desert-sunset couple photos.
+// When the buyer has gallery photos they win, otherwise the
+// template's own photos show.
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
@@ -10,11 +11,11 @@ import { ArrowLeft, Camera, Heart } from "lucide-react";
 import type { WeddingSite } from "@/lib/types";
 import { DuneDivider, PaperSurface } from "./Decor";
 import {
-  PHOTO_SUNSET_URL,
-  PHOTO_TOAST_URL,
+  COUPLE_1_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
   ROUTE_CAPTIONS,
   ROUTE_LINES,
-  STORY_DUNES_URL,
   TEMPLATE_PHOTOS,
   coupleNames,
   storyParagraphs,
@@ -33,7 +34,7 @@ export default function DesertDuskStory({
   const triptych =
     gallery.length >= 3
       ? [gallery[0], gallery[3] ?? gallery[1], gallery[2]]
-      : [STORY_DUNES_URL, PHOTO_TOAST_URL, PHOTO_SUNSET_URL];
+      : [COUPLE_1_URL, COUPLE_2_URL, COUPLE_3_URL];
   const stops = gallery.length >= 4 ? gallery.slice(0, 4) : TEMPLATE_PHOTOS.slice(0, 4);
 
   return (
@@ -152,7 +153,8 @@ export default function DesertDuskStory({
         ))}
       </div>
 
-      {/* Triptych — dunes, toast, sunset */}
+      {/* Triptych — the couple at desert sunset: dune ridge, close
+          embrace, facing the setting sun */}
       <div className="mx-auto max-w-[980px] px-4 pb-16">
         <DuneDivider className="mb-8 h-8 w-28" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
@@ -171,7 +173,7 @@ export default function DesertDuskStory({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={src}
-                  alt={i === 0 ? "The couple walking a desert dune ridge at dusk" : i === 1 ? "A celebratory toast" : "Desert sunset"}
+                  alt={i === 0 ? "The couple walking a desert dune ridge at dusk" : i === 1 ? "The couple embracing at desert sunset" : "The couple facing the setting sun over the dunes"}
                   loading="lazy"
                   decoding="async"
                   referrerPolicy="no-referrer"

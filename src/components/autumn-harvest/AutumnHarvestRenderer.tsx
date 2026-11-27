@@ -5,13 +5,14 @@
 // Views, in order:
 //   cover      — AutumnHarvestCover (TYPOGRAPHIC cover: big Playfair
 //                serif names over a leaf-pattern photograph, leaf
-//                wreath with live monogram, drifting leaves)
+//                wreath with live monogram, drifting leaves, cinematic
+//                opening: amber leaf-seal glow + barn-door panels)
 //   invitation — AutumnHarvestEnvelope (burnt-orange envelope, live
 //                SVG maple-leaf wax seal, card tucked INSIDE at rest)
-//                + Introduction + Countdown (burnt-orange band) +
-//                StoryPreview (MASONRY grid) + DetailsCard (harvest
-//                table rows) + RsvpSection (kraft-paper tag) + RSVP
-//                form + footer
+//                + Introduction + Countdown (burnt-orange band,
+//                kraft ticket-stub clock) + StoryPreview (MASONRY
+//                grid) + DetailsCard (harvest table rows) +
+//                RsvpSection (kraft-paper tag) + RSVP form + footer
 //   story      — AutumnHarvestStory (masonry grid + paragraphs)
 //   details    — AutumnHarvestDetails (harvest-table rows: schedule,
 //                dress code, venue + travel, accommodations,
@@ -19,7 +20,7 @@
 //
 // NO music on this template — there is no ambientMusic engine and
 // no music toggle anywhere. The leaf seal is the interaction
-// instead.
+// instead; the cinematic toggle controls SFX only.
 //
 // Fonts: the .ah-* classes are defined by the <style> block below
 // (self-contained in this folder — no globals.css edit needed,
@@ -29,11 +30,18 @@
 // serif, Lora body.
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { PaperSurface } from "./Decor";
 import AutumnHarvestCover from "./AutumnHarvestCover";
+import {
+  PanelsOverlay,
+  playHarvestChime,
+  playPaperSound,
+  setCinematicSoundEnabled,
+  type PanelsPhase,
+} from "./CinematicOpening";
 import AutumnHarvestEnvelope from "./AutumnHarvestEnvelope";
 import {
   AutumnHarvestCountdown,
@@ -76,11 +84,55 @@ export default function AutumnHarvestRenderer({
   const savedScrollRef = useRef(0);
   const rootRef = useRef<HTMLDivElement>(null);
 
+  // Cinematic opening state (cover Phases 3–4). "hidden" = no panels;
+  // "closed" = barn doors covering the screen; "opening" = doors
+  // sliding apart; "fading" = panels dissolve + leaf transition +
+  // golden sweep.
+  const [panels, setPanels] = useState<"hidden" | PanelsPhase>("hidden");
+  // Instant cover exit while the panels cover the screen, and a subtle
+  // 1.04 → 1 reveal zoom on the invitation mounting underneath.
+  const [instantExit, setInstantExit] = useState(false);
+  const [revealZoom, setRevealZoom] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
+  const soundOnRef = useRef(true);
+  const cinematicTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(
+    () => () => {
+      cinematicTimersRef.current.forEach((t) => clearTimeout(t));
+    },
+    []
+  );
+
+  const later = (ms: number, fn: () => void) => {
+    cinematicTimersRef.current.push(setTimeout(fn, ms));
+  };
+
+  const clearCinematicTimers = () => {
+    cinematicTimersRef.current.forEach((t) => clearTimeout(t));
+    cinematicTimersRef.current = [];
+  };
+
+  const finishCinematic = () => {
+    clearCinematicTimers();
+    setPanels("hidden");
+    setInstantExit(false);
+  };
+
+  const toggleSound = () => {
+    setSoundOn((v) => {
+      const next = !v;
+      soundOnRef.current = next;
+      setCinematicSoundEnabled(next);
+      return next;
+    });
+  };
+
   // On template preview pages (/templates/[id]) this renderer sits far
   // down a long page (SiteNav + facts + How-to-buy above it), so
   // document top 0 is NOT the cover — scrolling there yanks the
   // viewport ~2 screens above the cover at the exact moment its exit
-  // starts, and the ceremony plays off-screen while the user sees
+  // starts, and the ~2s ceremony plays off-screen while the user sees
   // the template facts. On guest sites the renderer IS the whole page,
   // so top 0 is correct there. In preview, scroll to this renderer's
   // own top instead, keeping the viewport on the cover. (Same fix as
@@ -94,7 +146,28 @@ export default function AutumnHarvestRenderer({
     }
   };
 
-  const openInvitation = () => {
+  const openInvitation = (opts?: { cinematic?: boolean }) => {
+    if (opts?.cinematic) {
+      // Phase 3: cover exits instantly, invitation mounts underneath
+      // while the two kraft barn doors cover the screen, then slide apart.
+      setInstantExit(true);
+      setRevealZoom(true);
+      setPanels("closed");
+      setCurrentView("invitation");
+      scrollToRendererTop();
+      if (soundOnRef.current) playPaperSound();
+      later(80, () => setPanels("opening"));
+      // Phase 4: doors dissolve, leaf transition, golden sweep, chime.
+      later(2280, () => {
+        setPanels("fading");
+        if (soundOnRef.current) playHarvestChime();
+      });
+      later(3480, () => {
+        setPanels("hidden");
+        setInstantExit(false);
+      });
+      return;
+    }
     setCurrentView("invitation");
     scrollToRendererTop();
   };
@@ -102,13 +175,13 @@ export default function AutumnHarvestRenderer({
   const openStory = () => {
     savedScrollRef.current = window.scrollY;
     setCurrentView("story");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    scrollToRendererTop();
   };
 
   const openDetails = () => {
     savedScrollRef.current = window.scrollY;
     setCurrentView("details");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    scrollToRendererTop();
   };
 
   const backToInvitation = () => {
@@ -124,6 +197,8 @@ export default function AutumnHarvestRenderer({
   };
 
   const goToCover = () => {
+    finishCinematic();
+    setRevealZoom(false);
     setCurrentView("cover");
     scrollToRendererTop();
   };
@@ -140,7 +215,15 @@ export default function AutumnHarvestRenderer({
   const showRsvp = willRenderSection(site, "rsvp");
 
   return (
-    <div ref={rootRef} className="autumn-harvest min-h-dvh w-full bg-[#FFF7E8]">
+    <div ref={rootRef} className="autumn-harvest @container min-h-dvh w-full bg-[#FFF7E8]">
+      {/* @container on the root: the countdown grid's
+          `@min-[40rem]:flex` is a container query on the grid itself —
+          an element cannot query itself, so without an ancestor
+          container that variant never fired and the ticket stubs stayed
+          3+2 at every width instead of one row on wide screens. The
+          root is the ancestor container: viewport width on guest
+          pages, preview-pane width in the editor, so the wide layout
+          now applies exactly where intended. */}
       {/* Scoped Autumn Harvest font classes (see header comment). */}
       <style>{AUTUMN_FONT_CSS}</style>
       {/* Root bg matches the invitation's first (cream) surface so
@@ -162,14 +245,21 @@ export default function AutumnHarvestRenderer({
 
       <AnimatePresence mode="wait">
         {currentView === "cover" && envelope && (
-          <AutumnHarvestCover key="cover" site={site} onOpen={openInvitation} />
+          <AutumnHarvestCover
+            key="cover"
+            site={site}
+            onOpen={openInvitation}
+            instantExit={instantExit}
+            soundEnabled={soundOn}
+            onToggleSound={toggleSound}
+          />
         )}
 
         {currentView === "invitation" && (
           <motion.div
             key="invitation"
-            initial={{ opacity: 0, y: 36 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 36, scale: revealZoom ? 1.04 : 1 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Cream invitation body */}
@@ -219,6 +309,18 @@ export default function AutumnHarvestRenderer({
           />
         )}
       </AnimatePresence>
+
+      {/* Cinematic Phases 3–4: kraft barn doors + leaf transition,
+          rendered outside AnimatePresence so they survive the cover
+          unmount. */}
+      {panels !== "hidden" && (
+        <PanelsOverlay
+          phase={panels}
+          soundEnabled={soundOn}
+          onToggleSound={toggleSound}
+          onSkip={finishCinematic}
+        />
+      )}
     </div>
   );
 }

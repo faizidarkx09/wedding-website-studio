@@ -8,19 +8,89 @@
 // template.
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { LeafWreath, SoftBubbles } from "./Decor";
 import { COVER_IMAGE_URL, FONT_DISPLAY, FONT_SCRIPT, coupleNames, initials } from "./tokens";
+import { BubbleCanvas, SkipButton, SoundToggle } from "./CinematicOpening";
+
+const SESSION_FLAG = "ms-cinematic-played";
+
+function alreadyPlayed(): boolean {
+  try {
+    return sessionStorage.getItem(SESSION_FLAG) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function markPlayed() {
+  try {
+    sessionStorage.setItem(SESSION_FLAG, "1");
+  } catch {
+    /* sessionStorage unavailable — sequence just replays on reload */
+  }
+}
 
 export default function MintSerenityCover({
   site,
   onOpen,
+  instantExit = false,
+  soundEnabled = true,
+  onToggleSound = () => {},
 }: {
   site: WeddingSite;
-  onOpen: () => void;
+  onOpen: (opts?: { cinematic?: boolean }) => void;
+  instantExit?: boolean;
+  soundEnabled?: boolean;
+  onToggleSound?: () => void;
 }) {
   const prefersReducedMotion = useReducedMotion();
+  // "idle" = Phase 1 anticipation; "seal" = Phase 2 activation.
+  const [phase, setPhase] = useState<"idle" | "seal">("idle");
+  const [burstKey, setBurstKey] = useState(0);
+  const startedRef = useRef(false);
+  const sealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (sealTimerRef.current) clearTimeout(sealTimerRef.current);
+    },
+    []
+  );
+
+  const startCinematic = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    markPlayed();
+    setPhase("seal");
+    setBurstKey((k) => k + 1);
+    // Phase 2 lasts ~1.5s; then the renderer takes over (mist dissolve).
+    sealTimerRef.current = setTimeout(() => {
+      onOpen({ cinematic: true });
+    }, 1500);
+  };
+
+  const handleOpen = () => {
+    if (startedRef.current) return;
+    // Reduced motion, or a replay in the same session: plain ceremony.
+    if (prefersReducedMotion || alreadyPlayed()) {
+      startedRef.current = true;
+      onOpen();
+      return;
+    }
+    startCinematic();
+  };
+
+  const handleSkip = () => {
+    if (sealTimerRef.current) clearTimeout(sealTimerRef.current);
+    startedRef.current = true;
+    markPlayed();
+    onOpen();
+  };
+
+  const sealing = phase === "seal";
 
   return (
     <motion.div
@@ -28,8 +98,12 @@ export default function MintSerenityCover({
       aria-label="Wedding Invitation Cover"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }}
-      onClick={onOpen}
+      exit={
+        instantExit
+          ? { opacity: 0, transition: { duration: 0.05, ease: [0.65, 0, 0.35, 1] } }
+          : { opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }
+      }
+      onClick={handleOpen}
       className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden bg-[#ECFDF5] px-5 py-12 text-[#052E22] select-none"
     >
       {/* Mint wash — soft radial gradients + large pale circles */}
@@ -56,6 +130,17 @@ export default function MintSerenityCover({
 
       {/* Soft bubbles — ~36 slow mint bubbles over the wash */}
       {!prefersReducedMotion && <SoftBubbles />}
+
+      {/* Cinematic Phase 1 — rising glass bubbles + mist (+ bubble burst on tap) */}
+      {!prefersReducedMotion && (
+        <BubbleCanvas particleCount={14} burstKey={burstKey} burstOrigin={{ x: 0.5, y: 0.5 }} />
+      )}
+
+      {/* Sound toggle — visible through the whole sequence, SFX only */}
+      <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />
+
+      {/* Skip — only while the seal sequence is running */}
+      {sealing && <SkipButton onSkip={handleSkip} />}
 
       {/* Double sage hairline inner border framing the card feel */}
       <div
@@ -144,10 +229,30 @@ export default function MintSerenityCover({
       {/* Central-Lower Leaf Wreath with the live monogram */}
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.93 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        animate={
+          sealing
+            ? { opacity: 1, scale: [1, 1.05, 1] }
+            : { opacity: 1, scale: 1 }
+        }
+        transition={
+          sealing
+            ? { duration: 1.5, ease: [0.22, 1, 0.36, 1] }
+            : { duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }
+        }
         className="relative z-10 my-4 w-full max-w-[420px]"
       >
+        {/* Phase 2 — mint glow flare around the leaf wreath, once */}
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-[-18%] rounded-full"
+          style={{
+            background:
+              "radial-gradient(circle at 50% 50%, rgba(110, 231, 183, 0.6) 0%, rgba(110, 231, 183, 0.15) 55%, transparent 75%)",
+          }}
+          initial={{ opacity: 0 }}
+          animate={sealing ? { opacity: [0, 0.95, 0.35] } : { opacity: 0 }}
+          transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+        />
         <div className="relative mx-auto aspect-square w-full max-w-[220px]">
           <LeafWreath className="absolute inset-0 h-full w-full drop-shadow-[0_10px_24px_rgba(6,95,70,0.25)]" />
 
@@ -169,15 +274,16 @@ export default function MintSerenityCover({
       {/* Bottom Invitation Open Action */}
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.85, ease: [0.16, 1, 0.3, 1] }}
+        animate={{ opacity: sealing ? 0 : 1, y: 0 }}
+        transition={{ duration: 0.6, delay: sealing ? 0 : 0.85, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 pb-2 text-center"
       >
         <button
           type="button"
+          disabled={sealing}
           onClick={(e) => {
             e.stopPropagation();
-            onOpen();
+            handleOpen();
           }}
           style={FONT_DISPLAY}
           className="group relative inline-flex min-h-[48px] items-center justify-center rounded-full bg-[#065F46] px-8 py-3 text-xs tracking-[0.3em] text-white uppercase shadow-[0_12px_24px_-8px_rgba(6,95,70,0.6)] transition-colors duration-300 hover:bg-[#047857] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#065F46]"

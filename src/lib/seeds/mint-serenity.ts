@@ -35,8 +35,9 @@ const MINT_SERENITY_GALLERY_URLS = [
   "/images/themes/mint-serenity-detail.jpg",
   "/images/themes/mint-serenity/story-1.jpg",
   "/images/themes/mint-serenity/story-2.jpg",
-  "/images/themes/royal-burgundy/photo-hands.jpg",
-  "/images/themes/royal-burgundy/photo-meadow.jpg",
+  "/images/themes/mint-serenity-couple-1.jpg",
+  "/images/themes/mint-serenity-couple-2.jpg",
+  "/images/themes/mint-serenity-couple-3.jpg",
 ];
 
 export const mintSerenitySeed = (weddingDay: string): MintSerenitySeed => {

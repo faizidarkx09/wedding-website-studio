@@ -53,15 +53,21 @@ export const PHOTO_SUNSET_URL = "/images/themes/royal-burgundy/photo-sunset.jpg"
 export const PHOTO_TOAST_URL = "/images/themes/royal-burgundy/photo-toast.jpg";
 export const PHOTO_MEADOW_URL = "/images/themes/royal-burgundy/photo-meadow.jpg";
 
+/** AI-generated couple photos for this template's amethyst theme
+ * (2026-11-27) — lavender-field dusk portraits. */
+export const COUPLE_1_URL = "/images/themes/amethyst-royale-couple-1.jpg";
+export const COUPLE_2_URL = "/images/themes/amethyst-royale-couple-2.jpg";
+export const COUPLE_3_URL = "/images/themes/amethyst-royale-couple-3.jpg";
+
 /** The template's own wedding photographs, in hexagon-card order
- * (lavender laughter, hands, veil, sunset) — used as the faceted
+ * (couple-1, couple-2, couple-3, lavender) — used as the faceted
  * hexagon fallback chrome when the buyer has not uploaded their own
  * photos yet (same pattern as ÉTERNEL's template hero fallback). */
 export const TEMPLATE_PHOTOS = [
+  COUPLE_1_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
   STORY_LAVENDER_URL,
-  PHOTO_HANDS_URL,
-  PHOTO_VEIL_URL,
-  PHOTO_SUNSET_URL,
 ] as const;
 
 /** Faceted hexagon-card captions (generic captions, not couple data). */

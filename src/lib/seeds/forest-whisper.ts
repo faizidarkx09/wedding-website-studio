@@ -13,10 +13,9 @@ export interface ForestWhisperSeed {
 }
 
 const FOREST_WHISPER_GALLERY_URLS = [
-  "/images/themes/forest-whisper-detail.jpg",
-  "/images/themes/forest-whisper-story-1.jpg",
-  "/images/themes/forest-whisper.jpg",
-  "/images/themes/royal-burgundy/photo-meadow.jpg",
+  "/images/themes/forest-whisper-couple-1.jpg",
+  "/images/themes/forest-whisper-couple-2.jpg",
+  "/images/themes/forest-whisper-couple-3.jpg",
 ];
 
 export function forestWhisperSeed(weddingDay: string): ForestWhisperSeed {

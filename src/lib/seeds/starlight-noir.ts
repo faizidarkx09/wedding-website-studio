@@ -26,10 +26,10 @@ export interface StarlightNoirSeed {
 }
 
 const STARLIGHT_NOIR_GALLERY_URLS = [
-  "/images/themes/starlight-noir-detail.jpg",
-  "/images/themes/starlight-noir/story-constellation-1.jpg",
+  "/images/themes/starlight-noir-couple-1.jpg",
+  "/images/themes/starlight-noir-couple-2.jpg",
+  "/images/themes/starlight-noir-couple-3.jpg",
   "/images/themes/starlight-noir/story-constellation-2.jpg",
-  "/images/themes/starlight-noir.jpg",
 ];
 
 export function starlightNoirSeed(weddingDay: string): StarlightNoirSeed {

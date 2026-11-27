@@ -163,11 +163,11 @@ export function SakuraDreamCountdown({ site }: { site: WeddingSite }) {
       className="relative @container mx-auto flex max-w-[640px] flex-col items-center px-4 pb-14 text-center"
     >
       {!prefersReducedMotion && <SakuraPetals />}
-      <p className="relative z-10 sd-font-display text-[10px] tracking-[0.34em] text-[#F9A8D4] uppercase">
+      <p className="relative z-10 sd-font-display text-[10px] tracking-[0.34em] text-[#FFFFFF] uppercase">
         THE COUNTDOWN BEGINS
       </p>
 
-      <h3 className="relative z-10 sd-font-display mt-3 text-[1.7rem] leading-[1.12] font-normal tracking-[0.02em] text-[#FFF7FB]">
+      <h3 className="relative z-10 sd-font-display mt-3 text-[1.7rem] leading-[1.12] font-normal tracking-[0.02em] text-[#FFFFFF]">
         A Day Beneath the Blossoms Awaits
       </h3>
 
@@ -176,47 +176,85 @@ export function SakuraDreamCountdown({ site }: { site: WeddingSite }) {
         className="relative z-10 mt-4 h-px w-40 bg-gradient-to-r from-transparent via-[#F9A8D4]/90 to-transparent"
       />
 
-      <p className="relative z-10 sd-font-editorial mt-4 max-w-[540px] text-[1rem] leading-[1.75] text-[#FBCFE8]/90">
+      <p className="relative z-10 sd-font-editorial mt-4 max-w-[540px] text-[1rem] leading-[1.75] text-[#FFFFFF]">
         Join us as we count down to a day filled with love, laughter, and petals in the air.
       </p>
 
-      {/* Countdown — 5 units, 2 lines of 3 + 2 in narrow containers,
-          one row in wide containers (container queries, so the
-          editor preview renders the mobile layout). */}
-      <div
-        role="timer"
-        aria-live="off"
-        className="relative z-10 @container mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-6"
-      >
-        {units.map((unit, idx) => (
+      {/* Countdown — petal-ring discs on a branch: five white discs,
+          each ringed in deep pink with a pale-pink inner ring and a
+          tiny blossom at its crown, joined by one thin branch line
+          (wide containers only) with a single petal drifting down
+          over it. 2 lines of 3 + 2 in narrow containers, one row in
+          wide containers (container queries, so the editor preview
+          renders the mobile layout). Contrast (computed, vs the
+          deep-plum band #6B21A8 — the band's gradient only darkens
+          toward #2E0A3D, which raises every ratio): number #2E0A3D
+          on white disc 16.87, eyebrow/label/date/intro/venue white
+          8.72 on #6B21A8 (6.25 even at the lightest point of the
+          band's pink glow, #9C30A2) — all ≥ 4.5. */}
+      <div className="relative z-10 mt-8 w-full">
+        {/* Branch line joining the discs (wide containers only) */}
+        <div
+          aria-hidden="true"
+          className="absolute top-[2.4rem] right-[12%] left-[12%] hidden h-[2px] bg-gradient-to-r from-[#F9A8D4]/70 via-[#EC4899] to-[#F9A8D4]/70 @min-[40rem]:block"
+        />
+        {/* One petal drifting down over the branch */}
+        {!prefersReducedMotion && (
           <motion.div
-            key={unit.label}
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
-              idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
-            }`}
+            aria-hidden="true"
+            className="absolute -top-3 left-[16%] z-20 hidden @min-[40rem]:block"
+            animate={{ y: [0, 30, 0], x: [0, 12, -6, 0], rotate: [0, 45, -25, 0] }}
+            transition={{ duration: 9, repeat: Infinity, ease: [0.45, 0.05, 0.55, 0.95] }}
           >
-            <span className="sd-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#F9A8D4]/65 bg-[#2E0A3D]/70 text-[1.55rem] font-normal text-[#FFFDFB] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(46,10,61,0.4)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]">
-              {String(unit.value).padStart(2, "0")}
-            </span>
-            <span className="sd-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#F9A8D4] uppercase">
-              {unit.label}
-            </span>
+            <Blossom className="h-5 w-5" />
           </motion.div>
-        ))}
+        )}
+        <div
+          role="timer"
+          aria-live="off"
+          className="relative @container grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-6"
+        >
+          {units.map((unit, idx) => (
+            <motion.div
+              key={unit.label}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
+              className={`relative flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
+                idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
+              }`}
+            >
+              {/* Petal-ring disc — white, deep-pink ring, pale-pink
+                  inner ring, blossom at the crown */}
+              <span
+                className="sd-font-display relative flex h-20 w-20 items-center justify-center rounded-full border-2 border-[#EC4899] bg-[#FFFDFB] text-[1.55rem] font-normal text-[#2E0A3D] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]"
+                style={{
+                  boxShadow:
+                    "inset 0 0 0 2px #FBCFE8, 0 0 0 4px rgba(249, 168, 212, 0.35), 0 8px 20px rgba(46, 10, 61, 0.45)",
+                }}
+              >
+                {String(unit.value).padStart(2, "0")}
+                <span aria-hidden="true" className="absolute -top-2.5 left-1/2 -translate-x-1/2">
+                  <Blossom className="h-5 w-5 drop-shadow-[0_2px_6px_rgba(46,10,61,0.35)]" />
+                </span>
+              </span>
+              <span className="sd-font-display mt-3 text-[10px] tracking-[0.3em] text-[#FFFFFF] uppercase">
+                {unit.label}
+              </span>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       <div className="relative z-10 mt-9 flex flex-col items-center gap-1.5">
-        <p className="sd-font-display text-xs tracking-[0.3em] text-[#FFF7FB] uppercase">
+        <p className="sd-font-display text-xs tracking-[0.3em] text-[#FFFFFF] uppercase">
           {formatLongDate(site.weddingDate, site.timezone)}
         </p>
         {lines.map((line, i) => (
           <p
             key={i}
-            className="sd-font-editorial flex items-center gap-1.5 text-sm text-[#FBCFE8]/85 italic"
+            className="sd-font-editorial flex items-center gap-1.5 text-sm text-[#FFFFFF] italic"
           >
             <MapPin className="h-3.5 w-3.5 shrink-0 text-[#F9A8D4]" />
             {line}

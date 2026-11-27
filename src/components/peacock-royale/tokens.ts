@@ -56,19 +56,28 @@ export const RSVP_CARD_URL = "/images/themes/peacock-royale-rsvp.jpg";
 export const PHOTO_HANDS_URL = "/images/themes/peacock-royale-story-1.jpg";
 export const PHOTO_GARDEN_URL = "/images/themes/peacock-royale-story-2.jpg";
 
-/** The template's own peacock photographs, in story order
- * (joined hands with a peacock-feather bouquet, couple walking a
- * feather-lined garden path, the fan-arch cover) — used as the
- * fan-arc photos when the buyer has not uploaded their own photos
- * yet (same pattern as ÉTERNEL's template hero fallback). */
+/** The couple photos — three original AI-generated portraits in the
+ * template's jewel tones (ballroom, close portrait, first dance),
+ * staged from ~/workspace/peacock-royale-assets/optimized/ at
+ * 1200px long side, q~80 (all ≤158 KB). GitHub target:
+ * public/images/themes/peacock-royale-couple-N.jpg. */
+export const COUPLE_BALLROOM_URL = "/images/themes/peacock-royale-couple-1.jpg";
+export const COUPLE_PORTRAIT_URL = "/images/themes/peacock-royale-couple-2.jpg";
+export const COUPLE_DANCE_URL = "/images/themes/peacock-royale-couple-3.jpg";
+
+/** The template's own couple photographs, in story order (the
+ * jewel-toned ballroom, the close feather portrait, the first
+ * dance) — used as the fan-arc photos when the buyer has not
+ * uploaded their own photos yet (same pattern as ÉTERNEL's
+ * template hero fallback). */
 export const TEMPLATE_PHOTOS = [
-  PHOTO_HANDS_URL,
-  PHOTO_GARDEN_URL,
-  COVER_IMAGE_URL,
+  COUPLE_BALLROOM_URL,
+  COUPLE_PORTRAIT_URL,
+  COUPLE_DANCE_URL,
 ] as const;
 
 /** Fan-arc photo captions (generic captions, not couple data). */
-export const FAN_CAPTIONS = ["The Promise", "The Garden Path", "The Fan Arch"] as const;
+export const FAN_CAPTIONS = ["The Ballroom", "The Portrait", "The First Dance"] as const;
 
 /** Server-side RSVP cap (matches POST /api/rsvp MAX_GUEST_COUNT). */
 export const MAX_GUESTS_SERVER = 10;

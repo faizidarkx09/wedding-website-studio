@@ -231,7 +231,7 @@ export default function TropicalPalmRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="tp-rsvp-email" className="tp-font-display block text-[11px] tracking-[0.22em] text-[#14301C] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="tp-rsvp-email"
@@ -242,7 +242,7 @@ export default function TropicalPalmRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#15803D]/60 bg-[#FFFDF9] px-4 py-3 tp-font-editorial text-[1rem] text-[#14301C] placeholder:text-[#14301C]/40 focus:border-[#14532D] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#166534]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm font-medium text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

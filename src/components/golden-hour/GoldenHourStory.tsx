@@ -9,8 +9,8 @@ import { ArrowLeft, Camera, Heart } from "lucide-react";
 import type { WeddingSite } from "@/lib/types";
 import { PaperSurface } from "./Decor";
 import {
-  PHOTO_SUNSET_URL,
-  PHOTO_TOAST_URL,
+  COUPLE_2_URL,
+  COUPLE_3_URL,
   STORY_CAPTIONS,
   STORY_WHEAT_URL,
   TEMPLATE_PHOTOS,
@@ -31,7 +31,7 @@ export default function GoldenHourStory({
   const triptych =
     gallery.length >= 3
       ? [gallery[0], gallery[3] ?? gallery[1], gallery[2]]
-      : [STORY_WHEAT_URL, PHOTO_TOAST_URL, PHOTO_SUNSET_URL];
+      : [STORY_WHEAT_URL, COUPLE_2_URL, COUPLE_3_URL];
   const cards = gallery.length >= 4 ? gallery.slice(0, 4) : TEMPLATE_PHOTOS.slice(0, 4);
 
   return (
@@ -139,7 +139,7 @@ export default function GoldenHourStory({
         ))}
       </div>
 
-      {/* Triptych — wheat, toast, sunset */}
+      {/* Triptych — wheat, lakeside embrace, string-light laughter */}
       <div className="mx-auto max-w-[980px] px-4 pb-16">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
           {triptych.map((src, i) => (
@@ -157,7 +157,7 @@ export default function GoldenHourStory({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={src}
-                  alt={i === 0 ? "The couple laughing in a golden wheat field" : i === 1 ? "A celebratory toast" : "Golden-hour sunset"}
+                  alt={i === 0 ? "The couple laughing in a golden wheat field" : i === 1 ? "The couple embracing by the lake at sunset" : "The couple laughing under string lights at golden hour"}
                   loading="lazy"
                   decoding="async"
                   referrerPolicy="no-referrer"

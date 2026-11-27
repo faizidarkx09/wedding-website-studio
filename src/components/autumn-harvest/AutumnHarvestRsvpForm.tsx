@@ -250,7 +250,7 @@ export default function AutumnHarvestRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="ah-rsvp-email" className="ah-font-display block text-[11px] font-semibold tracking-[0.22em] text-[#5C3A21] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="ah-rsvp-email"
@@ -261,7 +261,7 @@ export default function AutumnHarvestRsvpForm({
               autoComplete="email"
               className="ah-font-editorial mt-2 w-full border border-[#C05621]/50 bg-[#FFFDF6] px-4 py-3 text-[1rem] text-[#5C3A21] placeholder:text-[#5C3A21]/40 focus:border-[#5C3A21] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#9C3D12]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm font-medium text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

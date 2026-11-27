@@ -30,23 +30,32 @@ export const FROST = {
 } as const;
 
 /** Fixed template artwork (optimized progressive JPEG, staged from
- * ~/workspace/winter-frost-assets/optimized/ — 5 files, ~769 KB
+ * ~/workspace/winter-frost-assets/optimized/ — 8 files, ~1.2 MB
  * total. Masters are 1920x1280; optimized copies are downscaled to
  * a max 1200px long side at q80 so every file meets the <=258 KB cap.
  * The hero and detail live at the template root; the rest under
- * winter-frost/. The envelope photo doubles as the detail image. */
+ * winter-frost/. The envelope photo doubles as the detail image.
+ * The three couple photos (2026-11-27) live at the template root
+ * alongside the hero. */
 export const COVER_IMAGE_URL = "/images/themes/winter-frost.jpg";
 export const DETAIL_IMAGE_URL = "/images/themes/winter-frost-detail.jpg";
 export const ENVELOPE_IMAGE_URL = "/images/themes/winter-frost-detail.jpg";
 export const RSVP_FROST_URL = "/images/themes/winter-frost/rsvp-frost.jpg";
 export const STORY_CHAPEL_URL = "/images/themes/winter-frost/story-1.jpg";
 export const STORY_AISLE_URL = "/images/themes/winter-frost/story-2.jpg";
+export const COUPLE_SNOW_URL = "/images/themes/winter-frost-couple-1.jpg";
+export const COUPLE_PORTRAIT_URL = "/images/themes/winter-frost-couple-2.jpg";
+export const COUPLE_DANCE_URL = "/images/themes/winter-frost-couple-3.jpg";
 
 /** The template's own winter photographs, in carousel order
- * (chapel, aisle, hero, detail) — used as the snow-globe carousel
- * fallback chrome when the buyer has not uploaded their own photos
- * yet (same pattern as ÉTERNEL's template hero fallback). */
+ * (couple in snow, snowfall portrait, first dance, chapel, aisle,
+ * hero, detail) — used as the snow-globe carousel fallback chrome
+ * when the buyer has not uploaded their own photos yet (same
+ * pattern as ÉTERNEL's template hero fallback). */
 export const TEMPLATE_PHOTOS = [
+  COUPLE_SNOW_URL,
+  COUPLE_PORTRAIT_URL,
+  COUPLE_DANCE_URL,
   STORY_CHAPEL_URL,
   STORY_AISLE_URL,
   COVER_IMAGE_URL,
@@ -54,7 +63,7 @@ export const TEMPLATE_PHOTOS = [
 ] as const;
 
 /** Snow-globe carousel captions (generic captions, not couple data). */
-export const STORY_CAPTIONS = ["First Snow", "The Aisle", "Winter Light", "Frost & Pine"] as const;
+export const STORY_CAPTIONS = ["Winter Vows", "Snowfall Portrait", "First Dance", "First Snow", "The Aisle", "Winter Light", "Frost & Pine"] as const;
 
 /** Server-side RSVP cap (matches POST /api/rsvp MAX_GUEST_COUNT). */
 export const MAX_GUESTS_SERVER = 10;

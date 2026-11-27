@@ -46,6 +46,13 @@ export const ENVELOPE_IMAGE_URL = "/images/themes/autumn-harvest-detail.jpg";
 export const RSVP_TAG_URL = "/images/themes/autumn-harvest-rsvp.jpg";
 export const STORY_ORCHARD_URL = "/images/themes/autumn-harvest-story-1.jpg";
 export const STORY_TABLE_URL = "/images/themes/autumn-harvest-story-2.jpg";
+/** The 3 AI couple photos for this template (generated 2026-11-27,
+ * staged from ~/workspace/autumn-harvest-assets/optimized/ —
+ * 1200x800, q80, each under the 258 KB cap): orchard laugh,
+ * close portrait in falling leaves, harvest-table toast. */
+export const COUPLE_ORCHARD_URL = "/images/themes/autumn-harvest-couple-1.jpg";
+export const COUPLE_PORTRAIT_URL = "/images/themes/autumn-harvest-couple-2.jpg";
+export const COUPLE_TABLE_URL = "/images/themes/autumn-harvest-couple-3.jpg";
 /** The 4 neutral warm couple photos from Royal Burgundy —
  * palette-neutral, reused by path (never re-generated). */
 export const PHOTO_HANDS_URL = "/images/themes/royal-burgundy/photo-hands.jpg";
@@ -54,27 +61,30 @@ export const PHOTO_SUNSET_URL = "/images/themes/royal-burgundy/photo-sunset.jpg"
 export const PHOTO_TOAST_URL = "/images/themes/royal-burgundy/photo-toast.jpg";
 export const PHOTO_MEADOW_URL = "/images/themes/royal-burgundy/photo-meadow.jpg";
 
-/** The template's own photographs + shared warm photos, in masonry
- * order — used as the fallback chrome when the buyer has not
- * uploaded their own photos yet (same pattern as ÉTERNEL's template
- * hero fallback). */
+/** The template's own photographs + the 3 couple photos + one
+ * shared warm photo, in masonry order — used as the fallback chrome
+ * when the buyer has not uploaded their own photos yet (same
+ * pattern as ÉTERNEL's template hero fallback). The 3 couple
+ * photos sit inside the first 6 so they actually show in the
+ * 6-tile masonry preview and story page. */
 export const TEMPLATE_PHOTOS = [
   STORY_ORCHARD_URL,
+  COUPLE_ORCHARD_URL,
   STORY_TABLE_URL,
+  COUPLE_PORTRAIT_URL,
+  COUPLE_TABLE_URL,
   PHOTO_SUNSET_URL,
-  PHOTO_MEADOW_URL,
-  PHOTO_HANDS_URL,
-  PHOTO_TOAST_URL,
 ] as const;
 
-/** Masonry tile captions (generic captions, not couple data). */
+/** Masonry tile captions (generic captions, not couple data) —
+ * one per TEMPLATE_PHOTOS entry, in the same order. */
 export const STORY_CAPTIONS = [
   "First Hello",
+  "Among the Leaves",
   "The Harvest Table",
+  "Autumn Light",
+  "The Celebration",
   "Golden Hour",
-  "The Meadow",
-  "The Promise",
-  "Celebration",
 ] as const;
 
 /** Masonry tile aspect ratios, one per TEMPLATE_PHOTOS entry —
@@ -82,10 +92,10 @@ export const STORY_CAPTIONS = [
  * cards. */
 export const STORY_ASPECTS = [
   "aspect-[3/4]",
+  "aspect-[4/5]",
   "aspect-[4/3]",
   "aspect-[3/4]",
-  "aspect-square",
-  "aspect-[4/5]",
+  "aspect-[4/3]",
   "aspect-[3/4]",
 ] as const;
 

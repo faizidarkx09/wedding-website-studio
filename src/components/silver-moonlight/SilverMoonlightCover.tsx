@@ -4,21 +4,108 @@
 // the LIVE monogram overlaid as HTML text (never baked in), and
 // "OPEN THE INVITATION". Only the data comes from the site
 // (Partner A / Partner B placeholders). No music on this template.
+//
+// Cinematic opening "Moonrise" (plays once per page session, never
+// under prefers-reduced-motion): Phase 1 anticipation — twinkling
+// stars, a slow crescent-moon glow pulse; Phase 2 moonbeam on tap
+// (~1.5s) — a moonbeam sweep across the silver seal, a burst of
+// silver stars, a soft high bell chime, one gentle seal pulse,
+// button fades out; Phase 3+4 live in the renderer
+// (EclipseOverlay): the cover exits instantly, the invitation
+// mounts underneath, a circular hole opens from the seal and
+// expands like an eclipse in reverse, then dissolves with a fading
+// crescent + silver sweep. A reload in the same session, or a
+// reduced-motion tap, takes the plain 1.05s ceremony instead. Skip
+// jumps straight to the invitation.
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { CrescentMoon, TwinklingStars } from "./Decor";
 import { COVER_IMAGE_URL, coupleNames, initials } from "./tokens";
+import {
+  SilverMoonlightSkipButton,
+  SilverMoonlightSoundToggle,
+  StarBurstCanvas,
+} from "./SilverMoonlightCinematic";
+
+const SESSION_FLAG = "sm-cinematic-played";
+
+function alreadyPlayed(): boolean {
+  try {
+    return sessionStorage.getItem(SESSION_FLAG) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function markPlayed() {
+  try {
+    sessionStorage.setItem(SESSION_FLAG, "1");
+  } catch {
+    /* sessionStorage unavailable — sequence just replays on reload */
+  }
+}
 
 export default function SilverMoonlightCover({
   site,
   onOpen,
+  instantExit = false,
+  soundEnabled = true,
+  onToggleSound = () => {},
 }: {
   site: WeddingSite;
-  onOpen: () => void;
+  onOpen: (opts?: { cinematic?: boolean }) => void;
+  instantExit?: boolean;
+  soundEnabled?: boolean;
+  onToggleSound?: () => void;
 }) {
   const prefersReducedMotion = useReducedMotion();
+  // "idle" = Phase 1 anticipation; "seal" = Phase 2 moonbeam.
+  const [phase, setPhase] = useState<"idle" | "seal">("idle");
+  const [burstKey, setBurstKey] = useState(0);
+  const startedRef = useRef(false);
+  const sealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (sealTimerRef.current) clearTimeout(sealTimerRef.current);
+    },
+    []
+  );
+
+  const startCinematic = () => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    markPlayed();
+    setPhase("seal");
+    setBurstKey((k) => k + 1);
+    // Phase 2 lasts ~1.5s; then the renderer takes over (eclipse).
+    sealTimerRef.current = setTimeout(() => {
+      onOpen({ cinematic: true });
+    }, 1500);
+  };
+
+  const handleOpen = () => {
+    if (startedRef.current) return;
+    // Reduced motion, or a replay in the same session: plain ceremony.
+    if (prefersReducedMotion || alreadyPlayed()) {
+      startedRef.current = true;
+      onOpen();
+      return;
+    }
+    startCinematic();
+  };
+
+  const handleSkip = () => {
+    if (sealTimerRef.current) clearTimeout(sealTimerRef.current);
+    startedRef.current = true;
+    markPlayed();
+    onOpen();
+  };
+
+  const sealing = phase === "seal";
 
   return (
     <motion.div
@@ -26,8 +113,12 @@ export default function SilverMoonlightCover({
       aria-label="Wedding Invitation Cover"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }}
-      onClick={onOpen}
+      exit={
+        instantExit
+          ? { opacity: 0, transition: { duration: 0.05, ease: [0.65, 0, 0.35, 1] } }
+          : { opacity: 0, y: -96, scale: 0.97, transition: { duration: 1.05, ease: [0.33, 0, 0.67, 1] } }
+      }
+      onClick={handleOpen}
       className="relative flex min-h-[100dvh] w-full cursor-pointer flex-col items-center justify-between overflow-hidden bg-[#16202E] px-5 py-12 text-[#F4F7FA] select-none sm:py-16"
     >
       {/* Night-sky hero photograph */}
@@ -49,6 +140,11 @@ export default function SilverMoonlightCover({
       {/* Twinkling-star layer (canvas, ~50 stars, under the text) */}
       <TwinklingStars />
 
+      {/* Phase 2 — silver star burst from the seal on tap */}
+      {!prefersReducedMotion && (
+        <StarBurstCanvas burstKey={burstKey} burstOrigin={{ x: 0.5, y: 0.6 }} />
+      )}
+
       {/* Double silver hairline inner border framing the card feel */}
       <div
         aria-hidden="true"
@@ -58,6 +154,12 @@ export default function SilverMoonlightCover({
         aria-hidden="true"
         className="pointer-events-none absolute inset-[22px] border border-[#C9CDD6]/15 sm:inset-9"
       />
+
+      {/* Sound toggle — visible through the whole sequence, SFX only */}
+      <SilverMoonlightSoundToggle enabled={soundEnabled} onToggle={onToggleSound} />
+
+      {/* Skip — only while the moonbeam sequence is running */}
+      {sealing && <SilverMoonlightSkipButton onSkip={handleSkip} />}
 
       {/* Top spacer for classic upper-middle placement */}
       <div className="h-6 sm:h-10" />
@@ -102,13 +204,31 @@ export default function SilverMoonlightCover({
         transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 my-4 w-full max-w-[420px] sm:my-6"
       >
+        {/* Phase 2 — soft silver glow around the seal, once */}
         <motion.div
-          animate={prefersReducedMotion ? undefined : { y: [0, -5, 0] }}
-          transition={{
-            duration: 6.5,
-            repeat: Infinity,
-            ease: [0.25, 0.1, 0.25, 1],
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-[-12%] rounded-full"
+          style={{
+            background:
+              "radial-gradient(ellipse 50% 50% at 50% 50%, rgba(221, 225, 232, 0.6) 0%, rgba(201, 205, 214, 0.15) 55%, transparent 75%)",
           }}
+          initial={{ opacity: 0 }}
+          animate={sealing ? { opacity: [0, 0.95, 0.4] } : { opacity: 0 }}
+          transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+        />
+        <motion.div
+          animate={
+            prefersReducedMotion
+              ? undefined
+              : sealing
+                ? { y: [0, -5, 0], scale: [1, 1.04, 1] }
+                : { y: [0, -5, 0] }
+          }
+          transition={
+            sealing
+              ? { duration: 1.5, ease: [0.22, 1, 0.36, 1] }
+              : { duration: 6.5, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }
+          }
           className="relative mx-auto flex h-56 w-56 items-center justify-center sm:h-64 sm:w-64"
         >
           {/* Silver seal disc — radial silver gradient + ring */}
@@ -131,6 +251,32 @@ export default function SilverMoonlightCover({
           {/* Crescent moon emblem */}
           <CrescentMoon className="absolute top-6 left-1/2 h-10 w-10 -translate-x-1/2 opacity-90 sm:top-7 sm:h-11 sm:w-11" />
 
+          {/* Phase 1 — gentle moonbeam drifting across the seal;
+              Phase 2 — one faster moonbeam sweep. */}
+          {!prefersReducedMotion && (
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 overflow-hidden rounded-full"
+            >
+              <motion.div
+                aria-hidden="true"
+                className="absolute inset-y-[-10%] w-1/3"
+                style={{
+                  background:
+                    "linear-gradient(100deg, transparent 0%, rgba(244,247,250,0.6) 50%, transparent 100%)",
+                  transform: "skewX(-12deg)",
+                }}
+                initial={{ x: "-160%" }}
+                animate={sealing ? { x: "360%" } : { x: ["-160%", "360%"] }}
+                transition={
+                  sealing
+                    ? { duration: 1.1, ease: [0.65, 0, 0.35, 1] }
+                    : { duration: 5.5, repeat: Infinity, ease: [0.45, 0.05, 0.55, 0.95], repeatDelay: 2.5 }
+                }
+              />
+            </div>
+          )}
+
           {/* Real HTML Typography Monogram Overlaid Inside the Seal */}
           <motion.span
             initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.95 }}
@@ -147,20 +293,21 @@ export default function SilverMoonlightCover({
         </motion.div>
       </motion.div>
 
-      {/* Bottom Invitation Open Action */}
+      {/* Bottom Invitation Open Action — fades out as the moonbeam activates */}
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        animate={{ opacity: sealing ? 0 : 1, y: 0 }}
+        transition={{ duration: 0.6, delay: sealing ? 0 : 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 pb-2 text-center"
       >
         <button
           type="button"
+          disabled={sealing}
           onClick={(e) => {
             e.stopPropagation();
-            onOpen();
+            handleOpen();
           }}
-          className="group relative inline-flex min-h-[48px] items-center justify-center px-6 py-3 er-font-display text-xs tracking-[0.34em] text-[#F4F7FA] uppercase transition-colors duration-300 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C9CDD6] sm:text-sm"
+          className="group relative inline-flex min-h-[48px] items-center justify-center px-6 py-3 er-font-display text-xs tracking-[0.34em] text-[#F4F7FA] uppercase transition-colors duration-300 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C9CDD6] disabled:pointer-events-none sm:text-sm"
         >
           <span>OPEN THE INVITATION</span>
           <span

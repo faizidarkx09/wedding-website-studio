@@ -16,16 +16,27 @@
 //   details    — PeacockRoyaleDetails (schedule, dress code, venue
 //                + travel, accommodations, registry, RSVP jump)
 //
+// Cinematic opening (once per session): the cover runs Phases 1–2
+// (floating feather, rising jewels, seal glow + burst) and this
+// renderer runs Phases 3–4 (FanPanelsOverlay).
+//
 // NO music on this template — there is no ambientMusic engine and
 // no music toggle anywhere. The envelope's gold feather seal is
 // the interaction instead.
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { PeacockSurface } from "./Decor";
 import PeacockRoyaleCover from "./PeacockRoyaleCover";
+import {
+  FanPanelsOverlay,
+  playChimeSound,
+  playShimmerSound,
+  setCinematicSoundEnabled,
+  type PanelsPhase,
+} from "./CinematicOpening";
 import PeacockRoyaleEnvelope from "./PeacockRoyaleEnvelope";
 import {
   PeacockRoyaleCountdown,
@@ -60,6 +71,50 @@ export default function PeacockRoyaleRenderer({
   const savedScrollRef = useRef(0);
   const rootRef = useRef<HTMLDivElement>(null);
 
+  // Cinematic opening state (cover Phases 3–4). "hidden" = no panels;
+  // "closed" = panels covering the screen; "opening" = rotateY unfold
+  // + feather-fan bloom; "fading" = panels dissolve + feather-eye
+  // transition + shimmer.
+  const [panels, setPanels] = useState<"hidden" | PanelsPhase>("hidden");
+  // Instant cover exit while the panels cover the screen, and a subtle
+  // 1.04 → 1 reveal zoom on the invitation mounting underneath.
+  const [instantExit, setInstantExit] = useState(false);
+  const [revealZoom, setRevealZoom] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
+  const soundOnRef = useRef(true);
+  const cinematicTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(
+    () => () => {
+      cinematicTimersRef.current.forEach((t) => clearTimeout(t));
+    },
+    []
+  );
+
+  const later = (ms: number, fn: () => void) => {
+    cinematicTimersRef.current.push(setTimeout(fn, ms));
+  };
+
+  const clearCinematicTimers = () => {
+    cinematicTimersRef.current.forEach((t) => clearTimeout(t));
+    cinematicTimersRef.current = [];
+  };
+
+  const finishCinematic = () => {
+    clearCinematicTimers();
+    setPanels("hidden");
+    setInstantExit(false);
+  };
+
+  const toggleSound = () => {
+    setSoundOn((v) => {
+      const next = !v;
+      soundOnRef.current = next;
+      setCinematicSoundEnabled(next);
+      return next;
+    });
+  };
+
   // On template preview pages (/templates/[id]) this renderer sits far
   // down a long page (SiteNav + facts + How-to-buy above it), so
   // document top 0 is NOT the cover — scrolling there yanks the
@@ -79,7 +134,29 @@ export default function PeacockRoyaleRenderer({
     }
   };
 
-  const openInvitation = () => {
+  const openInvitation = (opts?: { cinematic?: boolean }) => {
+    if (opts?.cinematic) {
+      // Phase 3: cover exits instantly, invitation mounts underneath
+      // while the two jewel panels cover the screen, then rotate open
+      // as the feather fan blooms.
+      setInstantExit(true);
+      setRevealZoom(true);
+      setPanels("closed");
+      setCurrentView("invitation");
+      scrollToRendererTop();
+      if (soundOnRef.current) playShimmerSound();
+      later(80, () => setPanels("opening"));
+      // Phase 4: panels dissolve, feather-eye transition, shimmer, chime.
+      later(2580, () => {
+        setPanels("fading");
+        if (soundOnRef.current) playChimeSound();
+      });
+      later(3780, () => {
+        setPanels("hidden");
+        setInstantExit(false);
+      });
+      return;
+    }
     setCurrentView("invitation");
     scrollToRendererTop();
   };
@@ -87,13 +164,13 @@ export default function PeacockRoyaleRenderer({
   const openStory = () => {
     savedScrollRef.current = window.scrollY;
     setCurrentView("story");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    scrollToRendererTop();
   };
 
   const openDetails = () => {
     savedScrollRef.current = window.scrollY;
     setCurrentView("details");
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    scrollToRendererTop();
   };
 
   const backToInvitation = () => {
@@ -109,6 +186,8 @@ export default function PeacockRoyaleRenderer({
   };
 
   const goToCover = () => {
+    finishCinematic();
+    setRevealZoom(false);
     setCurrentView("cover");
     scrollToRendererTop();
   };
@@ -144,14 +223,21 @@ export default function PeacockRoyaleRenderer({
 
       <AnimatePresence mode="wait">
         {currentView === "cover" && envelope && (
-          <PeacockRoyaleCover key="cover" site={site} onOpen={openInvitation} />
+          <PeacockRoyaleCover
+            key="cover"
+            site={site}
+            onOpen={openInvitation}
+            instantExit={instantExit}
+            soundEnabled={soundOn}
+            onToggleSound={toggleSound}
+          />
         )}
 
         {currentView === "invitation" && (
           <motion.div
             key="invitation"
-            initial={{ opacity: 0, y: 36 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 36, scale: revealZoom ? 1.04 : 1 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Ivory invitation body */}
@@ -205,6 +291,18 @@ export default function PeacockRoyaleRenderer({
           />
         )}
       </AnimatePresence>
+
+      {/* Cinematic Phases 3–4: jewel panels + feather-fan bloom +
+          feather-eye transition, rendered outside AnimatePresence so
+          they survive the cover unmount. */}
+      {panels !== "hidden" && (
+        <FanPanelsOverlay
+          phase={panels}
+          soundEnabled={soundOn}
+          onToggleSound={toggleSound}
+          onSkip={finishCinematic}
+        />
+      )}
     </div>
   );
 }

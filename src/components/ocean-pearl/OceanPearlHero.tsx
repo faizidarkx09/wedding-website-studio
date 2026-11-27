@@ -180,33 +180,56 @@ export function OceanPearlCountdown({ site }: { site: WeddingSite }) {
         Join us as we count down to a day filled with love, laughter, and cherished memories.
       </p>
 
-      {/* Countdown bubbles — 5 units, 2 lines of 3 + 2 in narrow
-          containers, one row in wide containers (container queries,
-          so the editor preview renders the mobile layout). */}
+      {/* Countdown — "Tide bubbles": the five units are bubbles
+          resting on a common sea-floor baseline, DESCENDING in size
+          from months (largest) to seconds (smallest), each gently
+          bobbing like it's floating. Numbers are white inside the
+          bubbles, labels white below (contrast ~15:1 on the
+          deep-sea band). Container queries, so the editor preview
+          renders the mobile layout. */}
       <div
         role="timer"
         aria-live="off"
-        className="@container mt-8 grid w-full grid-cols-3 justify-items-center gap-x-2 gap-y-6 @min-[40rem]:flex @min-[40rem]:flex-row @min-[40rem]:items-start @min-[40rem]:justify-center @min-[40rem]:gap-x-6"
+        className="@container mt-8 flex w-full items-end justify-center gap-2 @min-[40rem]:gap-3"
       >
-        {units.map((unit, idx) => (
-          <motion.div
-            key={unit.label}
-            initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.7, delay: idx * 0.07, ease: [0.16, 1, 0.3, 1] }}
-            className={`flex flex-col items-center ${idx >= 3 ? "col-span-1" : ""} ${
-              idx === 3 ? "col-start-1 @min-[40rem]:col-start-auto" : ""
-            }`}
-          >
-            <span className="op-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#7FC4CE]/65 bg-[#0E3A45]/70 text-[1.55rem] font-bold text-white shadow-[inset_0_1px_4px_rgba(255,255,255,0.12),0_6px_16px_rgba(14,58,69,0.4)] tabular-nums @min-[40rem]:h-[4.6rem] @min-[40rem]:w-[4.6rem] @min-[40rem]:text-[1.85rem]">
-              {String(unit.value).padStart(2, "0")}
-            </span>
-            <span className="op-font-display mt-2.5 text-[9px] font-semibold tracking-[0.3em] text-[#7FC4CE] uppercase">
-              {unit.label}
-            </span>
-          </motion.div>
-        ))}
+        {units.map((unit, idx) => {
+          const size = [
+            { bubble: "h-20 w-20 @min-[40rem]:h-[5.5rem] @min-[40rem]:w-[5.5rem]", text: "text-[1.45rem] @min-[40rem]:text-[1.7rem]" },
+            { bubble: "h-[4.5rem] w-[4.5rem] @min-[40rem]:h-20 @min-[40rem]:w-20", text: "text-[1.3rem] @min-[40rem]:text-[1.5rem]" },
+            { bubble: "h-16 w-16 @min-[40rem]:h-[4.5rem] @min-[40rem]:w-[4.5rem]", text: "text-[1.2rem] @min-[40rem]:text-[1.35rem]" },
+            { bubble: "h-14 w-14 @min-[40rem]:h-16 @min-[40rem]:w-16", text: "text-[1.05rem] @min-[40rem]:text-[1.2rem]" },
+            { bubble: "h-12 w-12 @min-[40rem]:h-14 @min-[40rem]:w-14", text: "text-[0.95rem] @min-[40rem]:text-[1.05rem]" },
+          ][idx] ?? { bubble: "h-14 w-14", text: "text-[1.05rem]" };
+          return (
+            <motion.div
+              key={unit.label}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.7, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              className="flex flex-col items-center"
+            >
+              <motion.span
+                animate={
+                  prefersReducedMotion
+                    ? undefined
+                    : { y: [0, -4, 0] }
+                }
+                transition={{ duration: 3.2, delay: idx * 0.45, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }}
+                className={`op-font-display relative flex items-center justify-center rounded-full border border-[#7FC4CE]/70 bg-[#0E3A45]/60 font-bold text-white shadow-[inset_0_1px_4px_rgba(255,255,255,0.12),0_6px_16px_rgba(14,58,69,0.4)] tabular-nums ${size.bubble} ${size.text}`}
+              >
+                {String(unit.value).padStart(2, "0")}
+                <span
+                  aria-hidden="true"
+                  className="absolute top-[18%] left-[22%] h-[18%] w-[18%] rounded-full bg-white/70"
+                />
+              </motion.span>
+              <span className="op-font-display mt-2.5 text-[8px] font-semibold tracking-[0.26em] text-[#FFFFFF] uppercase @min-[40rem]:text-[9px]">
+                {unit.label}
+              </span>
+            </motion.div>
+          );
+        })}
       </div>
 
       <div className="mt-9 flex flex-col items-center gap-1.5">

@@ -27,7 +27,10 @@ export interface AutumnHarvestSeed {
 
 const AUTUMN_HARVEST_GALLERY_URLS = [
   "/images/themes/autumn-harvest-story-1.jpg",
+  "/images/themes/autumn-harvest-couple-1.jpg",
   "/images/themes/autumn-harvest-story-2.jpg",
+  "/images/themes/autumn-harvest-couple-2.jpg",
+  "/images/themes/autumn-harvest-couple-3.jpg",
   "/images/themes/autumn-harvest.jpg",
   "/images/themes/autumn-harvest-detail.jpg",
 ];

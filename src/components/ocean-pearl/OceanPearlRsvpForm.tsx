@@ -236,7 +236,7 @@ export default function OceanPearlRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="op-rsvp-email" className="op-font-display block text-[11px] font-semibold tracking-[0.22em] text-[#0E3A45] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="op-rsvp-email"
@@ -247,7 +247,7 @@ export default function OceanPearlRsvpForm({
               autoComplete="email"
               className="mt-2 w-full rounded-lg border border-[#2E8B9A]/60 bg-[#F7FBFC] px-4 py-3 op-font-body text-[1rem] text-[#0E3A45] placeholder:text-[#0E3A45]/40 focus:border-[#0E3A45] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#1F6B78]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm font-medium text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}
