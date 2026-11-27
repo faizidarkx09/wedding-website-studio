@@ -1,28 +1,38 @@
-// Blush Royale envelope — interactive blush envelope with the
-// cream invitation card tucked BEHIND it (tap to reveal / tuck
-// back) and blush floral corner sprigs. No music medallion: this
+// Blush Royale envelope — the cream invitation card is tucked
+// INSIDE the closed blush envelope (tap to reveal / tuck back)
+// and blush floral corner sprigs. No music medallion: this
 // template has no music engine by design.
 //
-// Geometry note: the envelope artwork is a CLOSED blush envelope
-// (rose-gold wax seal, roses at the corner) on a plain cream field,
-// so there is no open pocket to slide a card out of. The card lives
-// in an overflow-hidden wrapper whose height animates 0 → auto: at
-// rest the wrapper is 0px tall, so 0px of the card is visible and
-// it takes no space; on tap the wrapper grows down from behind the
-// envelope's bottom edge (the -mt-16 overlap keeps the open card
-// tucked 64px up over the envelope art, exactly the old open look).
-// A spacer div above the cue (pt-16 / sm:pt-20, collapsing on open)
-// compensates the overlap, so the cue sits 16px below the envelope
-// at rest and 16px below the card when open.
+// Ceremony (tap, ~1.4s): the wax seal glows, the envelope lifts
+// and shakes once, then dissolves into a watercolor wash (blur +
+// fade + shrink + tilt) while petals drift and a golden burst
+// fires from the seal; the card rises UP out of the envelope's
+// place (y +48 → 0, spring) with a one-time rose-gold shimmer
+// sweep and a soft glow behind it. At rest the envelope image is
+// fully visible and the card is invisible (absolute overlay,
+// opacity 0 — no layout space); when open the envelope stays in
+// layout at opacity 0 so nothing jumps, and the card sits centred
+// where the envelope was. Tap again reverses: card sinks + fades,
+// envelope blurs back in. prefers-reduced-motion: instant swap,
+// no animation.
 "use client";
 
-import { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion, type Transition } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { FloralCorner, FloralDivider } from "./Decor";
 import { ENVELOPE_IMAGE_URL, formatCardDate, locationLabel } from "./tokens";
+import { PetalCanvas } from "./CinematicOpening";
 
-function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
+function InvitationCard({
+  site,
+  isOpen,
+  shimmerKey = 0,
+}: {
+  site: WeddingSite;
+  isOpen: boolean;
+  shimmerKey?: number;
+}) {
   return (
     <div
       className={`relative mx-auto w-full overflow-hidden rounded-[1.5rem] bg-[#FFFDFB] px-4 py-5 text-center text-[#5C323B] transition-shadow duration-700 sm:px-6 sm:py-7 ${
@@ -73,20 +83,69 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
           {locationLabel(site)}
         </p>
       </div>
+
+      {/* One-time rose-gold shimmer sweep across the card on reveal.
+          Remounts (key) on every open so it replays; unmounted when
+          tucked back. */}
+      {shimmerKey > 0 && (
+        <motion.div
+          key={shimmerKey}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 z-20 w-1/3"
+          style={{
+            background:
+              "linear-gradient(100deg, transparent 0%, rgba(232,180,184,0.45) 50%, transparent 100%)",
+          }}
+          initial={{ x: "-120%" }}
+          animate={{ x: "320%" }}
+          transition={{ duration: 0.9, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        />
+      )}
     </div>
   );
 }
 
 export default function BlushRoyaleEnvelope({ site }: { site: WeddingSite }) {
   const [isCardLifted, setIsCardLifted] = useState(false);
+  const [shimmerKey, setShimmerKey] = useState(0);
+  const [petalsOn, setPetalsOn] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const petalTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prefersReducedMotion = useReducedMotion();
-  // One shared reveal timing for the height growth + cue margin so
-  // the cue tracks the card's bottom edge while it emerges.
-  const revealDuration = prefersReducedMotion ? 0.2 : 0.85;
+  const instant = Boolean(prefersReducedMotion);
+
+  useEffect(
+    () => () => {
+      if (petalTimerRef.current) clearTimeout(petalTimerRef.current);
+    },
+    []
+  );
 
   const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+    const next = !isCardLifted;
+    setIsCardLifted(next);
+    if (next) {
+      // Opening: petals on + golden burst from the seal + shimmer.
+      if (petalTimerRef.current) {
+        clearTimeout(petalTimerRef.current);
+        petalTimerRef.current = null;
+      }
+      setPetalsOn(true);
+      setBurstKey((k) => k + 1);
+      setShimmerKey((k) => k + 1);
+    } else {
+      // Tucking back: keep petals through the reverse, then unmount.
+      if (petalTimerRef.current) clearTimeout(petalTimerRef.current);
+      petalTimerRef.current = setTimeout(() => setPetalsOn(false), 1000);
+    }
   };
+
+  // Direction-aware transitions (instant under reduced motion).
+  const envOpen: Transition = { duration: 0.65, delay: 0.25, ease: [0.22, 1, 0.36, 1] };
+  const envClosed: Transition = { duration: 0.65, delay: 0.3, ease: [0.22, 1, 0.36, 1] };
+  const cardOpen: Transition = { type: "spring", stiffness: 140, damping: 17, delay: 0.5 };
+  const cardClosed: Transition = { duration: 0.6, ease: [0.5, 0, 0.75, 0] };
+  const instantT: Transition = { duration: 0 };
 
   return (
     <div className="relative px-4 pt-16 pb-10 sm:px-6 sm:pt-24 sm:pb-14">
@@ -108,8 +167,8 @@ export default function BlushRoyaleEnvelope({ site }: { site: WeddingSite }) {
             aria-expanded={isCardLifted}
             aria-label={
               isCardLifted
-                ? "Tuck wedding invitation card back behind the envelope"
-                : "Open blush envelope and slide the wedding invitation card out from behind it"
+                ? "Tuck wedding invitation card back into the envelope"
+                : "Open blush envelope and reveal the wedding invitation card"
             }
             onClick={toggleEnvelope}
             onKeyDown={(e) => {
@@ -120,57 +179,129 @@ export default function BlushRoyaleEnvelope({ site }: { site: WeddingSite }) {
             }}
             className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#B76E79]"
           >
-            {/* Blush envelope artwork (closed envelope, wax seal) */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={ENVELOPE_IMAGE_URL}
-              alt="Soft blush watercolor wedding envelope with a rose-gold wax seal and blush roses"
-              referrerPolicy="no-referrer"
-              className="pointer-events-none block h-auto w-full rounded-[1.5rem] object-contain drop-shadow-[0_24px_34px_rgba(92,50,59,0.22)]"
-            />
+            {/* Envelope + card stack. The envelope image (square
+                artwork) defines the block height; the card is an
+                absolute overlay centred on it, so rest layout is
+                exactly the envelope + 16px cue, and opening moves
+                no layout — the card rises in the envelope's place. */}
+            <div className="relative w-full">
+              {/* Blush envelope artwork — dissolves on open, stays in
+                  layout at opacity 0 so nothing jumps. */}
+              <motion.div
+                initial={false}
+                animate={{
+                  opacity: isCardLifted ? 0 : 1,
+                  scale: isCardLifted ? 0.96 : 1,
+                  rotate: isCardLifted ? -1.5 : 0,
+                  filter: isCardLifted ? "blur(10px)" : "blur(0px)",
+                }}
+                transition={instant ? instantT : isCardLifted ? envOpen : envClosed}
+                style={{ pointerEvents: isCardLifted ? "none" : "auto" }}
+                aria-hidden={isCardLifted}
+                className="relative"
+              >
+                {/* Seal moment — tiny lift + shake in the first 0.3s. */}
+                <motion.div
+                  initial={false}
+                  animate={
+                    isCardLifted
+                      ? { y: [0, -7, 3, 0], rotate: [0, -0.9, 0.6, 0] }
+                      : { y: 0, rotate: 0 }
+                  }
+                  transition={
+                    instant ? instantT : { duration: 0.3, times: [0, 0.35, 0.7, 1], ease: "easeOut" }
+                  }
+                  className="relative"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={ENVELOPE_IMAGE_URL}
+                    alt="Soft blush watercolor wedding envelope with a rose-gold wax seal and blush roses"
+                    referrerPolicy="no-referrer"
+                    className="pointer-events-none block h-auto w-full rounded-[1.5rem] object-contain drop-shadow-[0_24px_34px_rgba(92,50,59,0.22)]"
+                  />
+                  {/* Wax-seal glow — flares then dies as the seal
+                      "cracks". The seal sits at ~68% / ~66% of the
+                      square artwork, so the glow box is offset to
+                      centre on it (57% + 11% = 68%, 55% + 11% = 66%). */}
+                  <motion.div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute z-10 rounded-full"
+                    style={{
+                      left: "57%",
+                      top: "55%",
+                      width: "22%",
+                      aspectRatio: "1",
+                      background:
+                        "radial-gradient(circle, rgba(212,175,105,0.9) 0%, rgba(232,180,184,0.55) 45%, rgba(232,180,184,0) 70%)",
+                    }}
+                    initial={false}
+                    animate={
+                      isCardLifted
+                        ? { opacity: [0, 0.95, 0], scale: [0.7, 1.3, 1.15] }
+                        : { opacity: 0, scale: 0.7 }
+                    }
+                    transition={
+                      instant ? instantT : { duration: 0.55, times: [0, 0.45, 1], ease: "easeOut" }
+                    }
+                  />
+                </motion.div>
+              </motion.div>
 
-            {/* Invitation card — tucked BEHIND the envelope at rest.
-                The wrapper is overflow-hidden with height animated
-                0 → auto, so at rest 0px of the card is visible and
-                the wrapper takes no space; on tap it grows down from
-                behind the envelope's bottom edge. The -mt-16 overlap
-                is on the wrapper (not the card: a negative margin on
-                the card would be clipped by the overflow-hidden
-                wrapper and lose the card's top 64px) and reproduces
-                the old open look — card tucked 64px up over the
-                envelope art. No y/scale animation on the card: a
-                translate would clip its top / leave a gap at the
-                wrapper's bottom while the height animates. */}
-            <motion.div
-              initial={false}
-              animate={{ height: isCardLifted ? "auto" : 0 }}
-              transition={{
-                duration: revealDuration,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              aria-hidden={!isCardLifted}
-              className="relative z-10 mx-auto -mt-16 w-[86%] overflow-hidden sm:-mt-20 sm:w-[84%]"
-            >
-              <InvitationCard site={site} isOpen={isCardLifted} />
-            </motion.div>
+              {/* Invitation card — rises UP out of the envelope's place. */}
+              <motion.div
+                initial={false}
+                animate={{
+                  opacity: isCardLifted ? 1 : 0,
+                  y: isCardLifted ? 0 : 48,
+                  scale: isCardLifted ? 1 : 0.94,
+                }}
+                transition={instant ? instantT : isCardLifted ? cardOpen : cardClosed}
+                style={{ pointerEvents: isCardLifted ? "auto" : "none" }}
+                aria-hidden={!isCardLifted}
+                className="absolute inset-0 z-10 flex items-center justify-center"
+              >
+                <div className="relative w-[86%] sm:w-[84%]">
+                  {/* Soft rose-gold glow behind the card */}
+                  <div
+                    aria-hidden="true"
+                    className="absolute -inset-4 rounded-[2rem] blur-2xl"
+                    style={{
+                      background:
+                        "radial-gradient(ellipse at center, rgba(212,175,105,0.5) 0%, rgba(232,180,184,0.35) 55%, transparent 75%)",
+                    }}
+                  />
+                  <InvitationCard
+                    site={site}
+                    isOpen={isCardLifted}
+                    shimmerKey={isCardLifted && !instant ? shimmerKey : 0}
+                  />
+                </div>
+              </motion.div>
 
-            {/* Subtle interactive cue. The spacer div's top padding
-                (64px mobile / 80px sm+, matching the wrapper's
-                -mt-16 / sm:-mt-20) compensates the overlap when the
-                card is tucked, so the cue sits 16px below the
-                envelope at rest and 16px below the card when open;
-                it animates away on the same timing as the reveal so
-                the cue tracks the card's bottom edge. */}
-            <div
-              className={`transition-[padding-top] ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                isCardLifted ? "pt-0" : "pt-16 sm:pt-20"
-              }`}
-              style={{ transitionDuration: `${revealDuration}s` }}
-            >
-              <p className="br-font-display mt-4 text-center text-[10px] tracking-[0.26em] text-[#7A4A55]/80 uppercase transition-colors group-hover:text-[#5C323B]">
-                {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-              </p>
+              {/* Petals + golden burst from the seal while open. */}
+              {petalsOn && (
+                <PetalCanvas
+                  petalCount={10}
+                  burstKey={burstKey}
+                  burstOrigin={{ x: 0.68, y: 0.66 }}
+                  className="z-20"
+                />
+              )}
             </div>
+
+            {/* Cue — 16px below the envelope at rest, 16px below the
+                card when open (the card sits inside the envelope's
+                box, so the cue never moves). */}
+            <motion.p
+              key={isCardLifted ? "open" : "closed"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4 }}
+              className="br-font-display mt-4 text-center text-[10px] tracking-[0.26em] text-[#7A4A55]/80 uppercase transition-colors group-hover:text-[#5C323B]"
+            >
+              {isCardLifted ? "Tap Card to Tuck Back" : "Tap Envelope to Reveal Card"}
+            </motion.p>
           </div>
         </motion.div>
       </div>
