@@ -199,7 +199,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "ÉTERNEL",
     tagline: "Luxury editorial · French countryside",
     description:
-      "Warm ivory, champagne and antique gold with Cormorant Garamond display type — a cinematic European editorial invitation. 3D wax-seal envelope opening, full-screen parallax hero, animated story timeline, live countdown, masonry gallery with lightbox and a full RSVP form. The flagship template.",
+      "Warm ivory, champagne and antique gold with Cormorant Garamond display type — a cinematic European editorial invitation. gold-shimmer card unveiling, full-screen parallax hero, animated story timeline, live countdown, masonry gallery with lightbox and a full RSVP form. The flagship template.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -208,7 +208,7 @@ export const TEMPLATES: TemplateMeta[] = [
     palette: { bg: "#F8F5EF", ink: "#302821", accent: "#B49A70", accentSoft: "#E8DDCA" },
     fontClass: "font-eternel",
     layout:
-      "Luxury editorial single column: 3D envelope opening, full-screen cinematic hero, welcome letter, alternating story timeline, large countdown, event cards, venue with embedded map, masonry gallery with lightbox, full RSVP form, signature footer",
+      "Luxury editorial single column: gold-shimmer card unveiling, full-screen cinematic hero, welcome letter, alternating story timeline, large countdown, event cards, venue with embedded map, masonry gallery with lightbox, full RSVP form, signature footer",
     composition: "eternel",
     sections: [
       "hero",
@@ -226,7 +226,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Blossom & Oud",
     tagline: "French-Moroccan garden · blush & oud",
     description:
-      "Warm ivory, blush rose and deep oud brown with Playfair Display type — a French-Moroccan garden invitation. Burgundy wax-seal envelope opening, full-screen riad-garden hero with a bottom-fade, bilingual welcome with an Arabic invitation line, live countdown, order-of-the-day timeline, venue with embedded map, dress code with palette swatches, masonry gallery with lightbox and a full RSVP form.",
+      "Warm ivory, blush rose and deep oud brown with Playfair Display type — a French-Moroccan garden invitation. petal-drift card reveal, full-screen riad-garden hero with a bottom-fade, bilingual welcome with an Arabic invitation line, live countdown, order-of-the-day timeline, venue with embedded map, dress code with palette swatches, masonry gallery with lightbox and a full RSVP form.",
     // Price + access code set by the user 2026-11-23 ($69 both templates).
     priceUsd: 69,
     etsyListingId: null,
@@ -236,7 +236,7 @@ export const TEMPLATES: TemplateMeta[] = [
     palette: { bg: "#FAF6EF", ink: "#3E2A20", accent: "#B08D57", accentSoft: "#EFDCD2" },
     fontClass: "font-blossom",
     layout:
-      "French-Moroccan garden single column: wax-seal envelope opening, full-screen cinematic hero with bottom fade, bilingual welcome letter, alternating story timeline, large countdown, event cards, venue with embedded map, dress-code palette, masonry gallery with lightbox, full RSVP form, signature footer",
+      "French-Moroccan garden single column: petal-drift card reveal, full-screen cinematic hero with bottom fade, bilingual welcome letter, alternating story timeline, large countdown, event cards, venue with embedded map, dress-code palette, masonry gallery with lightbox, full RSVP form, signature footer",
     composition: "blossom",
     sections: [
       "hero",
@@ -255,7 +255,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "The Sacred Garden",
     tagline: "Rose garden · ivory & burgundy",
     description:
-      "Warm cream, antique gold and deep burgundy with Beau Rivage names and Imperial Script headings — a rose-garden invitation. Envelope artwork opening, Ken Burns hero, live countdown, order-of-the-day timeline, venue with embedded map, dress code and gift preference, masonry gallery with lightbox and a full RSVP form.",
+      "Warm cream, antique gold and deep burgundy with Beau Rivage names and Imperial Script headings — a rose-garden invitation. Garden-gate card reveal, Ken Burns hero, live countdown, order-of-the-day timeline, venue with embedded map, dress code and gift preference, masonry gallery with lightbox and a full RSVP form.",
     // Price + access code set by the user 2026-11-23 ($69 both templates).
     priceUsd: 69,
     etsyListingId: null,
@@ -265,7 +265,7 @@ export const TEMPLATES: TemplateMeta[] = [
     palette: { bg: "#F9F0E0", ink: "#6C513F", accent: "#A67D2B", accentSoft: "#F6F1E8" },
     fontClass: "font-sacred",
     layout:
-      "Rose-garden single column: envelope-artwork opening, Ken Burns hero with dotted date, welcome letter with tagline, large countdown, alternating schedule timeline, venue with photo and embedded map, dress-code and gift notices, masonry gallery with lightbox, full RSVP form, beige signature footer",
+      "Rose-garden single column: garden-gate card reveal, Ken Burns hero with dotted date, welcome letter with tagline, large countdown, alternating schedule timeline, venue with photo and embedded map, dress-code and gift notices, masonry gallery with lightbox, full RSVP form, beige signature footer",
     composition: "sacred-garden",
     sections: [
       "hero",
@@ -283,7 +283,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Royal Burgundy",
     tagline: "A burgundy leather-bound invitation with a wax-seal heart, vinyl waltz and golden-hour story.",
     description:
-      "Deep burgundy leather, ivory parchment and rose-gold with Great Vibes script names — a 1:1 port of the user's own Royal Burgundy invitation app. Leather cover with embossed heart seal and live monogram, interactive sliding envelope with vinyl waltz medallion, welcome letter, months-aware live countdown, burgundy film-strip story, details card with polaroids and antique key, torn-paper RSVP and a full RSVP form with entrée menu.",
+      "Deep burgundy leather, ivory parchment and rose-gold with Great Vibes script names — a 1:1 port of the user's own Royal Burgundy invitation app. Leather cover with embossed heart seal and live monogram, velvet-curtain card reveal with vinyl waltz medallion, welcome letter, months-aware live countdown, burgundy film-strip story, details card with polaroids and antique key, torn-paper RSVP and a full RSVP form with entrée menu.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -292,7 +292,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/royal-burgundy.jpg",
     fontClass: "font-royal-burgundy",
     layout:
-      "Burgundy leather cover, parchment invitation (envelope, welcome, countdown), burgundy film-strip story, parchment details card + RSVP, story page (film strip + triptych), details page (schedule, dress code, venue + travel, accommodations, registry)",
+      "Burgundy leather cover, parchment invitation (card reveal, welcome, countdown), burgundy film-strip story, parchment details card + RSVP, story page (film strip + triptych), details page (schedule, dress code, venue + travel, accommodations, registry)",
     composition: "royal-burgundy",
     sections: [
       "hero",
@@ -312,7 +312,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Emerald Royale",
     tagline: "Regal botanical · emerald leather & gold",
     description:
-      "Deep emerald leather, ivory parchment and antique gold with Great Vibes script names — a regal botanical invitation. Leather cover with gold filigree crest and live monogram, gold wax-seal envelope opening, welcome letter, months-aware live countdown, emerald film-strip story with gold tape, details card with polaroids and gold-leaf ornament, emerald torn-paper RSVP and a full RSVP form with entrée menu. No music.",
+      "Deep emerald leather, ivory parchment and antique gold with Great Vibes script names — a regal botanical invitation. Leather cover with gold filigree crest and live monogram, gold seal-break card reveal, welcome letter, months-aware live countdown, emerald film-strip story with gold tape, details card with polaroids and gold-leaf ornament, emerald torn-paper RSVP and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -321,7 +321,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/emerald-royale.jpg",
     fontClass: "font-emerald-royale",
     layout:
-      "Emerald leather cover, parchment invitation (wax-seal envelope, welcome, countdown), emerald film-strip story with gold tape, parchment details card + RSVP, story page (film strip + triptych), details page (schedule, dress code, venue + travel, accommodations, registry)",
+      "Emerald leather cover, parchment invitation (seal-break card reveal, welcome, countdown), emerald film-strip story with gold tape, parchment details card + RSVP, story page (film strip + triptych), details page (schedule, dress code, venue + travel, accommodations, registry)",
     composition: "emerald-royale",
     sections: [
       "hero",
@@ -341,7 +341,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Sapphire Royale",
     tagline: "Art-deco night · midnight navy & silver",
     description:
-      "Midnight navy velvet, silver geometric art-deco lines and sunburst with a silver monogram seal — an art-deco night invitation. Navy velvet cover with a live monogram seal, interactive sliding envelope, welcome letter, months-aware live countdown in silver diamond frames, story as three horizontal photo cards, details in navy panels with silver rules, panel-based RSVP and a full RSVP form with entrée menu. No music.",
+      "Midnight navy velvet, silver geometric art-deco lines and sunburst with a silver monogram seal — an art-deco night invitation. Navy velvet cover with a live monogram seal, silver veil-lift card reveal, welcome letter, months-aware live countdown in silver diamond frames, story as three horizontal photo cards, details in navy panels with silver rules, panel-based RSVP and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -350,7 +350,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/sapphire-royale.jpg",
     fontClass: "font-sapphire-royale",
     layout:
-      "Navy velvet cover, ice invitation (envelope, welcome, countdown), navy story preview with three horizontal photo cards, navy-panel details card + ice RSVP panel, story page (photo cards + paragraphs), details page (schedule, dress code, venue + travel, accommodations, registry)",
+      "Navy velvet cover, ice invitation (veil-lift card reveal, welcome, countdown), navy story preview with three horizontal photo cards, navy-panel details card + ice RSVP panel, story page (photo cards + paragraphs), details page (schedule, dress code, venue + travel, accommodations, registry)",
     composition: "sapphire-royale",
     sections: [
       "hero",
@@ -399,7 +399,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Golden Hour",
     tagline: "Warm sunset gold · honey & amber",
     description:
-      "Warm sunset gold, honey amber and deep brown with Great Vibes script names — a golden-hour invitation. Full-bleed sunset photograph cover with a sun-ray crest, live monogram and golden-dust particles, gold sunburst wax-seal envelope opening, welcome letter, months-aware live countdown on a deep-brown band, story as warm photo cards, details in cream panels, a golden torn-paper RSVP and a full RSVP form with entrée menu. No music.",
+      "Warm sunset gold, honey amber and deep brown with Great Vibes script names — a golden-hour invitation. Full-bleed sunset photograph cover with a sun-ray crest, live monogram and golden-dust particles, golden sunrise card reveal, welcome letter, months-aware live countdown on a deep-brown band, story as warm photo cards, details in cream panels, a golden torn-paper RSVP and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -408,7 +408,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/golden-hour.jpg",
     fontClass: "font-golden-hour",
     layout:
-      "Sunset-gold cover with sun-ray crest and golden dust, cream invitation (wax-seal envelope, welcome, countdown), warm photo-card story, cream details card + golden torn-paper RSVP, story page (photo cards + triptych), details page (schedule, dress code, venue + travel, accommodations, registry)",
+      "Sunset-gold cover with sun-ray crest and golden dust, cream invitation (sunrise card reveal, welcome, countdown), warm photo-card story, cream details card + golden torn-paper RSVP, story page (photo cards + triptych), details page (schedule, dress code, venue + travel, accommodations, registry)",
     composition: "golden-hour",
     sections: [
       "hero",
@@ -428,7 +428,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Silver Moonlight",
     tagline: "Moonlit night · silver & slate",
     description:
-      "Deep night, slate blue and moonlight silver with ice-white type — a moonlit night invitation. Night-sky cover with a crescent moon and twinkling stars, silver crescent-seal envelope opening, welcome letter, months-aware live countdown, story as three moonlit photo cards, details in slate panels, RSVP on a silver-trimmed card and a full RSVP form with entrée menu. No music.",
+      "Deep night, slate blue and moonlight silver with ice-white type — a moonlit night invitation. Night-sky cover with a crescent moon and twinkling stars, moonrise eclipse card reveal, welcome letter, months-aware live countdown, story as three moonlit photo cards, details in slate panels, RSVP on a silver-trimmed card and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -437,7 +437,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/silver-moonlight.jpg",
     fontClass: "font-silver-moonlight",
     layout:
-      "Night-sky cover, ice invitation (envelope, welcome, countdown), moonlit photo-card story, slate-panel details card + RSVP, story page (photo cards + paragraphs), details page (schedule, dress code, venue + travel, accommodations, registry)",
+      "Night-sky cover, ice invitation (eclipse card reveal, welcome, countdown), moonlit photo-card story, slate-panel details card + RSVP, story page (photo cards + paragraphs), details page (schedule, dress code, venue + travel, accommodations, registry)",
     composition: "silver-moonlight",
     sections: [
       "hero",
@@ -459,7 +459,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Rose Garden",
     tagline: "A garden in bloom · deep rose & leaf",
     description:
-      "Deep rose #B3124F, cream and leaf green with Great Vibes script names — a rose-garden invitation. Garden-arch cover with the photo inside a tall arch and falling rose petals, classic-pocket envelope with a live rose wax seal, welcome letter, months-aware live countdown on a leaf-green band, story as a vertical timeline with rose markers, details in seed-packet cards, RSVP on a rose-bordered letter and a full RSVP form with entrée menu. No music.",
+      "Deep rose #B3124F, cream and leaf green with Great Vibes script names — a rose-garden invitation. Garden-arch cover with the photo inside a tall arch and falling rose petals, blooming rose card reveal with a live rose wax seal, welcome letter, months-aware live countdown on a leaf-green band, story as a vertical timeline with rose markers, details in seed-packet cards, RSVP on a rose-bordered letter and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -468,7 +468,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/rose-garden.jpg",
     fontClass: "font-rose-garden",
     layout:
-      "Garden-arch cover with falling petals, cream invitation (live-seal envelope, welcome, countdown), vertical-timeline story, seed-packet details card + rose-bordered letter RSVP, story page (vertical timeline), details page (seed packets, schedule, dress code, venue + travel, accommodations, registry)",
+      "Garden-arch cover with falling petals, cream invitation (bloom card reveal, welcome, countdown), vertical-timeline story, seed-packet details card + rose-bordered letter RSVP, story page (vertical timeline), details page (seed packets, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "rose-garden",
     sections: [
       "hero",
@@ -488,7 +488,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Ocean Pearl",
     tagline: "By the sea · aqua & pearl",
     description:
-      "Aqua, pearl white and deep sea with clean Manrope sans names — a seaside invitation. Full-bleed wave photograph cover with a wave-shaped divider and rising bubbles, shell-seal envelope with a scalloped pocket opening, welcome letter, months-aware live countdown on a deep-sea band, story as a horizontal-scroll photo strip, details in bubble cards, RSVP as a message in a bottle and a full RSVP form with entrée menu. No music.",
+      "Aqua, pearl white and deep sea with clean Manrope sans names — a seaside invitation. Full-bleed wave photograph cover with a wave-shaped divider and rising bubbles, tide-rise card reveal with a shell seal, welcome letter, months-aware live countdown on a deep-sea band, story as a horizontal-scroll photo strip, details in bubble cards, RSVP as a message in a bottle and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -497,7 +497,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/ocean-pearl.jpg",
     fontClass: "font-ocean-pearl",
     layout:
-      "Wave-photo cover with wave divider and rising bubbles, pearl invitation (shell-seal envelope, welcome, countdown), horizontal-scroll story strip, bubble-card details + message-in-a-bottle RSVP, story page (scroll strip + paragraphs), details page (time bubbles, dress code, venue + travel, bubble-card accommodations, registry)",
+      "Wave-photo cover with wave divider and rising bubbles, pearl invitation (tide-rise card reveal, welcome, countdown), horizontal-scroll story strip, bubble-card details + message-in-a-bottle RSVP, story page (scroll strip + paragraphs), details page (time bubbles, dress code, venue + travel, bubble-card accommodations, registry)",
     composition: "ocean-pearl",
     sections: [
       "hero",
@@ -517,7 +517,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Forest Whisper",
     tagline: "Deep forest · moss & cream",
     description:
-      "Deep forest green, moss and cream with Great Vibes script names — a woodland invitation. Split-screen cover (forest photograph left, deep-green panel right) with a leaf-ring crest, live monogram and fireflies, leaf-seal envelope with a twine band, welcome letter, months-aware live countdown on a deep-forest band, story as zigzag alternating rows, details as a trail map with pinned stops, RSVP on a wooden signboard and a full RSVP form with entrée menu. No music.",
+      "Deep forest green, moss and cream with Great Vibes script names — a woodland invitation. Split-screen cover (forest photograph left, deep-green panel right) with a leaf-ring crest, live monogram and fireflies, mist-rise card reveal with a leaf seal, welcome letter, months-aware live countdown on a deep-forest band, story as zigzag alternating rows, details as a trail map with pinned stops, RSVP on a wooden signboard and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -526,7 +526,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/forest-whisper.jpg",
     fontClass: "font-forest-whisper",
     layout:
-      "Split-screen cover (photo + deep-green panel, leaf crest, fireflies), cream invitation (leaf-seal twine envelope, welcome, countdown), zigzag story rows, trail-map details card + wooden signboard RSVP, story page (zigzag rows + paragraphs), details page (full trail map, dress code, venue + travel, accommodations, registry)",
+      "Split-screen cover (photo + deep-green panel, leaf crest, fireflies), cream invitation (mist-rise card reveal, welcome, countdown), zigzag story rows, trail-map details card + wooden signboard RSVP, story page (zigzag rows + paragraphs), details page (full trail map, dress code, venue + travel, accommodations, registry)",
     composition: "forest-whisper",
     sections: [
       "hero",
@@ -546,7 +546,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Winter Frost",
     tagline: "Ice blue · snow & deep blue",
     description:
-      "Ice blue #BDE0F5, white and deep blue #12395B with Great Vibes script names — a winter invitation. Snowflake-crest cover with a snowy photograph and falling snowflakes, snowflake wax-seal envelope, welcome letter, months-aware live countdown on a deep-blue band, story as a snow-globe carousel with dots, details in frosted-glass panels, RSVP on an ice-blue ticket card and a full RSVP form with entrée menu. No music.",
+      "Ice blue #BDE0F5, white and deep blue #12395B with Great Vibes script names — a winter invitation. Snowflake-crest cover with a snowy photograph and falling snowflakes, frost-mist dissolve card reveal, welcome letter, months-aware live countdown on a deep-blue band, story as a snow-globe carousel with dots, details in frosted-glass panels, RSVP on an ice-blue ticket card and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -555,7 +555,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/winter-frost.jpg",
     fontClass: "font-winter-frost",
     layout:
-      "Snowflake-crest cover with falling snowflakes, ice-blue invitation (snowflake-seal envelope, welcome, countdown), snow-globe carousel story, frosted-glass details + ice-blue ticket RSVP, story page (carousel + paragraphs), details page (frosted panels, schedule, dress code, venue + travel, accommodations, registry)",
+      "Snowflake-crest cover with falling snowflakes, ice-blue invitation (mist-dissolve card reveal, welcome, countdown), snow-globe carousel story, frosted-glass details + ice-blue ticket RSVP, story page (carousel + paragraphs), details page (frosted panels, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "winter-frost",
     sections: [
       "hero",
@@ -575,7 +575,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Autumn Harvest",
     tagline: "Burnt orange · cream & brown",
     description:
-      "Burnt orange #C05621, cream and brown #5C3A21 with Great Vibes script names — a harvest invitation. Typographic cover with big serif names over a leaf pattern and drifting leaves, leaf-seal envelope, welcome letter, months-aware live countdown on a burnt-orange band, story as a masonry grid of varied-height photos, details as harvest-table rows, RSVP on a kraft-paper tag and a full RSVP form with entrée menu. No music.",
+      "Burnt orange #C05621, cream and brown #5C3A21 with Great Vibes script names — a harvest invitation. Typographic cover with big serif names over a leaf pattern and drifting leaves, ember-fade card reveal, welcome letter, months-aware live countdown on a burnt-orange band, story as a masonry grid of varied-height photos, details as harvest-table rows, RSVP on a kraft-paper tag and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -584,7 +584,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/autumn-harvest.jpg",
     fontClass: "font-autumn-harvest",
     layout:
-      "Typographic cover with big serif names over a leaf pattern, cream invitation (leaf-seal envelope, welcome, countdown), masonry story grid, harvest-table details + kraft-tag RSVP, story page (masonry + paragraphs), details page (harvest rows, schedule, dress code, venue + travel, accommodations, registry)",
+      "Typographic cover with big serif names over a leaf pattern, cream invitation (ember-fade card reveal, welcome, countdown), masonry story grid, harvest-table details + kraft-tag RSVP, story page (masonry + paragraphs), details page (harvest rows, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "autumn-harvest",
     sections: [
       "hero",
@@ -604,7 +604,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Peacock Royale",
     tagline: "Teal & gold · deep green",
     description:
-      "Teal #0F766E, gold #D4AF37 and deep green with Great Vibes script names — a peacock invitation. Feather-fan cover with the photo in a fan arc and shimmering sparkles, peacock-feather-seal envelope, welcome letter, months-aware live countdown on a deep-teal band, story as a fan-shaped photo arc, details in jewel-toned jewel boxes, RSVP in a feather-framed card and a full RSVP form with entrée menu. No music.",
+      "Teal #0F766E, gold #D4AF37 and deep green with Great Vibes script names — a peacock invitation. Feather-fan cover with the photo in a fan arc and shimmering sparkles, particle-dissolve card reveal, welcome letter, months-aware live countdown on a deep-teal band, story as a fan-shaped photo arc, details in jewel-toned jewel boxes, RSVP in a feather-framed card and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -613,7 +613,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/peacock-royale.jpg",
     fontClass: "font-peacock-royale",
     layout:
-      "Feather-fan cover with photo in a fan arc and sparkles, teal invitation (feather-seal envelope, welcome, countdown), fan-arc story, jewel-box details + feather-framed RSVP, story page (fan arc + paragraphs), details page (jewel boxes, schedule, dress code, venue + travel, accommodations, registry)",
+      "Feather-fan cover with photo in a fan arc and sparkles, teal invitation (particle-dissolve card reveal, welcome, countdown), fan-arc story, jewel-box details + feather-framed RSVP, story page (fan arc + paragraphs), details page (jewel boxes, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "peacock-royale",
     sections: [
       "hero",
@@ -633,7 +633,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Sakura Dream",
     tagline: "Pink · white & deep plum",
     description:
-      "Pink #F9A8D4, white and deep plum #6B21A8 with Great Vibes script names — a sakura invitation. Branch-framed circle-photo cover with falling sakura petals, sakura-seal envelope, welcome letter, months-aware live countdown on a plum band, story along a winding petal path, details in folding-fan panels, RSVP on a cherry-blossom petal card and a full RSVP form with entrée menu. No music.",
+      "Pink #F9A8D4, white and deep plum #6B21A8 with Great Vibes script names — a sakura invitation. Branch-framed circle-photo cover with falling sakura petals, watercolor-wash card reveal, welcome letter, months-aware live countdown on a plum band, story along a winding petal path, details in folding-fan panels, RSVP on a cherry-blossom petal card and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -642,7 +642,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/sakura-dream.jpg",
     fontClass: "font-sakura-dream",
     layout:
-      "Branch-framed circle-photo cover with falling petals, pink invitation (sakura-seal envelope, welcome, countdown), petal-path story, folding-fan details + petal-card RSVP, story page (petal path + paragraphs), details page (fan panels, schedule, dress code, venue + travel, accommodations, registry)",
+      "Branch-framed circle-photo cover with falling petals, pink invitation (watercolor-wash card reveal, welcome, countdown), petal-path story, folding-fan details + petal-card RSVP, story page (petal path + paragraphs), details page (fan panels, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "sakura-dream",
     sections: [
       "hero",
@@ -662,7 +662,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Desert Dusk",
     tagline: "Terracotta · sand & dusk purple",
     description:
-      "Terracotta #C2703D, sand #F5E6D3 and dusk purple #6B3A5C with Great Vibes script names — a desert invitation. Dune-horizon cover with a low horizon, big gradient sky and names in the sky, drifting sand motes, sun-seal envelope, welcome letter, months-aware live countdown on a terracotta band, story as a caravan route with dotted-path stops, details as oasis cards, RSVP on a sand-toned postcard and a full RSVP form with entrée menu. No music.",
+      "Terracotta #C2703D, sand #F5E6D3 and dusk purple #6B3A5C with Great Vibes script names — a desert invitation. Dune-horizon cover with a low horizon, big gradient sky and names in the sky, drifting sand motes, sand-dissolve card reveal, welcome letter, months-aware live countdown on a terracotta band, story as a caravan route with dotted-path stops, details as oasis cards, RSVP on a sand-toned postcard and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -671,7 +671,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/desert-dusk.jpg",
     fontClass: "font-desert-dusk",
     layout:
-      "Dune-horizon cover with big gradient sky and names in the sky, sand invitation (sun-seal envelope, welcome, countdown), caravan-route story, oasis details + sand postcard RSVP, story page (route stops + paragraphs), details page (oasis cards, schedule, dress code, venue + travel, accommodations, registry)",
+      "Dune-horizon cover with big gradient sky and names in the sky, sand invitation (sand-dissolve card reveal, welcome, countdown), caravan-route story, oasis details + sand postcard RSVP, story page (route stops + paragraphs), details page (oasis cards, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "desert-dusk",
     sections: [
       "hero",
@@ -691,7 +691,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Vintage Lace",
     tagline: "Ivory · sepia & dusty rose",
     description:
-      "Ivory #FDF8F0, sepia #8B7355 and dusty rose with Great Vibes script names — a vintage invitation. Lace-frame cover with the photo inside an ornate lace frame and soft dust motes, lace-seal envelope, welcome letter, months-aware live countdown on a sepia band, story as a photo-album spread, details as vintage postcards, RSVP as a lace-edged letter and a full RSVP form with entrée menu. No music.",
+      "Ivory #FDF8F0, sepia #8B7355 and dusty rose with Great Vibes script names — a vintage invitation. Lace-frame cover with the photo inside an ornate lace frame and soft dust motes, accordion-fold card reveal, welcome letter, months-aware live countdown on a sepia band, story as a photo-album spread, details as vintage postcards, RSVP as a lace-edged letter and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -700,7 +700,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/vintage-lace.jpg",
     fontClass: "font-vintage-lace",
     layout:
-      "Lace-frame cover with ornate frame and dust motes, ivory invitation (lace-seal envelope, welcome, countdown), album-spread story, vintage-postcard details + lace-letter RSVP, story page (album spreads + paragraphs), details page (postcards, schedule, dress code, venue + travel, accommodations, registry)",
+      "Lace-frame cover with ornate frame and dust motes, ivory invitation (accordion-fold card reveal, welcome, countdown), album-spread story, vintage-postcard details + lace-letter RSVP, story page (album spreads + paragraphs), details page (postcards, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "vintage-lace",
     sections: [
       "hero",
@@ -720,7 +720,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Starlight Noir",
     tagline: "Black & gold · starlight",
     description:
-      "Black #0A0A0A, gold #D4AF37 and white with Great Vibes script names in gold — a starlight invitation. Constellation cover with gold lines connecting twinkling stars, gold-star-seal envelope, welcome letter, months-aware live countdown on a black band with gold numerals, story as constellation cards in star-map style, details as a gold-on-black ledger, RSVP on a gold-foil ticket and a full RSVP form with entrée menu. No music.",
+      "Black #0A0A0A, gold #D4AF37 and white with Great Vibes script names in gold — a starlight invitation. Constellation cover with gold lines connecting twinkling stars, vertical-split card reveal, welcome letter, months-aware live countdown on a black band with gold numerals, story as constellation cards in star-map style, details as a gold-on-black ledger, RSVP on a gold-foil ticket and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -729,7 +729,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/starlight-noir.jpg",
     fontClass: "font-starlight-noir",
     layout:
-      "Black constellation cover with gold lines and twinkling stars, noir invitation (gold-star-seal envelope, welcome, countdown), constellation-card story, gold ledger details + gold-foil ticket RSVP, story page (star-map cards + paragraphs), details page (ledger, schedule, dress code, venue + travel, accommodations, registry)",
+      "Black constellation cover with gold lines and twinkling stars, noir invitation (vertical-split card reveal, welcome, countdown), constellation-card story, gold ledger details + gold-foil ticket RSVP, story page (star-map cards + paragraphs), details page (ledger, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "starlight-noir",
     sections: [
       "hero",
@@ -749,7 +749,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Coral Sunset",
     tagline: "Coral · peach & deep plum",
     description:
-      "Coral #FF7F50, peach #FFDAB9 and deep plum with Great Vibes script names — a sunset invitation. Sunset-gradient cover with a sun disc and names over the gradient, warm glowing embers, coral-sun-seal envelope, welcome letter, months-aware live countdown on a coral band, story as a sunset strip of photos in a gradient band, details in coral rounded tiles, RSVP on a sunset postcard and a full RSVP form with entrée menu. No music.",
+      "Coral #FF7F50, peach #FFDAB9 and deep plum with Great Vibes script names — a sunset invitation. Sunset-gradient cover with a sun disc and names over the gradient, warm glowing embers, sunrise-split card reveal, welcome letter, months-aware live countdown on a coral band, story as a sunset strip of photos in a gradient band, details in coral rounded tiles, RSVP on a sunset postcard and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -758,7 +758,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/coral-sunset.jpg",
     fontClass: "font-coral-sunset",
     layout:
-      "Sunset-gradient cover with sun disc and glowing embers, coral invitation (coral-sun-seal envelope, welcome, countdown), sunset-strip story, coral-tile details + sunset postcard RSVP, story page (gradient strip + paragraphs), details page (coral tiles, schedule, dress code, venue + travel, accommodations, registry)",
+      "Sunset-gradient cover with sun disc and glowing embers, coral invitation (sunrise-split card reveal, welcome, countdown), sunset-strip story, coral-tile details + sunset postcard RSVP, story page (gradient strip + paragraphs), details page (coral tiles, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "coral-sunset",
     sections: [
       "hero",
@@ -778,7 +778,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Amethyst Royale",
     tagline: "Amethyst crystal · lavender & white",
     description:
-      "Amethyst violet, lavender and white with Great Vibes script names — a crystal invitation. Crystal-cluster cover with a hexagonal crystal crest, live monogram and crystal-sparkle particles, faceted crystal-seal envelope opening, welcome letter, months-aware live countdown on a deep-amethyst band with hexagonal tiles, story as faceted hexagon gem cards, details in staggered crystal panels, a gem-shaped hexagon RSVP and a full RSVP form with entrée menu. No music.",
+      "Amethyst violet, lavender and white with Great Vibes script names — a crystal invitation. Crystal-cluster cover with a hexagonal crystal crest, live monogram and crystal-sparkle particles, crystal-cleave card reveal, welcome letter, months-aware live countdown on a deep-amethyst band with hexagonal tiles, story as faceted hexagon gem cards, details in staggered crystal panels, a gem-shaped hexagon RSVP and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -787,7 +787,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/amethyst-royale.jpg",
     fontClass: "font-amethyst-royale",
     layout:
-      "Crystal-cluster cover with hexagonal crest and crystal sparkles, lavender invitation (crystal-seal envelope, welcome, countdown), faceted hexagon gem-card story, staggered crystal-panel details + gem-shaped hexagon RSVP, story page (hexagon cards + diamond triptych), details page (facet-timeline schedule, dress code, venue + travel, accommodations, registry)",
+      "Crystal-cluster cover with hexagonal crest and crystal sparkles, lavender invitation (crystal-cleave card reveal, welcome, countdown), faceted hexagon gem-card story, staggered crystal-panel details + gem-shaped hexagon RSVP, story page (hexagon cards + diamond triptych), details page (facet-timeline schedule, dress code, venue + travel, accommodations, registry)",
     composition: "amethyst-royale",
     sections: [
       "hero",
@@ -807,7 +807,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Marble Luxe",
     tagline: "White & gold · grey marble",
     description:
-      "White #FFFFFF, grey #6B7280 and gold #B49A70 with Great Vibes script names — a marble invitation. Marble-slab cover, minimal with generous white space and thin gold rules, subtle gold dust, gold-monogram-seal envelope, welcome letter, months-aware live countdown on a white band with gold rules, story as a gallery wall of large single photos, details as a minimal line-divided list, RSVP on a clean white card with a gold rule and a full RSVP form with entrée menu. No music.",
+      "White #FFFFFF, grey #6B7280 and gold #B49A70 with Great Vibes script names — a marble invitation. Marble-slab cover, minimal with generous white space and thin gold rules, subtle gold dust, double-door card reveal, welcome letter, months-aware live countdown on a white band with gold rules, story as a gallery wall of large single photos, details as a minimal line-divided list, RSVP on a clean white card with a gold rule and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -816,7 +816,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/marble-luxe.jpg",
     fontClass: "font-marble-luxe",
     layout:
-      "Marble-slab cover with white space and thin gold rules, white invitation (gold-monogram-seal envelope, welcome, countdown), gallery-wall story, line-divided details + white card with gold rule RSVP, story page (gallery wall + paragraphs), details page (line list, schedule, dress code, venue + travel, accommodations, registry)",
+      "Marble-slab cover with white space and thin gold rules, white invitation (double-door card reveal, welcome, countdown), gallery-wall story, line-divided details + white card with gold rule RSVP, story page (gallery wall + paragraphs), details page (line list, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "marble-luxe",
     sections: [
       "hero",
@@ -836,7 +836,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Tropical Palm",
     tagline: "Green · sand & turquoise",
     description:
-      "Green #15803D, sand #FDE68A and turquoise #06B6D4 with Great Vibes script names — a tropical invitation. Palm-shadow cover with large palm shadows over a beach photo and floating leaves, palm-seal envelope, welcome letter, months-aware live countdown on a green band, story as island-hop cards with leaf tabs, details in palm-framed tiles, RSVP on a palm-leaf card and a full RSVP form with entrée menu. No music.",
+      "Green #15803D, sand #FDE68A and turquoise #06B6D4 with Great Vibes script names — a tropical invitation. Palm-shadow cover with large palm shadows over a beach photo and floating leaves, palm-bloom card reveal, welcome letter, months-aware live countdown on a green band, story as island-hop cards with leaf tabs, details in palm-framed tiles, RSVP on a palm-leaf card and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -845,7 +845,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/tropical-palm.jpg",
     fontClass: "font-tropical-palm",
     layout:
-      "Palm-shadow cover over a beach photo with floating leaves, green invitation (palm-seal envelope, welcome, countdown), island-hop story, palm-tile details + palm-leaf RSVP, story page (island-hop cards + paragraphs), details page (palm tiles, schedule, dress code, venue + travel, accommodations, registry)",
+      "Palm-shadow cover over a beach photo with floating leaves, green invitation (palm-bloom card reveal, welcome, countdown), island-hop story, palm-tile details + palm-leaf RSVP, story page (island-hop cards + paragraphs), details page (palm tiles, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "tropical-palm",
     sections: [
       "hero",
@@ -865,7 +865,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Aurora",
     tagline: "Teal & violet · night sky",
     description:
-      "Teal #14B8A6, violet #8B5CF6 and night #0F172A with Great Vibes script names — an aurora invitation. Aurora-ribbon cover with animated ribbons over a night photo and aurora light streaks, aurora-seal envelope, welcome letter, months-aware live countdown on a night band with glowing numerals, story along flowing ribbons, details in aurora glass panels, RSVP on a glowing-edge card and a full RSVP form with entrée menu. No music.",
+      "Teal #14B8A6, violet #8B5CF6 and night #0F172A with Great Vibes script names — an aurora invitation. Aurora-ribbon cover with animated ribbons over a night photo and aurora light streaks, iris-open card reveal, welcome letter, months-aware live countdown on a night band with glowing numerals, story along flowing ribbons, details in aurora glass panels, RSVP on a glowing-edge card and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -874,7 +874,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/aurora.jpg",
     fontClass: "font-aurora",
     layout:
-      "Aurora-ribbon cover with animated ribbons over a night photo, night invitation (aurora-seal envelope, welcome, countdown), ribbon-flow story, aurora-glass details + glowing-edge RSVP, story page (ribbon flow + paragraphs), details page (glass panels, schedule, dress code, venue + travel, accommodations, registry)",
+      "Aurora-ribbon cover with animated ribbons over a night photo, night invitation (iris-open card reveal, welcome, countdown), ribbon-flow story, aurora-glass details + glowing-edge RSVP, story page (ribbon flow + paragraphs), details page (glass panels, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "aurora",
     sections: [
       "hero",
@@ -894,7 +894,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Rustic Charm",
     tagline: "Brown · cream & green",
     description:
-      "Brown #78350F, cream #FEF3C7 and green with Great Vibes script names — a rustic invitation. Barn-wood cover with plank texture and names on a wooden sign, fireflies, twine-and-wood-seal envelope, welcome letter, months-aware live countdown on a brown band, story as a clothesline photo string, details as chalkboard panels, RSVP on a burlap tag and a full RSVP form with entrée menu. No music.",
+      "Brown #78350F, cream #FEF3C7 and green with Great Vibes script names — a rustic invitation. Barn-wood cover with plank texture and names on a wooden sign, fireflies, slow zoom-in card reveal, welcome letter, months-aware live countdown on a brown band, story as a clothesline photo string, details as chalkboard panels, RSVP on a burlap tag and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -903,7 +903,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/rustic-charm.jpg",
     fontClass: "font-rustic-charm",
     layout:
-      "Barn-wood cover with plank texture and wooden sign, cream invitation (twine-seal envelope, welcome, countdown), clothesline story, chalkboard details + burlap-tag RSVP, story page (clothesline + paragraphs), details page (chalkboard panels, schedule, dress code, venue + travel, accommodations, registry)",
+      "Barn-wood cover with plank texture and wooden sign, cream invitation (slow zoom-in card reveal, welcome, countdown), clothesline story, chalkboard details + burlap-tag RSVP, story page (clothesline + paragraphs), details page (chalkboard panels, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "rustic-charm",
     sections: [
       "hero",
@@ -923,7 +923,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Sunflower Fields",
     tagline: "Yellow · green & cream",
     description:
-      "Yellow #FACC15, green #166534 and cream with Great Vibes script names — a sunflower invitation. Sunflower-field cover with a low-angle field photo and names over the sky, floating pollen, sunflower-seal envelope, welcome letter, months-aware live countdown on a yellow band, story as a field row of photos with stems, details in sunflower-yellow blocks, RSVP on a seed-packet card and a full RSVP form with entrée menu. No music.",
+      "Yellow #FACC15, green #166534 and cream with Great Vibes script names — a sunflower invitation. Sunflower-field cover with a low-angle field photo and names over the sky, floating pollen, sunflower-pop card reveal, welcome letter, months-aware live countdown on a yellow band, story as a field row of photos with stems, details in sunflower-yellow blocks, RSVP on a seed-packet card and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -932,7 +932,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/sunflower-fields.jpg",
     fontClass: "font-sunflower-fields",
     layout:
-      "Sunflower-field cover with low-angle field photo and names over the sky, yellow invitation (sunflower-seal envelope, welcome, countdown), field-row story, yellow-block details + seed-packet RSVP, story page (field rows + paragraphs), details page (yellow blocks, schedule, dress code, venue + travel, accommodations, registry)",
+      "Sunflower-field cover with low-angle field photo and names over the sky, yellow invitation (sunflower-pop card reveal, welcome, countdown), field-row story, yellow-block details + seed-packet RSVP, story page (field rows + paragraphs), details page (yellow blocks, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "sunflower-fields",
     sections: [
       "hero",
@@ -952,7 +952,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Mint Serenity",
     tagline: "Mint · white & sage",
     description:
-      "Mint #A7F3D0, white and sage #065F46 with Great Vibes script names — a mint invitation. Mint-wash cover with soft circles and names in soft serif, soft bubbles, mint-leaf-seal envelope, welcome letter, months-aware live countdown on a mint band, story as floating bubble photos, details in soft pill-shaped cards, RSVP on a mint bubble card and a full RSVP form with entrée menu. No music.",
+      "Mint #A7F3D0, white and sage #065F46 with Great Vibes script names — a mint invitation. Mint-wash cover with soft circles and names in soft serif, soft bubbles, bubble-bloom card reveal, welcome letter, months-aware live countdown on a mint band, story as floating bubble photos, details in soft pill-shaped cards, RSVP on a mint bubble card and a full RSVP form with entrée menu. No music.",
     priceUsd: 69,
     etsyListingId: null,
     active: true,
@@ -961,7 +961,7 @@ export const TEMPLATES: TemplateMeta[] = [
     heroImage: "/images/themes/mint-serenity.jpg",
     fontClass: "font-mint-serenity",
     layout:
-      "Mint-wash cover with soft circles and soft serif names, mint invitation (mint-leaf-seal envelope, welcome, countdown), bubble-photo story, pill-card details + bubble-card RSVP, story page (bubble photos + paragraphs), details page (pill cards, schedule, dress code, venue + travel, accommodations, registry)",
+      "Mint-wash cover with soft circles and soft serif names, mint invitation (bubble-bloom card reveal, welcome, countdown), bubble-photo story, pill-card details + bubble-card RSVP, story page (bubble photos + paragraphs), details page (pill cards, schedule, dress code, venue + travel, accommodations, registry)",
     composition: "mint-serenity",
     sections: [
       "hero",
@@ -981,7 +981,7 @@ export const TEMPLATES: TemplateMeta[] = [
     name: "Dolce Vita",
     tagline: "Italian lakeside · dusty blue & gold",
     description:
-      "Warm off-white, dusty blue and pale sky with Imperial Script names — a 1:1 port of the approved standalone Dolce Vita invitation. Envelope opening with gold heart seal, Ken Burns hero with falling petals, scratch-to-reveal date, welcome letter, live countdown, order-of-the-day timeline, venue with map, dress code with palette swatches, photo slider and a full RSVP form.",
+      "Warm off-white, dusty blue and pale sky with Imperial Script names — a 1:1 port of the approved standalone Dolce Vita invitation. Coastal-breeze card reveal with gold heart seal, Ken Burns hero with falling petals, scratch-to-reveal date, welcome letter, live countdown, order-of-the-day timeline, venue with map, dress code with palette swatches, photo slider and a full RSVP form.",
     // PRICE TBD — set at the approval gate before the delivery PDF is
     // issued. Kept at 0 and inactive until then so it can never be
     // bought or activated with a placeholder price.
@@ -995,7 +995,7 @@ export const TEMPLATES: TemplateMeta[] = [
     palette: { bg: "#FFFDFB", ink: "#3A3A3A", accent: "#64A0BD", accentSoft: "#E9F1F5" },
     fontClass: "font-dolce",
     layout:
-      "Italian lakeside single column (390px): envelope opening, Ken Burns hero with falling petals, scratch-reveal date, welcome letter, story timeline, live countdown, alternating schedule timeline, venue with photo and map, dress-code palette, photo slider, colours, full RSVP form, signature footer",
+      "Italian lakeside single column (390px): card reveal, Ken Burns hero with falling petals, scratch-reveal date, welcome letter, story timeline, live countdown, alternating schedule timeline, venue with photo and map, dress-code palette, photo slider, colours, full RSVP form, signature footer",
     composition: "dolce-vita",
     sections: [
       "hero",

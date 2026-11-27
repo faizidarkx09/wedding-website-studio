@@ -1,21 +1,26 @@
-// Sakura Dream envelope — interactive blush-pink envelope with a
-// live sakura-blossom seal and the sliding cream petal card (tap
-// the seal to break it and reveal / tuck the card back). No music
-// on this template — the seal is the interaction.
+// Sakura Dream invitation card — NO envelope. The card itself is
+// the reveal: at rest you see its BACK (a petal-pink watercolor
+// wash in soft pink, blush and cream, with a plum monogram disc
+// and "Tap to Reveal"); tap rinses the wash away — a soft diagonal
+// wipe with the blur fading out, as if water is washing the
+// pigment off the card — revealing the FRONT (the existing
+// invitation content, unchanged) beneath, with a few sakura petals
+// drifting across as it washes away. Tap again and the wash flows
+// back over the card. Deliberately NOT a 3D flip (that is Blush
+// Royale's concept). prefers-reduced-motion: instant swap, no
+// ambient animation, no petals. No music on this template.
 "use client";
 
 import { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Transition } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { Blossom, PetalDivider } from "./Decor";
-import {
-  ENVELOPE_IMAGE_URL,
-  formatCardDate,
-  locationLabel,
-} from "./tokens";
+import { formatCardDate, initials, locationLabel } from "./tokens";
+import { SakuraPetalCanvas } from "./SakuraCinematicOpening";
 
 /* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding cream petal invitation card          */
+/* InvitationCard — the cream petal invitation card (FRONT,          */
+/* unchanged content: couple names, date, venue).                    */
 /* ------------------------------------------------------------------ */
 
 function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
@@ -95,68 +100,132 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
 }
 
 /* ------------------------------------------------------------------ */
-/* BlossomSeal — the live sakura-blossom seal open button. Tapping  */
-/* it "breaks" the seal (it splits and fades) and the card slides   */
-/* up; tapping again reseals it. The seal is pure SVG/CSS — the      */
-/* envelope photo itself is seal-free so the sliding card never     */
-/* hides the seal.                                                   */
+/* CardBack — the card's BACK at rest: a petal-pink watercolor wash */
+/* (soft pink, blush, cream) with a blurred blossom watermark, a    */
+/* plum monogram disc and the tap hint. Same footprint as the front */
+/* (absolute inset-0 of the card box), so the reveal never moves    */
+/* layout.                                                           */
 /* ------------------------------------------------------------------ */
 
-function BlossomSeal({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
+function CardBack({ site, animateWash }: { site: WeddingSite; animateWash: boolean }) {
   return (
-    <div className="relative flex flex-col items-center">
-      <motion.button
-        type="button"
-        onClick={onToggle}
-        aria-pressed={isOpen}
-        aria-label={
-          isOpen
-            ? "Reseal the sakura envelope"
-            : "Break the sakura seal and open the envelope"
-        }
-        animate={isOpen ? { rotate: -8, scale: 0.94 } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-[#6B21A8] shadow-[0_16px_30px_-8px_rgba(46,10,61,0.6),0_4px_10px_rgba(46,10,61,0.35)] ring-2 ring-[#F9A8D4]/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#6B21A8]"
-      >
-        {/* Plum disc with a large pink blossom and a gold centre */}
-        <Blossom className="absolute inset-0 h-full w-full scale-[0.82]" fill="#F9A8D4" center="#FDE68A" />
-        <span className="relative z-10 rounded-full bg-[#6B21A8]/85 px-2 py-0.5 text-[9px] font-bold tracking-[0.2em] text-white uppercase">
-          Sakura
-        </span>
-        {/* Crack line once broken */}
-        {isOpen && (
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-2 top-1/2 z-20 h-px rotate-[-14deg] bg-white/70"
-          />
-        )}
-      </motion.button>
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#FDE7F1] px-4 py-8 text-center shadow-[0_10px_24px_-8px_rgba(46,10,61,0.45)] @min-[29.375rem]:py-10">
+      {/* Watercolor wash — layered pink / blush / cream pigment */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 95% 70% at 18% 12%, rgba(249, 168, 212, 0.85) 0%, rgba(249, 168, 212, 0) 62%), radial-gradient(ellipse 90% 75% at 85% 88%, rgba(236, 72, 153, 0.5) 0%, rgba(236, 72, 153, 0) 60%), radial-gradient(ellipse 80% 65% at 50% 50%, rgba(255, 253, 251, 0.75) 0%, rgba(253, 242, 248, 0) 70%), linear-gradient(135deg, #FBCFE8 0%, #FDE7F1 48%, #FFF7FB 100%)",
+        }}
+      />
 
-      <span className="sd-font-editorial mt-3 text-xs tracking-[0.18em] text-[#6B21A8]/85 uppercase">
-        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
-      </span>
+      {/* Slow-drifting wash blobs — pigment swirling in water.
+          Transform + opacity only (GPU-friendly). Skipped under
+          reduced motion. */}
+      {animateWash && (
+        <>
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-8 -left-10 h-40 w-40 rounded-full blur-3xl"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(236, 72, 153, 0.5) 0%, transparent 70%)",
+            }}
+            animate={{ x: [0, 22, 0], y: [0, 14, 0] }}
+            transition={{ duration: 11, repeat: Infinity, repeatType: "mirror", ease: [0.45, 0.05, 0.55, 0.95] }}
+          />
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-8 -bottom-10 h-44 w-44 rounded-full blur-3xl"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(249, 168, 212, 0.55) 0%, transparent 70%)",
+            }}
+            animate={{ x: [0, -18, 0], y: [0, -16, 0] }}
+            transition={{ duration: 13, repeat: Infinity, repeatType: "mirror", ease: [0.45, 0.05, 0.55, 0.95] }}
+          />
+        </>
+      )}
+
+      {/* Blurred blossom watermark — the wash seen through water */}
+      <Blossom
+        className="pointer-events-none absolute top-1/2 left-1/2 h-56 w-56 -translate-x-1/2 -translate-y-1/2 opacity-40 blur-[2px] @min-[29.375rem]:h-64 @min-[29.375rem]:w-64"
+        fill="#F9A8D4"
+        center="#FDE68A"
+      />
+
+      {/* Fine double pink & plum border, matching the front */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2.5 border border-[#EC4899]/75 @min-[29.375rem]:inset-3"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[13px] border border-[#5B2A6E]/30 @min-[29.375rem]:inset-[15px]"
+      />
+
+      <div className="relative z-10 flex flex-col items-center py-2">
+        <p className="sd-font-display text-[9px] tracking-[0.34em] text-[#6B21A8] uppercase @min-[29.375rem]:text-[10px]">
+          WITH LOVE
+        </p>
+
+        {/* Plum monogram disc ringed by a blossom */}
+        <div className="relative mt-5 flex h-20 w-20 items-center justify-center rounded-full bg-[#6B21A8] shadow-[0_12px_24px_-6px_rgba(46,10,61,0.55)] ring-4 ring-white/80 @min-[29.375rem]:h-24 @min-[29.375rem]:w-24">
+          <span className="sd-font-display relative z-10 text-lg font-medium tracking-[0.06em] text-white @min-[29.375rem]:text-xl">
+            {initials(site)}
+          </span>
+        </div>
+        <Blossom className="mt-3 h-6 w-6 @min-[29.375rem]:h-7 @min-[29.375rem]:w-7" />
+
+        <PetalDivider className="mt-3 h-6 w-24 @min-[29.375rem]:h-8 @min-[29.375rem]:w-28" />
+
+        <p className="sd-font-display mt-4 text-[9px] tracking-[0.3em] text-[#6B21A8] uppercase @min-[29.375rem]:text-[10px]">
+          TAP TO REVEAL
+        </p>
+      </div>
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
+/* Watercolor-wash wipe — the wash rinses off the card along a      */
+/* slanted leading edge. Both polygons have 4 points so            */
+/* framer-motion can interpolate them. "covered" is the full card;  */
+/* "revealed" collapses to a zero-area diagonal line off the right  */
+/* edge (top edge outruns the bottom edge, so the wipe edge stays   */
+/* diagonal the whole way across). Blur + opacity fade with it, so  */
+/* the pigment looks like it dissolves as the water carries it off. */
 /* ------------------------------------------------------------------ */
 
-export default function SakuraDreamEnvelope({ site }: { site: WeddingSite }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
-  const prefersReducedMotion = useReducedMotion();
+const WASH_COVERED = "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)";
+const WASH_REVEALED = "polygon(160% 0%, 160% 0%, 60% 100%, 60% 100%)";
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+export default function SakuraDreamEnvelope({ site }: { site: WeddingSite }) {
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [rinseKey, setRinseKey] = useState(0);
+  const [burstKey, setBurstKey] = useState(0);
+  const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
+
+  const toggleCard = () => {
+    const next = !isRevealed;
+    setIsRevealed(next);
+    if (next) {
+      // Reveal: petals drift across as the wash rinses away, then a
+      // diagonal rinse shimmer sweeps the front.
+      setBurstKey((k) => k + 1);
+      setRinseKey((k) => k + 1);
+    }
   };
 
+  const washTransition: Transition = instant
+    ? { duration: 0 }
+    : { duration: 1.15, ease: [0.22, 1, 0.36, 1] };
+
   return (
-    <div className="relative px-4 pt-16 pb-10">
+    <div className="relative px-4 pt-16 pb-10 sm:px-6 sm:pt-24 sm:pb-14">
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Sakura Envelope + Sliding Petal Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -167,133 +236,98 @@ export default function SakuraDreamEnvelope({ site }: { site: WeddingSite }) {
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isRevealed}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open sakura envelope and slide up wedding invitation card"
+              isRevealed
+                ? "Cover the wedding invitation card again"
+                : "Reveal the wedding invitation card"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
-            className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#6B21A8]"
+            className="group relative mx-auto w-full cursor-pointer text-center select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#6B21A8]"
           >
-            {/* Envelope Container preserving the 4:3 geometry of the sakura envelope */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(46,10,61,0.28)]">
-              {/* Layer 1: Sakura envelope artwork */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ENVELOPE_IMAGE_URL}
-                alt="Pale blush-pink wedding envelope with cherry blossom along the edges and a pointed flap"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-cover"
-              />
+            {/* Soft pink glow behind the card */}
+            <div
+              aria-hidden="true"
+              className="absolute -inset-4 rounded-[2rem] blur-2xl"
+              style={{
+                background:
+                  "radial-gradient(ellipse at center, rgba(249,168,212,0.55) 0%, rgba(251,207,232,0.35) 55%, transparent 75%)",
+              }}
+            />
 
-              {/* Layer 2: Interactive Sliding Cream Petal Invitation Card */}
+            {/* Card stack — the FRONT is in flow (it defines the box
+                height); the BACK is absolute inset-0 above it and
+                rinses away on tap. Rest = wash covering the card;
+                revealed = wash wiped off diagonally, front showing. */}
+            <div className="relative z-10 mx-auto w-full">
+              {/* FRONT — the invitation (unchanged content) */}
+              <div aria-hidden={!isRevealed} className="relative w-full">
+                <InvitationCard site={site} isOpen={isRevealed} />
+              </div>
+
+              {/* BACK — petal-pink watercolor wash */}
               <motion.div
+                aria-hidden={isRevealed}
                 initial={false}
                 animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -28 : -48) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
+                  clipPath: isRevealed ? WASH_REVEALED : WASH_COVERED,
+                  opacity: isRevealed ? 0 : 1,
+                  filter: isRevealed ? "blur(8px)" : "blur(0px)",
                 }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[28%] @min-[29.375rem]:top-[25%]"
+                transition={washTransition}
+                className="absolute inset-0 z-10"
               >
-                <InvitationCard site={site} isOpen={isCardLifted} />
+                <CardBack site={site} animateWash={!instant} />
               </motion.div>
 
-              {/* Layer 3: REAL sakura pocket — the envelope photo
-                  rendered a second time ABOVE the card, clipped to
-                  the pocket's shape, so the card is physically
-                  tucked inside at rest. Geometry (eye-measured
-                  from sakura-dream-detail.jpg, 1200x900, tight
-                  crop padded to 4:3): a classic envelope — triangular
-                  flap with its point at centre ~(50%, 72%), pocket
-                  diagonals running from the flap point up to the top
-                  corners. The clip reuses Golden Hour's proven
-                  single flat polygon (19% 52%, 32% 65%, 68% 65%,
-                  81% 52%): it sits ABOVE the true pocket edge across
-                  the card's sides and ~7% ABOVE the flap point at
-                  centre (65% vs 72% true) — a ~19px sliver at 390px
-                  where the card ends just above the fold point,
-                  which reads as the card tucked into the envelope
-                  mouth just above the flap.
-                  The card is sized by CONTAINER width (@container on
-                  the outer wrapper — never viewport `sm:` — so the
-                  editor's Mobile (390px) preview gets the mobile
-                  card and desktop (490px container) gets the larger
-                  card), in THREE bands, because the card's content
-                  is fixed px while the 4:3 container shrinks with
-                  the viewport:
-                  - <352px: compact card (@max-[22rem]: 15px names,
-                    tight padding) — 320px: Partner B bottom 63.7%,
-                    divider top 71.1%, card bottom 107.6% (behind the
-                    pocket, invisible). Verified live on Golden Hour.
-                  - 352–383px: small card (17px names), top 25% —
-                    390px: Partner B bottom 62.1%, divider top 68%.
-                  - 384–469px: small card, top 28%, divider mt-10 —
-                    the large card does NOT fit here (see below).
-                  - >=470px: large card (22px names, py-5), top 25% —
-                    desktop 490px container: Partner B bottom 61.7%,
-                    divider top 65.5%, card bottom 95.8%.
-                  WHY the large card starts at 470px, not 384px: its
-                  content is ~260px tall and the names WRAP below
-                  ~443px container width (inner width < ~160px), so
-                  at 430px viewport (398x299 container) it spanned
-                  25%→131.7% — only PARTNER A peeked (wrapped to two
-                  lines), Partner B sat at 85% behind the pocket, and
-                  when open the location line was clipped mid-glyph
-                  at the container's bottom edge. The large card only
-                  fits once Partner B bottom (25% + 135px) clears the
-                  65% pocket line with margin, i.e. container >=470px
-                  (63.3% there, 61.7% at 490px). In the 384–469 band
-                  the small card is used with top 28% + divider mt-10
-                  (divider offset 139.6px from card top), which keeps
-                  Partner B bottom <=62.7% and divider top >=67.6%
-                  across the whole band. On tap the clip's top edge
-                  drops to ~97% (the pocket opens) while the card
-                  lifts 48px, so divider + date + location are fully
-                  revealed with no top clipping. */}
-              <motion.div
-                aria-hidden="true"
-                initial={false}
-                animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(19% 96%, 32% 97.5%, 68% 97.5%, 81% 96%, 81% 100%, 19% 100%)"
-                    : "polygon(19% 52%, 32% 65%, 68% 65%, 81% 52%, 81% 100%, 19% 100%)",
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="pointer-events-none absolute inset-0 z-20"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
+              {/* Rinse shimmer — a soft diagonal pink band sweeping
+                  the front once the wash has rinsed away. Remounts
+                  (key) on every reveal so it replays; unmounted
+                  when covered again. */}
+              {rinseKey > 0 && isRevealed && !instant && (
+                <motion.div
+                  key={rinseKey}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-y-0 z-20 w-1/3"
+                  style={{
+                    background:
+                      "linear-gradient(100deg, transparent 0%, rgba(249,168,212,0.5) 50%, transparent 100%)",
+                  }}
+                  initial={{ x: "-120%" }}
+                  animate={{ x: "320%" }}
+                  transition={{ duration: 0.9, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
                 />
-              </motion.div>
+              )}
+
+              {/* Petals drifting across as the wash rinses away.
+                  The canvas renders nothing under reduced motion. */}
+              {!instant && (
+                <SakuraPetalCanvas
+                  petalCount={8}
+                  burstKey={burstKey}
+                  burstOrigin={{ x: 0.5, y: 0.45 }}
+                  className="z-20"
+                />
+              )}
             </div>
 
-            {/* Subtle interactive cue */}
-            <p className="sd-font-display mt-1 text-center text-[10px] tracking-[0.26em] text-[#6B21A8]/80 uppercase transition-colors group-hover:text-[#2E0A3D]">
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
-          </div>
-
-          {/* Sakura Blossom Seal */}
-          <div className="relative z-30 mt-4 flex justify-center">
-            <BlossomSeal isOpen={isCardLifted} onToggle={toggleEnvelope} />
+            {/* Cue — on a soft pill so it stays legible over the
+                blush surface below the card. */}
+            <motion.p
+              key={isRevealed ? "front" : "back"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4 }}
+              className="sd-font-display relative z-10 mt-4 inline-block rounded-full bg-[#FFF7FB]/80 px-4 py-1 text-center text-[10px] tracking-[0.26em] text-[#6B21A8]/80 uppercase backdrop-blur-[2px] transition-colors group-hover:text-[#2E0A3D]"
+            >
+              {isRevealed ? "Tap to Cover Again" : "Tap Card to Reveal"}
+            </motion.p>
           </div>
         </motion.div>
       </div>

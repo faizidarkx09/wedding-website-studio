@@ -1,10 +1,12 @@
-// Cinematic opening helpers for Amethyst Royale — Phase 1
-// twinkling crystal sparkles, Phase 2 crest flare on tap, Phase 3
-// panels parting top/bottom like crystal planes, Phase 4 a
-// spinning faceted gem dissolving into sparkles. Web Audio SFX
-// only (crystal chime + shimmer, synthesised — no audio files,
-// no music). Transform/opacity only and respects
-// prefers-reduced-motion.
+// Cinematic opening helpers for Amethyst Royale — NO envelope.
+// The cinematic IS the card reveal: Phase 1 twinkling crystal
+// sparkles, Phase 2 crest flare on tap, Phase 3 the full-screen
+// crystal face cleaving along the same diagonal as the invitation
+// card (top-left half down-left, bottom-right half up-right) to
+// reveal the card at rest beneath, Phase 4 a spinning faceted gem
+// dissolving into sparkles. Web Audio SFX only (crystal chime +
+// shimmer, synthesised — no audio files, no music).
+// Transform/opacity only and respects prefers-reduced-motion.
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -332,12 +334,16 @@ export function SkipButton({ onSkip }: { onSkip: () => void }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* CrystalOverlay — Phase 3 + 4. Two deep-violet panels part        */
-/* vertically (top slides up, bottom slides down) like crystal      */
-/* planes; on "fading" a faceted gem spins and dissolves into      */
-/* sparkles while a violet shimmer sweeps across. Fixed            */
-/* positioning, pointer-events-none except for the Skip / sound    */
-/* controls.                                                       */
+/* CrystalOverlay — Phase 3 + 4. The cinematic IS the card reveal,  */
+/* at full-screen scale: the whole screen is one deep-violet        */
+/* crystal face that CLEAVES along the same top-right → bottom-left */
+/* diagonal as the invitation card — the top-left half slides       */
+/* down-left, the bottom-right half slides up-right — to reveal the */
+/* invitation (card back at rest) mounted underneath. A bright      */
+/* facet edge marks the cleave line and fades as the halves part;   */
+/* on "fading" a faceted gem spins and dissolves into sparkles     */
+/* while a violet shimmer sweeps across. Fixed positioning,         */
+/* pointer-events-none except for the Skip / sound controls.        */
 /* ------------------------------------------------------------------ */
 
 export type CrystalPhase = "closed" | "parting" | "fading";
@@ -365,14 +371,18 @@ export function CrystalOverlay({
         animate={{ opacity: phase === "fading" ? 0 : 1 }}
         transition={{ duration: 1.2, ease: [0.65, 0, 0.35, 1] }}
       >
-        {/* Top panel — deep violet, slides up */}
+        {/* Half A — top-left triangle of the full-screen crystal
+            face (same clip + gradient as the card back), slides
+            down-left along the diagonal on parting. */}
         <motion.div
-          className="absolute top-0 right-0 left-0 h-1/2"
+          className="absolute inset-0"
           style={{
-            background: "linear-gradient(180deg, #2E1065 0%, #4C1D95 60%, #7C3AED 100%)",
+            clipPath: "polygon(0 0, 100% 0, 0 100%)",
+            background:
+              "linear-gradient(140deg, #2E1065 0%, #5B21B6 45%, #7C3AED 78%, #4C1D95 100%)",
           }}
-          initial={{ y: 0 }}
-          animate={{ y: parting ? "-102%" : 0 }}
+          initial={false}
+          animate={parting ? { x: "-102%", y: "102%" } : { x: "0%", y: "0%" }}
           transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
         >
           <div
@@ -380,19 +390,22 @@ export function CrystalOverlay({
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(180deg, rgba(46,16,101,0.3) 0%, rgba(124,58,237,0.05) 70%, rgba(221,214,254,0.22) 100%)",
+                "linear-gradient(140deg, rgba(46,16,101,0.3) 0%, rgba(124,58,237,0.05) 70%, rgba(221,214,254,0.22) 100%)",
             }}
           />
         </motion.div>
 
-        {/* Bottom panel — amethyst, slides down */}
+        {/* Half B — bottom-right triangle, slides up-right along the
+            diagonal on parting. */}
         <motion.div
-          className="absolute right-0 bottom-0 left-0 h-1/2"
+          className="absolute inset-0"
           style={{
-            background: "linear-gradient(0deg, #2E1065 0%, #4C1D95 60%, #7C3AED 100%)",
+            clipPath: "polygon(100% 0, 100% 100%, 0 100%)",
+            background:
+              "linear-gradient(140deg, #2E1065 0%, #5B21B6 45%, #7C3AED 78%, #4C1D95 100%)",
           }}
-          initial={{ y: 0 }}
-          animate={{ y: parting ? "102%" : 0 }}
+          initial={false}
+          animate={parting ? { x: "102%", y: "-102%" } : { x: "0%", y: "0%" }}
           transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
         >
           <div
@@ -400,12 +413,46 @@ export function CrystalOverlay({
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(0deg, rgba(46,16,101,0.3) 0%, rgba(124,58,237,0.05) 70%, rgba(221,214,254,0.22) 100%)",
+                "linear-gradient(320deg, rgba(46,16,101,0.3) 0%, rgba(124,58,237,0.05) 70%, rgba(221,214,254,0.22) 100%)",
             }}
           />
         </motion.div>
 
-        {/* Sparkles drifting around the parting planes */}
+        {/* Bright facet edge along the cleave line (top-right →
+            bottom-left) — the card's own cleave line, at
+            full-screen scale. Fades as the halves part. */}
+        <motion.svg
+          aria-hidden="true"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          className="absolute inset-0 z-10 h-full w-full"
+          initial={false}
+          animate={{ opacity: parting ? 0 : 1 }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <line
+            x1="100"
+            y1="0"
+            x2="0"
+            y2="100"
+            stroke="#C4B5FD"
+            strokeWidth="8"
+            vectorEffect="non-scaling-stroke"
+            opacity="0.3"
+          />
+          <line
+            x1="100"
+            y1="0"
+            x2="0"
+            y2="100"
+            stroke="#F5F0FA"
+            strokeWidth="2.5"
+            vectorEffect="non-scaling-stroke"
+            opacity="0.9"
+          />
+        </motion.svg>
+
+        {/* Sparkles drifting around the cleaving crystal face */}
         <CrystalCanvas sparkleCount={12} burstKey={0} className="z-10" />
       </motion.div>
 

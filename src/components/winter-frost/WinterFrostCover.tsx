@@ -3,18 +3,19 @@
 // snowflake-crest medallion with the LIVE monogram overlaid as HTML
 // text (never baked in), a falling-snow particle layer, and "OPEN
 // THE INVITATION". Only the data comes from the site (Partner A /
-// Partner B placeholders). No music on this template.
+// Partner B placeholders). No music on this template. There is NO
+// envelope anywhere: the cover opens onto the invitation CARD.
 //
 // Cinematic opening (plays once per page session, never under
 // prefers-reduced-motion): Phase 1 anticipation — falling snow,
-// ice shimmer, the snowflake-crest medallion; Phase 2 seal
-// activation on tap (~1.5s) — snowflake seal glow with a frost
+// ice shimmer, the snowflake-crest medallion; Phase 2 crest
+// activation on tap (~1.5s) — snowflake crest glow with a frost
 // burst and one gentle pulse; Phase 3+4 live in the renderer
-// (PanelsOverlay): the cover exits instantly, the invitation
-// mounts underneath, two frosted-glass ice panels slide apart,
-// then dissolve with a snowflake burst + aurora shimmer. A reload
-// in the same session, or a reduced-motion tap, takes the plain
-// 1.05s ceremony instead. Skip jumps straight to the invitation.
+// (PanelsOverlay): the cover exits instantly, the frost-mist veil
+// thins, drifts upward and fades away to reveal the invitation
+// card, with a snowflake burst + aurora shimmer. A reload in the
+// same session, or a reduced-motion tap, takes the plain 1.05s
+// ceremony instead. Skip jumps straight to the invitation.
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -56,15 +57,15 @@ export default function WinterFrostCover({
   onToggleSound?: () => void;
 }) {
   const prefersReducedMotion = useReducedMotion();
-  // "idle" = Phase 1 anticipation; "seal" = Phase 2 activation.
-  const [phase, setPhase] = useState<"idle" | "seal">("idle");
+  // "idle" = Phase 1 anticipation; "crest" = Phase 2 activation.
+  const [phase, setPhase] = useState<"idle" | "crest">("idle");
   const [burstKey, setBurstKey] = useState(0);
   const startedRef = useRef(false);
-  const sealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const crestTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(
     () => () => {
-      if (sealTimerRef.current) clearTimeout(sealTimerRef.current);
+      if (crestTimerRef.current) clearTimeout(crestTimerRef.current);
     },
     []
   );
@@ -73,10 +74,10 @@ export default function WinterFrostCover({
     if (startedRef.current) return;
     startedRef.current = true;
     markPlayed();
-    setPhase("seal");
+    setPhase("crest");
     setBurstKey((k) => k + 1);
-    // Phase 2 lasts ~1.5s; then the renderer takes over (panels).
-    sealTimerRef.current = setTimeout(() => {
+    // Phase 2 lasts ~1.5s; then the renderer takes over (mist veil).
+    crestTimerRef.current = setTimeout(() => {
       onOpen({ cinematic: true });
     }, 1500);
   };
@@ -93,18 +94,18 @@ export default function WinterFrostCover({
   };
 
   const handleSkip = () => {
-    if (sealTimerRef.current) clearTimeout(sealTimerRef.current);
+    if (crestTimerRef.current) clearTimeout(crestTimerRef.current);
     startedRef.current = true;
     markPlayed();
     onOpen();
   };
 
-  const sealing = phase === "seal";
+  const activating = phase === "crest";
 
   return (
     // Cover exit is a deliberate ~1.05s ceremony. During the
-    // cinematic sequence the exit is instant instead — the ice
-    // panels cover the screen while the invitation mounts.
+    // cinematic sequence the exit is instant instead — the mist
+    // veil covers the screen while the invitation card mounts.
     <motion.div
       role="region"
       aria-label="Wedding Invitation Cover"
@@ -146,7 +147,7 @@ export default function WinterFrostCover({
         }}
       />
 
-      {/* Phase 1 — falling snowflake asterisks (+ frost burst on seal tap) */}
+      {/* Phase 1 — falling snowflake asterisks (+ frost burst on crest tap) */}
       {!prefersReducedMotion && (
         <SnowflakeCanvas flakeCount={16} burstKey={burstKey} burstOrigin={{ x: 0.5, y: 0.58 }} />
       )}
@@ -164,8 +165,8 @@ export default function WinterFrostCover({
       {/* Sound toggle — visible through the whole sequence, SFX only */}
       <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />
 
-      {/* Skip — only while the seal sequence is running */}
-      {sealing && <SkipButton onSkip={handleSkip} />}
+      {/* Skip — only while the crest sequence is running */}
+      {activating && <SkipButton onSkip={handleSkip} />}
 
       {/* Top spacer for classic upper-middle placement */}
       <div className="h-6" />
@@ -216,19 +217,19 @@ export default function WinterFrostCover({
               "radial-gradient(ellipse 50% 50% at 50% 50%, rgba(189, 224, 245, 0.6) 0%, rgba(189, 224, 245, 0.14) 55%, transparent 75%)",
           }}
           initial={{ opacity: 0 }}
-          animate={sealing ? { opacity: [0, 0.95, 0.35] } : { opacity: 0 }}
+          animate={activating ? { opacity: [0, 0.95, 0.35] } : { opacity: 0 }}
           transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
         />
         <motion.div
           animate={
             prefersReducedMotion
               ? undefined
-              : sealing
+              : activating
                 ? { y: [0, -5, 0], scale: [1, 1.04, 1] }
                 : { y: [0, -5, 0] }
           }
           transition={
-            sealing
+            activating
               ? { duration: 1.5, ease: [0.22, 1, 0.36, 1] }
               : { duration: 6.5, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }
           }
@@ -252,9 +253,9 @@ export default function WinterFrostCover({
                   transform: "skewX(-12deg)",
                 }}
                 initial={{ x: "-160%" }}
-                animate={sealing ? { x: "360%" } : { x: ["-160%", "360%"] }}
+                animate={activating ? { x: "360%" } : { x: ["-160%", "360%"] }}
                 transition={
-                  sealing
+                  activating
                     ? { duration: 1.1, ease: [0.65, 0, 0.35, 1] }
                     : { duration: 5.5, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1], repeatDelay: 2.5 }
                 }
@@ -276,16 +277,16 @@ export default function WinterFrostCover({
         </motion.div>
       </motion.div>
 
-      {/* Bottom Invitation Open Action — fades out as the seal activates */}
+      {/* Bottom Invitation Open Action — fades out as the crest activates */}
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: sealing ? 0 : 1, y: 0 }}
-        transition={{ duration: 0.6, delay: sealing ? 0 : 0.8, ease: [0.16, 1, 0.3, 1] }}
+        animate={{ opacity: activating ? 0 : 1, y: 0 }}
+        transition={{ duration: 0.6, delay: activating ? 0 : 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 pb-2 text-center"
       >
         <button
           type="button"
-          disabled={sealing}
+          disabled={activating}
           onClick={(e) => {
             e.stopPropagation();
             handleOpen();

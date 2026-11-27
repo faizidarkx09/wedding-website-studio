@@ -1,7 +1,7 @@
 // Cinematic opening helpers for Vintage Lace — Phase 1 lace veil
-// unfurl + golden dust motes in soft light, Phase 2 lace-seal
-// warming glow, Phase 3 lace-veil panels parting, Phase 4 warm
-// light sweep + shimmer. Web Audio SFX are synthesised (lace
+// unfurl + golden dust motes in soft light, Phase 2 medallion
+// warming glow, Phase 3 lace-veil panels parting to reveal the
+// folded invitation card, Phase 4 warm light sweep + shimmer. Web Audio SFX are synthesised (lace
 // rustle + soft chime) — no audio files, no autoplay, no music.
 // Everything here is transform/opacity (canvas excepted) and
 // respects prefers-reduced-motion. Follows the Blush Royale
@@ -384,8 +384,8 @@ const VEIL_BACKGROUND_SIZE = "48px 48px, 48px 48px, cover";
 /* ------------------------------------------------------------------ */
 /* VeilPanelsOverlay — Phase 3 + 4. Two ivory lace-veil panels      */
 /* cover the screen, then part sideways like curtains (translateX,  */
-/* NOT Blush's rotateY) to reveal the invitation mounted            */
-/* underneath; golden dust motes drift around them; on "fading"    */
+/* NOT Blush's rotateY) to reveal the folded invitation card     */
+/* mounted underneath; golden dust motes drift around them; on     */
 /* the panels dissolve, a lace rosette scales + fades at centre,   */
 /* and a warm light sweep crosses the screen. Fixed positioning,   */
 /* pointer-events-none except for the Skip / sound controls.        */

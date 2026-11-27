@@ -7,12 +7,13 @@
 //                serif names over a leaf-pattern photograph, leaf
 //                wreath with live monogram, drifting leaves, cinematic
 //                opening: amber leaf-seal glow + barn-door panels)
-//   invitation — AutumnHarvestEnvelope (burnt-orange envelope, live
-//                SVG maple-leaf wax seal, card tucked INSIDE at rest)
-//                + Introduction + Countdown (burnt-orange band,
-//                kraft ticket-stub clock) + StoryPreview (MASONRY
-//                grid) + DetailsCard (harvest table rows) +
-//                RsvpSection (kraft-paper tag) + RSVP form + footer
+//   invitation — AutumnHarvestEnvelope (the invitation CARD only,
+//                no envelope: ember-fade reveal, glowing back at
+//                rest, front emerges on tap) + Introduction +
+//                Countdown (burnt-orange band, kraft ticket-stub
+//                clock) + StoryPreview (MASONRY grid) + DetailsCard
+//                (harvest table rows) + RsvpSection (kraft-paper
+//                tag) + RSVP form + footer
 //   story      — AutumnHarvestStory (masonry grid + paragraphs)
 //   details    — AutumnHarvestDetails (harvest-table rows: schedule,
 //                dress code, venue + travel, accommodations,
@@ -77,7 +78,7 @@ export default function AutumnHarvestRenderer({
   envelope?: boolean;
   preview?: boolean;
 }) {
-  // With no envelope (editor live preview) start on the invitation —
+  // With no cover (editor live preview) start on the invitation —
   // the cover would block editing there (same contract as the other
   // template renderers).
   const [currentView, setCurrentView] = useState<View>(envelope ? "cover" : "invitation");

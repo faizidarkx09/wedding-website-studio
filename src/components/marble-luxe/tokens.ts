@@ -3,8 +3,8 @@
 // White marble, soft grey #6B7280, warm gold #B49A70. NOT a palette
 // swap of any other template: the cover is a minimal white-marble
 // slab with thin gold rules and a live monogram in a thin gold ring;
-// the envelope is a white-gold envelope photograph with a gold
-// monogram seal and the sliding white card; the story is a GALLERY
+// the card back is two white-marble panels that swing open on
+// outer-edge hinges to reveal the invitation card; the story is a GALLERY
 // WALL of large single photos with generous spacing (not cards, not
 // a film strip); details are a minimal line-divided LIST (no panels,
 // no sleeves); the RSVP is a clean white card with a gold rule on a
@@ -37,13 +37,8 @@ export const MARBLE = {
  * downscaled to a max 1200px long side at q80 so every file meets
  * the <=258 KB cap.
  * The hero and detail live at the template root; the rest under
- * marble-luxe/. The detail photo doubles as the envelope artwork:
- * a white envelope with a gold border on white marble, shot
- * top-down — the envelope spans x ~23–78%, y ~24–76% of the frame
- * once object-cover crops the 3:2 photo into the 4:3 envelope
- * container, and its flap point sits at ~(50%, 57%). The pocket
- * overlay polygon in MarbleLuxeEnvelope is measured against that
- * geometry — do NOT "simplify" it to the Golden Hour numbers. */
+ * marble-luxe/. The detail photo is a white-marble shot with a thin
+ * gold border, used as the framed detail photograph. */
 export const COVER_IMAGE_URL = "/images/themes/marble-luxe.jpg";
 export const DETAIL_IMAGE_URL = "/images/themes/marble-luxe-detail.jpg";
 export const ENVELOPE_IMAGE_URL = "/images/themes/marble-luxe-detail.jpg";
@@ -88,7 +83,7 @@ export function maxGuests(site: WeddingSite): number {
   return MAX_GUESTS_SERVER;
 }
 
-/** Live monogram for the cover ring and the envelope seal, in "A&B"
+/** Live monogram for the cover ring and the card-back doors, in "A&B"
  * form — first letters of both partners joined with "&". */
 export function initials(site: WeddingSite): string {
   const a = site.content.partnerA.trim().charAt(0);
@@ -133,7 +128,7 @@ export function formatDateDisplay(dateIso: string, timezone: string): string {
   }
 }
 
-/** "14 SEPTEMBER 2027" — the envelope-card date label (no ordinal). */
+/** "14 SEPTEMBER 2027" — the invitation-card date label (no ordinal). */
 export function formatCardDate(dateIso: string, timezone: string): string {
   try {
     const d = new Date(dateIso);
@@ -150,7 +145,7 @@ export function formatCardDate(dateIso: string, timezone: string): string {
   }
 }
 
-/** "YOUR TOWN, ST" — the envelope-card location label, derived from
+/** "YOUR TOWN, ST" — the invitation-card location label, derived from
  * the venue address (last two comma parts, uppercased); falls back to
  * the venue name. */
 export function locationLabel(site: WeddingSite): string {

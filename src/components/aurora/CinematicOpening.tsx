@@ -4,7 +4,10 @@
 // Phase 2 (on tap, ~1.5s): the ring flares teal→violet, one light
 // sweep, one gentle pulse, a burst of star particles, button fades.
 // Phase 3–4 (renderer): two night-sky panels slide apart like the
-// sky parting, an aurora ribbon sweeps across, a starburst blooms.
+// sky parting, an aurora ribbon sweeps across, a starburst blooms,
+// and an iris ring opens from the centre — the cinematic ends on
+// the invitation CARD itself, its iris aperture opening onto the
+// card below. No envelope anywhere in this sequence.
 // Web Audio SFX only (wind whoosh + airy chime, synthesised — no
 // audio files, no autoplay). Everything is transform/opacity (canvas
 // excepted) and respects prefers-reduced-motion.
@@ -397,10 +400,12 @@ export function SkipButton({ onSkip }: { onSkip: () => void }) {
 /* ------------------------------------------------------------------ */
 /* AuroraSkyOverlay — Phase 3 + 4. Two night-sky panels (deep night  */
 /* with aurora ribbons) slide apart horizontally like the sky        */
-/* parting, revealing the invitation mounted underneath; stars drift */
-/* around them; on "fading" the panels dissolve, a starburst blooms  */
-/* and an aurora ribbon sweeps across. Fixed positioning,            */
-/* pointer-events-none except for the Skip / sound controls.         */
+/* parting, revealing the invitation card mounted underneath; stars  */
+/* drift around them; on "fading" the panels dissolve, a starburst   */
+/* blooms, an aurora ribbon sweeps across, and an iris ring opens    */
+/* from the centre — the cinematic hands over to the card's own iris */
+/* reveal. Fixed positioning, pointer-events-none except for the     */
+/* Skip / sound controls.                                            */
 /* ------------------------------------------------------------------ */
 
 export type PanelsPhase = "closed" | "opening" | "fading";
@@ -495,7 +500,8 @@ export function AuroraSkyOverlay({
         <AuroraCanvas particleCount={12} burstKey={0} className="z-10" />
       </motion.div>
 
-      {/* Phase 4 — starburst bloom + aurora ribbon sweep */}
+      {/* Phase 4 — starburst bloom + aurora ribbon sweep + iris
+          opening onto the card below */}
       {phase === "fading" && (
         <>
           <motion.svg
@@ -518,6 +524,28 @@ export function AuroraSkyOverlay({
             }}
             initial={{ x: "-120%" }}
             animate={{ x: "320%" }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          />
+          {/* Iris — aurora light blooms from the centre, then a
+              glowing ring expands outward and fades, opening onto
+              the invitation card mounted underneath. */}
+          <motion.div
+            aria-hidden="true"
+            className="absolute top-1/2 left-1/2 z-20 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle at center, rgba(94,234,212,0.55) 0%, rgba(139,92,246,0.3) 45%, transparent 70%)",
+            }}
+            initial={{ scale: 0.1, opacity: 0 }}
+            animate={{ scale: [0.1, 1.4, 2.2], opacity: [0, 0.9, 0] }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          />
+          <motion.div
+            aria-hidden="true"
+            className="absolute top-1/2 left-1/2 z-20 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#5EEAD4]/80"
+            style={{ boxShadow: "0 0 32px rgba(94,234,212,0.55)" }}
+            initial={{ scale: 0.1, opacity: 0.9 }}
+            animate={{ scale: 3.2, opacity: 0 }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
           />
         </>

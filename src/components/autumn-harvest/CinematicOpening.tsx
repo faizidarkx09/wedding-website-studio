@@ -5,11 +5,14 @@
 // deliberately NOT included: no verified CC0 track could be bundled
 // without bloating the template, so the toggle controls SFX only.
 // Everything here is transform/opacity (canvas excepted) and
-// respects prefers-reduced-motion. Modelled on the Blush Royale
-// cinematic, but every visual is harvest-original: amber maple
-// leaves instead of rose petals, kraft barn-door panels that SLIDE
-// apart instead of rotating paper panels, and a maple-leaf
-// transition instead of a heart.
+// respects prefers-reduced-motion. The ceremony leads into the
+// invitation CARD (ember-fade reveal) — there is no envelope
+// anywhere in this template: the barn doors part to reveal the
+// card mounted underneath, and the card itself is the reveal.
+// Modelled on the Blush Royale cinematic, but every visual is
+// harvest-original: amber maple leaves instead of rose petals,
+// kraft barn-door panels that SLIDE apart instead of rotating paper
+// panels, and a maple-leaf transition instead of a heart.
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -375,7 +378,7 @@ export function SkipButton({ onSkip }: { onSkip: () => void }) {
 /* ------------------------------------------------------------------ */
 /* PanelsOverlay — Phase 3 + 4. Two kraft barn-door panels cover    */
 /* the screen, then SLIDE apart horizontally (barn doors parting,   */
-/* not rotating paper) to reveal the invitation mounted             */
+/* not rotating paper) to reveal the invitation card mounted      */
 /* underneath; amber leaves drift around them; on "fading" the      */
 /* panels dissolve, a maple leaf scales + fades, and a warm golden   */
 /* light sweep crosses. Fixed positioning, pointer-events-none      */

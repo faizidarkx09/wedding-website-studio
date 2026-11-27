@@ -6,11 +6,12 @@
 //   cover      — MarbleLuxeCover (minimal white-marble slab,
 //                thin gold rules, live monogram in a gold ring,
 //                subtle gold dust)
-//   invitation — MarbleLuxeEnvelope (white-gold envelope photo +
-//                gold monogram seal + welcome + countdown on white)
-//                + StoryPreview (gallery wall) + DetailsCard
-//                (line-divided list) + RSVPSection (clean white card
-//                with gold rule on marble) + RSVP form + footer
+//   invitation — MarbleLuxeEnvelope (card-only double-door reveal:
+//                two white-marble panels swing open on outer-edge
+//                hinges to reveal the invitation card) + StoryPreview
+//                (gallery wall) + DetailsCard (line-divided list) +
+//                RSVPSection (clean white card with gold rule on
+//                marble) + RSVP form + footer
 //   story      — MarbleLuxeStory (gallery wall of large single
 //                photos with generous spacing)
 //   details    — MarbleLuxeDetails (line-divided list: schedule,
@@ -18,8 +19,8 @@
 //                RSVP jump)
 //
 // NO music on this template — there is no ambientMusic engine and
-// no music toggle anywhere. The envelope's gold monogram seal is
-// the interaction instead.
+// no music toggle anywhere. The card's marble double doors are the
+// interaction instead.
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -62,7 +63,7 @@ export default function MarbleLuxeRenderer({
   envelope?: boolean;
   preview?: boolean;
 }) {
-  // With no envelope (editor live preview) start on the invitation —
+  // With no cover (editor live preview) start on the invitation —
   // the cover would block editing there (same contract as the other
   // template renderers).
   const [currentView, setCurrentView] = useState<View>(envelope ? "cover" : "invitation");
@@ -70,11 +71,12 @@ export default function MarbleLuxeRenderer({
   const rootRef = useRef<HTMLDivElement>(null);
 
   // Cinematic opening (Phases 3 + 4): the white marble slabs part
-  // left/right slowly while the invitation mounts underneath, then
-  // a gold line expands and a soft shimmer dissolves them away.
-  // Timers are tracked so Skip / goToCover can cancel them cleanly.
-  // (Slower cadence than the other templates — the slabs take 3.0s
-  // to part, so fading starts at 3200ms.)
+  // left/right slowly to reveal the invitation CARD mounted
+  // underneath — its closed double doors, which the guest then taps
+  // to unfold — then a gold line expands and a soft shimmer
+  // dissolves them away. Timers are tracked so Skip / goToCover can
+  // cancel them cleanly. (Slower cadence than the other templates —
+  // the slabs take 3.0s to part, so fading starts at 3200ms.)
   const [panels, setPanels] = useState<"hidden" | MarblePhase>("hidden");
   const [instantExit, setInstantExit] = useState(false);
   const [revealZoom, setRevealZoom] = useState(false);

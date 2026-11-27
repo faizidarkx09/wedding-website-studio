@@ -1,13 +1,16 @@
 // Cinematic opening helpers for Peacock Royale — Phase 1 jewel
-// drift, Phase 2 feather-eye seal activation, Phase 3 feather-fan
-// panels, Phase 4 feather-eye transition + Web Audio SFX (a soft
+// drift, Phase 2 feather-eye seal activation, Phase 3–4 the jewel
+// veil DISSOLVES into gold and teal dust (the cinematic IS the card
+// reveal: it ends on the invitation card, back at rest) as a feather
+// fan blooms, then a feather-eye transition + Web Audio SFX (a soft
 // shimmer + jewel chime, synthesised — no audio files). Music is
 // deliberately NOT included: no verified CC0 track could be bundled
 // without bloating the template, so the toggle controls SFX only.
 // Everything here is transform/opacity (canvas excepted) and
 // respects prefers-reduced-motion. Nothing here is copied from
 // Blush Royale: the particles are rising jewel diamonds, the seal
-// is a peacock feather eye, and the panels open as a feather fan.
+// is a peacock feather eye, and the veil dissolves into dust rather
+// than opening like panels.
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -370,15 +373,15 @@ export function SkipButton({ onSkip }: { onSkip: () => void }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* FanPanelsOverlay — Phase 3 + 4. Two deep-teal jewel panels cover  */
-/* the screen, then rotate open around the centre seam (3D           */
-/* perspective, preserve-3d) to reveal the invitation mounted       */
-/* underneath; as they open, a fan of seven feather eyes blooms     */
-/* from the centre pivot like a peacock tail unfolding; on          */
-/* "fading" the panels dissolve, a feather eye scales + fades, a    */
-/* jewel burst fires, and a teal-gold shimmer sweeps across. Fixed  */
-/* positioning, pointer-events-none except for the Skip / sound     */
-/* controls.                                                        */
+/* FanPanelsOverlay — Phase 3 + 4. A deep-teal jewel veil covers    */
+/* the screen, then DISSOLVES into gold and teal dust (the          */
+/* cinematic IS the card reveal — the invitation card, back at      */
+/* rest, is what the veil leaves behind); as it thins, a fan of     */
+/* seven feather eyes blooms from the centre pivot like a peacock   */
+/* tail unfolding; on "fading" the veil is gone, a feather eye      */
+/* scales + fades, a jewel burst fires, and a teal-gold shimmer     */
+/* sweeps across. Fixed positioning, pointer-events-none except     */
+/* for the Skip / sound controls.                                   */
 /* ------------------------------------------------------------------ */
 
 export type PanelsPhase = "closed" | "opening" | "fading";
@@ -401,28 +404,23 @@ export function FanPanelsOverlay({
     <div
       data-pr-panels={phase}
       className="pointer-events-none fixed inset-0 z-[90] overflow-hidden"
-      style={{ perspective: "1400px" }}
     >
       <motion.div
         className="absolute inset-0"
-        style={{ transformStyle: "preserve-3d" }}
         initial={{ opacity: 1 }}
         animate={{ opacity: phase === "fading" ? 0 : 1 }}
         transition={{ duration: 1.2, ease: [0.65, 0, 0.35, 1] }}
       >
-        {/* Left jewel panel — opens leftward around the centre seam */}
+        {/* Left half of the jewel veil — dissolves into dust first */}
         <motion.div
           className="absolute top-0 bottom-0 left-0 w-1/2"
           style={{
-            transformOrigin: "right center",
-            transformStyle: "preserve-3d",
-            backfaceVisibility: "hidden",
             background:
               "radial-gradient(ellipse 90% 70% at 70% 40%, rgba(18, 140, 126, 0.5) 0%, #062E2B 62%, #04211F 100%)",
           }}
-          initial={{ rotateY: 0 }}
-          animate={{ rotateY: opening ? -102 : 0 }}
-          transition={{ duration: 2.5, ease: [0.22, 1, 0.36, 1] }}
+          initial={{ opacity: 1, scale: 1 }}
+          animate={{ opacity: opening ? 0 : 1, scale: opening ? 1.05 : 1 }}
+          transition={{ duration: 1.4, delay: 0, ease: [0.22, 1, 0.36, 1] }}
         >
           <div
             aria-hidden="true"
@@ -444,19 +442,16 @@ export function FanPanelsOverlay({
           />
         </motion.div>
 
-        {/* Right jewel panel — opens rightward around the centre seam */}
+        {/* Right half of the jewel veil — dissolves a beat later */}
         <motion.div
           className="absolute top-0 right-0 bottom-0 w-1/2"
           style={{
-            transformOrigin: "left center",
-            transformStyle: "preserve-3d",
-            backfaceVisibility: "hidden",
             background:
               "radial-gradient(ellipse 90% 70% at 30% 40%, rgba(18, 140, 126, 0.5) 0%, #062E2B 62%, #04211F 100%)",
           }}
-          initial={{ rotateY: 0 }}
-          animate={{ rotateY: opening ? 102 : 0 }}
-          transition={{ duration: 2.5, ease: [0.22, 1, 0.36, 1] }}
+          initial={{ opacity: 1, scale: 1 }}
+          animate={{ opacity: opening ? 0 : 1, scale: opening ? 1.05 : 1 }}
+          transition={{ duration: 1.4, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
         >
           <div
             aria-hidden="true"
@@ -478,7 +473,7 @@ export function FanPanelsOverlay({
           />
         </motion.div>
 
-        {/* Feather fan blooming from the centre pivot as the panels open */}
+        {/* Feather fan blooming from the centre pivot as the veil dissolves */}
         {opening && phase !== "fading" && (
           <div
             aria-hidden="true"
@@ -502,7 +497,18 @@ export function FanPanelsOverlay({
           </div>
         )}
 
-        {/* Jewels drifting around the opening panels */}
+        {/* Gold + teal dust scattering as the veil dissolves — the
+            same particle-dissolve language as the card reveal. */}
+        {opening && phase !== "fading" && (
+          <JewelCanvas
+            jewelCount={0}
+            burstKey={1}
+            burstOrigin={{ x: 0.5, y: 0.5 }}
+            className="z-10"
+          />
+        )}
+
+        {/* Jewels drifting around the dissolving veil */}
         <JewelCanvas jewelCount={10} burstKey={0} className="z-10" />
       </motion.div>
 

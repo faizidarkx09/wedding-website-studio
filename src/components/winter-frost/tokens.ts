@@ -3,7 +3,7 @@
 // Ice blue #BDE0F5, white, deep blue #12395B. NOT a palette swap of
 // Silver Moonlight: the cover is a full-bleed snowy photograph with
 // a snowflake-crest medallion, a live monogram and a falling-snow
-// particle layer; the envelope opens with a snowflake wax seal; the
+// particle layer; the card reveals as the frost mist dissolves; the
 // story is a snow-globe CAROUSEL (one large photo + dots,
 // swipeable — not photo cards, not a film strip); details sit in
 // frosted-glass panels; the RSVP is an ice-blue ticket card. Only
@@ -34,12 +34,11 @@ export const FROST = {
  * total. Masters are 1920x1280; optimized copies are downscaled to
  * a max 1200px long side at q80 so every file meets the <=258 KB cap.
  * The hero and detail live at the template root; the rest under
- * winter-frost/. The envelope photo doubles as the detail image.
+ * winter-frost/. The detail photo is also the template's detail image.
  * The three couple photos (2026-11-27) live at the template root
  * alongside the hero. */
 export const COVER_IMAGE_URL = "/images/themes/winter-frost.jpg";
 export const DETAIL_IMAGE_URL = "/images/themes/winter-frost-detail.jpg";
-export const ENVELOPE_IMAGE_URL = "/images/themes/winter-frost-detail.jpg";
 export const RSVP_FROST_URL = "/images/themes/winter-frost/rsvp-frost.jpg";
 export const STORY_CHAPEL_URL = "/images/themes/winter-frost/story-1.jpg";
 export const STORY_AISLE_URL = "/images/themes/winter-frost/story-2.jpg";
@@ -122,7 +121,7 @@ export function formatDateDisplay(dateIso: string, timezone: string): string {
   }
 }
 
-/** "14 SEPTEMBER 2027" — the envelope-card date label (no ordinal). */
+/** "14 SEPTEMBER 2027" — the invitation-card date label (no ordinal). */
 export function formatCardDate(dateIso: string, timezone: string): string {
   try {
     const d = new Date(dateIso);
@@ -139,7 +138,7 @@ export function formatCardDate(dateIso: string, timezone: string): string {
   }
 }
 
-/** "YOUR TOWN, ST" — the envelope-card location label, derived from
+/** "YOUR TOWN, ST" — the invitation-card location label, derived from
  * the venue address (last two comma parts, uppercased); falls back to
  * the venue name. */
 export function locationLabel(site: WeddingSite): string {

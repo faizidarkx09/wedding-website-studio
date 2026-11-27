@@ -1,23 +1,32 @@
-// Sunflower Fields envelope — interactive cream envelope with a
-// sunflower wax seal and the sliding cream invitation card (tap the
-// seal to break it and reveal / tuck the card back). No music on
-// this template — the seal is the interaction.
+// Sunflower Fields invitation card — NO envelope. The card itself is
+// the reveal: at rest you see its BACK (a blurred sunflower-field
+// wash in the template's yellow/green palette, a soft sun disc with
+// the couple monogram, gently swaying blurred sunflower silhouettes,
+// "TAP TO REVEAL"); tap pops the FRONT in with a springy bounce
+// (scale 0.65 → 1.12 → 1, spring stiffness ~260, damping ~16) and
+// sunflower petals burst outward as it lands. The FRONT is the
+// existing invitation content, unchanged. Tap again pops back to the
+// back side. Ambient pollen drifts and blurred sunflowers sway
+// behind the card. prefers-reduced-motion: instant swap, no ambient
+// animation, no particles. No music on this template.
 "use client";
 
 import { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Transition } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
-import { SunflowerDivider, SunflowerSeal } from "./Decor";
+import { SunflowerBloom, SunflowerDivider } from "./Decor";
 import {
-  ENVELOPE_IMAGE_URL,
   FONT_DISPLAY,
   FONT_EDITORIAL,
   formatCardDate,
+  initials,
   locationLabel,
 } from "./tokens";
+import { PollenCanvas } from "./CinematicOpening";
 
 /* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding cream invitation card                 */
+/* InvitationCard — the cream invitation card (front). Content,      */
+/* typography and colours unchanged from the original card.          */
 /* ------------------------------------------------------------------ */
 
 function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
@@ -115,65 +124,206 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
 }
 
 /* ------------------------------------------------------------------ */
-/* SunflowerSealButton — the sunflower wax-seal open button.        */
-/* Tapping it "breaks" the seal (it tilts and fades) and the card   */
-/* slides up; tapping again reseals it.                              */
+/* CardBack — the card's back side: a blurred sunflower-field wash  */
+/* in the template's yellow/green palette, a soft sun disc carrying */
+/* the couple monogram, and gently swaying blurred sunflower         */
+/* silhouettes along the bottom edge. Same footprint as the front    */
+/* (absolute inset-0 of the card box), so the pop never moves the    */
+/* layout.                                                           */
 /* ------------------------------------------------------------------ */
 
-function SunflowerSealButton({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
+function CardBack({ site, instant }: { site: WeddingSite; instant: boolean }) {
   return (
-    <div className="relative flex flex-col items-center">
-      <motion.button
-        type="button"
-        onClick={onToggle}
-        aria-pressed={isOpen}
-        aria-label={
-          isOpen
-            ? "Reseal the sunflower envelope"
-            : "Break the sunflower wax seal and open the envelope"
-        }
-        animate={isOpen ? { rotate: -8, scale: 0.94 } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="group relative flex h-24 w-24 items-center justify-center rounded-full shadow-[0_16px_30px_-8px_rgba(20,83,45,0.6),0_4px_10px_rgba(20,83,45,0.35)] ring-2 ring-[#EAB308]/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#14532D]"
-      >
-        <SunflowerSeal className="absolute inset-0 h-full w-full" />
-        {/* Crack line once broken */}
-        {isOpen && (
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-2 top-1/2 h-px rotate-[-14deg] bg-[#14532D]/50"
-          />
-        )}
-      </motion.button>
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#FEF9C3] px-4 py-8 text-center shadow-[0_10px_24px_-8px_rgba(20,83,45,0.45)] @min-[29.375rem]:px-6">
+      {/* Sunflower-field wash — sunny sky melting into leaf green */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, #FEF9C3 0%, #FDE68A 42%, #BBF7D0 78%, #86EFAC 100%)",
+        }}
+      />
 
-      <span
-        style={{ fontFamily: FONT_EDITORIAL }}
-        className="mt-3 text-xs tracking-[0.18em] text-[#166534]/85 uppercase"
+      {/* Soft sun glow behind the disc */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-[16%] left-1/2 h-36 w-36 -translate-x-1/2 rounded-full bg-[#FDE68A]"
+        style={{ boxShadow: "0 0 60px 28px rgba(253, 230, 138, 0.8)" }}
+      />
+
+      {/* Swaying blurred sunflower silhouettes along the bottom edge */}
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-7 -left-8 h-32 w-32 opacity-70 blur-[3px]"
+        animate={instant ? { rotate: 0, y: 0 } : { rotate: [-4, 4, -4], y: [0, -5, 0] }}
+        transition={
+          instant
+            ? { duration: 0 }
+            : { duration: 7, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }
+        }
       >
-        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
-      </span>
+        <SunflowerBloom className="h-full w-full" />
+      </motion.div>
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-9 -bottom-8 h-36 w-36 opacity-60 blur-[3px]"
+        animate={instant ? { rotate: 0, y: 0 } : { rotate: [5, -4, 5], y: [0, -6, 0] }}
+        transition={
+          instant
+            ? { duration: 0 }
+            : { duration: 8.5, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }
+        }
+      >
+        <SunflowerBloom className="h-full w-full" />
+      </motion.div>
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0 left-1/2 h-20 w-20 -translate-x-1/2 opacity-50 blur-[2px]"
+        animate={instant ? { rotate: 0 } : { rotate: [-3, 3, -3] }}
+        transition={
+          instant
+            ? { duration: 0 }
+            : { duration: 6, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }
+        }
+      >
+        <SunflowerBloom className="h-full w-full" />
+      </motion.div>
+
+      {/* Fine double green & yellow border, matching the front */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2.5 border border-[#166534]/75 @min-[29.375rem]:inset-3"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[13px] border border-[#EAB308]/50 @min-[29.375rem]:inset-[15px]"
+      />
+
+      <div className="relative z-10 flex flex-col items-center py-2">
+        <p
+          style={{ fontFamily: FONT_DISPLAY }}
+          className="text-[9px] tracking-[0.34em] text-[#166534] uppercase @min-[29.375rem]:text-[10px]"
+        >
+          WITH LOVE
+        </p>
+
+        {/* Sun disc — warm gold with the couple monogram */}
+        <div
+          aria-hidden="true"
+          className="relative mt-5 flex h-28 w-28 items-center justify-center rounded-full @min-[29.375rem]:h-32 @min-[29.375rem]:w-32"
+          style={{
+            background:
+              "radial-gradient(circle at 35% 30%, #FEF08A 0%, #FACC15 45%, #EAB308 75%, #CA8A04 100%)",
+            boxShadow:
+              "inset 0 2px 6px rgba(255,255,255,0.5), inset 0 -4px 10px rgba(120,53,15,0.4), 0 10px 22px -6px rgba(20,83,45,0.45)",
+          }}
+        >
+          <div className="absolute inset-2 rounded-full border border-[#FFFBEB]/60" />
+          <span
+            style={{ fontFamily: FONT_EDITORIAL }}
+            className="relative text-[2rem] leading-none font-semibold tracking-[0.08em] text-[#14532D] @min-[29.375rem]:text-[2.2rem]"
+          >
+            {initials(site)}
+          </span>
+        </div>
+
+        <SunflowerDivider className="mt-5 h-6 w-24 @min-[29.375rem]:h-8 @min-[29.375rem]:w-28" />
+
+        <p
+          style={{ fontFamily: FONT_DISPLAY }}
+          className="mt-4 text-[9px] tracking-[0.3em] text-[#166534] uppercase @min-[29.375rem]:text-[10px]"
+        >
+          TAP TO REVEAL
+        </p>
+      </div>
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
+/* FieldAmbience — golden light blobs and blurred sunflower          */
+/* silhouettes swaying behind the card. Skipped entirely under       */
+/* reduced motion. Transform + opacity only (GPU-friendly).          */
+/* ------------------------------------------------------------------ */
+
+function FieldAmbience() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
+      {/* Slow-drifting light blobs — sun yellow + leaf green */}
+      <motion.div
+        className="absolute -left-10 top-8 h-44 w-44 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(250,204,21,0.55) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, 24, 0], y: [0, -16, 0] }}
+        transition={{ duration: 11, repeat: Infinity, repeatType: "mirror", ease: [0.45, 0, 0.55, 1] }}
+      />
+      <motion.div
+        className="absolute -right-8 bottom-10 h-52 w-52 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(22,101,52,0.4) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, -20, 0], y: [0, 16, 0] }}
+        transition={{ duration: 13, repeat: Infinity, repeatType: "mirror", ease: [0.45, 0, 0.55, 1] }}
+      />
+
+      {/* Blurred sunflower silhouettes peeking from behind the card */}
+      <motion.div
+        className="absolute -left-7 bottom-4 h-28 w-28 opacity-60 blur-[2px]"
+        animate={{ rotate: [-5, 5, -5] }}
+        transition={{ duration: 8, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
+      >
+        <SunflowerBloom className="h-full w-full" />
+      </motion.div>
+      <motion.div
+        className="absolute -right-6 top-6 h-24 w-24 opacity-50 blur-[2px]"
+        animate={{ rotate: [5, -5, 5] }}
+        transition={{ duration: 9, repeat: Infinity, ease: [0.45, 0, 0.55, 1] }}
+      >
+        <SunflowerBloom className="h-full w-full" />
+      </motion.div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* SunflowerFieldsEnvelope — card-only pop-with-bounce reveal. The   */
+/* component keeps its old file/export name so the renderer needs    */
+/* no change; there is no envelope anywhere in it.                   */
 /* ------------------------------------------------------------------ */
 
 export default function SunflowerFieldsEnvelope({ site }: { site: WeddingSite }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+  const toggleCard = () => {
+    const next = !isOpen;
+    setIsOpen(next);
+    if (next) {
+      // Reveal: sunflower petals burst outward as the card lands.
+      setBurstKey((k) => k + 1);
+    }
   };
 
+  // Springy pop: 0.65 → 1.12 → 1 (stiffness ~260, damping ~16).
+  const popTransition: Transition = instant
+    ? { duration: 0 }
+    : { type: "spring", stiffness: 260, damping: 16 };
+  const fadeTransition: Transition = instant
+    ? { duration: 0 }
+    : { duration: 0.3, ease: [0.22, 1, 0.36, 1] };
+
   return (
-    <div className="relative px-4 pt-16 pb-10">
+    <div className="relative px-4 pt-16 pb-10 sm:px-6 sm:pt-24 sm:pb-14">
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Sunflower Envelope + Sliding Invitation Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -184,137 +334,97 @@ export default function SunflowerFieldsEnvelope({ site }: { site: WeddingSite })
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isOpen}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open sunflower envelope and slide up wedding invitation card"
+              isOpen
+                ? "Pop the wedding invitation card back to its back side"
+                : "Pop the wedding invitation card to reveal the invitation"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
-            className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#14532D]"
+            className="group relative mx-auto w-full cursor-pointer text-center select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#14532D]"
           >
-            {/* Envelope Container preserving the 4:3 geometry of the sunflower envelope */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(20,83,45,0.28)]">
-              {/* Layer 1: Sunflower envelope artwork */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ENVELOPE_IMAGE_URL}
-                alt="Cream wedding envelope with a sunflower wax seal and sunflowers along the bottom edge"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-cover"
+            {/* Ambient field light + swaying sunflowers behind the card.
+                Skipped under reduced motion (no animation at all). */}
+            {!instant && <FieldAmbience />}
+
+            {/* Pop scene — the FRONT is in flow (it defines the box
+                height); the BACK is absolute inset-0, so the pop
+                never moves layout. Rest = back faces the viewer;
+                revealed = front pops in with a springy bounce. */}
+            <div className="relative z-10 mx-auto w-[92%] sm:w-[90%]">
+              {/* Soft golden glow behind the card */}
+              <div
+                aria-hidden="true"
+                className="absolute -inset-4 rounded-[2rem] blur-2xl"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, rgba(250,204,21,0.5) 0%, rgba(22,101,52,0.3) 55%, transparent 75%)",
+                }}
               />
 
-              {/* Layer 2: Interactive Sliding Cream Invitation Card */}
-              <motion.div
-                initial={false}
-                animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -28 : -48) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[28%] @min-[29.375rem]:top-[25%]"
-              >
-                <InvitationCard site={site} isOpen={isCardLifted} />
-              </motion.div>
+              <div className="relative w-full">
+                {/* FRONT — the invitation (unchanged content). Pops in
+                    with the springy bounce on reveal. */}
+                <motion.div
+                  initial={false}
+                  aria-hidden={!isOpen}
+                  animate={
+                    isOpen
+                      ? { opacity: 1, scale: [0.65, 1.12, 1] }
+                      : { opacity: 0, scale: 0.65 }
+                  }
+                  transition={popTransition}
+                  className="relative w-full"
+                >
+                  <InvitationCard site={site} isOpen={isOpen} />
+                </motion.div>
 
-              {/* Layer 3: REAL pocket — the envelope photo rendered a
-                  second time ABOVE the card, clipped to the pocket's
-                  shape, so the card is physically tucked inside at rest.
-                  Geometry (eye-measured from
-                  sunflower-fields-detail.jpg, 1200x800): a classic
-                  envelope — triangular V flap with its point at centre
-                  ~(50%, 53%), pocket diagonals running from the flap
-                  point down to the bottom corners (~8%/92%, 93%), so
-                  the true pocket edge is ^-shaped (53% at centre,
-                  ~70% at x=32%/68%, ~82% at x=19%/81%).
-                  The photo is 3:2 but the container is 4:3, so
-                  object-cover crops the sides: visible image x is
-                  5.6%–94.4%, y is unscaled. The clip below is in
-                  CONTAINER coords, mapped from image coords
-                  (x_c = (x_img − 5.6) / 88.9): it sits ABOVE the true
-                  pocket edge across the card's sides (58% vs 70%
-                  true at x=32%) and ~5% BELOW the flap point at
-                  centre (58% vs 53% true) — the card is hidden to
-                  58% across its width, so at rest only the names
-                  peek (Partner B bottom ≈54–57% in every band) while
-                  the divider (top ≈59–62%), date and location stay
-                  behind the pocket.
-                  The card is sized by CONTAINER width (@container on
-                  the outer wrapper — never viewport `sm:` — so the
-                  editor's Mobile (390px) preview gets the mobile card
-                  and desktop (490px container) gets the larger card),
-                  in THREE bands, because the card's content is fixed
-                  px while the 4:3 container shrinks with the viewport:
-                  - <352px: compact card (@max-[22rem]: 15px names,
-                    tight padding) — 320px: Partner B bottom ~54%,
-                    divider top ~59%, card bottom ~78% (behind the
-                    pocket, invisible).
-                  - 352–383px: small card (17px names), top 25% —
-                    390px: Partner B bottom ~56.5%, divider top ~62%.
-                  - 384–469px: small card, top 28% + divider mt-6 —
-                    the large card does NOT fit here (see below).
-                  - >=470px: large card (22px names, py-5), top 25% —
-                    desktop 490px container: Partner B bottom ~54.5%,
-                    divider top ~58.9%, card bottom ~81.5%.
-                  WHY the large card starts at 470px, not 384px: its
-                  content is ~207px tall and the names WRAP below
-                  ~443px container width (inner width < ~160px), so at
-                  430px viewport (398x299 container) it would span
-                  25%→~94% with Partner B behind the pocket — the
-                  same 430px trap Golden Hour hit. The large card only
-                  fits once Partner B bottom clears the 58% pocket
-                  line with margin, i.e. container >=470px. On tap the
-                  clip's top edge drops to ~97% (the pocket opens)
-                  while the card lifts 48px, so divider + date +
-                  location are fully revealed with no top clipping.
-                  These are ESTIMATES from the image measurement, not
-                  live-measured margins — live-verify at 390px /
-                  320px / desktop before calling this done. */}
-              <motion.div
-                aria-hidden="true"
-                initial={false}
-                animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(15% 96%, 30% 97.5%, 70% 97.5%, 85% 96%, 85% 100%, 15% 100%)"
-                    : "polygon(15% 55%, 30% 58%, 70% 58%, 85% 55%, 85% 100%, 15% 100%)",
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="pointer-events-none absolute inset-0 z-20"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
+                {/* BACK — blurred sunflower-field wash + sun disc */}
+                <motion.div
+                  initial={false}
+                  aria-hidden={isOpen}
+                  animate={
+                    isOpen
+                      ? { opacity: 0, scale: 0.9 }
+                      : { opacity: 1, scale: [0.9, 1.03, 1] }
+                  }
+                  transition={isOpen ? fadeTransition : popTransition}
+                  className="absolute inset-0"
+                >
+                  <CardBack site={site} instant={instant} />
+                </motion.div>
+              </div>
+
+              {/* Drifting pollen + petal burst on the reveal landing.
+                  The canvas renders nothing under reduced motion. */}
+              {!instant && (
+                <PollenCanvas
+                  particleCount={12}
+                  burstKey={burstKey}
+                  burstOrigin={{ x: 0.5, y: 0.45 }}
+                  className="z-20"
                 />
-              </motion.div>
+              )}
             </div>
 
-            {/* Subtle interactive cue */}
-            <p
+            {/* Cue — on a soft pill so it stays legible over the
+                background it sits on. */}
+            <motion.p
+              key={isOpen ? "front" : "back"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4 }}
               style={{ fontFamily: FONT_DISPLAY }}
-              className="mt-1 text-center text-[10px] tracking-[0.26em] text-[#166534]/80 uppercase transition-colors group-hover:text-[#14532D]"
+              className="relative z-10 mt-4 inline-block rounded-full bg-[#FFFBEB]/80 px-4 py-1 text-center text-[10px] tracking-[0.26em] text-[#166534]/80 uppercase backdrop-blur-[2px] transition-colors group-hover:text-[#14532D]"
             >
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
-          </div>
-
-          {/* Sunflower Wax Seal */}
-          <div className="relative z-30 mt-4 flex justify-center">
-            <SunflowerSealButton isOpen={isCardLifted} onToggle={toggleEnvelope} />
+              {isOpen ? "Tap to See the Back" : "Tap Card to Reveal"}
+            </motion.p>
           </div>
         </motion.div>
       </div>

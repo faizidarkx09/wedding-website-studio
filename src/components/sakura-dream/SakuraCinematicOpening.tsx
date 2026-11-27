@@ -1,10 +1,13 @@
 // Cinematic opening helpers for Sakura Dream — Phase 1 falling
 // petals + swaying branch, Phase 2 petal burst + pink glow + branch
 // bloom, Phase 3 petal-curtain lift, Phase 4 petal swirl + shimmer +
-// chime. Web Audio SFX (petal rustle + bloom chime, synthesised —
-// no audio files, no autoplay, no music). Everything here is
-// transform/opacity (canvas excepted) and respects
-// prefers-reduced-motion.
+// chime. The curtain lifts onto the invitation CARD (the card-only
+// reveal — there is no envelope anywhere in this template): the
+// card's watercolor-wash back is what the guest sees first, and
+// tapping it rinses the wash away. Web Audio SFX (petal rustle +
+// bloom chime, synthesised — no audio files, no autoplay, no
+// music). Everything here is transform/opacity (canvas excepted)
+// and respects prefers-reduced-motion.
 //
 // Deliberately DIFFERENT from Blush Royale: Blush has a golden
 // burst + two paper panels rotating open around a centre seam +
@@ -371,8 +374,8 @@ export function SkipButton({ onSkip }: { onSkip: () => void }) {
 /* ------------------------------------------------------------------ */
 /* FanOverlay — Phase 3 + 4. Five petal-pink curtain strips cover   */
 /* the screen, then lift upward one after another (staggered, each  */
-/* with a slight sway) to reveal the invitation mounted underneath; */
-/* petals drift around them. On "fading" the strips dissolve, a     */
+/* with a slight sway) to reveal the invitation card mounted      */
+/* underneath; petals drift around them. On "fading" the strips    */
 /* blossom swirls (scales + rotates + fades) at the centre and a    */
 /* soft pink shimmer sweeps across. Fixed positioning,              */
 /* pointer-events-none except for the Skip / sound controls.        */

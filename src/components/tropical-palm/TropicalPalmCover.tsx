@@ -65,6 +65,14 @@ export default function TropicalPalmCover({
     if (startedRef.current) return;
     startedRef.current = true;
     markPlayed();
+    // Tell the invitation card to bloom in on its own as the palm
+    // panels part (one-shot flag, read + cleared by
+    // TropicalPalmEnvelope on mount).
+    try {
+      sessionStorage.setItem("tp-bloom-on-mount", "1");
+    } catch {
+      /* session storage unavailable — the card rests as a bud until tapped */
+    }
     setSealing(true);
     setBurstKey((k) => k + 1);
     playWaveSound();

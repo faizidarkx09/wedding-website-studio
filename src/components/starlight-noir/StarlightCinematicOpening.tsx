@@ -3,7 +3,12 @@
 // slowly drawing itself (thin gold lines connecting stars); Phase 2
 // constellation flare + burst of gold starlight + one slow pulse;
 // Phase 3 two midnight panels part like night sky; Phase 4 gold
-// star transition + light sweep + soft chime. Web Audio SFX
+// star transition + light sweep + soft chime. The panels part to
+// reveal the invitation CARD underneath — its BACK at rest, blurred
+// night sky with the gold crest ("Tap to Reveal"); the guest then
+// taps the card itself and its two back halves slide apart to
+// reveal the front. There is no envelope anywhere in this opening:
+// no envelope shape, no flap, no seal on an envelope. Web Audio SFX
 // (star twinkle + reveal chime, synthesised — no audio files).
 // Music is deliberately NOT included: no autoplay, the toggle
 // controls SFX only. Everything here is transform/opacity (canvas
@@ -421,11 +426,13 @@ export function SkipButton({ onSkip }: { onSkip: () => void }) {
 /* ------------------------------------------------------------------ */
 /* NightPanelsOverlay — Phase 3 + 4. Two midnight panels cover the  */
 /* screen, then part sideways like night sky opening (translateX,   */
-/* no rotation — unlike Blush's rotating paper panels) to reveal a  */
-/* live starfield veil; on "fading" the veil dissolves, a gold     */
-/* five-pointed star scales + fades at centre, and a gold light    */
-/* sweep crosses. Fixed positioning, pointer-events-none except for */
-/* the Skip / sound controls.                                       */
+/* no rotation — unlike Blush's rotating paper panels) to reveal    */
+/* the invitation card underneath, BACK at rest; on "fading" the    */
+/* veil dissolves, a gold five-pointed star scales + fades at       */
+/* centre, and a gold light sweep crosses, landing on the card.     */
+/* The panels are night sky, not an envelope: no flap, no seal,     */
+/* no envelope shape anywhere. Fixed positioning,                  */
+/* pointer-events-none except for the Skip / sound controls.        */
 /* ------------------------------------------------------------------ */
 
 export type NightPanelsPhase = "closed" | "parting" | "fading";
@@ -532,7 +539,7 @@ export function NightPanelsOverlay({
           <motion.svg
             aria-hidden="true"
             viewBox="0 0 100 100"
-            className="absolute top-1/2 left-1/2 z-20 h-40 w-40 -translate-x-1/2 -translate-y-1/2 sm:h-56 sm:w-56"
+            className="absolute top-1/2 left-1/2 z-20 h-[clamp(10rem,40vw,14rem)] w-[clamp(10rem,40vw,14rem)] -translate-x-1/2 -translate-y-1/2"
             initial={{ scale: 0.6, opacity: 0 }}
             animate={{ scale: [0.6, 1, 1.6], opacity: [0, 0.9, 0] }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}

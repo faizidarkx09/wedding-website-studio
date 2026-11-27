@@ -1,18 +1,23 @@
-// Rose Garden envelope — interactive classic-pocket envelope with
-// a LIVE rose wax seal (pure CSS/SVG with the couple's initials —
-// never baked into the artwork) and the sliding cream letterpress
-// card (tap the seal to break it and reveal / tuck the card back).
-// No music on this template — the seal is the interaction.
+// Rose Garden invitation card — NO envelope. The card itself is the
+// reveal: at rest you see its BACK (blurred rose-garden photograph
+// under a deep-rose wash, rose wax-seal medallion with the couple
+// monogram, "Tap to Reveal"); tap rises the card from below with a
+// gentle tilt while rose petals bloom outward, the back fades away
+// and the FRONT (the existing invitation content, unchanged) rises
+// into place with a rose light sweep and drifting petals. Tap again
+// settles it back. prefers-reduced-motion: instant swap, no ambient
+// animation, no petals. No music on this template — the card is the
+// interaction.
 "use client";
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
-import { RoseDivider, RoseMark } from "./Decor";
-import { ENVELOPE_IMAGE_URL, formatCardDate, initials, locationLabel } from "./tokens";
+import { FallingPetals, RoseDivider, RoseMark } from "./Decor";
+import { COVER_IMAGE_URL, formatCardDate, initials, locationLabel } from "./tokens";
 
 /* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding cream letterpress card                */
+/* InvitationCard — the cream letterpress card (FRONT, unchanged)    */
 /* ------------------------------------------------------------------ */
 
 function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
@@ -74,7 +79,7 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
         <span className="rg-font-editorial my-0.5 text-base italic text-[#7E0C37] @min-[29.375rem]:text-lg @max-[22rem]:text-sm">
           &amp;
         </span>
-        <h2 className="rg-font-display text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#3D1420] uppercase @min-[29.375rem]:text-[22px] @min-[29.375rem]:tracking-[0.12em] @max-[22rem]:text-[15px] @max-[22rem]:tracking-[0.08em]">
+        <h2 className="rg-font-display text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#3D1420] uppercase @min-[29.375rem]:mt-3 @min-[29.375rem]:text-[22px] @min-[29.375rem]:tracking-[0.12em] @max-[22rem]:mt-1.5 @max-[22rem]:text-[15px] @max-[22rem]:tracking-[0.08em]">
           {site.content.partnerB}
         </h2>
 
@@ -92,90 +97,186 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
 }
 
 /* ------------------------------------------------------------------ */
-/* WaxSeal — the deep-rose wax-seal open button, pure CSS/SVG with   */
-/* the LIVE initials (never a baked-in seal image). Tapping it       */
-/* "breaks" the seal (it splits and fades) and the card slides up;   */
-/* tapping again reseals it.                                          */
+/* CardBack — blurred rose-garden photograph under a deep-rose wash, */
+/* rose wax-seal medallion with the couple monogram, tap hint. Same  */
+/* footprint as the front (absolute inset-0 of the reveal box), so   */
+/* the reveal never changes the layout.                               */
 /* ------------------------------------------------------------------ */
 
-function WaxSeal({
-  site,
-  isOpen,
-  onToggle,
-}: {
-  site: WeddingSite;
-  isOpen: boolean;
-  onToggle: () => void;
-}) {
+function CardBack({ site }: { site: WeddingSite }) {
   return (
-    <div className="relative flex flex-col items-center">
-      <motion.button
-        type="button"
-        onClick={onToggle}
-        aria-pressed={isOpen}
-        aria-label={
-          isOpen
-            ? "Reseal the rose envelope"
-            : "Break the rose wax seal and open the envelope"
-        }
-        animate={isOpen ? { rotate: -8, scale: 0.94 } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="group relative flex h-24 w-24 items-center justify-center rounded-full shadow-[0_16px_30px_-8px_rgba(61,20,32,0.6),0_4px_10px_rgba(61,20,32,0.35)] ring-2 ring-[#B3124F]/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3D1420]"
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#3D1420] px-4 py-6 text-center shadow-[0_10px_24px_-8px_rgba(61,20,32,0.45)] @min-[29.375rem]:px-6">
+      {/* Blurred rose-garden photograph — softened into a backdrop */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={COVER_IMAGE_URL}
+        alt=""
+        referrerPolicy="no-referrer"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+        style={{ filter: "blur(12px) brightness(0.72) saturate(1.15)", transform: "scale(1.18)" }}
+      />
+
+      {/* Deep-rose wash so the monogram stays legible */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(circle at 35% 30%, #D6336C 0%, #B3124F 45%, #7E0C37 100%)",
+            "radial-gradient(ellipse 90% 80% at 50% 42%, rgba(61,20,32,0.25) 0%, rgba(61,20,32,0.62) 100%)",
         }}
-      >
-        {/* Waxy irregular rim */}
-        <span
-          aria-hidden="true"
-          className="absolute inset-1 rounded-full border border-[#F4A7B9]/50"
-        />
-        <span
-          aria-hidden="true"
-          className="absolute inset-[7px] rounded-full border border-[#FFF7F2]/25"
-        />
-        {/* Rose motif + live initials */}
-        <span className="relative flex flex-col items-center text-[#FFF7F2]">
-          <RoseMark className="h-6 w-6 text-[#FADCE3]" />
-          <span className="rg-font-display mt-0.5 text-[13px] font-medium tracking-[0.08em]">
-            {initials(site)}
-          </span>
-        </span>
-        {/* Crack line once broken */}
-        {isOpen && (
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-2 top-1/2 h-px rotate-[-14deg] bg-[#3D1420]/50"
-          />
-        )}
-      </motion.button>
+      />
 
-      <span className="rg-font-editorial mt-3 text-xs tracking-[0.18em] text-[#7E0C37]/85 uppercase">
-        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
-      </span>
+      {/* Fine double deep-rose border, matching the front */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2.5 border border-[#D6336C]/70 @min-[29.375rem]:inset-3"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[13px] border border-[#FADCE3]/25 @min-[29.375rem]:inset-[15px]"
+      />
+
+      <div className="relative z-10 flex flex-col items-center py-2">
+        <p className="rg-font-display text-[9px] tracking-[0.34em] text-[#FADCE3] uppercase @min-[29.375rem]:text-[10px]">
+          WITH LOVE
+        </p>
+
+        {/* Rose wax-seal medallion with the couple monogram */}
+        <div
+          aria-hidden="true"
+          className="relative mt-4 flex h-24 w-24 items-center justify-center rounded-full @min-[29.375rem]:mt-5 @min-[29.375rem]:h-28 @min-[29.375rem]:w-28"
+          style={{
+            background:
+              "radial-gradient(circle at 35% 30%, #D6336C 0%, #B3124F 45%, #7E0C37 100%)",
+            boxShadow:
+              "inset 0 2px 6px rgba(255,255,255,0.4), inset 0 -4px 10px rgba(61,20,32,0.45), 0 10px 22px -6px rgba(61,20,32,0.55)",
+          }}
+        >
+          <div className="absolute inset-2 rounded-full border border-[#FFF7F2]/50" />
+          <span className="relative flex flex-col items-center text-[#FFF7F2]">
+            <RoseMark className="h-6 w-6 text-[#FADCE3]" />
+            <span className="rg-font-display mt-0.5 text-[13px] font-medium tracking-[0.08em]">
+              {initials(site)}
+            </span>
+          </span>
+        </div>
+
+        <RoseDivider className="mt-4 h-6 w-24 @min-[29.375rem]:mt-5 @min-[29.375rem]:h-8 @min-[29.375rem]:w-28" light />
+
+        <p className="rg-font-display mt-3 text-[9px] tracking-[0.3em] text-[#FADCE3] uppercase @min-[29.375rem]:text-[10px]">
+          TAP TO REVEAL
+        </p>
+      </div>
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
+/* RoseAmbience — drifting rose petals + soft rose light behind the  */
+/* card. Transform + opacity only (GPU-friendly). Skipped under      */
+/* reduced motion.                                                    */
+/* ------------------------------------------------------------------ */
+
+function RoseAmbience() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
+      <motion.div
+        className="absolute -left-10 top-6 h-44 w-44 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(214,51,108,0.45) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, 22, 0], y: [0, -16, 0] }}
+        transition={{ duration: 11, repeat: Infinity, repeatType: "mirror", ease: [0.45, 0.05, 0.55, 0.95] }}
+      />
+      <motion.div
+        className="absolute -right-8 bottom-8 h-52 w-52 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(244,167,185,0.4) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, -18, 0], y: [0, 14, 0] }}
+        transition={{ duration: 13, repeat: Infinity, repeatType: "mirror", ease: [0.45, 0.05, 0.55, 0.95] }}
+      />
+      <FallingPetals className="absolute inset-0" />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* PetalBloom — on reveal, eight rose petals bloom outward from the  */
+/* card's centre and fade, like a rose opening. Renders nothing     */
+/* under reduced motion.                                              */
+/* ------------------------------------------------------------------ */
+
+const BLOOM_PETALS = [
+  { angle: -90, dist: 110, size: 22, color: "#D6336C", delay: 0.05 },
+  { angle: -45, dist: 96, size: 18, color: "#E85D8A", delay: 0.1 },
+  { angle: 0, dist: 110, size: 22, color: "#B3124F", delay: 0.05 },
+  { angle: 45, dist: 96, size: 18, color: "#F4A7B9", delay: 0.1 },
+  { angle: 90, dist: 110, size: 22, color: "#D6336C", delay: 0.05 },
+  { angle: 135, dist: 96, size: 18, color: "#E85D8A", delay: 0.1 },
+  { angle: 180, dist: 110, size: 22, color: "#B3124F", delay: 0.05 },
+  { angle: -135, dist: 96, size: 18, color: "#F4A7B9", delay: 0.1 },
+];
+
+function PetalBloom({ burstKey }: { burstKey: number }) {
+  if (burstKey === 0) return null;
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
+    >
+      {BLOOM_PETALS.map((p, i) => {
+        const rad = (p.angle * Math.PI) / 180;
+        const x = Math.cos(rad) * p.dist;
+        const y = Math.sin(rad) * p.dist;
+        return (
+          <motion.span
+            key={`${burstKey}-${i}`}
+            className="absolute rounded-[50%_50%_50%_50%/60%_60%_40%_40%]"
+            style={{ width: p.size, height: p.size * 1.25, background: p.color }}
+            initial={{ x: 0, y: 0, scale: 0.2, opacity: 0.95, rotate: p.angle }}
+            animate={{ x, y, scale: 1, opacity: 0, rotate: p.angle + 40 }}
+            transition={{ duration: 1.1, delay: p.delay, ease: [0.22, 1, 0.36, 1] }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* CardReveal — "Bloom rise". At rest the BACK shows. Tap lifts the  */
+/* card from below (rise + gentle tilt) while rose petals bloom      */
+/* outward, the back fades away and the FRONT rises into place with  */
+/* a rose light sweep and drifting petals. Tap again settles it     */
+/* back.                                                              */
 /* ------------------------------------------------------------------ */
 
 export default function RoseGardenEnvelope({ site }: { site: WeddingSite }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const [sweepKey, setSweepKey] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+  const toggleCard = () => {
+    const next = !isRevealed;
+    setIsRevealed(next);
+    if (next) {
+      setBurstKey((k) => k + 1);
+      setSweepKey((k) => k + 1);
+    }
   };
 
   return (
     <div className="relative px-4 pt-16 pb-10">
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Rose Envelope + Sliding Letterpress Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -186,140 +287,114 @@ export default function RoseGardenEnvelope({ site }: { site: WeddingSite }) {
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isRevealed}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open rose envelope and slide up wedding invitation card"
+              isRevealed
+                ? "Hide the wedding invitation card back to its back side"
+                : "Reveal the wedding invitation card"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
             className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3D1420]"
           >
-            {/* Envelope Container preserving the 4:3 geometry of the rose envelope */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(61,20,32,0.28)]">
-              {/* Layer 1: Rose envelope artwork (seal-free by design) */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ENVELOPE_IMAGE_URL}
-                alt="Cream wedding envelope with a rose-pink lining and scattered rose petals"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-cover"
+            {/* Ambient drifting petals + soft rose light behind the card */}
+            {!instant && <RoseAmbience />}
+
+            {/* Reveal scene — perspective on the wrapper. The FRONT
+                is in flow (it defines the box height); the BACK is
+                absolute inset-0. Rest = back visible, front hidden;
+                revealed = front visible, back hidden. */}
+            <div className="relative z-10 mx-auto w-[88%] @min-[29.375rem]:w-[80%]" style={{ perspective: 1200 }}>
+              {/* Soft rose glow behind the card */}
+              <div
+                aria-hidden="true"
+                className="absolute -inset-4 rounded-[2rem] blur-2xl"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, rgba(214,51,108,0.4) 0%, rgba(244,167,185,0.28) 55%, transparent 75%)",
+                }}
               />
 
-              {/* Layer 2: Interactive Sliding Cream Letterpress Invitation Card */}
+              {/* Rise + gentle tilt lift on reveal */}
               <motion.div
                 initial={false}
                 animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -28 : -48) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
+                  y: isRevealed ? [0, -26, 0] : 0,
+                  rotateX: isRevealed ? [0, 7, 0] : 0,
                 }}
                 transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
+                  duration: instant ? 0 : 1.05,
+                  times: [0, 0.45, 1],
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[28%] @min-[29.375rem]:top-[25%] @max-[22rem]:top-[24%]"
+                style={{ transformStyle: "preserve-3d" }}
+                className="relative w-full"
               >
-                <InvitationCard site={site} isOpen={isCardLifted} />
+                {/* FRONT — the invitation (unchanged content) */}
+                <motion.div
+                  aria-hidden={!isRevealed}
+                  initial={false}
+                  animate={{
+                    opacity: isRevealed ? 1 : 0,
+                    y: isRevealed ? 0 : 28,
+                  }}
+                  transition={{ duration: instant ? 0 : 0.9, ease: [0.22, 1, 0.36, 1] }}
+                  className="relative w-full"
+                >
+                  <InvitationCard site={site} isOpen={isRevealed} />
+                </motion.div>
+
+                {/* BACK — blurred rose-garden photo + rose seal medallion */}
+                <motion.div
+                  aria-hidden={isRevealed}
+                  initial={false}
+                  animate={{
+                    opacity: isRevealed ? 0 : 1,
+                    y: isRevealed ? -14 : 0,
+                  }}
+                  transition={{ duration: instant ? 0 : 0.55, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute inset-0"
+                >
+                  <CardBack site={site} />
+                </motion.div>
               </motion.div>
 
-              {/* Layer 3: REAL rose pocket — the envelope photo rendered
-                  a second time ABOVE the card, clipped to the pocket's
-                  shape, so the card is physically tucked inside at rest.
-                  Geometry (eye-measured from rose-garden-detail.jpg,
-                  1920x1280, object-cover in a 4:3 container shows
-                  x 5.5%–94.5% of the image): the envelope spans
-                  x ~13.8%–87.6%, y ~11%–85.5% of the container; a
-                  classic envelope — triangular flap with its point at
-                  centre ~(50%, 61%), pocket diagonals running from
-                  the flap point down to the bottom corners, so the
-                  true pocket edge is ^-shaped (61% at centre, ~77%
-                  at the card's edges x=26.5%/73.5%).
-                  The clip reuses Golden Hour's proven single flat
-                  polygon, retuned to 64%: (13% 52%, 30% 64%, 70% 64%,
-                  87% 52%). It sits ABOVE the true pocket edge across
-                  the card's sides (64% vs 77% true) and ~3% BELOW the
-                  flap point at centre (64% vs 61% true) — a ~11px
-                  sliver where the card peeks just past the fold
-                  point, which reads as the card emerging from behind
-                  the fold; both surfaces are cream there, so the
-                  sliver is near-invisible (the card's vertical
-                  borders run at the card's edges, where the pocket
-                  line is 77% — far below the sliver).
-                  The card is sized by CONTAINER width (@container on
-                  the outer wrapper — never viewport `sm:` — so the
-                  editor's Mobile (390px) preview gets the mobile card
-                  and desktop (490px container) gets the larger card),
-                  in THREE bands, because the card's content is fixed
-                  px while the 4:3 container shrinks with the viewport:
-                  - <352px: compact card (@max-[22rem]: 15px names,
-                    tight padding, top 24%) — 320px: Partner B bottom
-                    ~62.7%, divider top ~71%, card bottom ~107%
-                    (behind the pocket, invisible). Estimated, not
-                    live-measured.
-                  - 352–383px: small card (17px names), top 25% —
-                    390px: Partner B bottom ~62.1%, divider top ~68%.
-                  - 384–469px: small card, top 28%, divider mt-10 —
-                    the large card does NOT fit here (see below).
-                  - >=470px: large card (22px names, py-5), top 25% —
-                    desktop 490px container: Partner B bottom 61.7%,
-                    divider top 65.5%, card bottom 95.8%.
-                  WHY the large card starts at 470px, not 384px: its
-                  content is ~260px tall and the names WRAP below
-                  ~443px container width (inner width < ~160px), so at
-                  430px viewport (398x299 container) it spanned
-                  25%→131.7% — only PARTNER A peeked (wrapped to two
-                  lines), Partner B sat at 85% behind the pocket, and
-                  when open the location line was clipped mid-glyph at
-                  the container's bottom edge. The large card only
-                  fits once Partner B bottom (25% + 135px) clears the
-                  64% pocket line with margin, i.e. container >=470px
-                  (63.3% there, 61.7% at 490px). In the 384–469 band
-                  the small card is used with top 28% + divider mt-10
-                  (divider offset 139.6px from card top), which keeps
-                  Partner B bottom <=62.7% and divider top >=67.6%
-                  across the whole band. On tap the clip's top edge
-                  drops to ~97% (the pocket opens) while the card
-                  lifts 48px, so divider + date + location are fully
-                  revealed with no top clipping. */}
-              <motion.div
-                aria-hidden="true"
-                initial={false}
-                animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(13% 96%, 30% 97.5%, 70% 97.5%, 87% 96%, 87% 100%, 13% 100%)"
-                    : "polygon(13% 52%, 30% 64%, 70% 64%, 87% 52%, 87% 100%, 13% 100%)",
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="pointer-events-none absolute inset-0 z-20"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
+              {/* Rose light sweep across the card on reveal */}
+              {isRevealed && !instant && (
+                <motion.div
+                  key={sweepKey}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-y-0 z-20 w-1/3"
+                  style={{
+                    background:
+                      "linear-gradient(100deg, transparent 0%, rgba(244,167,185,0.5) 50%, transparent 100%)",
+                  }}
+                  initial={{ x: "-120%" }}
+                  animate={{ x: "320%" }}
+                  transition={{ duration: 0.9, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
                 />
-              </motion.div>
+              )}
+
+              {/* Rose petal bloom on reveal. Renders nothing under
+                  reduced motion. */}
+              {!instant && <PetalBloom burstKey={burstKey} />}
             </div>
 
-            {/* Subtle interactive cue */}
-            <p className="rg-font-display mt-1 text-center text-[10px] tracking-[0.26em] text-[#7E0C37]/80 uppercase transition-colors group-hover:text-[#3D1420]">
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
-          </div>
-
-          {/* Live Rose Wax Seal */}
-          <div className="relative z-30 mt-4 flex justify-center">
-            <WaxSeal site={site} isOpen={isCardLifted} onToggle={toggleEnvelope} />
+            {/* Cue */}
+            <motion.p
+              key={isRevealed ? "front" : "back"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4 }}
+              className="rg-font-display relative z-10 mt-4 inline-block rounded-full bg-[#FFFCF8]/80 px-4 py-1 text-center text-[10px] tracking-[0.26em] text-[#7E0C37]/80 uppercase backdrop-blur-[2px] transition-colors group-hover:text-[#3D1420]"
+            >
+              {isRevealed ? "Tap to Flip Back" : "Tap Card to Reveal"}
+            </motion.p>
           </div>
         </motion.div>
       </div>

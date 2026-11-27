@@ -1,25 +1,33 @@
-// Amethyst Royale envelope — interactive amethyst envelope with a
-// faceted crystal seal and the sliding lavender letterpress card
-// (tap the seal to break it and reveal / tuck the card back). No
-// music on this template — the seal is the interaction.
+// Amethyst Royale invitation card — NO envelope. The card itself is
+// the reveal: at rest you see its BACK (deep-violet faceted crystal,
+// lavender glow, hexagonal crest with the couple monogram, "Tap to
+// Reveal"); tap and the back CLEAVES along a diagonal — the two
+// halves slide apart along the diagonal (top-left half down-left,
+// bottom-right half up-right, like a crystal facet cleaving) to
+// reveal the FRONT (the existing invitation content, unchanged).
+// Tap again and the halves slide back together. A violet shimmer
+// sweep + crystal sparkle burst land the reveal. Ambient violet
+// glow drifts behind the card. prefers-reduced-motion: instant
+// reveal, no ambient animation, no particles. No music on this
+// template — the card is the interaction.
 "use client";
 
 import { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Transition } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
-import { FacetDivider } from "./Decor";
-import {
-  CRYSTAL_SEAL_URL,
-  ENVELOPE_IMAGE_URL,
-  formatCardDate,
-  locationLabel,
-} from "./tokens";
+import { CrystalCrest, FacetDivider } from "./Decor";
+import { formatCardDate, initials, locationLabel } from "./tokens";
+import { CrystalCanvas } from "./CinematicOpening";
 
-/* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding lavender letterpress card             */
-/* ------------------------------------------------------------------ */
-
-function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
+function InvitationCard({
+  site,
+  isOpen,
+  shimmerKey = 0,
+}: {
+  site: WeddingSite;
+  isOpen: boolean;
+  shimmerKey?: number;
+}) {
   return (
     <div
       className={`relative mx-auto w-full overflow-hidden bg-[#FFFDFF] px-4 py-3 text-center text-[#2E1065] transition-shadow duration-700 @min-[29.375rem]:px-6 @min-[29.375rem]:py-5 @max-[22rem]:py-2 ${
@@ -91,73 +99,180 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
           {locationLabel(site)}
         </p>
       </div>
-    </div>
-  );
-}
 
-/* ------------------------------------------------------------------ */
-/* CrystalSeal — the faceted amethyst crystal-seal open button.      */
-/* Tapping it "breaks" the seal (it tilts and fades) and the card    */
-/* slides up; tapping again reseals it.                               */
-/* ------------------------------------------------------------------ */
-
-function CrystalSeal({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
-  return (
-    <div className="relative flex flex-col items-center">
-      <motion.button
-        type="button"
-        onClick={onToggle}
-        aria-pressed={isOpen}
-        aria-label={
-          isOpen
-            ? "Reseal the amethyst envelope"
-            : "Break the crystal seal and open the envelope"
-        }
-        animate={isOpen ? { rotate: -8, scale: 0.94 } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full shadow-[0_16px_30px_-8px_rgba(46,16,101,0.6),0_4px_10px_rgba(46,16,101,0.35)] ring-2 ring-[#7C3AED]/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2E1065]"
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={CRYSTAL_SEAL_URL}
-          alt=""
-          referrerPolicy="no-referrer"
-          className="absolute inset-0 h-full w-full object-cover"
+      {/* One-time violet shimmer sweep across the card on reveal.
+          Remounts (key) on every open so it replays; unmounted when
+          the halves close again. */}
+      {shimmerKey > 0 && (
+        <motion.div
+          key={shimmerKey}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 z-20 w-1/3"
+          style={{
+            background:
+              "linear-gradient(100deg, transparent 0%, rgba(221,214,254,0.5) 50%, transparent 100%)",
+          }}
+          initial={{ x: "-120%" }}
+          animate={{ x: "320%" }}
+          transition={{ duration: 0.9, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
         />
-        {/* Crack line once broken */}
-        {isOpen && (
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-2 top-1/2 h-px rotate-[-14deg] bg-[#2E1065]/50"
-          />
-        )}
-      </motion.button>
-
-      <span className="ar-font-editorial mt-3 text-xs tracking-[0.18em] text-[#5B21B6]/85 uppercase">
-        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
-      </span>
+      )}
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
+/* CardBackFace — one full-size face of the card BACK: deep-violet   */
+/* crystal gradient, translucent facet polygons, soft blurred        */
+/* lavender glow. Rendered twice (once per cleave half), each copy  */
+/* clipped to its diagonal triangle.                                */
+/* ------------------------------------------------------------------ */
+
+function CardBackFace() {
+  return (
+    <div
+      aria-hidden="true"
+      className="absolute inset-0"
+      style={{
+        background:
+          "linear-gradient(140deg, #2E1065 0%, #5B21B6 45%, #7C3AED 78%, #4C1D95 100%)",
+      }}
+    >
+      {/* Soft blurred lavender light */}
+      <div
+        className="absolute -top-8 -left-8 h-40 w-40 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(233,213,255,0.55) 0%, transparent 70%)",
+        }}
+      />
+      <div
+        className="absolute -right-6 -bottom-10 h-44 w-44 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(167,139,250,0.5) 0%, transparent 70%)",
+        }}
+      />
+
+      {/* Translucent crystal facets + facet edge strokes */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        className="absolute inset-0 h-full w-full"
+      >
+        <polygon points="0,0 55,0 30,45 0,30" fill="#E9D5FF" opacity="0.18" />
+        <polygon points="100,0 100,40 70,25 55,0" fill="#FFFFFF" opacity="0.1" />
+        <polygon points="0,100 0,60 35,75 45,100" fill="#C4B5FD" opacity="0.15" />
+        <polygon points="100,100 60,100 80,60 100,55" fill="#A78BFA" opacity="0.16" />
+        <polygon points="30,45 70,25 80,60 35,75" fill="#DDD6FE" opacity="0.08" />
+        <g stroke="#DDD6FE" strokeWidth="0.4" opacity="0.4" fill="none">
+          <polyline points="0,0 55,0 30,45 0,30" />
+          <polyline points="100,0 100,40 70,25 55,0" />
+          <polyline points="0,100 0,60 35,75 45,100" />
+          <polyline points="100,100 60,100 80,60 100,55" />
+          <polyline points="30,45 70,25 80,60 35,75" />
+        </g>
+      </svg>
+
+      {/* Fine double lavender border, matching the front */}
+      <div className="pointer-events-none absolute inset-2.5 border border-[#E9D5FF]/60 @min-[29.375rem]:inset-3 @max-[22rem]:inset-1" />
+      <div className="pointer-events-none absolute inset-[13px] border border-[#C4B5FD]/40 @min-[29.375rem]:inset-[15px] @max-[22rem]:inset-[7px]" />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* CrystalAmbience — violet glow blobs drifting slowly behind the    */
+/* card, looping. Transform + opacity only (GPU-friendly). Skipped   */
+/* under reduced motion.                                             */
+/* ------------------------------------------------------------------ */
+
+function CrystalAmbience() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
+      <motion.div
+        className="absolute -top-6 -left-8 h-44 w-44 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(124,58,237,0.45) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, 22, 0], y: [0, -14, 0] }}
+        transition={{ duration: 11, repeat: Infinity, repeatType: "mirror", ease: [0.25, 0.1, 0.25, 1] }}
+      />
+      <motion.div
+        className="absolute -right-6 -bottom-8 h-52 w-52 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(196,181,253,0.4) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, -18, 0], y: [0, 14, 0] }}
+        transition={{ duration: 13, repeat: Infinity, repeatType: "mirror", ease: [0.25, 0.1, 0.25, 1] }}
+      />
+      {/* Slow diagonal light sweep across the whole card area */}
+      <motion.div
+        className="absolute inset-y-0 w-1/4"
+        animate={{ x: ["-120%", "480%"] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "linear" }}
+      >
+        <div
+          className="h-full w-full"
+          style={{
+            transform: "skewX(-12deg)",
+            background:
+              "linear-gradient(100deg, transparent 0%, rgba(221,214,254,0.35) 50%, transparent 100%)",
+          }}
+        />
+      </motion.div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* AmethystRoyaleEnvelope — the card-only diagonal-split reveal.     */
+/* (File + export name kept: the Renderer already imports this path. */
+/*  There is no envelope here — only the invitation card.)           */
+/*                                                                    */
+/* The FRONT is in flow (it defines the box height). The BACK is an  */
+/* absolute inset-0 overlay: two full-size CardBackFace copies, each */
+/* clipped to one side of the top-right → bottom-left diagonal. At   */
+/* rest the halves are joined and the crest + monogram + tap hint    */
+/* sit centred on top. On reveal the halves slide apart ALONG the   */
+/* diagonal (top-left half down-left, bottom-right half up-right)    */
+/* until they are clipped away at the card edge, the centre content  */
+/* fades, and the front shows through the widening cleave. Tap again */
+/* slides them back together.                                        */
 /* ------------------------------------------------------------------ */
 
 export default function AmethystRoyaleEnvelope({ site }: { site: WeddingSite }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [shimmerKey, setShimmerKey] = useState(0);
+  const [burstKey, setBurstKey] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+  const toggleCard = () => {
+    const next = !isRevealed;
+    setIsRevealed(next);
+    if (next) {
+      // Reveal: crystal burst + shimmer land the cleave.
+      setBurstKey((k) => k + 1);
+      setShimmerKey((k) => k + 1);
+    }
   };
+
+  // The cleave: halves travel the full card span along the diagonal
+  // so nothing of the back is left showing once they arrive.
+  const cleaveTransition: Transition = instant
+    ? { duration: 0 }
+    : { duration: 0.95, ease: [0.22, 1, 0.36, 1] };
 
   return (
     <div className="relative px-4 pt-16 pb-10">
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Amethyst Envelope + Sliding Letterpress Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -168,138 +283,194 @@ export default function AmethystRoyaleEnvelope({ site }: { site: WeddingSite }) 
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isRevealed}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open amethyst envelope and slide up wedding invitation card"
+              isRevealed
+                ? "Close the invitation card to show its faceted crystal back"
+                : "Reveal the wedding invitation card — the faceted back splits open along a diagonal"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
             className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2E1065]"
           >
-            {/* Envelope Container preserving the 4:3 geometry of the amethyst envelope */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(46,16,101,0.28)]">
-              {/* Layer 1: Amethyst envelope artwork */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ENVELOPE_IMAGE_URL}
-                alt="Deep amethyst wedding envelope with crystal-facet embossing and a faceted crystal seal"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-cover"
+            {/* Ambient violet glow behind the card. Skipped under
+                reduced motion (no animation at all). */}
+            {!instant && <CrystalAmbience />}
+
+            <div className="relative z-10 mx-auto w-[92%] sm:w-[90%]">
+              {/* Soft violet glow behind the card */}
+              <div
+                aria-hidden="true"
+                className="absolute -inset-4 rounded-[2rem] blur-2xl"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, rgba(124,58,237,0.45) 0%, rgba(196,181,253,0.3) 55%, transparent 75%)",
+                }}
               />
 
-              {/* Layer 2: Interactive Sliding Lavender Letterpress Invitation Card */}
-              <motion.div
-                initial={false}
-                animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -28 : -48) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[28%] @min-[29.375rem]:top-[25%]"
-              >
-                <InvitationCard site={site} isOpen={isCardLifted} />
-              </motion.div>
+              <div className="relative w-full">
+                {/* FRONT — the invitation (unchanged content) */}
+                <div aria-hidden={!isRevealed} className="relative w-full">
+                  <InvitationCard
+                    site={site}
+                    isOpen={isRevealed}
+                    shimmerKey={isRevealed && !instant ? shimmerKey : 0}
+                  />
+                </div>
 
-              {/* Layer 3: REAL amethyst pocket — the envelope photo
-                  rendered a second time ABOVE the card, clipped to
-                  the pocket's shape, so the card is physically
-                  tucked inside at rest.
-                  Geometry (eye-measured + pixel-verified from
-                  amethyst-royale-detail.jpg, 1200x900 — a 4:3 crop
-                  of the 1792x1344 master): a classic envelope —
-                  triangular flap with its point (the crystal seal)
-                  at centre ~(51%, 63%), pocket diagonals running
-                  from the flap point down to the bottom corners
-                  (~93% at the edges), so the true pocket edge is
-                  ^-shaped (63% at centre, ~77% at the card's
-                  edges x=26.5%/73.5%).
-                  The clip reuses Golden Hour's proven single flat
-                  polygon (19% 52%, 32% 65%, 68% 65%, 81% 52%): it
-                  sits ABOVE the true pocket edge across the card's
-                  sides (65% vs 77% true at x=32%) and ~2% BELOW
-                  the flap point at centre (65% vs 63% true) — a
-                  ~7px sliver where the card peeks just past the
-                  fold point, which reads as the card emerging from
-                  behind the fold.
-                  The card is sized by CONTAINER width (@container
-                  on the outer wrapper — never viewport `sm:` — so
-                  the editor's Mobile (390px) preview gets the
-                  mobile card and desktop (490px container) gets
-                  the larger card), in THREE bands, because the
-                  card's content is fixed px while the 4:3 container
-                  shrinks with the viewport:
-                  - <352px: compact card (@max-[22rem]: 15px names,
-                    tight padding) — 320px: Partner B bottom
-                    ~63%, divider top ~71%, card bottom ~108%
-                    (behind the pocket, invisible).
-                  - 352–383px: small card (17px names), top 25% —
-                    390px: Partner B bottom ~62%, divider top ~68%.
-                  - 384–469px: small card, top 28%, divider mt-10 —
-                    the large card does NOT fit here (see below).
-                  - >=470px: large card (22px names, py-5), top
-                    25% — desktop 490px container: Partner B bottom
-                    ~62%, divider top ~66%, card bottom ~96%.
-                  WHY the large card starts at 470px, not 384px:
-                  its content is ~260px tall and the names WRAP
-                  below ~443px container width (inner width <
-                  ~160px), so at 430px viewport (398x299 container)
-                  it would span 25%→131% — only PARTNER A would
-                  peek (wrapped to two lines), Partner B would sit
-                  at ~85% behind the pocket, and when open the
-                  location line would be clipped mid-glyph at the
-                  container's bottom edge. The large card only fits
-                  once Partner B bottom (25% + 135px) clears the
-                  65% pocket line with margin, i.e. container
-                  >=470px. In the 384–469 band the small card is
-                  used with top 28% + divider mt-10, which keeps
-                  Partner B bottom <=63% and divider top >=68%
-                  across the whole band. On tap the clip's top edge
-                  drops to ~97% (the pocket opens) while the card
-                  lifts 48px, so divider + date + location are fully
-                  revealed with no top clipping. */}
-              <motion.div
-                aria-hidden="true"
-                initial={false}
-                animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(19% 96%, 32% 97.5%, 68% 97.5%, 81% 96%, 81% 100%, 19% 100%)"
-                    : "polygon(19% 52%, 32% 65%, 68% 65%, 81% 52%, 81% 100%, 19% 100%)",
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="pointer-events-none absolute inset-0 z-20"
+                {/* BACK — two diagonal halves + cleave line + centre
+                    content. overflow-hidden clips the halves as they
+                    slide off the card edge. */}
+                <div
+                  aria-hidden={isRevealed}
+                  className="absolute inset-0 overflow-hidden"
+                  style={{
+                    boxShadow: isRevealed
+                      ? undefined
+                      : "0 10px 24px -8px rgba(46,16,101,0.45)",
+                  }}
+                >
+                  {/* Half A — top-left triangle, slides down-left
+                      along the diagonal on reveal. */}
+                  <motion.div
+                    aria-hidden="true"
+                    className="absolute inset-0"
+                    style={{
+                      clipPath: "polygon(0 0, 100% 0, 0 100%)",
+                    }}
+                    initial={false}
+                    animate={
+                      isRevealed ? { x: "-100%", y: "100%" } : { x: "0%", y: "0%" }
+                    }
+                    transition={cleaveTransition}
+                  >
+                    <CardBackFace />
+                  </motion.div>
+
+                  {/* Half B — bottom-right triangle, slides up-right
+                      along the diagonal on reveal. */}
+                  <motion.div
+                    aria-hidden="true"
+                    className="absolute inset-0"
+                    style={{
+                      clipPath: "polygon(100% 0, 100% 100%, 0 100%)",
+                    }}
+                    initial={false}
+                    animate={
+                      isRevealed ? { x: "100%", y: "-100%" } : { x: "0%", y: "0%" }
+                    }
+                    transition={cleaveTransition}
+                  >
+                    <CardBackFace />
+                  </motion.div>
+
+                  {/* Bright facet edge along the cleave line
+                      (top-right → bottom-left). Fades as the halves
+                      part. */}
+                  <motion.svg
+                    aria-hidden="true"
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="none"
+                    className="absolute inset-0 z-10 h-full w-full"
+                    initial={false}
+                    animate={{ opacity: isRevealed ? 0 : 1 }}
+                    transition={{ duration: instant ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <line
+                      x1="100"
+                      y1="0"
+                      x2="0"
+                      y2="100"
+                      stroke="#C4B5FD"
+                      strokeWidth="5"
+                      vectorEffect="non-scaling-stroke"
+                      opacity="0.35"
+                    />
+                    <line
+                      x1="100"
+                      y1="0"
+                      x2="0"
+                      y2="100"
+                      stroke="#F5F0FA"
+                      strokeWidth="1.5"
+                      vectorEffect="non-scaling-stroke"
+                      opacity="0.9"
+                    />
+                  </motion.svg>
+
+                  {/* Centre content — crest + monogram + tap hint.
+                      Fades and settles as the halves part; returns
+                      when they close. */}
+                  <motion.div
+                    aria-hidden="true"
+                    className="absolute inset-0 z-20 flex flex-col items-center justify-center overflow-hidden px-4 py-3 text-center"
+                    initial={false}
+                    animate={
+                      isRevealed
+                        ? { opacity: 0, scale: 0.94 }
+                        : { opacity: 1, scale: 1 }
+                    }
+                    transition={{
+                      duration: instant ? 0 : 0.45,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                  >
+                    <p className="ar-font-display text-[9px] tracking-[0.34em] text-[#E9D5FF] uppercase @min-[29.375rem]:text-[10px]">
+                      WITH LOVE
+                    </p>
+
+                    {/* Faceted hexagonal gem crest with the live
+                        monogram — the template's own crest, reused
+                        from the cover. */}
+                    <div className="relative mt-2 flex h-[4.25rem] w-[4.25rem] items-center justify-center @min-[29.375rem]:mt-3 @min-[29.375rem]:h-24 @min-[29.375rem]:w-24">
+                      <div
+                        aria-hidden="true"
+                        className="absolute inset-[-18%] rounded-full"
+                        style={{
+                          background:
+                            "radial-gradient(circle, rgba(221,214,254,0.55) 0%, rgba(124,58,237,0.25) 55%, transparent 75%)",
+                        }}
+                      />
+                      <CrystalCrest className="absolute inset-0 h-full w-full drop-shadow-[0_6px_16px_rgba(46,16,101,0.6)]" />
+                      <span className="ar-font-display ar-amethyst-embossed-text relative text-base font-medium tracking-[0.06em] @min-[29.375rem]:text-xl">
+                        {initials(site)}
+                      </span>
+                    </div>
+
+                    <p className="ar-font-display mt-2 text-[9px] tracking-[0.3em] text-[#E9D5FF] uppercase @min-[29.375rem]:mt-3 @min-[29.375rem]:text-[10px]">
+                      TAP TO REVEAL
+                    </p>
+                  </motion.div>
+                </div>
+
+                {/* Crystal sparkles + burst on the reveal landing.
+                    The canvas renders nothing under reduced motion. */}
+                {!instant && (
+                  <CrystalCanvas
+                    sparkleCount={8}
+                    burstKey={burstKey}
+                    burstOrigin={{ x: 0.5, y: 0.45 }}
+                    className="z-20"
+                  />
+                )}
+              </div>
+
+              {/* Cue */}
+              <motion.p
+                key={isRevealed ? "front" : "back"}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: instant ? 0 : 0.4 }}
+                className="ar-font-display relative z-10 mt-4 text-center text-[10px] tracking-[0.26em] text-[#5B21B6]/80 uppercase transition-colors group-hover:text-[#2E1065]"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
-                />
-              </motion.div>
+                {isRevealed ? "Tap Card to Close" : "Tap Card to Reveal"}
+              </motion.p>
             </div>
-
-            {/* Subtle interactive cue */}
-            <p className="ar-font-display mt-1 text-center text-[10px] tracking-[0.26em] text-[#5B21B6]/80 uppercase transition-colors group-hover:text-[#2E1065]">
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
-          </div>
-
-          {/* Faceted Amethyst Crystal Seal */}
-          <div className="relative z-30 mt-4 flex justify-center">
-            <CrystalSeal isOpen={isCardLifted} onToggle={toggleEnvelope} />
           </div>
         </motion.div>
       </div>

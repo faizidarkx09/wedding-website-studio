@@ -1,22 +1,29 @@
-// Silver Moonlight envelope — interactive slate-blue envelope
-// with a silver crescent wax seal and the sliding ice-white
-// letterpress card (tap the seal to break it and reveal / tuck the
-// card back). No music on this template — the seal is the
-// interaction, not a vinyl medallion.
+// Silver Moonlight invitation card — NO envelope. The card itself
+// is the reveal: at rest you see its BACK (blurred moonlit
+// photograph under a deep-night wash, silver crescent medallion
+// with the couple monogram, "Tap to Reveal"); tap rises the card
+// from below while it slowly turns (rotateY) into place, the back
+// fades away and the FRONT (the existing invitation content,
+// unchanged) rises into place with a burst of starlight. Tap again
+// settles it back. prefers-reduced-motion: instant swap, no ambient
+// animation, no particles. No music on this template — the card is
+// the interaction.
 "use client";
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
-import { CrescentMoon, MoonDivider } from "./Decor";
+import { CrescentMoon, MoonDivider, TwinklingStars } from "./Decor";
 import {
-  ENVELOPE_IMAGE_URL,
+  COVER_IMAGE_URL,
   formatCardDate,
+  initials,
   locationLabel,
 } from "./tokens";
+import { StarBurstCanvas } from "./SilverMoonlightCinematic";
 
 /* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding ice-white letterpress card           */
+/* InvitationCard — the ice-white letterpress card (FRONT, unchanged)*/
 /* ------------------------------------------------------------------ */
 
 function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
@@ -68,7 +75,7 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
         <span className="er-font-editorial my-0.5 text-sm leading-none italic text-[#2E3A4A] @min-[29.375rem]:text-base">
           &amp;
         </span>
-        <h2 className="er-font-display text-[15px] leading-none font-normal tracking-[0.1em] break-words text-[#16202E] uppercase @min-[29.375rem]:text-[18px] @min-[29.375rem]:tracking-[0.12em]">
+        <h2 className="er-font-display text-[15px] leading-none font-normal tracking-[0.1em] break-words text-[#16202E] uppercase @min-[29.375rem]:mt-3 @min-[29.375rem]:text-[18px] @min-[29.375rem]:tracking-[0.12em]">
           {site.content.partnerB}
         </h2>
 
@@ -86,75 +93,137 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
 }
 
 /* ------------------------------------------------------------------ */
-/* SilverSeal — the silver crescent wax-seal open button. Tapping   */
-/* it "breaks" the seal (it splits and fades) and the card slides   */
-/* up; tapping again reseals it. The seal is pure CSS/SVG (no baked */
-/* seal in the envelope artwork), so the sliding card can never     */
-/* hide it.                                                          */
+/* CardBack — blurred moonlit photograph under a deep-night wash,   */
+/* silver crescent medallion with the couple monogram, tap hint.    */
+/* Same footprint as the front (absolute inset-0 of the reveal box), */
+/* so the reveal never changes the layout.                           */
 /* ------------------------------------------------------------------ */
 
-function SilverSeal({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
+function CardBack({ site }: { site: WeddingSite }) {
   return (
-    <div className="relative flex flex-col items-center">
-      <motion.button
-        type="button"
-        onClick={onToggle}
-        aria-pressed={isOpen}
-        aria-label={
-          isOpen
-            ? "Reseal the silver moonlight envelope"
-            : "Break the silver wax seal and open the envelope"
-        }
-        animate={isOpen ? { rotate: -8, scale: 0.94 } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full shadow-[0_16px_30px_-8px_rgba(14,22,32,0.6),0_4px_10px_rgba(14,22,32,0.35)] ring-2 ring-[#E8EBF0]/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#16202E] @min-[24rem]:h-28 @min-[24rem]:w-28"
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#16202E] px-4 py-6 text-center shadow-[0_10px_24px_-8px_rgba(14,22,32,0.45)] @min-[29.375rem]:px-6">
+      {/* Blurred moonlit photograph — softened into a backdrop */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={COVER_IMAGE_URL}
+        alt=""
+        referrerPolicy="no-referrer"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+        style={{ filter: "blur(12px) brightness(0.6) saturate(0.9)", transform: "scale(1.18)" }}
+      />
+
+      {/* Deep-night wash so the monogram stays legible */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(circle at 35% 30%, #F4F7FA 0%, #DDE1E8 38%, #C9CDD6 62%, #9AA3B0 100%)",
+            "radial-gradient(ellipse 90% 80% at 50% 42%, rgba(22,32,46,0.3) 0%, rgba(22,32,46,0.66) 100%)",
         }}
-      >
-        <span
-          aria-hidden="true"
-          className="absolute inset-2 rounded-full border border-[#16202E]/20"
-        />
-        <CrescentMoon className="relative h-9 w-9 drop-shadow-[0_1px_2px_rgba(22,32,46,0.35)] @min-[24rem]:h-10 @min-[24rem]:w-10" />
-        {/* Crack line once broken */}
-        {isOpen && (
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-2 top-1/2 h-px rotate-[-14deg] bg-[#16202E]/50"
-          />
-        )}
-      </motion.button>
+      />
 
-      <span className="er-font-editorial mt-3 text-xs tracking-[0.18em] text-[#2E3A4A]/85 uppercase">
-        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
-      </span>
+      {/* Fine double silver border, matching the front */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2.5 border border-[#C9CDD6]/70 @min-[29.375rem]:inset-3"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[13px] border border-[#F4F7FA]/25 @min-[29.375rem]:inset-[15px]"
+      />
+
+      <div className="relative z-10 flex flex-col items-center py-2">
+        <p className="er-font-display text-[9px] tracking-[0.34em] text-[#DDE1E8] uppercase @min-[29.375rem]:text-[10px]">
+          UNDER THE MOON
+        </p>
+
+        {/* Silver crescent medallion with the couple monogram */}
+        <div
+          aria-hidden="true"
+          className="relative mt-4 flex h-24 w-24 items-center justify-center rounded-full @min-[29.375rem]:mt-5 @min-[29.375rem]:h-28 @min-[29.375rem]:w-28"
+          style={{
+            background:
+              "radial-gradient(circle at 35% 30%, #F4F7FA 0%, #DDE1E8 38%, #C9CDD6 62%, #9AA3B0 100%)",
+            boxShadow:
+              "inset 0 2px 6px rgba(255,255,255,0.55), inset 0 -4px 10px rgba(22,32,46,0.4), 0 10px 22px -6px rgba(14,22,32,0.55)",
+          }}
+        >
+          <div className="absolute inset-2 rounded-full border border-[#16202E]/20" />
+          <CrescentMoon className="absolute top-2 right-3 h-6 w-6 opacity-80 @min-[29.375rem]:h-7 @min-[29.375rem]:w-7" />
+          <span className="er-font-display relative text-[1.35rem] leading-none font-medium tracking-[0.06em] text-[#16202E] @min-[29.375rem]:text-[1.5rem]">
+            {initials(site)}
+          </span>
+        </div>
+
+        <MoonDivider className="mt-4 h-5 w-24 @min-[29.375rem]:mt-5 @min-[29.375rem]:h-6 @min-[29.375rem]:w-28" />
+
+        <p className="er-font-display mt-3 text-[9px] tracking-[0.3em] text-[#DDE1E8] uppercase @min-[29.375rem]:text-[10px]">
+          TAP TO REVEAL
+        </p>
+      </div>
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
+/* MoonAmbience — twinkling stars + slow-drifting moonlight behind  */
+/* the card. Transform + opacity only (GPU-friendly). Skipped under  */
+/* reduced motion.                                                    */
+/* ------------------------------------------------------------------ */
+
+function MoonAmbience() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
+      <motion.div
+        className="absolute -left-10 top-6 h-44 w-44 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(201,205,214,0.45) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, 20, 0], y: [0, -14, 0] }}
+        transition={{ duration: 12, repeat: Infinity, repeatType: "mirror", ease: [0.45, 0.05, 0.55, 0.95] }}
+      />
+      <motion.div
+        className="absolute -right-8 bottom-8 h-52 w-52 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(221,225,232,0.35) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, -16, 0], y: [0, 12, 0] }}
+        transition={{ duration: 14, repeat: Infinity, repeatType: "mirror", ease: [0.45, 0.05, 0.55, 0.95] }}
+      />
+      <TwinklingStars className="absolute inset-0" count={36} />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* CardReveal — "Moonrise rise + slow turn". At rest the BACK shows, */
+/* the card resting at a slight turn. Tap lifts it from below while  */
+/* it slowly turns (rotateY) into place, the back fades away and    */
+/* the FRONT rises into place with a burst of starlight. Tap again   */
+/* settles it back.                                                  */
 /* ------------------------------------------------------------------ */
 
 export default function SilverMoonlightEnvelope({ site }: { site: WeddingSite }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+  const toggleCard = () => {
+    const next = !isRevealed;
+    setIsRevealed(next);
+    if (next) setBurstKey((k) => k + 1);
   };
 
-  // NOTE: the outer wrapper below is NOT inside a @container (the
-  // container starts at the motion.div inside it), so its padding is
-  // fixed — container queries there would never match.
   return (
     <div className="relative px-4 pt-16 pb-10">
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Slate Envelope + Sliding Letterpress Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -165,153 +234,110 @@ export default function SilverMoonlightEnvelope({ site }: { site: WeddingSite })
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isRevealed}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open silver moonlight envelope and slide up wedding invitation card"
+              isRevealed
+                ? "Hide the wedding invitation card back to its back side"
+                : "Reveal the wedding invitation card"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
             className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#16202E]"
           >
-            {/* Envelope Container preserving the 4:3 geometry of the
-                cropped envelope artwork (1200x895, tight-cropped to
-                the envelope itself, so object-cover maps ~1:1). */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(14,22,32,0.28)]">
-              {/* Layer 1: Slate-blue envelope artwork */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ENVELOPE_IMAGE_URL}
-                alt="Deep slate-blue wedding envelope with a silver sheen and a pocket panel"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-cover"
+            {/* Ambient twinkling stars + moonlight behind the card */}
+            {!instant && <MoonAmbience />}
+
+            {/* Reveal scene — perspective on the wrapper. The FRONT
+                is in flow (it defines the box height); the BACK is
+                absolute inset-0. Rest = back visible, front hidden;
+                revealed = front visible, back hidden. */}
+            <div className="relative z-10 mx-auto w-[88%] @min-[29.375rem]:w-[80%]" style={{ perspective: 1200 }}>
+              {/* Soft silver glow behind the card */}
+              <div
+                aria-hidden="true"
+                className="absolute -inset-4 rounded-[2rem] blur-2xl"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, rgba(201,205,214,0.45) 0%, rgba(221,225,232,0.28) 55%, transparent 75%)",
+                }}
               />
 
-              {/* Layer 2: Interactive Sliding Ice-White Letterpress
-                  Invitation Card.
-                  Card top and size are CONTAINER queries (NEVER a
-                  viewport `sm:` here, or the editor's Mobile (390px)
-                  preview on a desktop viewport gets desktop geometry
-                  in a mobile-sized box, exactly the Emerald round-2
-                  failure). Three bands, because the card's content is
-                  fixed px while the 4:3 container shrinks with the
-                  viewport — the large card does NOT fit at 430px
-                  (398x299 container): with top 26% + 18px names,
-                  Partner B bottom sat at 58.8%, 20px below the 52%
-                  pocket line.
-                  - <384px: small card (15px names), top 16% — 390px:
-                    Partner B bottom 44.7%, divider top 53.6%;
-                    320px: Partner B bottom 51.6% (~1px clearance,
-                    reads complete by eye).
-                  - 384–469px: small card, top 22%, divider mt-10.
-                  - >=470px: large card (18px names), top 23% —
-                    lowered from 26% because the live-measured names
-                    section is ~98px, not the 88px the builder assumed:
-                    at 26% Partner B bottom was 52.7% at desktop,
-                    2.6px BELOW the pocket line. At 23% it is 49.7%
-                    (~12px clearance) at the 490px container and
-                    50.9% (~4px) at 470px.
-                  At every band the names peek above the pocket line
-                  while the divider, date and location sit below it
-                  (see the pocket-geometry note on Layer 3). */}
+              {/* Rise lift on reveal */}
               <motion.div
                 initial={false}
-                animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -14 : -28) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
-                }}
+                animate={{ y: isRevealed ? [0, -24, 0] : 0 }}
                 transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
+                  duration: instant ? 0 : 1.15,
+                  times: [0, 0.45, 1],
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="absolute top-[16%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[22%] @min-[24rem]:w-[46%] @min-[29.375rem]:top-[23%]"
+                className="relative w-full"
               >
-                <InvitationCard site={site} isOpen={isCardLifted} />
+                {/* Slow turn into place — rest is turned slightly,
+                    reveal straightens it (a turn, not a flip). */}
+                <motion.div
+                  initial={false}
+                  animate={{ rotateY: isRevealed ? 0 : -16 }}
+                  transition={{ duration: instant ? 0 : 1.25, ease: [0.22, 1, 0.36, 1] }}
+                  style={{ transformStyle: "preserve-3d" }}
+                  className="relative w-full"
+                >
+                  {/* FRONT — the invitation (unchanged content) */}
+                  <motion.div
+                    aria-hidden={!isRevealed}
+                    initial={false}
+                    animate={{
+                      opacity: isRevealed ? 1 : 0,
+                      y: isRevealed ? 0 : 28,
+                    }}
+                    transition={{ duration: instant ? 0 : 0.95, ease: [0.22, 1, 0.36, 1] }}
+                    className="relative w-full"
+                  >
+                    <InvitationCard site={site} isOpen={isRevealed} />
+                  </motion.div>
+
+                  {/* BACK — blurred moonlit photo + crescent medallion */}
+                  <motion.div
+                    aria-hidden={isRevealed}
+                    initial={false}
+                    animate={{
+                      opacity: isRevealed ? 0 : 1,
+                      y: isRevealed ? -14 : 0,
+                    }}
+                    transition={{ duration: instant ? 0 : 0.55, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute inset-0"
+                  >
+                    <CardBack site={site} />
+                  </motion.div>
+                </motion.div>
               </motion.div>
 
-              {/* Layer 3: REAL slate pocket — the envelope photo
-                  rendered a second time ABOVE the card, clipped to
-                  the pocket's shape, so the card is physically
-                  tucked inside at rest.
-                  MEASURED on the cropped artwork (1200x895,
-                  pixel-profiled 2026-11-25): the pocket panel's
-                  flat top edge sits at y = 52.2% and spans
-                  x ≈ 13–82%; its sides angle out to the bottom
-                  corners (≈1% / 99% at y = 100%). The polygon
-                  follows that edge exactly, so the overlay is
-                  pixel-seamless with Layer 1 (same image, same
-                  object-cover mapping).
-                  Rest geometry, LIVE-MEASURED at each container size
-                  (card content is fixed px, so the card top differs
-                  by container):
-                  - Mobile small card, top 16%: 390px (358x269) —
-                    names bottom 44.7%, divider top 53.6% (hidden,
-                    ~4px margin); card bottom 76.5%, hidden behind
-                    the pocket. 320px (288x216) — names bottom 51.6%
-                    (~1px clearance, reads complete by eye), divider
-                    top 62.8%.
-                  - Band 384–469px, small card, top 22%, divider
-                    mt-10 (divider offset 117.2px from card top):
-                    Partner B bottom 43.9–48.8%, divider top
-                    55.2–62.7% — both clear of the 52% line across
-                    the whole band.
-                  - Desktop large card, top 23% (490x367.5): names
-                    bottom 49.7% (~12px clearance), divider top
-                    56.3% — hidden with ~16px margin; card bottom
-                    ~80%, hidden.
-                  The card bottom sits below the pocket line in
-                  every case (invisible behind the overlay), which
-                  is what "tucked" means here — the 85–95% nominal
-                  bottom from the Emerald rounds cannot apply to
-                  this artwork, whose pocket line is at 52%
-                  rather than 65%.
-                  On tap the clip's top edge drops to 97% (the
-                  pocket opens) while the card lifts 28px — the
-                  lift is capped at 28px because the mobile card
-                  top is only 41px: a 48px lift (Emerald's) would
-                  push "WE INVITE YOU" out of the overflow-hidden
-                  container. With 28px the eyebrow stays visible
-                  (top ≈ 13px) and divider + date + location are
-                  fully revealed with no top clipping. */}
-              <motion.div
-                aria-hidden="true"
-                initial={false}
-                animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(13% 97%, 82% 97%, 99% 100%, 1% 100%)"
-                    : "polygon(13% 52%, 82% 52%, 99% 100%, 1% 100%)",
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="pointer-events-none absolute inset-0 z-20"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
+              {/* Starlight burst on reveal. Renders nothing under
+                  reduced motion. */}
+              {!instant && (
+                <StarBurstCanvas
+                  burstKey={burstKey}
+                  burstOrigin={{ x: 0.5, y: 0.45 }}
+                  className="z-20"
                 />
-              </motion.div>
+              )}
             </div>
 
-            {/* Subtle interactive cue */}
-            <p className="er-font-display mt-1 text-center text-[10px] tracking-[0.26em] text-[#2E3A4A]/80 uppercase transition-colors group-hover:text-[#16202E]">
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
-          </div>
-
-          {/* Silver Crescent Wax Seal */}
-          <div className="relative z-30 mt-4 flex justify-center">
-            <SilverSeal isOpen={isCardLifted} onToggle={toggleEnvelope} />
+            {/* Cue */}
+            <motion.p
+              key={isRevealed ? "front" : "back"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4 }}
+              className="er-font-display relative z-10 mt-4 inline-block rounded-full bg-[#F4F7FA]/80 px-4 py-1 text-center text-[10px] tracking-[0.26em] text-[#2E3A4A]/80 uppercase backdrop-blur-[2px] transition-colors group-hover:text-[#16202E]"
+            >
+              {isRevealed ? "Tap to Flip Back" : "Tap Card to Reveal"}
+            </motion.p>
           </div>
         </motion.div>
       </div>

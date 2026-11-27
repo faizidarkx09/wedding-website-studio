@@ -9,7 +9,10 @@
 // Blush rotates paper panels open around a centre seam with falling
 // petals; Desert Dusk SLIDES two dune-coloured panels apart
 // horizontally while golden dust RISES, and its transition emblem is
-// a sun disc, not a heart.
+// a sun disc, not a heart. The panels are plain dune-coloured
+// curtains — never an envelope shape — and they part to reveal the
+// invitation CARD itself (its dune-toned back at rest); the card's
+// own sand-dissolve reveal then follows on tap.
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -346,14 +349,16 @@ export function SkipButton({ onSkip }: { onSkip: () => void }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* DunePanelsOverlay — Phase 3 + 4. Two dune-coloured panels cover  */
-/* the screen, then SLIDE apart horizontally (left panel to the     */
-/* left, right panel to the right — no 3D rotation, unlike Blush)   */
-/* to reveal the invitation mounted underneath; gold dust rises    */
-/* around them; on "fading" the panels dissolve, a sun disc scales */
-/* + fades in the centre, and a golden light sweep crosses the     */
-/* screen. Fixed positioning, pointer-events-none except for the    */
-/* Skip / sound controls.                                          */
+/* DunePanelsOverlay — Phase 3 + 4. Two plain dune-coloured panels */
+/* cover the screen, then SLIDE apart horizontally (left panel to  */
+/* the left, right panel to the right — no 3D rotation, unlike     */
+/* Blush) to reveal the invitation card mounted underneath (its    */
+/* dune-toned back at rest); gold dust rises around them; on       */
+/* "fading" the panels dissolve, a sun disc scales + fades in the  */
+/* centre, and a golden light sweep crosses the screen. The panels */
+/* are dune curtains, not an envelope: no flap, no seal, no card   */
+/* tucked inside anything. Fixed positioning, pointer-events-none  */
+/* except for the Skip / sound controls.                           */
 /* ------------------------------------------------------------------ */
 
 export type DunePanelsPhase = "closed" | "opening" | "fading";

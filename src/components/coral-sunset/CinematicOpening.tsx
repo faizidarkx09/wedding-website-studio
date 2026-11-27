@@ -1,9 +1,11 @@
 // Cinematic opening helpers for Coral Sunset — Phase 1 rising
 // embers + slow sun wash, Phase 2 sun-disc flare on tap, Phase 3
-// horizon-split panels, Phase 4 rising sun + warm shimmer. Web
-// Audio SFX only (warm wave + sunset chime, synthesised — no audio
-// files, no music). Everything is transform/opacity (canvas
-// excepted) and respects prefers-reduced-motion.
+// top/bottom horizon-split panels (the same sunrise gesture as
+// the card's own split — NO envelope anywhere), Phase 4 rising sun
+// + warm shimmer. Web Audio SFX only (warm wave + sunset chime,
+// synthesised — no audio files, no music). Everything is
+// transform/opacity (canvas excepted) and respects
+// prefers-reduced-motion.
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -332,11 +334,17 @@ export function SkipButton({ onSkip }: { onSkip: () => void }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* SunsetOverlay — Phase 3 + 4. Two sunset-gradient panels (plum    */
-/* left, peach right) slide apart horizontally like a horizon       */
-/* splitting; on "fading" a sun disc rises and dissolves while a    */
-/* warm shimmer sweeps across. Fixed positioning,                  */
-/* pointer-events-none except for the Skip / sound controls.         */
+/* SunsetOverlay — Phase 3 + 4. Two sunset-gradient panels (plum   */
+/* sky above, peach glow below) meet at a horizon line, then split  */
+/* apart vertically — top rises, bottom sinks — like the sun rising */
+/* over the horizon. This is the SAME gesture as the card's own     */
+/* sunrise split, scaled to the full screen: the cinematic IS the   */
+/* reveal's overture. The invitation (card back at rest) is mounted */
+/* underneath, so phases 3–4 end ON the card, and the guest then    */
+/* taps the card itself to split it open. On "fading" a sun disc    */
+/* rises and dissolves while a warm shimmer sweeps across. Fixed    */
+/* positioning, pointer-events-none except for the Skip / sound     */
+/* controls.                                                        */
 /* ------------------------------------------------------------------ */
 
 export type SunsetPhase = "closed" | "parting" | "fading";
@@ -364,14 +372,14 @@ export function SunsetOverlay({
         animate={{ opacity: phase === "fading" ? 0 : 1 }}
         transition={{ duration: 1.2, ease: [0.65, 0, 0.35, 1] }}
       >
-        {/* Left panel — plum gradient, slides left */}
+        {/* Top panel — plum sky, rises */}
         <motion.div
-          className="absolute top-0 bottom-0 left-0 w-1/2"
+          className="absolute top-0 right-0 left-0 h-1/2"
           style={{
             background: "linear-gradient(180deg, #2E1420 0%, #5C2E3E 55%, #C94A2E 100%)",
           }}
-          initial={{ x: 0 }}
-          animate={{ x: parting ? "-102%" : 0 }}
+          initial={{ y: 0 }}
+          animate={{ y: parting ? "-102%" : 0 }}
           transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
         >
           <div
@@ -379,19 +387,19 @@ export function SunsetOverlay({
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(90deg, rgba(46,20,32,0.25) 0%, rgba(46,20,32,0.05) 70%, rgba(255,218,185,0.22) 100%)",
+                "linear-gradient(180deg, rgba(46,20,32,0.25) 0%, rgba(46,20,32,0.05) 70%, rgba(255,218,185,0.22) 100%)",
             }}
           />
         </motion.div>
 
-        {/* Right panel — peach gradient, slides right */}
+        {/* Bottom panel — peach glow, sinks */}
         <motion.div
-          className="absolute top-0 right-0 bottom-0 w-1/2"
+          className="absolute right-0 bottom-0 left-0 h-1/2"
           style={{
             background: "linear-gradient(180deg, #C94A2E 0%, #FF7F50 55%, #FFDAB9 100%)",
           }}
-          initial={{ x: 0 }}
-          animate={{ x: parting ? "102%" : 0 }}
+          initial={{ y: 0 }}
+          animate={{ y: parting ? "102%" : 0 }}
           transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
         >
           <div
@@ -399,10 +407,20 @@ export function SunsetOverlay({
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(270deg, rgba(255,218,185,0.25) 0%, rgba(255,127,80,0.05) 70%, rgba(46,20,32,0.22) 100%)",
+                "linear-gradient(0deg, rgba(255,218,185,0.25) 0%, rgba(255,127,80,0.05) 70%, rgba(46,20,32,0.22) 100%)",
             }}
           />
         </motion.div>
+
+        {/* Horizon glow line — fades as the halves part (mirrors the
+            card back's own horizon line) */}
+        <motion.div
+          aria-hidden="true"
+          className="absolute inset-x-0 top-1/2 h-px bg-gradient-to-r from-transparent via-[#FFDAB9] to-transparent"
+          initial={false}
+          animate={{ opacity: parting ? 0 : 1 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        />
 
         {/* Embers drifting around the splitting horizon */}
         <EmberCanvas emberCount={10} burstKey={0} className="z-10" />

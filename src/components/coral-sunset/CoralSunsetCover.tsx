@@ -34,10 +34,10 @@ export default function CoralSunsetCover({
   // plays once per session; reduced-motion or a repeat visit opens
   // the invitation directly. Double-taps are guarded by startedRef.
   const SESSION_FLAG = "cs-cinematic-played";
-  const [sealing, setSealing] = useState(false);
+  const [flaring, setFlaring] = useState(false);
   const [burstKey, setBurstKey] = useState(0);
   const startedRef = useRef(false);
-  const sealTimerRef = useRef<number | null>(null);
+  const flareTimerRef = useRef<number | null>(null);
 
   const alreadyPlayed = () => {
     try {
@@ -56,7 +56,7 @@ export default function CoralSunsetCover({
 
   useEffect(
     () => () => {
-      if (sealTimerRef.current !== null) window.clearTimeout(sealTimerRef.current);
+      if (flareTimerRef.current !== null) window.clearTimeout(flareTimerRef.current);
     },
     [],
   );
@@ -65,10 +65,10 @@ export default function CoralSunsetCover({
     if (startedRef.current) return;
     startedRef.current = true;
     markPlayed();
-    setSealing(true);
+    setFlaring(true);
     setBurstKey((k) => k + 1);
     playWaveSound();
-    sealTimerRef.current = window.setTimeout(() => {
+    flareTimerRef.current = window.setTimeout(() => {
       onOpen({ cinematic: true });
     }, 1500);
   };
@@ -84,7 +84,7 @@ export default function CoralSunsetCover({
   };
 
   const handleSkip = () => {
-    if (sealTimerRef.current !== null) window.clearTimeout(sealTimerRef.current);
+    if (flareTimerRef.current !== null) window.clearTimeout(flareTimerRef.current);
     startedRef.current = true;
     onOpen();
   };
@@ -113,9 +113,9 @@ export default function CoralSunsetCover({
       {/* Cinematic layer — rising embers + the Phase 2 burst */}
       {!prefersReducedMotion && <EmberCanvas burstKey={burstKey} burstOrigin={{ x: 0.5, y: 0.42 }} />}
 
-      {/* Sound toggle — always visible; Skip appears while sealing */}
+      {/* Sound toggle — always visible; Skip appears while flaring */}
       {onToggleSound && <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />}
-      {sealing && <SkipButton onSkip={handleSkip} />}
+      {flaring && <SkipButton onSkip={handleSkip} />}
 
       {/* Double hairline inner border framing the sunset-card feel */}
       <div
@@ -148,14 +148,14 @@ export default function CoralSunsetCover({
       >
         <motion.div
           animate={
-            sealing
+            flaring
               ? { y: 0, scale: [1, 1.04, 1] }
               : prefersReducedMotion
                 ? undefined
                 : { y: [0, -5, 0] }
           }
           transition={
-            sealing
+            flaring
               ? { duration: 1.5, ease: [0.22, 1, 0.36, 1] }
               : { duration: 6.5, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }
           }
@@ -172,10 +172,10 @@ export default function CoralSunsetCover({
                 "radial-gradient(circle, rgba(255,218,185,0.95) 0%, rgba(255,127,80,0.55) 45%, rgba(255,127,80,0) 72%)",
             }}
             initial={{ opacity: 0 }}
-            animate={sealing ? { opacity: [0, 0.9, 0.4] } : { opacity: 0 }}
+            animate={flaring ? { opacity: [0, 0.9, 0.4] } : { opacity: 0 }}
             transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
           />
-          {sealing && (
+          {flaring && (
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
               <motion.div
                 className="absolute inset-y-0 w-1/4"
@@ -260,13 +260,13 @@ export default function CoralSunsetCover({
       {/* Bottom Invitation Open Action */}
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: sealing ? 0 : 1, y: 0 }}
+        animate={{ opacity: flaring ? 0 : 1, y: 0 }}
         transition={{ duration: 0.6, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 pt-5 pb-1 text-center"
       >
         <button
           type="button"
-          disabled={sealing}
+          disabled={flaring}
           onClick={(e) => {
             e.stopPropagation();
             handleOpen();

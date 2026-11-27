@@ -5,8 +5,9 @@
 // Views, in order:
 //   cover      — DesertDuskCover (dune-HORIZON photo, names in the
 //                sky, sun emblem with live monogram, sand-glow dust)
-//   invitation — DesertDuskEnvelope (terracotta envelope + gold sun
-//                seal + sliding card) + welcome + dusk countdown
+//   invitation — DesertDuskEnvelope (the invitation card alone:
+//                dune-toned back at rest, sand-dissolve reveal on
+//                tap) + welcome + dusk countdown
 //                band + caravan-route story preview + oasis details
 //                card + postcard RSVP section + RSVP form + footer
 //   story      — DesertDuskStory (caravan route + paragraphs +
@@ -16,8 +17,8 @@
 //                registry, RSVP jump)
 //
 // NO music on this template — there is no ambientMusic engine and
-// no music toggle anywhere. The envelope's gold sun seal is the
-// interaction instead. The cinematic opening adds synthesised SFX
+// no music toggle anywhere. The card itself is the interaction
+// instead. The cinematic opening adds synthesised SFX
 // only (desert wind + warm chime), never music.
 "use client";
 
@@ -60,7 +61,7 @@ export default function DesertDuskRenderer({
   envelope?: boolean;
   preview?: boolean;
 }) {
-  // With no envelope (editor live preview) start on the invitation —
+  // With no cover (editor live preview) start on the invitation —
   // the cover would block editing there (same contract as the other
   // template renderers).
   const [currentView, setCurrentView] = useState<View>(envelope ? "cover" : "invitation");

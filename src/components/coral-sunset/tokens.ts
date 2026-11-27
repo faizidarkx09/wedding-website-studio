@@ -6,7 +6,8 @@
 // in a wide arch window at the bottom; the story is a sunset STRIP
 // (a horizontal scroll-snap row inside a gradient band); details
 // sit in coral rounded tiles; the RSVP is a sunset postcard. The
-// envelope opens with a coral sun-disc seal. Only the couple names
+// card back is a coral sunset sky with a glowing sun disc. Only the
+// couple names
 // / date / venue are data-driven (Partner A / Partner B
 // placeholders — never a real couple). The four template-palette
 // colours (bg/ink/accent/accentSoft) also live in templates.ts so
@@ -33,9 +34,9 @@ export const CORAL = {
  * staged in ~/workspace/coral-sunset-assets/optimized/ and
  * public/images/themes/coral-sunset (folder). The hero and detail live at
  * the template root; the RSVP postcard + story photo under
- * coral-sunset/. The envelope photo is a tight crop of the coral
- * envelope flat-lay master (envelope fills the frame edge to edge;
- * flap apex at ~(50%, 62%)). */
+ * coral-sunset/. The detail photo is a tight crop of the coral
+ * sunset flat-lay master (sunset artwork fills the frame edge to
+ * edge). */
 export const COVER_IMAGE_URL = "/images/themes/coral-sunset.jpg";
 export const DETAIL_IMAGE_URL = "/images/themes/coral-sunset-detail.jpg";
 export const ENVELOPE_IMAGE_URL = "/images/themes/coral-sunset-detail.jpg";
@@ -127,7 +128,7 @@ export function formatDateDisplay(dateIso: string, timezone: string): string {
   }
 }
 
-/** "14 SEPTEMBER 2027" — the envelope-card date label (no ordinal). */
+/** "14 SEPTEMBER 2027" — the invitation-card date label (no ordinal). */
 export function formatCardDate(dateIso: string, timezone: string): string {
   try {
     const d = new Date(dateIso);
@@ -144,7 +145,7 @@ export function formatCardDate(dateIso: string, timezone: string): string {
   }
 }
 
-/** "YOUR TOWN, ST" — the envelope-card location label, derived from
+/** "YOUR TOWN, ST" — the invitation-card location label, derived from
  * the venue address (last two comma parts, uppercased); falls back to
  * the venue name. */
 export function locationLabel(site: WeddingSite): string {

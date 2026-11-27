@@ -6,7 +6,7 @@
 //   cover      — CoralSunsetCover (sunset-gradient sky, glowing sun
 //                disc with live monogram, names over the gradient,
 //                hero photo in an arch window, embers)
-//   invitation — CoralSunsetEnvelope (coral sun-seal envelope +
+//   invitation — CoralSunsetEnvelope (card-only sunrise-split reveal +
 //                welcome + countdown on a deep-plum band) +
 //                StoryPreview (sunset strip) + DetailsCard (coral
 //                rounded tiles) + RSVPSection (sunset postcard) +
@@ -17,8 +17,7 @@
 //                travel, accommodations, registry, RSVP jump)
 //
 // NO music on this template — there is no ambientMusic engine and
-// no music toggle anywhere. The envelope's coral sun-disc seal is
-// the interaction instead.
+// no music toggle anywhere. The card itself is the interaction.
 "use client";
 
 import { useEffect, useRef, useState } from "react";

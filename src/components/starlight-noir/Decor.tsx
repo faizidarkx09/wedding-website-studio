@@ -3,7 +3,8 @@
 // twinkling-star particle layer), StarCrest (gold constellation
 // ring with a star, the live monogram sits in the centre as HTML
 // text), ConstellationDivider (gold star between hairlines) and
-// StarSeal (the gold star wax-seal button art).
+// StarSeal (gold star seal art, unused by the card-only opening —
+// kept for compatibility; the opening uses no seal).
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -229,9 +230,9 @@ export function ConstellationDivider({ className = "" }: { className?: string })
 }
 
 /* ------------------------------------------------------------------ */
-/* StarSeal — the gold star wax-seal art for the envelope open       */
-/* button: a radial gold disc with a five-pointed star. Rendered as  */
-/* inline SVG so it stays crisp at every size.                       */
+/* StarSeal — gold star seal art: a radial gold disc with a
+ * five-pointed star. Rendered as inline SVG so it stays crisp
+ * at every size. Unused by the card-only opening.             */
 /* ------------------------------------------------------------------ */
 
 export function StarSeal({ className = "" }: { className?: string }) {

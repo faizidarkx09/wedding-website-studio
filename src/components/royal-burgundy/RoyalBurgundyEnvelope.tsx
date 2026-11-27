@@ -1,10 +1,15 @@
-// Royal Burgundy envelope — 1:1 port of the source's
-// EnvelopeInvitation.tsx + InvitationCard.tsx + VinylPlayer.tsx.
-// Interactive burgundy envelope with the sliding ivory letterpress
-// card (tap to reveal / tuck back), the hanging vinyl music
-// medallion, and cherry-blossom corner sprigs. Same values, same
-// geometry; only the data comes from the site and framer-motion
-// replaces the source's `motion` package.
+// Royal Burgundy invitation card — NO envelope. The card itself is
+// the reveal: at rest you see its BACK (blurred burgundy photograph
+// under a deep-burgundy wash, burgundy-and-gold medallion with the
+// couple monogram, "Tap to Reveal") behind closed burgundy velvet
+// curtains; tap parts the curtains and the card rises from below
+// with a gentle tilt, the back fades away and the FRONT (the
+// existing invitation content, unchanged) rises into place with a
+// rose-gold light sweep and a cherry-blossom burst. Tap again
+// settles it back and the curtains close. prefers-reduced-motion:
+// instant swap, no ambient animation, no petals. The hanging vinyl
+// music medallion below the card is unchanged (the template's music
+// toggle).
 "use client";
 
 import { useState } from "react";
@@ -13,13 +18,15 @@ import { Pause, Play } from "lucide-react";
 import type { WeddingSite } from "@/lib/types";
 import { BotanicalCardDivider, CherryBlossomSprig } from "./Decor";
 import {
+  COVER_IMAGE_URL,
   DETAIL_IMAGE_URL,
   formatCardDate,
+  initials,
   locationLabel,
 } from "./tokens";
 
 /* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding ivory letterpress card                */
+/* InvitationCard — the ivory letterpress card (FRONT, unchanged)    */
 /* ------------------------------------------------------------------ */
 
 function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
@@ -97,15 +104,15 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
 
 /* ------------------------------------------------------------------ */
 /* VinylPlayer — the hanging vinyl music medallion (the template's    */
-/* music toggle). The track is the source's own "Clair de Lune —      */
-/* Chamber Waltz" (built-in synth; a configured music URL plays       */
-/* through the same engine instead).                                  */
+/* music toggle). Unchanged. The track is "Clair de Lune — Chamber   */
+/* Waltz" (built-in synth; a configured music URL plays through the  */
+/* same engine instead).                                              */
 /* ------------------------------------------------------------------ */
 
 function VinylPlayer({ isPlaying, onToggle }: { isPlaying: boolean; onToggle: () => void }) {
   return (
     <div className="relative flex flex-col items-center">
-      {/* Delicate metallic chain connecting envelope pocket fold to vinyl medallion */}
+      {/* Delicate metallic chain hanging the vinyl medallion below the card */}
       <svg
         aria-hidden="true"
         viewBox="0 0 120 76"
@@ -260,7 +267,207 @@ function VinylPlayer({ isPlaying, onToggle }: { isPlaying: boolean; onToggle: ()
 }
 
 /* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
+/* CardBack — blurred burgundy photograph under a deep-burgundy     */
+/* wash, burgundy-and-gold medallion with the couple monogram, tap  */
+/* hint. Same footprint as the front (absolute inset-0 of the       */
+/* reveal box), so the reveal never changes the layout.              */
+/* ------------------------------------------------------------------ */
+
+function CardBack({ site }: { site: WeddingSite }) {
+  return (
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#570F20] px-4 py-6 text-center shadow-[0_10px_24px_-8px_rgba(32,6,13,0.45)] @min-[29.375rem]:px-6">
+      {/* Blurred burgundy photograph — softened into a backdrop */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={COVER_IMAGE_URL}
+        alt=""
+        referrerPolicy="no-referrer"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+        style={{ filter: "blur(12px) brightness(0.72) saturate(1.15)", transform: "scale(1.18)" }}
+      />
+
+      {/* Deep-burgundy wash so the monogram stays legible */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 90% 80% at 50% 42%, rgba(87,15,32,0.25) 0%, rgba(87,15,32,0.62) 100%)",
+        }}
+      />
+
+      {/* Fine double rose-gold border, matching the front */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2.5 border border-[#B58A72]/70 @min-[29.375rem]:inset-3"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[13px] border border-[#F7F0E4]/25 @min-[29.375rem]:inset-[15px]"
+      />
+
+      <div className="relative z-10 flex flex-col items-center py-2">
+        <p className="rb-font-display text-[9px] tracking-[0.34em] text-[#F7F0E4] uppercase @min-[29.375rem]:text-[10px]">
+          WITH LOVE
+        </p>
+
+        {/* Burgundy-and-gold medallion with the couple monogram */}
+        <div
+          aria-hidden="true"
+          className="relative mt-4 flex h-24 w-24 items-center justify-center rounded-full @min-[29.375rem]:mt-5 @min-[29.375rem]:h-28 @min-[29.375rem]:w-28"
+          style={{
+            background:
+              "radial-gradient(circle at 35% 30%, #8A2A3D 0%, #570F20 45%, #2A0510 100%)",
+            boxShadow:
+              "inset 0 2px 6px rgba(255,255,255,0.35), inset 0 -4px 10px rgba(32,6,13,0.5), 0 10px 22px -6px rgba(32,6,13,0.55)",
+          }}
+        >
+          <div className="absolute inset-2 rounded-full border border-[#B58A72]/70" />
+          <div className="absolute inset-[7px] rounded-full border border-[#F7F0E4]/20" />
+          <span className="rb-font-display relative text-[1.35rem] leading-none font-medium tracking-[0.06em] text-[#F7F0E4] @min-[29.375rem]:text-[1.5rem]">
+            {initials(site)}
+          </span>
+        </div>
+
+        <BotanicalCardDivider className="mt-4 h-8 w-24 @min-[29.375rem]:mt-5 @min-[29.375rem]:h-10 @min-[29.375rem]:w-28" />
+
+        <p className="rb-font-display mt-3 text-[9px] tracking-[0.3em] text-[#F7F0E4] uppercase @min-[29.375rem]:text-[10px]">
+          TAP TO REVEAL
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* BurgundyAmbience — soft rose-gold light behind the card.         */
+/* Transform + opacity only (GPU-friendly). Skipped under reduced    */
+/* motion.                                                            */
+/* ------------------------------------------------------------------ */
+
+function BurgundyAmbience() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
+      <motion.div
+        className="absolute -left-10 top-6 h-44 w-44 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(181,138,114,0.5) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, 22, 0], y: [0, -16, 0] }}
+        transition={{ duration: 11, repeat: Infinity, repeatType: "mirror", ease: [0.45, 0.05, 0.55, 0.95] }}
+      />
+      <motion.div
+        className="absolute -right-8 bottom-8 h-52 w-52 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(146,60,75,0.5) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, -18, 0], y: [0, 14, 0] }}
+        transition={{ duration: 13, repeat: Infinity, repeatType: "mirror", ease: [0.45, 0.05, 0.55, 0.95] }}
+      />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* VelvetCurtains — two burgundy velvet panels over the card at     */
+/* rest. On reveal they part (slide left / right) and fade, like a  */
+/* theatre curtain opening on the invitation. Renders nothing      */
+/* under reduced motion (the back simply swaps).                    */
+/* ------------------------------------------------------------------ */
+
+function VelvetCurtains({ isRevealed }: { isRevealed: boolean }) {
+  const panelStyle: React.CSSProperties = {
+    background:
+      "linear-gradient(90deg, rgba(42,5,16,0.96) 0%, rgba(87,15,32,0.94) 30%, rgba(118,38,55,0.94) 55%, rgba(87,15,32,0.94) 80%, rgba(42,5,16,0.96) 100%)",
+  };
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-30 overflow-hidden">
+      {/* Left curtain */}
+      <motion.div
+        className="absolute inset-y-0 left-0 w-1/2"
+        style={panelStyle}
+        initial={false}
+        animate={isRevealed ? { x: "-105%", opacity: 0 } : { x: "0%", opacity: 1 }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {/* Vertical velvet folds */}
+        <div className="absolute inset-y-0 left-1/4 w-px bg-black/25" />
+        <div className="absolute inset-y-0 left-2/4 w-px bg-white/10" />
+        <div className="absolute inset-y-0 left-3/4 w-px bg-black/25" />
+        <div className="absolute inset-y-0 right-0 w-[3px] bg-[#B58A72]/60" />
+      </motion.div>
+      {/* Right curtain */}
+      <motion.div
+        className="absolute inset-y-0 right-0 w-1/2"
+        style={panelStyle}
+        initial={false}
+        animate={isRevealed ? { x: "105%", opacity: 0 } : { x: "0%", opacity: 1 }}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="absolute inset-y-0 left-1/4 w-px bg-black/25" />
+        <div className="absolute inset-y-0 left-2/4 w-px bg-white/10" />
+        <div className="absolute inset-y-0 left-3/4 w-px bg-black/25" />
+        <div className="absolute inset-y-0 left-0 w-[3px] bg-[#B58A72]/60" />
+      </motion.div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* BlossomBurst — on reveal, cherry-blossom petals drift from the  */
+/* card and fade. Renders nothing under reduced motion.              */
+/* ------------------------------------------------------------------ */
+
+const BURST_PETALS = [
+  { angle: -90, dist: 110, size: 20, color: "#F4C6C6", delay: 0.05 },
+  { angle: -45, dist: 96, size: 16, color: "#E8A0A0", delay: 0.1 },
+  { angle: 0, dist: 110, size: 20, color: "#D98C8C", delay: 0.05 },
+  { angle: 45, dist: 96, size: 16, color: "#F4C6C6", delay: 0.1 },
+  { angle: 90, dist: 110, size: 20, color: "#E8A0A0", delay: 0.05 },
+  { angle: 135, dist: 96, size: 16, color: "#D98C8C", delay: 0.1 },
+  { angle: 180, dist: 110, size: 20, color: "#F4C6C6", delay: 0.05 },
+  { angle: -135, dist: 96, size: 16, color: "#E8A0A0", delay: 0.1 },
+];
+
+function BlossomBurst({ burstKey }: { burstKey: number }) {
+  if (burstKey === 0) return null;
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
+    >
+      {BURST_PETALS.map((p, i) => {
+        const rad = (p.angle * Math.PI) / 180;
+        const x = Math.cos(rad) * p.dist;
+        const y = Math.sin(rad) * p.dist;
+        return (
+          <motion.span
+            key={`${burstKey}-${i}`}
+            className="absolute rounded-[50%_50%_50%_50%/60%_60%_40%_40%]"
+            style={{ width: p.size, height: p.size * 1.25, background: p.color }}
+            initial={{ x: 0, y: 0, scale: 0.2, opacity: 0.95, rotate: p.angle }}
+            animate={{ x, y, scale: 1, opacity: 0, rotate: p.angle + 40 }}
+            transition={{ duration: 1.1, delay: p.delay, ease: [0.22, 1, 0.36, 1] }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* CardReveal — "Curtain part". At rest the BACK shows behind      */
+/* closed burgundy velvet curtains. Tap parts the curtains and the   */
+/* card rises from below with a gentle tilt, the back fades away    */
+/* and the FRONT rises into place with a rose-gold light sweep and  */
+/* a cherry-blossom burst. Tap again settles it back and the        */
+/* curtains close.                                                   */
 /* ------------------------------------------------------------------ */
 
 export default function RoyalBurgundyEnvelope({
@@ -272,11 +479,19 @@ export default function RoyalBurgundyEnvelope({
   isMusicPlaying: boolean;
   onToggleMusic: () => void;
 }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const [sweepKey, setSweepKey] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+  const toggleCard = () => {
+    const next = !isRevealed;
+    setIsRevealed(next);
+    if (next) {
+      setBurstKey((k) => k + 1);
+      setSweepKey((k) => k + 1);
+    }
   };
 
   return (
@@ -286,82 +501,128 @@ export default function RoyalBurgundyEnvelope({
       <CherryBlossomSprig position="bottom-right" />
 
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Open Luxury Burgundy Envelope + Sliding Letterpress Card */}
+        {/* Interactive Burgundy Card + Sliding Letterpress Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-[490px]"
+          transition={{ duration: 0.95, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          className="relative w-full max-w-[490px] @container"
         >
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isRevealed}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open burgundy envelope and slide up wedding invitation card"
+              isRevealed
+                ? "Hide the wedding invitation card back to its back side"
+                : "Reveal the wedding invitation card"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
             className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#570F20]"
           >
-            {/* Envelope Container preserving the exact 4:3 geometry of the burgundy envelope */}
-            <div className="relative aspect-[4/3] w-full">
-              {/* Layer 1: Full Open Burgundy Embossed Envelope Backdrop */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={DETAIL_IMAGE_URL}
-                alt="Deep burgundy leather-textured open wedding envelope with embossed antique rose-gold botanical ornaments"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-contain mix-blend-multiply drop-shadow-[0_24px_34px_rgba(40,10,18,0.28)]"
+            {/* Ambient rose-gold light behind the card */}
+            {!instant && <BurgundyAmbience />}
+
+            {/* Reveal scene — perspective on the wrapper. The FRONT
+                is in flow (it defines the box height); the BACK is
+                absolute inset-0. Rest = back visible, front hidden;
+                revealed = front visible, back hidden. */}
+            <div className="relative z-10 mx-auto w-[88%] @min-[29.375rem]:w-[80%]" style={{ perspective: 1200 }}>
+              {/* Soft rose-gold glow behind the card */}
+              <div
+                aria-hidden="true"
+                className="absolute -inset-4 rounded-[2rem] blur-2xl"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, rgba(181,138,114,0.4) 0%, rgba(247,240,228,0.28) 55%, transparent 75%)",
+                }}
               />
 
-              {/* Layer 2: Interactive Sliding Ivory Letterpress Invitation Card */}
+              {/* Rise + gentle tilt lift on reveal */}
               <motion.div
                 initial={false}
                 animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -28 : -54) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
+                  y: isRevealed ? [0, -26, 0] : 0,
+                  rotateX: isRevealed ? [0, 7, 0] : 0,
                 }}
                 transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.85,
+                  duration: instant ? 0 : 1.05,
+                  times: [0, 0.45, 1],
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 sm:w-[46%]"
+                style={{ transformStyle: "preserve-3d" }}
+                className="relative w-full"
               >
-                <InvitationCard site={site} isOpen={isCardLifted} />
+                {/* FRONT — the invitation (unchanged content) */}
+                <motion.div
+                  aria-hidden={!isRevealed}
+                  initial={false}
+                  animate={{
+                    opacity: isRevealed ? 1 : 0,
+                    y: isRevealed ? 0 : 28,
+                  }}
+                  transition={{ duration: instant ? 0 : 0.9, ease: [0.22, 1, 0.36, 1] }}
+                  className="relative w-full"
+                >
+                  <InvitationCard site={site} isOpen={isRevealed} />
+                </motion.div>
+
+                {/* BACK — blurred burgundy photo + burgundy medallion */}
+                <motion.div
+                  aria-hidden={isRevealed}
+                  initial={false}
+                  animate={{
+                    opacity: isRevealed ? 0 : 1,
+                    y: isRevealed ? -14 : 0,
+                  }}
+                  transition={{ duration: instant ? 0 : 0.55, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute inset-0"
+                >
+                  <CardBack site={site} />
+                </motion.div>
               </motion.div>
 
-              {/* Layer 3: Front Burgundy Pocket Flaps Overlay (Masks the bottom of the card so it physically slides out of the pocket!) */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-20"
-                style={{
-                  clipPath:
-                    "polygon(19% 37%, 40% 62%, 60% 62%, 81% 37%, 81% 94%, 19% 94%)",
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={DETAIL_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-contain"
+              {/* Burgundy velvet curtains — part on reveal */}
+              {!instant && <VelvetCurtains isRevealed={isRevealed} />}
+
+              {/* Rose-gold light sweep across the card on reveal */}
+              {isRevealed && !instant && (
+                <motion.div
+                  key={sweepKey}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-y-0 z-20 w-1/3"
+                  style={{
+                    background:
+                      "linear-gradient(100deg, transparent 0%, rgba(181,138,114,0.5) 50%, transparent 100%)",
+                  }}
+                  initial={{ x: "-120%" }}
+                  animate={{ x: "320%" }}
+                  transition={{ duration: 0.9, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
                 />
-              </div>
+              )}
+
+              {/* Cherry-blossom burst on reveal. Renders nothing under
+                  reduced motion. */}
+              {!instant && <BlossomBurst burstKey={burstKey} />}
             </div>
 
-            {/* Subtle interactive cue */}
-            <p className="rb-font-display mt-1 text-center text-[10px] tracking-[0.26em] text-[#762637]/80 uppercase transition-colors group-hover:text-[#570F20]">
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
+            {/* Cue */}
+            <motion.p
+              key={isRevealed ? "front" : "back"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4 }}
+              className="rb-font-display relative z-10 mt-4 inline-block rounded-full bg-[#F7F0E4]/80 px-4 py-1 text-center text-[10px] tracking-[0.26em] text-[#762637]/80 uppercase backdrop-blur-[2px] transition-colors group-hover:text-[#570F20]"
+            >
+              {isRevealed ? "Tap to Flip Back" : "Tap Card to Reveal"}
+            </motion.p>
           </div>
 
           {/* Hanging Metallic Vinyl Record Music Player */}

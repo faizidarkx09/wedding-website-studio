@@ -1,35 +1,250 @@
-// The Sacred Garden opening envelope — the first screen of every
-// Sacred Garden site.
-//
-// A full-viewport cream overlay: the AI-generated envelope artwork
-// (ivory, embossed florals, burgundy wax seal), with the couple's
-// LIVE initials rendered in HTML over the seal — the baked gold
-// "A&B" monogram in the image is covered by a burgundy disc carrying
-// initials(site), so the seal reads correctly for ANY couple — with
-// the pulsing chevron + "TAP TO OPEN" (Cinzel 11px, bronze, 0.26em
-// letter-spacing) overlaid on the lower third, exactly as the audit
-// specifies (DESIGN_SYSTEM.md §0.2).
-//
-// Tap sequence (audit §0.3): touchstart primes the audio element
-// (Android fix — play, pause, reset), click starts the music (via the
-// renderer's shared audio element) and plays the opening animation:
-// a subtle lift/scale with a warm golden glow spilling from the
-// envelope, then the overlay fades out over 1.4s. DEVIATION from the
-// audit: the source's 4.8s 3D envelope-opening video is NOT reproduced
-// — video generation is region-blocked here, so the opening is a
-// CSS/JS animation on the envelope image instead (audit §0.4 option
-// (a)). Mirrors the Studio's EnvelopeIntro accessibility contract
-// (focus trap, inert siblings, Escape, scroll lock, reduced motion →
-// instant reveal) and keeps the Studio's Skip intro control (the
-// original offers none — kept for accessibility).
+// The Sacred Garden opening card — NO envelope. The invitation card
+// itself is the reveal: at rest you see its BACK (cream, blurred
+// garden wash, burgundy medallion with the couple monogram, "Tap to
+// reveal"); tap opens the garden gates — a warm beam of light sweeps
+// down the centre, then the back splits into two gate panels that
+// slide apart, and the FRONT (the invitation, unchanged content) is
+// revealed beneath. The overlay then fades and the site opens.
+// Mirrors the Studio's opening accessibility contract (focus trap,
+// inert siblings, Escape, scroll lock, reduced motion → instant
+// reveal) and keeps the Studio's Skip intro control. Tap starts the
+// shared music via the renderer's onOpen (the verified CC0 piano
+// track); Skip/Escape never start music.
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
-import { ENVELOPE_IMAGE_URL, SACRED, coupleNames, initials } from "./tokens";
+import { SACRED, coupleNames, formatDottedDate, initials } from "./tokens";
+import { Divider } from "./Decor";
 
-type Phase = "closed" | "opening" | "gone";
+type Phase = "closed" | "revealing" | "gone";
+
+/** Garden-gate reveal — light beam, then the gates part. */
+const REVEAL_MS = 1600;
+
+/** Drifting golden light motes (ambient). */
+const MOTES = [
+  { left: "8%", size: 5, duration: 9, delay: 0 },
+  { left: "20%", size: 7, duration: 11, delay: 1.6 },
+  { left: "34%", size: 4, duration: 8.5, delay: 2.8 },
+  { left: "48%", size: 6, duration: 10, delay: 0.9 },
+  { left: "62%", size: 5, duration: 12, delay: 3.4 },
+  { left: "76%", size: 7, duration: 9.5, delay: 2.1 },
+  { left: "88%", size: 4, duration: 10.5, delay: 4.0 },
+] as const;
+
+/** The invitation FRONT — existing content, unchanged: names, dotted
+ * date, venue, in Sacred Garden typography and palette. */
+function InvitationFront({ site }: { site: WeddingSite }) {
+  const dottedDate = formatDottedDate(site.weddingDate, site.timezone);
+  const venue = site.content.venueName?.trim() || site.content.venueAddress?.trim();
+  return (
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-[0.35rem] bg-[#FFFDF6] px-5 py-6 text-center shadow-[0_18px_40px_-12px_rgba(90,15,27,0.35)]">
+      {/* Fine double gold border */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2.5 rounded-[0.25rem] border"
+        style={{ borderColor: `${SACRED.gold}99` }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[13px] rounded-[0.2rem] border"
+        style={{ borderColor: `${SACRED.gold}66` }}
+      />
+
+      <div className="relative z-10 flex flex-col items-center">
+        <p
+          className="sacred-cinzel text-[2.6cqw] uppercase"
+          style={{ color: SACRED.bronze, letterSpacing: "0.26em" }}
+        >
+          Together with their families
+        </p>
+
+        <h2 className="sacred-script mt-[3cqw] text-[11cqw] leading-[1.05]" style={{ color: SACRED.gold }}>
+          {site.content.partnerA}
+        </h2>
+        <span className="sacred-script my-[0.5cqw] text-[6cqw] leading-none" style={{ color: SACRED.goldAlt }}>
+          &amp;
+        </span>
+        <h2 className="sacred-script text-[11cqw] leading-[1.05]" style={{ color: SACRED.gold }}>
+          {site.content.partnerB}
+        </h2>
+
+        <Divider className="mt-[3cqw] h-4 w-24" style={{ color: SACRED.gold }} />
+
+        {dottedDate ? (
+          <p
+            className="sacred-cinzel mt-[3cqw] text-[3.6cqw] uppercase"
+            style={{ color: SACRED.brown, letterSpacing: "0.28em" }}
+          >
+            {dottedDate}
+          </p>
+        ) : null}
+        {venue ? (
+          <p
+            className="sacred-cinzel mt-[1.5cqw] text-[3cqw] uppercase"
+            style={{ color: SACRED.taupe, letterSpacing: "0.18em" }}
+          >
+            {venue}
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/** The card BACK — the garden gates. Two cream gate panels (with a
+ * gold seam between them) cover the front; the medallion + tap hint
+ * sit on top. On reveal: the content fades, a warm beam of light
+ * sweeps down the centre, then the gates slide apart and the front
+ * is revealed beneath. */
+function CardBack({ site, revealing }: { site: WeddingSite; revealing: boolean }) {
+  return (
+    <div className="absolute inset-0 z-10 overflow-hidden rounded-[0.35rem]" style={{ backgroundColor: SACRED.cream }}>
+      {/* Blurred garden wash behind the gates */}
+      <div
+        aria-hidden="true"
+        className="absolute -top-8 -left-8 h-40 w-40 rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle, rgba(146,153,135,0.4) 0%, transparent 70%)" }}
+      />
+      <div
+        aria-hidden="true"
+        className="absolute -right-6 -bottom-10 h-48 w-48 rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle, rgba(166,125,43,0.35) 0%, transparent 70%)" }}
+      />
+
+      {/* Gate panels — left and right halves. They carry the cream
+          surface + a gold inner seam; on reveal they slide apart. */}
+      <motion.div
+        aria-hidden="true"
+        className="absolute inset-y-0 left-0 w-1/2"
+        style={{
+          backgroundColor: SACRED.lighterCream,
+          borderRight: `1px solid ${SACRED.gold}66`,
+          boxShadow: "inset -12px 0 24px -18px rgba(108,81,63,0.5)",
+        }}
+        initial={false}
+        animate={revealing ? { x: "-104%", rotate: -1.5 } : { x: "0%", rotate: 0 }}
+        transition={{ duration: 0.85, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <motion.div
+        aria-hidden="true"
+        className="absolute inset-y-0 right-0 w-1/2"
+        style={{
+          backgroundColor: SACRED.lighterCream,
+          borderLeft: `1px solid ${SACRED.gold}66`,
+          boxShadow: "inset 12px 0 24px -18px rgba(108,81,63,0.5)",
+        }}
+        initial={false}
+        animate={revealing ? { x: "104%", rotate: 1.5 } : { x: "0%", rotate: 0 }}
+        transition={{ duration: 0.85, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      />
+
+      {/* Warm beam of light sweeping down the centre seam */}
+      {revealing && (
+        <motion.div
+          aria-hidden="true"
+          className="absolute inset-y-0 left-1/2 z-30 w-[18%]"
+          style={{
+            x: "-50%",
+            transformOrigin: "top center",
+            background:
+              "linear-gradient(180deg, rgba(255,248,225,0) 0%, rgba(255,231,192,0.95) 35%, rgba(255,249,235,0.85) 65%, rgba(255,248,225,0) 100%)",
+          }}
+          initial={{ scaleY: 0, opacity: 0 }}
+          animate={{ scaleY: [0, 1, 1], opacity: [0, 1, 0] }}
+          transition={{ duration: 0.8, times: [0, 0.45, 1], ease: [0.22, 1, 0.36, 1] }}
+        />
+      )}
+
+      {/* Back content — medallion + tap hint. Fades as the gates part. */}
+      <motion.div
+        aria-hidden="true"
+        className="absolute inset-0 z-20 flex flex-col items-center justify-center px-5 py-6 text-center"
+        initial={false}
+        animate={revealing ? { opacity: 0 } : { opacity: 1 }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <p
+          className="sacred-cinzel text-[2.6cqw] uppercase"
+          style={{ color: SACRED.bronze, letterSpacing: "0.3em" }}
+        >
+          With love
+        </p>
+
+        {/* Burgundy garden medallion — gold ring + live initials */}
+        <div
+          className="mt-[4cqw] flex items-center justify-center"
+          style={{
+            width: "26cqw",
+            height: "26cqw",
+            borderRadius: "46% 54% 52% 48% / 52% 48% 54% 46%",
+            background:
+              "radial-gradient(circle at 50% 42%, #7A2836 0%, #6A1F2C 55%, #5A0F1B 100%)",
+            boxShadow:
+              "inset 0 2px 6px rgba(255,255,255,0.3), inset 0 -4px 10px rgba(40,5,10,0.5), 0 10px 22px -6px rgba(90,15,27,0.45)",
+          }}
+        >
+          <div
+            className="flex items-center justify-center rounded-full border"
+            style={{ width: "21cqw", height: "21cqw", borderColor: "rgba(232,213,160,0.5)" }}
+          >
+            <span className="sacred-script text-[8cqw] leading-none" style={{ color: "#E8D5A0" }}>
+              {initials(site)}
+            </span>
+          </div>
+        </div>
+
+        <Divider className="mt-[4cqw] h-4 w-24" style={{ color: SACRED.gold }} />
+
+        <p
+          className="sacred-cinzel mt-[3.5cqw] text-[2.6cqw] uppercase"
+          style={{ color: SACRED.brown, letterSpacing: "0.28em" }}
+        >
+          Tap to reveal
+        </p>
+      </motion.div>
+    </div>
+  );
+}
+
+/** Drifting golden light motes behind the card (ambient, skipped
+ * under reduced motion). Transform + opacity only. */
+function GardenAmbience() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+      <motion.div
+        className="absolute -left-8 top-12 h-44 w-44 rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle, rgba(166,125,43,0.35) 0%, transparent 70%)" }}
+        animate={{ x: [0, 20, 0], y: [0, -14, 0] }}
+        transition={{ duration: 12, repeat: Infinity, repeatType: "mirror", ease: [0.4, 0, 0.6, 1] }}
+      />
+      <motion.div
+        className="absolute -right-8 bottom-14 h-48 w-48 rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle, rgba(146,153,135,0.35) 0%, transparent 70%)" }}
+        animate={{ x: [0, -18, 0], y: [0, 12, 0] }}
+        transition={{ duration: 14, repeat: Infinity, repeatType: "mirror", ease: [0.4, 0, 0.6, 1] }}
+      />
+      {MOTES.map((m, i) => (
+        <motion.span
+          key={i}
+          className="absolute bottom-0 rounded-full"
+          style={{
+            left: m.left,
+            width: m.size,
+            height: m.size,
+            background: "radial-gradient(circle, #FFE9A8 0%, #A67D2B 100%)",
+            boxShadow: "0 0 8px rgba(255,220,140,0.8)",
+          }}
+          initial={{ y: 0, opacity: 0 }}
+          animate={{ y: -420, opacity: [0, 0.9, 0.9, 0] }}
+          transition={{ duration: m.duration, delay: m.delay, repeat: Infinity, ease: "linear", times: [0, 0.15, 0.8, 1] }}
+        />
+      ))}
+    </div>
+  );
+}
 
 export default function SacredGardenEnvelope({
   site,
@@ -53,6 +268,7 @@ export default function SacredGardenEnvelope({
   const timerRef = useRef<number | null>(null);
 
   const names = coupleNames(site);
+  const instant = Boolean(reduceMotion);
 
   useEffect(() => {
     if (autoFocus) buttonRef.current?.focus();
@@ -128,17 +344,17 @@ export default function SacredGardenEnvelope({
   function open() {
     if (phase !== "closed") return;
     onOpen();
-    if (reduceMotion) {
+    if (instant) {
       setPhase("gone");
       return;
     }
-    setPhase("opening");
-    timerRef.current = window.setTimeout(() => setPhase("gone"), 1400);
+    setPhase("revealing");
+    timerRef.current = window.setTimeout(() => setPhase("gone"), REVEAL_MS);
   }
 
   if (phase === "gone") return null;
 
-  const opening = phase === "opening";
+  const revealing = phase === "revealing";
 
   return (
     <motion.div
@@ -147,17 +363,29 @@ export default function SacredGardenEnvelope({
       aria-modal="true"
       aria-label={`Invitation for ${names}`}
       onKeyDown={trapTab}
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center px-5"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 overflow-y-auto px-5 py-6"
       style={{ backgroundColor: SACRED.cream, color: SACRED.brown }}
       initial={false}
-      animate={{ opacity: opening ? 0 : 1 }}
-      transition={{ duration: 1.4, ease: [0.25, 0.1, 0.25, 1] }}
+      animate={{ opacity: revealing ? 0 : 1 }}
+      transition={{ duration: 0.5, delay: revealing ? 1.1 : 0, ease: [0.22, 1, 0.36, 1] }}
     >
+      {!instant && <GardenAmbience />}
+
+      <motion.p
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="sacred-cinzel relative z-10 text-center text-[11px] uppercase"
+        style={{ color: SACRED.gold, letterSpacing: "0.32em" }}
+      >
+        You are cordially invited
+      </motion.p>
+
       <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1] }}
-        className="relative"
+        initial={{ opacity: 0, scale: 0.96, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.15, ease: [0.2, 0.7, 0.2, 1] }}
+        className="relative z-10 w-full max-w-[400px]"
       >
         <button
           ref={buttonRef}
@@ -165,104 +393,49 @@ export default function SacredGardenEnvelope({
           onTouchStart={onPrimeAudio}
           onClick={open}
           disabled={phase !== "closed"}
-          aria-label={`Open the invitation of ${names} — tap to open`}
-          className="group relative block cursor-pointer bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-8"
+          aria-label={`Reveal the wedding invitation of ${names} — tap to reveal`}
+          className="group relative block w-full cursor-pointer bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-8"
           style={{ outlineColor: SACRED.gold } as React.CSSProperties}
         >
-          {/* Envelope artwork — one image, max 440px wide (audit §0.1).
-              The wax seal is baked into the image, but its monogram is
-              NOT trusted: the live initials overlay below covers the
-              baked "A&B" with a burgundy disc carrying initials(site).
-              containerType makes the disc + initials scale with the
-              envelope via cqw units. */}
-          <motion.span
-            aria-hidden="true"
-            className="relative block w-[min(440px,86vw)] overflow-hidden rounded-sm"
-            style={{ aspectRatio: "9 / 16", containerType: "inline-size" } as React.CSSProperties}
-            initial={false}
-            animate={
-              opening
-                ? { scale: 1.04, y: -10 }
-                : { scale: 1, y: 0 }
-            }
-            transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1] }}
+          {/* The card — front underneath, gates on top until revealed.
+              Sized in cqw so the card scales cleanly at 390px/320px. */}
+          <span
+            className="relative mx-auto block w-[min(400px,86vw)]"
+            style={{ aspectRatio: "3 / 4", containerType: "inline-size" } as React.CSSProperties}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={ENVELOPE_IMAGE_URL}
-              alt="Open your invitation"
-              draggable={false}
-              fetchPriority="high"
-              className="block h-full w-full object-cover"
-            />
-            {/* Warm golden glow spilling from the envelope on open
-                (the CSS/JS stand-in for the source's opening video). */}
-            <motion.span
-              aria-hidden="true"
-              className="absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(ellipse at 50% 42%, rgba(255,231,192,0.95) 0%, rgba(255,249,235,0.55) 45%, rgba(255,249,235,0) 75%)",
-              }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: opening ? 1 : 0 }}
-              transition={{ duration: 0.9, ease: "easeOut" }}
-            />
-            {/* Live seal monogram — burgundy disc (15% of the envelope
-                width, centred on the baked seal at 50% / 43%) covering
-                the baked "A&B", with the couple's live initials in
-                Imperial Script, light gold. Sized in cqw so it scales
-                with the envelope at any width. */}
+            {/* Warm glow behind the card */}
             <span
               aria-hidden="true"
-              className="absolute left-1/2 top-[43%] flex items-center justify-center"
+              className="absolute -inset-4 rounded-[1rem] blur-2xl"
               style={{
-                width: "15cqw",
-                height: "15cqw",
-                transform: "translate(-50%, -50%)",
-                borderRadius: "46% 54% 52% 48% / 52% 48% 54% 46%",
                 background:
-                  "radial-gradient(circle at 50% 42%, #7A2836 0%, #6A1F2C 55%, #5A0F1B 100%)",
+                  "radial-gradient(ellipse at center, rgba(255,231,192,0.55) 0%, rgba(166,125,43,0.25) 55%, transparent 75%)",
               }}
-            >
-              <span
-                aria-hidden="true"
-                className="sacred-script"
-                style={{ color: "#E8D5A0", fontSize: "8.5cqw", lineHeight: 1 }}
-              >
-                {initials(site)}
-              </span>
-            </span>
-          </motion.span>
-
-          {/* Tap prompt — over the lower third of the envelope image,
-              below the wax seal (audit §0.2). */}
-          <motion.span
-            aria-hidden="true"
-            className="absolute bottom-[30%] left-1/2 flex -translate-x-1/2 flex-col items-center gap-[7px]"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: opening ? 0 : 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.8 }}
-          >
-            <motion.span
-              aria-hidden="true"
-              className="block h-[10px] w-[10px]"
-              style={{
-                borderRight: `1.5px solid ${SACRED.bronzeChevron}`,
-                borderTop: `1.5px solid ${SACRED.bronzeChevron}`,
-                transform: "rotate(-45deg)",
-              }}
-              animate={{ opacity: [0.6, 1, 0.6], y: [2, -2, 2] }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", delay: 1.9 }}
             />
             <motion.span
-              className="sacred-cinzel text-[11px] whitespace-nowrap uppercase"
-              style={{ color: SACRED.bronze, letterSpacing: "0.26em" }}
-              animate={{ opacity: [0.45, 1, 0.45] }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", delay: 1.6 }}
+              className="relative block h-full w-full"
+              initial={false}
+              animate={revealing ? { scale: 1.015 } : { scale: 1 }}
+              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
             >
-              Tap to open
+              <span className="absolute inset-0">
+                <InvitationFront site={site} />
+              </span>
+              <CardBack site={site} revealing={revealing} />
             </motion.span>
+          </span>
+
+          <motion.span
+            className="sacred-cinzel mt-5 block text-[11px] uppercase"
+            style={{ color: SACRED.bronze, letterSpacing: "0.28em" }}
+            animate={revealing ? { opacity: 0 } : { opacity: [0.55, 1, 0.55] }}
+            transition={
+              revealing
+                ? { duration: 0.3 }
+                : { duration: 2.4, repeat: Infinity, ease: [0.4, 0, 0.6, 1] }
+            }
+          >
+            Tap to reveal
           </motion.span>
         </button>
       </motion.div>
@@ -270,7 +443,7 @@ export default function SacredGardenEnvelope({
       <button
         type="button"
         onClick={dismiss}
-        className="mt-7 cursor-pointer bg-transparent px-3 py-2 text-sm font-semibold underline underline-offset-4 opacity-70 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-4"
+        className="relative z-10 cursor-pointer bg-transparent px-3 py-2 text-sm font-semibold underline underline-offset-4 opacity-70 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-4"
         style={{ outlineColor: SACRED.gold } as React.CSSProperties}
       >
         Skip intro

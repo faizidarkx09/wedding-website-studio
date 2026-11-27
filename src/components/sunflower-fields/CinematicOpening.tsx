@@ -5,16 +5,19 @@
 // petal flare), a burst of golden pollen, a sun-ray sweep across
 // the crest, button fades.
 // Phase 3–4 (renderer): the sky panel lifts and the field panel
-// drops — the field opens to the sky — a sunflower bloom scales up
-// in the centre and dissolves with a pollen burst and sunlight
-// sweep. Web Audio SFX only (soft rustle + bright bloom chime,
-// synthesised — no audio files, no autoplay). Everything is
-// transform/opacity (canvas excepted) and respects
+// drops — the field opens to the sky — and the invitation CARD pops
+// in with a springy bounce (scale 0.65 → 1.12 → 1) and dissolves
+// with a pollen burst and sunlight sweep, landing on the real card
+// mounted underneath. The cinematic IS the card reveal: there is no
+// envelope anywhere in it. Web Audio SFX only (soft rustle + bright
+// bloom chime, synthesised — no audio files, no autoplay).
+// Everything is transform/opacity (canvas excepted) and respects
 // prefers-reduced-motion.
 "use client";
 
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { SunflowerBloom } from "./Decor";
 import { FONT_DISPLAY } from "./tokens";
 
 /* ------------------------------------------------------------------ */
@@ -382,8 +385,9 @@ export function SkipButton({ onSkip }: { onSkip: () => void }) {
 /* FieldSplitOverlay — Phase 3 + 4. The sky panel lifts and the      */
 /* field panel drops — the field opens to the sky — revealing the    */
 /* invitation mounted underneath; pollen drifts around them; on      */
-/* "fading" a sunflower bloom scales up in the centre and dissolves  */
-/* with a sunlight sweep. Fixed positioning, pointer-events-none     */
+/* "fading" the invitation CARD pops in with a springy bounce and   */
+/* dissolves with a pollen burst and sunlight sweep, landing on the  */
+/* real card underneath. Fixed positioning, pointer-events-none     */
 /* except for the Skip / sound controls.                             */
 /* ------------------------------------------------------------------ */
 
@@ -465,33 +469,53 @@ export function FieldSplitOverlay({
           />
         </motion.div>
 
-        {/* Pollen drifting around the opening field */}
-        <PollenCanvas particleCount={12} burstKey={0} className="z-10" />
+        {/* Pollen drifting around the opening field, bursting as the
+            card pops in on "fading" */}
+        <PollenCanvas
+          particleCount={12}
+          burstKey={phase === "fading" ? 1 : 0}
+          burstOrigin={{ x: 0.5, y: 0.5 }}
+          className="z-10"
+        />
       </motion.div>
 
-      {/* Phase 4 — sunflower bloom + sunlight sweep */}
+      {/* Phase 4 — the invitation card pops in and dissolves. The
+          cinematic IS the reveal: a cream card springs in
+          (0.65 → 1.12 → 1) with a sunflower bloom, then fades as the
+          panels clear, landing on the real invitation card mounted
+          underneath. */}
       {phase === "fading" && (
         <>
           <motion.div
             aria-hidden="true"
-            className="absolute top-1/2 left-1/2 z-20 h-52 w-52 -translate-x-1/2 -translate-y-1/2 sm:h-72 sm:w-72"
-            initial={{ scale: 0.5, opacity: 0, rotate: 0 }}
-            animate={{ scale: [0.5, 1, 1.45], opacity: [0, 0.9, 0], rotate: 25 }}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute top-1/2 left-1/2 z-20 w-[78%] max-w-[320px] -translate-x-1/2 -translate-y-1/2"
+            initial={{ scale: 0.65, opacity: 0 }}
+            animate={{ scale: [0.65, 1.12, 1], opacity: [0, 1, 1, 0] }}
+            transition={{
+              duration: 1.2,
+              times: [0, 0.45, 0.6, 1],
+              ease: [0.22, 1, 0.36, 1],
+            }}
           >
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 rounded-full"
-              style={{
-                background:
-                  "repeating-conic-gradient(from 0deg, #FACC15 0deg 12deg, #EAB308 12deg 24deg)",
-              }}
-            />
-            <div
-              aria-hidden="true"
-              className="absolute inset-[24%] rounded-full bg-[#451A03]"
-              style={{ boxShadow: "inset 0 0 0 4px #78350F" }}
-            />
+            <div className="relative overflow-hidden bg-[#FFFEF5] px-4 py-6 text-center shadow-[0_22px_42px_-12px_rgba(20,83,45,0.5)]">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-2 border border-[#166534]/75"
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-[13px] border border-[#EAB308]/50"
+              />
+              <div className="relative z-10 flex flex-col items-center">
+                <SunflowerBloom className="h-14 w-14" />
+                <p
+                  style={{ fontFamily: FONT_DISPLAY }}
+                  className="mt-3 text-[10px] tracking-[0.3em] text-[#166534] uppercase"
+                >
+                  You&rsquo;re Invited
+                </p>
+              </div>
+            </div>
           </motion.div>
           <motion.div
             aria-hidden="true"

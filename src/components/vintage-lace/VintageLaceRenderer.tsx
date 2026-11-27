@@ -6,25 +6,26 @@
 //   cover      — VintageLaceCover (lace-FRAME: photo inside an
 //                ornate lace frame on ivory linen, live monogram
 //                medallion, soft dust motes)
-//   invitation — VintageLaceEnvelope (lace doily seal + sliding
-//                ivory card) + Introduction + Countdown (deep-sepia
-//                band) + StoryPreview (open photo-ALBUM spread) +
-//                DetailsCard (vintage postcards) + RsvpSection
-//                (lace-edged letter) + RSVP form + footer
+//   invitation — VintageLaceEnvelope (folded lace letter: the
+//                card back at rest, accordion-unfold on tap to the
+//                ivory letterpress card) + Introduction + Countdown
+//                (deep-sepia band) + StoryPreview (open photo-ALBUM
+//                spread) + DetailsCard (vintage postcards) +
+//                RsvpSection (lace-edged letter) + RSVP form + footer
 //   story      — VintageLaceStory (album spreads + lined-paper
 //                paragraphs)
 //   details    — VintageLaceDetails (schedule letter, dress code,
 //                venue postcard, accommodations, registry, RSVP jump)
 //
 // NO music on this template — there is no ambientMusic engine and
-// no music toggle anywhere. The lace seal is the interaction instead.
+// no music toggle anywhere. The folded card is the interaction instead.
 //
 // Cinematic opening (Phases 1–2 in the cover, 3–4 here): the lace
 // veil unfurls over the cover, the medallion warms on tap, then
 // two lace-veil panels part sideways like curtains and dissolve
-// with a lace-rosette transition + warm light sweep. Plays once
-// per page session; reduced motion or a replay takes the plain
-// ~1.05s ceremony instead.
+// with a lace-rosette transition + warm light sweep, ending on the
+// folded invitation card. Plays once per page session; reduced
+// motion or a replay takes the plain ~1.05s ceremony instead.
 //
 // FONTS: this template touches no shared file, so it cannot add
 // classes to globals.css. The .vl-font-* classes are defined by the

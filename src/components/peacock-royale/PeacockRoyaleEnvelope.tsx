@@ -1,25 +1,36 @@
-// Peacock Royale envelope — interactive deep-teal envelope with
-// a gold peacock-feather wax seal and the sliding ivory
-// letterpress card (tap the seal to break it and reveal / tuck the
-// card back). No music on this template — the seal is the
+// Peacock Royale invitation card — NO envelope. The card itself is
+// the reveal: at rest you see its BACK (deep teal + gold feather
+// pattern, softly blurred, with a gold feather seal carrying the
+// couple monogram and "TAP TO REVEAL"); on tap the back PARTICLE
+// DISSOLVES — it thins, blurs and scatters into drifting gold and
+// teal dust — revealing the FRONT (the existing ivory letterpress
+// invitation, unchanged). Tap again returns to the back.
+// prefers-reduced-motion: instant swap, no ambient dust, no
+// particles. No music on this template — the seal is the
 // interaction, not a vinyl medallion.
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { FeatherDivider, FeatherEye } from "./Decor";
-import {
-  ENVELOPE_IMAGE_URL,
-  formatCardDate,
-  locationLabel,
-} from "./tokens";
+import { formatCardDate, initials, locationLabel } from "./tokens";
 
 /* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding ivory letterpress card               */
+/* InvitationCard — the ivory letterpress card (FRONT). Content     */
+/* unchanged from the previous version; only a one-time gold        */
+/* shimmer sweep was added, landing the dissolve reveal.            */
 /* ------------------------------------------------------------------ */
 
-function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
+function InvitationCard({
+  site,
+  isOpen,
+  shimmerKey = 0,
+}: {
+  site: WeddingSite;
+  isOpen: boolean;
+  shimmerKey?: number;
+}) {
   return (
     <div
       className={`relative mx-auto w-full overflow-hidden bg-[#FDFBF5] px-4 py-2 text-center text-[#0B4F4A] transition-shadow duration-700 @min-[29.375rem]:px-6 @min-[29.375rem]:py-3 ${
@@ -81,71 +92,363 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
           {locationLabel(site)}
         </p>
       </div>
+
+      {/* One-time gold shimmer sweep across the card on reveal.
+          Remounts (key) on every reveal so it replays. */}
+      {shimmerKey > 0 && (
+        <motion.div
+          key={shimmerKey}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 z-20 w-1/3"
+          style={{
+            background:
+              "linear-gradient(100deg, transparent 0%, rgba(212,175,55,0.35) 50%, transparent 100%)",
+          }}
+          initial={{ x: "-120%" }}
+          animate={{ x: "320%" }}
+          transition={{ duration: 0.9, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        />
+      )}
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* FeatherSeal — the gold peacock-feather wax-seal open button.     */
-/* Tapping it "breaks" the seal (it splits and fades) and the card  */
-/* slides up; tapping again reseals it. The seal is pure CSS/SVG    */
-/* (no baked seal in the envelope artwork), so the sliding card can */
-/* never hide it.                                                    */
+/* CardBack — the card's BACK at rest. Deep teal + gold feather     */
+/* pattern, softly blurred (large out-of-focus feather eyes), with  */
+/* a gold feather seal carrying the live monogram and the tap hint. */
+/* Same footprint as the front (absolute inset-0 of the card box),  */
+/* so the dissolve never moves layout.                              */
 /* ------------------------------------------------------------------ */
 
-function FeatherSeal({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
+function CardBack({ site }: { site: WeddingSite }) {
   return (
-    <div className="relative flex flex-col items-center">
-      <motion.button
-        type="button"
-        onClick={onToggle}
-        aria-pressed={isOpen}
-        aria-label={
-          isOpen
-            ? "Reseal the peacock feather envelope"
-            : "Break the gold feather wax seal and open the envelope"
-        }
-        animate={isOpen ? { rotate: -8, scale: 0.94 } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full shadow-[0_16px_30px_-8px_rgba(4,33,31,0.6),0_4px_10px_rgba(4,33,31,0.35)] ring-2 ring-[#E7C86A]/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#062E2B] @min-[24rem]:h-28 @min-[24rem]:w-28"
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#062E2B] px-4 py-8 text-center shadow-[0_10px_24px_-8px_rgba(4,33,31,0.45)] @min-[29.375rem]:px-6">
+      {/* Deep teal radial wash */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(circle at 35% 30%, #F6E27A 0%, #E7C86A 34%, #D4AF37 60%, #9A7B2D 100%)",
+            "radial-gradient(ellipse 90% 75% at 50% 38%, rgba(18, 140, 126, 0.5) 0%, rgba(6, 46, 43, 0.9) 62%, #04211F 100%)",
         }}
+      />
+
+      {/* Blurred feather pattern — large feather eyes, out of focus,
+          drifting nowhere (the dust canvas supplies the motion). */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 overflow-hidden opacity-30 blur-[3px]"
       >
-        <span
+        <FeatherEye className="absolute -top-6 -left-4 h-28 w-20 rotate-[-18deg] opacity-60" />
+        <FeatherEye className="absolute top-1/3 -right-6 h-32 w-24 rotate-[14deg] opacity-50" />
+        <FeatherEye className="absolute -bottom-8 left-1/4 h-28 w-20 rotate-[24deg] opacity-45" />
+        <FeatherEye className="absolute top-6 right-1/4 h-20 w-14 rotate-[-8deg] opacity-40" />
+      </div>
+
+      {/* Soft light vignette — keeps the centre bright for the seal */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 70% at 50% 45%, rgba(253,251,245,0.10) 0%, transparent 60%)",
+        }}
+      />
+
+      {/* Fine double gold border, matching the front */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2.5 border border-[#D4AF37]/70 @min-[29.375rem]:inset-3"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[13px] border border-[#E7C86A]/35 @min-[29.375rem]:inset-[15px]"
+      />
+
+      <div className="relative z-10 flex flex-col items-center py-2">
+        <p className="er-font-display text-[9px] tracking-[0.34em] text-[#E7C86A] uppercase @min-[29.375rem]:text-[10px]">
+          WITH LOVE
+        </p>
+
+        {/* Gold feather seal — disc with feather eye + live monogram,
+            the same seal language as the cover. */}
+        <div
           aria-hidden="true"
-          className="absolute inset-2 rounded-full border border-[#062E2B]/25"
-        />
-        <FeatherEye className="relative h-12 w-9 drop-shadow-[0_1px_2px_rgba(6,46,43,0.4)] @min-[24rem]:h-14 @min-[24rem]:w-10" />
-        {/* Crack line once broken */}
-        {isOpen && (
+          className="relative mt-5 flex h-28 w-28 items-center justify-center rounded-full shadow-[0_16px_30px_-8px_rgba(4,33,31,0.6),0_4px_10px_rgba(4,33,31,0.35)] ring-2 ring-[#E7C86A]/60 @min-[24rem]:h-32 @min-[24rem]:w-32"
+          style={{
+            background:
+              "radial-gradient(circle at 35% 30%, #F6E27A 0%, #E7C86A 34%, #D4AF37 60%, #9A7B2D 100%)",
+          }}
+        >
           <span
             aria-hidden="true"
-            className="absolute inset-x-2 top-1/2 h-px rotate-[-14deg] bg-[#062E2B]/50"
+            className="absolute inset-2 rounded-full border border-[#062E2B]/25"
           />
-        )}
-      </motion.button>
+          <FeatherEye className="absolute top-3 left-1/2 h-8 w-6 -translate-x-1/2 opacity-95 @min-[24rem]:top-4" />
+          <span
+            className="er-font-display relative z-10 mt-7 text-[1.5rem] font-semibold tracking-[0.06em] text-[#062E2B] @min-[24rem]:mt-8 @min-[24rem]:text-[1.7rem]"
+            style={{
+              textShadow:
+                "0 1px 0 rgba(255, 255, 255, 0.5), 0 -1px 0 rgba(6, 46, 43, 0.25), 0 2px 3px rgba(6, 46, 43, 0.3)",
+            }}
+          >
+            {initials(site)}
+          </span>
+        </div>
 
-      <span className="er-font-editorial mt-3 text-xs tracking-[0.18em] text-[#0B4F4A]/90 uppercase">
-        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
-      </span>
+        <FeatherDivider className="mt-5 h-5 w-24 @min-[29.375rem]:h-6 @min-[29.375rem]:w-28" />
+
+        <p className="er-font-display mt-4 text-[9px] tracking-[0.3em] text-[#FDFBF5] uppercase @min-[29.375rem]:text-[10px]">
+          TAP TO REVEAL
+        </p>
+      </div>
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
+/* DissolveCanvas — one canvas, one rAF loop. Gold + teal dust      */
+/* motes drift slowly over the card back at rest; when dissolveKey  */
+/* increments, ~120 dust particles spawn across the WHOLE card      */
+/* surface and scatter outward from the centre, fading over ~1.2s  */
+/* — the back thinning into dust. Renders nothing at all under      */
+/* prefers-reduced-motion (the parent never mounts it then).        */
+/* ------------------------------------------------------------------ */
+
+interface DustMote {
+  x: number;
+  y: number;
+  size: number;
+  vy: number;
+  sway: number;
+  phase: number;
+  alpha: number;
+  gold: boolean;
+  colorIdx: number;
+}
+
+interface DustParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  r: number;
+  life: number;
+  maxLife: number;
+  gold: boolean;
+}
+
+const DUST_GOLDS = ["231, 200, 106", "246, 226, 122", "212, 175, 55"];
+const DUST_TEALS = ["45, 212, 191", "94, 234, 212", "18, 140, 126"];
+
+function DissolveCanvas({
+  dissolveKey = 0,
+  ambient = true,
+  className = "",
+}: {
+  dissolveKey?: number;
+  ambient?: boolean;
+  className?: string;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  // dissolveKey arrives via a ref so the rAF loop (created once)
+  // sees every increment; dissolveSeenRef tracks what it fired.
+  const dissolveKeyRef = useRef(dissolveKey);
+  const dissolveSeenRef = useRef(0);
+  dissolveKeyRef.current = dissolveKey;
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let raf = 0;
+    let w = 0;
+    let h = 0;
+    let motes: DustMote[] = [];
+    let dust: DustParticle[] = [];
+
+    const seed = () => {
+      const rect = canvas.getBoundingClientRect();
+      w = Math.max(1, rect.width);
+      h = Math.max(1, rect.height);
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      motes = Array.from({ length: 16 }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        size: 1.5 + Math.random() * 2.5,
+        vy: 0.08 + Math.random() * 0.18,
+        sway: 0.4 + Math.random() * 0.8,
+        phase: Math.random() * Math.PI * 2,
+        alpha: 0.3 + Math.random() * 0.4,
+        gold: Math.random() < 0.65,
+        colorIdx: Math.floor(Math.random() * 3),
+      }));
+    };
+
+    const spawnDissolve = () => {
+      const cx = w / 2;
+      const cy = h / 2;
+      dust = Array.from({ length: 120 }, () => {
+        const x = Math.random() * w;
+        const y = Math.random() * h;
+        // Drift outward, away from the card centre, so the back
+        // reads as scattering into dust.
+        const dx = x - cx;
+        const dy = y - cy;
+        const len = Math.max(1, Math.hypot(dx, dy));
+        const sp = 0.4 + Math.random() * 1.9;
+        return {
+          x,
+          y,
+          vx: (dx / len) * sp + (Math.random() - 0.5) * 0.4,
+          vy: (dy / len) * sp - 0.35 - Math.random() * 0.4,
+          r: 1 + Math.random() * 2.2,
+          life: 0,
+          maxLife: 650 + Math.random() * 600,
+          gold: Math.random() < 0.65,
+        };
+      });
+    };
+
+    const drawDiamond = (
+      x: number,
+      y: number,
+      r: number,
+      angle: number,
+      fill: string,
+    ) => {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.beginPath();
+      ctx.moveTo(0, -r);
+      ctx.lineTo(r * 0.7, 0);
+      ctx.lineTo(0, r);
+      ctx.lineTo(-r * 0.7, 0);
+      ctx.closePath();
+      ctx.fillStyle = fill;
+      ctx.fill();
+      ctx.restore();
+    };
+
+    const draw = (t: number, dt: number) => {
+      ctx.clearRect(0, 0, w, h);
+      if (ambient) {
+        for (const m of motes) {
+          // Dust motes rise slowly and recycle at the bottom.
+          m.y -= m.vy * dt * 0.06;
+          if (m.y < -12) {
+            m.y = h + 12;
+            m.x = Math.random() * w;
+          }
+          const x = m.x + Math.sin(t / 2600 + m.phase) * m.sway * 10;
+          const palette = m.gold ? DUST_GOLDS : DUST_TEALS;
+          drawDiamond(
+            x,
+            m.y,
+            m.size,
+            t * 0.0002 + m.phase,
+            `rgba(${palette[m.colorIdx]}, ${m.alpha.toFixed(3)})`,
+          );
+        }
+      }
+      dust = dust.filter((p) => p.life < p.maxLife);
+      for (const p of dust) {
+        p.life += dt;
+        p.x += p.vx * dt * 0.06;
+        p.y += p.vy * dt * 0.06;
+        p.vy += 0.0009 * dt;
+        const k = 1 - p.life / p.maxLife;
+        const palette = p.gold ? DUST_GOLDS : DUST_TEALS;
+        const idx = Math.floor(p.r * 10) % palette.length;
+        drawDiamond(p.x, p.y, p.r, p.life * 0.002, `rgba(${palette[idx]}, ${(0.95 * k).toFixed(3)})`);
+      }
+    };
+
+    let last = performance.now();
+    const tick = (t: number) => {
+      const dt = Math.min(50, t - last);
+      last = t;
+      if (dissolveKeyRef.current !== dissolveSeenRef.current) {
+        dissolveSeenRef.current = dissolveKeyRef.current;
+        if (dissolveKeyRef.current > 0) spawnDissolve();
+      }
+      draw(t, dt);
+      raf = requestAnimationFrame(tick);
+    };
+
+    seed();
+    raf = requestAnimationFrame(tick);
+    const onResize = () => seed();
+    window.addEventListener("resize", onResize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ambient]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      aria-hidden="true"
+      className={`pointer-events-none absolute inset-0 h-full w-full ${className}`}
+    />
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* PeacockRoyaleEnvelope — the card-only reveal (kept file name +   */
+/* default export so the renderer import is unchanged). The FRONT   */
+/* is in flow (it defines the box height); the BACK is absolute     */
+/* inset-0 over it. At rest the back shows; on tap it dissolves    */
+/* (fade + blur + dust burst) and the front fades in beneath it.   */
+/* Tap again returns to the back (it re-materialises).              */
 /* ------------------------------------------------------------------ */
 
 export default function PeacockRoyaleEnvelope({ site }: { site: WeddingSite }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [isDissolving, setIsDissolving] = useState(false);
+  const [dissolveKey, setDissolveKey] = useState(0);
+  const [shimmerKey, setShimmerKey] = useState(0);
+  const [backKey, setBackKey] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+  useEffect(
+    () => () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    },
+    []
+  );
+
+  const toggleCard = () => {
+    // Double-tap guard while the dust is still settling.
+    if (isDissolving) return;
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (!isRevealed) {
+      if (instant) {
+        setIsRevealed(true);
+        return;
+      }
+      setIsDissolving(true);
+      setDissolveKey((k) => k + 1);
+      setShimmerKey((k) => k + 1);
+      timerRef.current = setTimeout(() => {
+        setIsRevealed(true);
+        setIsDissolving(false);
+      }, 1150);
+    } else {
+      // Back to the card back — it re-materialises (fade + un-blur).
+      setBackKey((k) => k + 1);
+      setIsRevealed(false);
+    }
   };
 
   // NOTE: the outer wrapper below is NOT inside a @container (the
@@ -154,7 +457,6 @@ export default function PeacockRoyaleEnvelope({ site }: { site: WeddingSite }) {
   return (
     <div className="relative px-4 pt-16 pb-10">
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Teal Envelope + Sliding Ivory Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -165,153 +467,94 @@ export default function PeacockRoyaleEnvelope({ site }: { site: WeddingSite }) {
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isRevealed}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open peacock royale envelope and slide up wedding invitation card"
+              isRevealed
+                ? "Show the back of the wedding invitation card"
+                : "Reveal the wedding invitation card"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
-            className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#062E2B]"
+            className="group relative mx-auto w-full cursor-pointer text-center select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#062E2B]"
           >
-            {/* Envelope Container preserving the 4:3 geometry of the
-                cropped envelope artwork (1200x879, tight-cropped to
-                the envelope itself, so object-cover maps ~1:1). */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(4,33,31,0.3)]">
-              {/* Layer 1: Teal envelope artwork */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ENVELOPE_IMAGE_URL}
-                alt="Deep teal wedding envelope with gold peacock-feather trim and a pocket panel"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-cover"
-              />
+            {/* Soft teal-gold glow behind the card */}
+            <div
+              aria-hidden="true"
+              className="absolute -inset-4 rounded-[2rem] blur-2xl"
+              style={{
+                background:
+                  "radial-gradient(ellipse at center, rgba(212,175,55,0.45) 0%, rgba(18,140,126,0.3) 55%, transparent 75%)",
+              }}
+            />
 
-              {/* Layer 2: Interactive Sliding Ivory Letterpress
-                  Invitation Card.
-                  Card top and size are CONTAINER queries (NEVER a
-                  viewport `sm:` here, or the editor's Mobile (390px)
-                  preview on a desktop viewport gets desktop geometry
-                  in a mobile-sized box, exactly the Emerald round-2
-                  failure). Three bands, because the card's content is
-                  fixed px while the 4:3 container shrinks with the
-                  viewport — the large card does NOT fit at 430px
-                  (398x299 container): with top 26% + 18px names,
-                  Partner B bottom sat at 58.8%, 20px below the 52%
-                  pocket line.
-                  - <384px: small card (15px names), top 16% — 390px:
-                    Partner B bottom 44.7%, divider top 53.6%;
-                    320px: Partner B bottom 51.6% (~1px clearance
-                    above the 52.7% pocket line, reads complete by
-                    eye).
-                  - 384–469px: small card, top 22%, divider mt-10.
-                  - >=470px: large card (18px names), top 23% —
-                    lowered from 26% because the live-measured names
-                    section is ~98px, not the 88px the builder assumed:
-                    at 26% Partner B bottom was 52.7% at desktop,
-                    ON the pocket line. At 23% it is 49.7%
-                    (~12px clearance) at the 490px container and
-                    50.9% (~4px) at 470px.
-                  At every band the names peek above the pocket line
-                  while the divider, date and location sit below it
-                  (see the pocket-geometry note on Layer 3). */}
+            {/* Card box — the front defines the height; the back and
+                the dust canvas sit absolute over it. No fixed widths
+                anywhere, so 390px and 320px cannot clip. */}
+            <div className="relative z-10 w-full">
+              {/* FRONT — the invitation (unchanged content) */}
               <motion.div
-                initial={false}
-                animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -14 : -28) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
-                }}
+                aria-hidden={!isRevealed}
+                initial={{ opacity: 0, scale: 0.985 }}
+                animate={{ opacity: isRevealed ? 1 : 0, scale: isRevealed ? 1 : 0.985 }}
                 transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
+                  duration: instant ? 0 : isRevealed ? 0.6 : 0.35,
+                  delay: isRevealed && !instant ? 0.55 : 0,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="absolute top-[16%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[22%] @min-[24rem]:w-[46%] @min-[29.375rem]:top-[23%]"
+                className="relative w-full"
               >
-                <InvitationCard site={site} isOpen={isCardLifted} />
-              </motion.div>
-
-              {/* Layer 3: REAL teal pocket — the envelope photo
-                  rendered a second time ABOVE the card, clipped to
-                  the pocket's shape, so the card is physically
-                  tucked inside at rest.
-                  MEASURED on the cropped artwork (1200x879,
-                  pixel-profiled 2026-11-26): the pocket panel's
-                  flat top edge sits at y = 52.7% (strongest
-                  darkening edge in the 35–65% band, luminance
-                  171 → 59 across the edge) and spans x ≈ 11–89%;
-                  its sides angle out to the bottom corners
-                  (≈1% / 99% at y = 100%). The polygon follows
-                  that edge exactly, so the overlay is
-                  pixel-seamless with Layer 1 (same image, same
-                  object-cover mapping).
-                  Rest geometry (same card content as Silver
-                  Moonlight, same fixed-px sizes, so the same
-                  measured offsets apply against the 52.7% line):
-                  - Mobile small card, top 16%: 390px (358x269) —
-                    names bottom 44.7%, divider top 53.6% (hidden,
-                    just below the 52.7% line); card bottom 76.5%,
-                    hidden behind the pocket. 320px (288x216) —
-                    names bottom 51.6% (~1px clearance, reads
-                    complete by eye), divider top 62.8%.
-                  - Band 384–469px, small card, top 22%, divider
-                    mt-10 (divider offset 117.2px from card top):
-                    Partner B bottom 43.9–48.8%, divider top
-                    55.2–62.7% — both clear of the 52.7% line across
-                    the whole band.
-                  - Desktop large card, top 23% (490x367.5): names
-                    bottom 49.7% (~12px clearance), divider top
-                    56.3% — hidden with ~13px margin; card bottom
-                    ~80%, hidden.
-                  The card bottom sits below the pocket line in
-                  every case (invisible behind the overlay), which
-                  is what "tucked" means here.
-                  On tap the clip's top edge drops to 97% (the
-                  pocket opens) while the card lifts 28px — the
-                  lift is capped at 28px because the mobile card
-                  top is only 41px: a 48px lift (Emerald's) would
-                  push "WE INVITE YOU" out of the overflow-hidden
-                  container. With 28px the eyebrow stays visible
-                  (top ≈ 13px) and divider + date + location are
-                  fully revealed with no top clipping. */}
-              <motion.div
-                aria-hidden="true"
-                initial={false}
-                animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(11% 97%, 89% 97%, 99% 100%, 1% 100%)"
-                    : "polygon(11% 52.7%, 89% 52.7%, 99% 100%, 1% 100%)",
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="pointer-events-none absolute inset-0 z-20"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
+                <InvitationCard
+                  site={site}
+                  isOpen={isRevealed}
+                  shimmerKey={isRevealed && !instant ? shimmerKey : 0}
                 />
               </motion.div>
+
+              {/* BACK — deep teal feather back, dissolving on tap */}
+              {(!isRevealed || isDissolving) && (
+                <motion.div
+                  key={backKey}
+                  aria-hidden={isRevealed}
+                  initial={instant ? false : { opacity: 0, filter: "blur(8px)", scale: 1.02 }}
+                  animate={{
+                    opacity: isDissolving ? 0 : 1,
+                    filter: isDissolving ? "blur(8px)" : "blur(0px)",
+                    scale: isDissolving ? 1.03 : 1,
+                  }}
+                  transition={{
+                    duration: instant ? 0 : isDissolving ? 0.9 : 0.6,
+                    delay: isDissolving ? 0.12 : 0,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="absolute inset-0 z-10"
+                >
+                  <CardBack site={site} />
+                </motion.div>
+              )}
+
+              {/* Gold + teal dust — ambient drift at rest, full
+                  surface burst on dissolve. Skipped entirely under
+                  reduced motion. */}
+              {!instant && (!isRevealed || isDissolving) && (
+                <DissolveCanvas dissolveKey={dissolveKey} className="z-20" />
+              )}
             </div>
 
-            {/* Subtle interactive cue */}
-            <p className="er-font-display mt-1 text-center text-[10px] tracking-[0.26em] text-[#0B4F4A]/85 uppercase transition-colors group-hover:text-[#062E2B]">
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
-          </div>
-
-          {/* Gold Peacock-Feather Wax Seal */}
-          <div className="relative z-30 mt-4 flex justify-center">
-            <FeatherSeal isOpen={isCardLifted} onToggle={toggleEnvelope} />
+            {/* Interactive cue */}
+            <motion.p
+              key={isRevealed ? "front" : "back"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4 }}
+              className="er-font-display relative z-10 mt-4 text-center text-[10px] tracking-[0.26em] text-[#0B4F4A]/85 uppercase transition-colors group-hover:text-[#062E2B]"
+            >
+              {isRevealed ? "Tap to Show Back" : "Tap Card to Reveal"}
+            </motion.p>
           </div>
         </motion.div>
       </div>

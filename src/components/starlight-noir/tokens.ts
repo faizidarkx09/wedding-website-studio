@@ -2,8 +2,9 @@
 //
 // Black #0A0A0A, gold #D4AF37, white. NOT a palette swap of the
 // samples: the cover is a black night sky with gold constellation
-// lines (photo + SVG overlay), the envelope is a black envelope
-// with a gold star wax seal, the story is star-map constellation
+// lines (photo + SVG overlay), the invitation is a black card
+// whose blurred back splits apart to reveal the gold-on-black
+// front, the story is star-map constellation
 // cards, details sit in a gold-on-black LEDGER (ruled list, no
 // panels), and the RSVP is a gold-foil ticket. Only the couple
 // names / date / venue are data-driven (Partner A / Partner B
@@ -39,8 +40,9 @@ export const FONT_BODY = "var(--font-lora), Georgia, 'Times New Roman', serif";
  * progressive JPEG q80, max 1200px long side, each <=258 KB —
  * staged from ~/workspace/starlight-noir-assets/).
  * The hero and detail live at the template root; the rest under
- * starlight-noir/. The detail image IS the envelope photo (a black
- * envelope with a gold star wax seal, cropped 4:3). The RSVP
+ * starlight-noir/. The detail image is the black invitation card
+ * photo (a black card with gold constellation lines, cropped 4:3).
+ * The RSVP
  * ticket image is a gold-foil framed black card used as the
  * ticket section's background. */
 export const COVER_IMAGE_URL = "/images/themes/starlight-noir.jpg";
@@ -137,7 +139,7 @@ export function formatDateDisplay(dateIso: string, timezone: string): string {
   }
 }
 
-/** "14 SEPTEMBER 2027" — the envelope-card date label (no ordinal). */
+/** "14 SEPTEMBER 2027" — the invitation-card date label (no ordinal). */
 export function formatCardDate(dateIso: string, timezone: string): string {
   try {
     const d = new Date(dateIso);
@@ -154,7 +156,7 @@ export function formatCardDate(dateIso: string, timezone: string): string {
   }
 }
 
-/** "YOUR TOWN, ST" — the envelope-card location label, derived from
+/** "YOUR TOWN, ST" — the invitation-card location label, derived from
  * the venue address (last two comma parts, uppercased); falls back to
  * the venue name. */
 export function locationLabel(site: WeddingSite): string {

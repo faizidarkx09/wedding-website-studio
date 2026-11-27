@@ -1,28 +1,37 @@
-// Tropical Palm envelope — interactive palm-leaf envelope with a
-// palm-frond seal photo and the sliding cream letterpress card (tap
-// the seal to break it and reveal / tuck the card back). No music on
-// this template — the seal is the interaction.
+// Tropical Palm invitation card — NO envelope. The card itself is
+// the reveal: at rest you see its BACK (a blurred palm-frond wash
+// in deep green/cream with the couple monogram and a "TAP TO
+// REVEAL" hint, plus slow-drifting blurred palm-leaf shapes); on
+// tap it BLOOMS — scaling up from a small bud with a springy
+// overshoot while palm-leaf petals unfurl outward from behind its
+// edges — to the FRONT (the existing invitation content,
+// unchanged). Tap again blooms it back to the back side.
+// Ambient falling leaves drift behind the card; a small
+// leaf-particle burst lands the bloom. prefers-reduced-motion:
+// instant swap, no ambient animation, no particles. No music on
+// this template by design.
 //
-// The card is TUCKED INSIDE at rest: only the names peek above the
-// pocket; the divider, date and location are hidden behind the
-// pocket until the tap. Geometry reuses Golden Hour's live-verified
-// bands (the same card sizes and the same pocket polygon), because
-// the card content is the same size.
+// After the cinematic opening, the cover sets the
+// "tp-bloom-on-mount" session flag, so the card blooms in on its
+// own as the palm panels part (see CinematicOpening PalmOverlay).
+// In the editor preview there is no cover and no flag, so the card
+// simply rests as a bud until tapped.
 "use client";
 
-import { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion, type Transition } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
-import { PalmDivider } from "./Decor";
+import { PalmCrest, PalmDivider } from "./Decor";
 import {
   ENVELOPE_IMAGE_URL,
-  PALM_SEAL_URL,
   formatCardDate,
+  initials,
   locationLabel,
 } from "./tokens";
+import { LeafCanvas } from "./CinematicOpening";
 
 /* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding cream letterpress card                */
+/* InvitationCard — the cream letterpress card (FRONT, unchanged)    */
 /* ------------------------------------------------------------------ */
 
 function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
@@ -102,68 +111,270 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
 }
 
 /* ------------------------------------------------------------------ */
-/* PalmSeal — the palm-frond seal open button. Tapping it "breaks"  */
-/* the seal (it splits and fades) and the card slides up; tapping   */
-/* again reseals it.                                                  */
+/* CardBack — blurred palm-frond wash in deep green/cream, monogram  */
+/* in a palm-frond crest, tap hint. Same footprint as the front      */
+/* (absolute inset-0 of the bloom box), so the bloom never moves     */
+/* layout — the scale is a transform only.                           */
 /* ------------------------------------------------------------------ */
 
-function PalmSeal({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
+function CardBack({ site, instant }: { site: WeddingSite; instant: boolean }) {
   return (
-    <div className="relative flex flex-col items-center">
-      <motion.button
-        type="button"
-        onClick={onToggle}
-        aria-pressed={isOpen}
-        aria-label={
-          isOpen
-            ? "Reseal the palm envelope"
-            : "Break the palm seal and open the envelope"
-        }
-        animate={isOpen ? { rotate: -8, scale: 0.94 } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full shadow-[0_16px_30px_-8px_rgba(10,46,25,0.6),0_4px_10px_rgba(10,46,25,0.35)] ring-2 ring-[#15803D]/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#14301C]"
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={PALM_SEAL_URL}
-          alt=""
-          referrerPolicy="no-referrer"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        {/* Crack line once broken */}
-        {isOpen && (
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-2 top-1/2 h-px rotate-[-14deg] bg-[#14301C]/50"
-          />
-        )}
-      </motion.button>
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#0A2E19] px-4 py-8 text-center shadow-[0_10px_24px_-8px_rgba(10,46,25,0.45)]">
+      {/* Blurred palm-frond wash — the template's palm photo, heavily
+          blurred, under a deep-green wash so the monogram stays
+          readable. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={ENVELOPE_IMAGE_URL}
+        alt=""
+        referrerPolicy="no-referrer"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-55 blur-[14px]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(160deg, rgba(10,46,25,0.82) 0%, rgba(20,83,45,0.62) 55%, rgba(10,46,25,0.85) 100%)",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 90% 80% at 50% 42%, rgba(255,251,235,0.16) 0%, rgba(10,46,25,0.1) 100%)",
+        }}
+      />
 
-      <span className="tp-font-editorial mt-3 text-xs tracking-[0.18em] text-[#166534]/85 uppercase">
-        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
-      </span>
+      {/* Slow-drifting blurred palm-leaf shapes behind the monogram */}
+      {!instant && (
+        <>
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute top-[12%] -left-8 h-24 w-24 rounded-[100%_4px_100%_4px] blur-md"
+            style={{ background: "linear-gradient(135deg, rgba(74,222,128,0.5), rgba(20,83,45,0.4))" }}
+            animate={{ x: [0, 18, 0], y: [0, -12, 0], rotate: [0, 14, 0] }}
+            transition={{ duration: 12, repeat: Infinity, repeatType: "mirror", ease: [0.25, 0.1, 0.25, 1] }}
+          />
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute right-[6%] bottom-[10%] h-28 w-28 rounded-[4px_100%_4px_100%] blur-md"
+            style={{ background: "linear-gradient(135deg, rgba(253,230,138,0.42), rgba(21,128,61,0.35))" }}
+            animate={{ x: [0, -16, 0], y: [0, 12, 0], rotate: [0, -12, 0] }}
+            transition={{ duration: 14, repeat: Infinity, repeatType: "mirror", ease: [0.25, 0.1, 0.25, 1] }}
+          />
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute top-[58%] left-[8%] h-16 w-16 rounded-[100%_4px_100%_4px] blur-md"
+            style={{ background: "linear-gradient(135deg, rgba(6,182,212,0.4), rgba(20,83,45,0.35))" }}
+            animate={{ x: [0, 12, 0], y: [0, -10, 0], rotate: [0, 10, 0] }}
+            transition={{ duration: 10, repeat: Infinity, repeatType: "mirror", ease: [0.25, 0.1, 0.25, 1] }}
+          />
+        </>
+      )}
+
+      {/* Fine double palm-green & turquoise border, matching the front */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2.5 border border-[#FDE68A]/50"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[13px] border border-[#06B6D4]/40"
+      />
+
+      <div className="relative z-10 flex flex-col items-center py-2">
+        <p className="tp-font-display text-[9px] tracking-[0.34em] text-[#FEF3C7] uppercase @min-[29.375rem]:text-[10px]">
+          WITH LOVE
+        </p>
+
+        {/* Palm-frond crest with the live monogram */}
+        <div className="relative mt-4 h-24 w-24 @min-[29.375rem]:h-28 @min-[29.375rem]:w-28">
+          <PalmCrest className="absolute inset-0 h-full w-full drop-shadow-[0_6px_16px_rgba(10,46,25,0.6)]" />
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <span className="tp-font-display text-[1.35rem] font-medium tracking-[0.06em] text-[#FFFBEB]">
+              {initials(site)}
+            </span>
+          </div>
+        </div>
+
+        <PalmDivider className="mt-4 h-6 w-24 @min-[29.375rem]:h-8 @min-[29.375rem]:w-28" />
+
+        <p className="tp-font-display mt-3 text-[9px] tracking-[0.3em] text-[#FEF3C7] uppercase @min-[29.375rem]:text-[10px]">
+          TAP TO REVEAL
+        </p>
+      </div>
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
+/* PalmAmbience — slow-drifting blurred palm/gold/turquoise light    */
+/* behind the card. Transform + opacity only. Skipped entirely      */
+/* under reduced motion.                                             */
 /* ------------------------------------------------------------------ */
 
-export default function TropicalPalmEnvelope({ site }: { site: WeddingSite }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
-  const prefersReducedMotion = useReducedMotion();
+function PalmAmbience() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute -inset-8 overflow-hidden">
+      <motion.div
+        className="absolute top-6 -left-8 h-44 w-44 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(21,128,61,0.4) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, 22, 0], y: [0, -16, 0] }}
+        transition={{ duration: 11, repeat: Infinity, repeatType: "mirror", ease: [0.25, 0.1, 0.25, 1] }}
+      />
+      <motion.div
+        className="absolute right-0 bottom-8 h-52 w-52 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(253,230,138,0.35) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, -20, 0], y: [0, 14, 0] }}
+        transition={{ duration: 13, repeat: Infinity, repeatType: "mirror", ease: [0.25, 0.1, 0.25, 1] }}
+      />
+      <motion.div
+        className="absolute top-1/3 left-1/3 h-36 w-36 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(6,182,212,0.28) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, 14, 0], y: [0, 18, 0] }}
+        transition={{ duration: 15, repeat: Infinity, repeatType: "mirror", ease: [0.25, 0.1, 0.25, 1] }}
+      />
+    </div>
+  );
+}
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+/* ------------------------------------------------------------------ */
+/* Bloom petals — six palm-leaf shapes that unfurl outward from      */
+/* behind the card edges as it blooms, and fold back in when it     */
+/* blooms shut. Leaf shape = rounded leaf (border-radius), green    */
+/* with two gold accents. Offsets are small on purpose: the card    */
+/* sits ~27px from the viewport edge at 320px, so no petal may     */
+/* reach further than ~22px past a card edge.                       */
+/* ------------------------------------------------------------------ */
+
+interface PetalSpec {
+  style: React.CSSProperties;
+  restRotate: number;
+  openRotate: number;
+  openX: number;
+  openY: number;
+  gold?: boolean;
+}
+
+const PETALS: PetalSpec[] = [
+  { style: { top: -14, left: -8 }, restRotate: -72, openRotate: -38, openX: -26, openY: -20 },
+  { style: { top: -14, right: -8 }, restRotate: 72, openRotate: 38, openX: 26, openY: -20, gold: true },
+  { style: { top: "36%", left: -20 }, restRotate: -108, openRotate: -78, openX: -30, openY: 0 },
+  { style: { top: "36%", right: -20 }, restRotate: 108, openRotate: 78, openX: 30, openY: 0, gold: true },
+  { style: { bottom: -12, left: "8%" }, restRotate: -135, openRotate: -108, openX: -18, openY: 22 },
+  { style: { bottom: -12, right: "8%" }, restRotate: 135, openRotate: 108, openX: 18, openY: 22 },
+];
+
+function BloomPetals({ isOpen, instant }: { isOpen: boolean; instant: boolean }) {
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0">
+      {PETALS.map((p, i) => (
+        <motion.div
+          key={i}
+          className="absolute h-6 w-16 @min-[29.375rem]:h-7 @min-[29.375rem]:w-20"
+          style={{
+            ...p.style,
+            borderRadius: "100% 4px 100% 4px",
+            background: p.gold
+              ? "linear-gradient(135deg, #FDE68A 0%, #D9A441 55%, #B45309 100%)"
+              : "linear-gradient(135deg, #4ADE80 0%, #15803D 55%, #0A2E19 100%)",
+            boxShadow: "0 6px 14px -4px rgba(10,46,25,0.5)",
+          }}
+          initial={false}
+          animate={
+            isOpen
+              ? { opacity: 1, scale: 1, rotate: p.openRotate, x: p.openX, y: p.openY }
+              : { opacity: 0, scale: 0.2, rotate: p.restRotate, x: 0, y: 0 }
+          }
+          transition={
+            instant
+              ? { duration: 0 }
+              : { duration: 0.85, delay: 0.08 + i * 0.06, ease: [0.22, 1, 0.36, 1] }
+          }
+        >
+          {/* Centre vein */}
+          <span
+            aria-hidden="true"
+            className="absolute top-1/2 left-[10%] h-px w-[80%] -translate-y-1/2 bg-white/35"
+          />
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+const AUTO_BLOOM_FLAG = "tp-bloom-on-mount";
+
+export default function TropicalPalmEnvelope({ site }: { site: WeddingSite }) {
+  const [isBloomed, setIsBloomed] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
+  const bloomedRef = useRef(false);
+
+  // Bloom on mount when the cinematic opening asked for it: the
+  // cover sets the flag as the palm panels start parting, and the
+  // card blooms in ~1.5s later, mid-parting. One-shot — the flag is
+  // cleared on read.
+  useEffect(() => {
+    let t: number | null = null;
+    try {
+      if (sessionStorage.getItem(AUTO_BLOOM_FLAG) === "1") {
+        sessionStorage.removeItem(AUTO_BLOOM_FLAG);
+        if (instant) {
+          bloomedRef.current = true;
+          setIsBloomed(true);
+        } else {
+          t = window.setTimeout(() => {
+            if (bloomedRef.current) return;
+            bloomedRef.current = true;
+            setIsBloomed(true);
+            setBurstKey((k) => k + 1);
+          }, 1500);
+        }
+      }
+    } catch {
+      /* session storage unavailable — card rests as a bud until tapped */
+    }
+    return () => {
+      if (t !== null) window.clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const toggleCard = () => {
+    const next = !isBloomed;
+    bloomedRef.current = next;
+    setIsBloomed(next);
+    if (next) setBurstKey((k) => k + 1);
   };
+
+  // Springy overshoot for the bloom: the card grows from a small
+  // bud (scale ~0.58) to full size. Transform-only, so the layout
+  // footprint never moves.
+  const bloomTransition: Transition = instant
+    ? { duration: 0 }
+    : { type: "spring", stiffness: 260, damping: 19 };
+
+  const fadeTransition: Transition = instant
+    ? { duration: 0 }
+    : { duration: 0.45, ease: [0.25, 0.1, 0.25, 1] };
 
   return (
     <div className="relative px-4 pt-16 pb-10">
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Palm Envelope + Sliding Letterpress Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -174,117 +385,97 @@ export default function TropicalPalmEnvelope({ site }: { site: WeddingSite }) {
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isBloomed}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open palm envelope and slide up wedding invitation card"
+              isBloomed
+                ? "Bloom the wedding invitation card back to its back side"
+                : "Tap the invitation card to bloom it open and reveal the invitation"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
             className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#14301C]"
           >
-            {/* Envelope Container preserving the 4:3 geometry of the palm envelope */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(10,46,25,0.28)]">
-              {/* Layer 1: Palm envelope artwork */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ENVELOPE_IMAGE_URL}
-                alt="Warm sand linen with palm fronds and white frangipani flowers"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-cover"
+            {/* Ambient light + falling leaves behind the card */}
+            {!instant && <PalmAmbience />}
+
+            {/* Bloom scene — the FRONT is in flow (it defines the
+                box height); the BACK is absolute inset-0, so the
+                bloom never moves layout. Rest = bud at scale ~0.58
+                showing the back; bloomed = full size, front. */}
+            <div className="relative z-10 mx-auto w-[92%]">
+              {/* Soft island glow behind the card */}
+              <div
+                aria-hidden="true"
+                className="absolute -inset-4 rounded-[2rem] blur-2xl"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, rgba(253,230,138,0.45) 0%, rgba(21,128,61,0.3) 55%, transparent 75%)",
+                }}
               />
 
-              {/* Layer 2: Interactive Sliding Cream Letterpress Invitation Card */}
+              {/* Unfurling palm-leaf petals, behind the card */}
+              <BloomPetals isOpen={isBloomed} instant={instant} />
+
               <motion.div
                 initial={false}
-                animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -28 : -48) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[28%] @min-[29.375rem]:top-[25%]"
+                animate={
+                  isBloomed
+                    ? { scale: 1, rotate: 0 }
+                    : { scale: 0.58, rotate: -2 }
+                }
+                transition={bloomTransition}
+                className="relative z-10 w-full"
               >
-                <InvitationCard site={site} isOpen={isCardLifted} />
+                {/* FRONT — the invitation (unchanged content) */}
+                <motion.div
+                  aria-hidden={!isBloomed}
+                  initial={false}
+                  animate={{ opacity: isBloomed ? 1 : 0 }}
+                  transition={fadeTransition}
+                  className="relative w-full"
+                >
+                  <InvitationCard site={site} isOpen={isBloomed} />
+                </motion.div>
+
+                {/* BACK — blurred palm wash + monogram */}
+                <motion.div
+                  aria-hidden={isBloomed}
+                  initial={false}
+                  animate={{ opacity: isBloomed ? 0 : 1 }}
+                  transition={fadeTransition}
+                  className="absolute inset-0"
+                >
+                  <CardBack site={site} instant={instant} />
+                </motion.div>
               </motion.div>
 
-              {/* Layer 3: REAL palm pocket — the envelope photo rendered
-                  a second time ABOVE the card, clipped to the pocket's
-                  shape, so the card is physically tucked inside at rest.
-                  Geometry reuses Golden Hour's live-verified polygon
-                  (19% 52%, 32% 65%, 68% 65%, 81% 52%) and the same
-                  three card bands, because the card content is the
-                  same size (17px names small / 22px large):
-                  - <352px: compact card (@max-[22rem]: 15px names,
-                    tight padding) — 320px: Partner B bottom 63.7%,
-                    divider top 71.1%, card bottom 107.6% (behind the
-                    pocket, invisible). Verified live on Golden Hour.
-                  - 352–383px: small card (17px names), top 25% —
-                    390px: Partner B bottom 62.1%, divider top 68%.
-                  - 384–469px: small card, top 28%, divider mt-10 —
-                    the large card does NOT fit here (see below).
-                  - >=470px: large card (22px names, py-5), top 25% —
-                    desktop 490px container: Partner B bottom 61.7%,
-                    divider top 65.5%, card bottom 95.8%.
-                  WHY the large card starts at 470px, not 384px: its
-                  content is ~260px tall and the names WRAP below
-                  ~443px container width (inner width < ~160px), so at
-                  430px viewport (398x299 container) it spanned
-                  25%→131.7% — only PARTNER A peeked (wrapped to two
-                  lines), Partner B sat at 85% behind the pocket, and
-                  when open the location line was clipped mid-glyph at
-                  the container's bottom edge. The large card only
-                  fits once Partner B bottom (25% + 135px) clears the
-                  65% pocket line with margin, i.e. container >=470px
-                  (63.3% there, 61.7% at 490px). In the 384–469 band
-                  the small card is used with top 28% + divider mt-10
-                  (divider offset 139.6px from card top), which keeps
-                  Partner B bottom <=62.7% and divider top >=67.6%
-                  across the whole band. On tap the clip's top edge
-                  drops to ~97% (the pocket opens) while the card
-                  lifts 48px, so divider + date + location are fully
-                  revealed with no top clipping. */}
-              <motion.div
-                aria-hidden="true"
-                initial={false}
-                animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(19% 96%, 32% 97.5%, 68% 97.5%, 81% 96%, 81% 100%, 19% 100%)"
-                    : "polygon(19% 52%, 32% 65%, 68% 65%, 81% 52%, 81% 100%, 19% 100%)",
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="pointer-events-none absolute inset-0 z-20"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
+              {/* Leaf-particle burst on the bloom landing. The
+                  canvas renders nothing under reduced motion. */}
+              {!instant && (
+                <LeafCanvas
+                  leafCount={8}
+                  burstKey={burstKey}
+                  burstOrigin={{ x: 0.5, y: 0.45 }}
+                  className="z-20"
                 />
-              </motion.div>
+              )}
             </div>
 
-            {/* Subtle interactive cue */}
-            <p className="tp-font-display mt-1 text-center text-[10px] tracking-[0.26em] text-[#166534]/80 uppercase transition-colors group-hover:text-[#14301C]">
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
-          </div>
-
-          {/* Palm-Frond Seal */}
-          <div className="relative z-30 mt-4 flex justify-center">
-            <PalmSeal isOpen={isCardLifted} onToggle={toggleEnvelope} />
+            {/* Cue */}
+            <motion.p
+              key={isBloomed ? "front" : "back"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4 }}
+              className="tp-font-display relative z-10 mt-4 text-center text-[10px] tracking-[0.26em] text-[#166534]/80 uppercase transition-colors group-hover:text-[#14301C]"
+            >
+              {isBloomed ? "Tap to Bloom Back" : "Tap Card to Bloom"}
+            </motion.p>
           </div>
         </motion.div>
       </div>

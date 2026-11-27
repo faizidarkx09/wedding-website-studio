@@ -1,9 +1,12 @@
 // Cinematic opening helpers for Tropical Palm — Phase 1 dappled
 // island light + falling palm leaves, Phase 2 crest glow on tap,
 // Phase 3 panels parting diagonally like palm leaves, Phase 4
-// sun rays + falling leaves. Web Audio SFX only (gentle wave +
-// island chime, synthesised — no audio files, no music).
-// Transform/opacity only and respects prefers-reduced-motion.
+// sun rays + falling leaves. The panels part onto the invitation
+// CARD blooming in (there is no envelope — the card blooms as the
+// panels part; see TropicalPalmEnvelope's "tp-bloom-on-mount" flag).
+// Web Audio SFX only (gentle wave + island chime, synthesised — no
+// audio files, no music). Transform/opacity only and respects
+// prefers-reduced-motion.
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -359,9 +362,11 @@ export function SkipButton({ onSkip }: { onSkip: () => void }) {
 /* ------------------------------------------------------------------ */
 /* PalmOverlay — Phase 3 + 4. Two deep-green panels part DIAGONALLY  */
 /* (top-left slides up-left, bottom-right slides down-right) like   */
-/* parting palm leaves; on "fading" sun rays rotate out while      */
-/* leaves fall. Fixed positioning, pointer-events-none except for   */
-/* the Skip / sound controls.                                        */
+/* parting palm leaves, revealing the invitation card blooming in   */
+/* underneath; on "fading" sun rays rotate out while leaves fall.   */
+/* The panels are palm leaves parting — NOT an envelope. Fixed       */
+/* positioning, pointer-events-none except for the Skip / sound     */
+/* controls.                                                         */
 /* ------------------------------------------------------------------ */
 
 export type PalmPhase = "closed" | "parting" | "fading";

@@ -14,8 +14,11 @@
 // starlight particles erupts, one slow pulse, a gold light sweep
 // across the crest, button fades out; Phase 3+4 live in the
 // renderer (NightPanelsOverlay): the cover exits instantly, the
-// invitation mounts underneath, two midnight panels part like
-// night sky, then dissolve with a gold star transition + sweep.
+// invitation card mounts underneath, two midnight panels part like
+// night sky, then dissolve with a gold star transition + sweep,
+// landing on the card BACK at rest ("Tap to Reveal") — the guest
+// then taps the card and its back halves slide apart to reveal
+// the front. There is no envelope anywhere in this opening.
 // A reload in the same session, or a reduced-motion tap, takes the
 // plain 1.0s ceremony instead. Skip jumps straight to the invitation.
 "use client";

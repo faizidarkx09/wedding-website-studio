@@ -1,9 +1,12 @@
-// Cinematic opening helpers for Marble Luxe — Phase 1 drifting
-// gold dust, Phase 2 monogram-ring glow on tap, Phase 3 two
-// white marble slabs parting left/right slowly and elegantly,
-// Phase 4 a gold line expanding + soft shimmer. Web Audio SFX
-// only (a single low bell + soft shimmer, synthesised — no audio
-// files, no music). Transform/opacity only and respects
+// Cinematic opening helpers for Marble Luxe — card-only opening,
+// NO envelope. Phase 1 drifting gold dust, Phase 2 monogram-ring
+// glow on tap, Phase 3 two white marble slabs parting left/right
+// slowly and elegantly to reveal the invitation CARD (its closed
+// double doors) mounted underneath, Phase 4 a gold line expanding
+// + soft shimmer. The cinematic ENDS on the card back; the guest
+// then taps the card itself and the double doors unfold. Web Audio
+// SFX only (a single low bell + soft shimmer, synthesised — no
+// audio files, no music). Transform/opacity only and respects
 // prefers-reduced-motion.
 "use client";
 
@@ -323,9 +326,12 @@ export function SkipButton({ onSkip }: { onSkip: () => void }) {
 /* ------------------------------------------------------------------ */
 /* MarbleOverlay — Phase 3 + 4. Two white marble slabs (subtle grey */
 /* veining via gradient) part left/right SLOWLY (3.0s) like a      */
-/* curtain of stone; on "fading" a thin gold line expands across   */
-/* the centre while a soft gold shimmer sweeps. Fixed positioning,  */
-/* pointer-events-none except for the Skip / sound controls.         */
+/* curtain of stone to reveal the invitation CARD mounted          */
+/* underneath — its closed double doors, which the guest then taps */
+/* to unfold. On "fading" a thin gold line expands across the      */
+/* centre while a soft gold shimmer sweeps. Fixed positioning,      */
+/* pointer-events-none except for the Skip / sound controls. No     */
+/* envelope visual anywhere: no envelope shape, no flap, no seal.  */
 /* ------------------------------------------------------------------ */
 
 export type MarblePhase = "closed" | "parting" | "fading";

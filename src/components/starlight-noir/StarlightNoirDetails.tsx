@@ -168,7 +168,7 @@ export default function StarlightNoirDetails({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={DETAIL_IMAGE_URL}
-              alt="Black envelope with gold constellation lines"
+              alt="Black invitation card with gold constellation lines"
               loading="lazy"
               decoding="async"
               referrerPolicy="no-referrer"

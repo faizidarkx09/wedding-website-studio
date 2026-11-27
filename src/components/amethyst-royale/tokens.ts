@@ -4,7 +4,8 @@
 // NOT a palette swap of Emerald/Sapphire Royale: the cover is a
 // crystal-CLUSTER (geometric facets over the photograph, photo
 // behind facets) with a hexagonal crystal crest and live monogram;
-// the envelope opens with a faceted amethyst crystal seal; the
+// the invitation card cleaves open along a diagonal like a crystal
+// facet; the
 // story is faceted HEXAGON gem cards (not photo cards or a film
 // strip); details sit in crystal panels (staggered grid, not a
 // sleeve); the RSVP is a gem-shaped hexagon card. Only the couple
@@ -34,11 +35,11 @@ export const AMETHYST = {
  * to a max 1200px long side at q80 progressive so every file meets
  * the <=258 KB cap — see UPLOAD_MANIFEST.md).
  * The hero and detail live at the template root; the rest under
- * amethyst-royale/. The envelope photo doubles as the detail image.
- * The crystal seal is a crop of the envelope master around the
- * faceted amethyst seal — the shipped envelope photo keeps its own
- * seal, and the seal button sits below the envelope, so the sliding
- * card never hides it. */
+ * amethyst-royale/. ENVELOPE_IMAGE_URL is a legacy alias for the
+ * detail image (kept so the asset path stays stable; the opening
+ * ceremony is card-only). CRYSTAL_SEAL_URL is a crop of the detail
+ * master around the faceted amethyst seal (unused by the
+ * card-only opening). */
 export const COVER_IMAGE_URL = "/images/themes/amethyst-royale.jpg";
 export const DETAIL_IMAGE_URL = "/images/themes/amethyst-royale-detail.jpg";
 export const ENVELOPE_IMAGE_URL = "/images/themes/amethyst-royale-detail.jpg";
@@ -130,7 +131,7 @@ export function formatDateDisplay(dateIso: string, timezone: string): string {
   }
 }
 
-/** "14 SEPTEMBER 2027" — the envelope-card date label (no ordinal). */
+/** "14 SEPTEMBER 2027" — the invitation-card date label (no ordinal). */
 export function formatCardDate(dateIso: string, timezone: string): string {
   try {
     const d = new Date(dateIso);
@@ -147,7 +148,7 @@ export function formatCardDate(dateIso: string, timezone: string): string {
   }
 }
 
-/** "YOUR TOWN, ST" — the envelope-card location label, derived from
+/** "YOUR TOWN, ST" — the invitation-card location label, derived from
  * the venue address (last two comma parts, uppercased); falls back to
  * the venue name. */
 export function locationLabel(site: WeddingSite): string {

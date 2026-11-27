@@ -1,24 +1,28 @@
 // Winter Frost renderer — view machine (cover → invitation →
 // story → details) following the RoyalBurgundyRenderer contract
-// (props: site, envelope, preview).
+// (props: site, envelope, preview). The `envelope` prop is the
+// shared SiteRenderer contract (cover shown or not) — it is NOT an
+// envelope visual: there is no envelope anywhere in this template,
+// only the invitation card with its mist-dissolve reveal.
 //
 // Views, in order:
 //   cover      — WinterFrostCover (full-bleed snowy photo,
 //                snowflake-crest medallion with live monogram,
 //                falling snow, cinematic opening)
-//   invitation — WinterFrostEnvelope (snowflake wax-seal envelope +
-//                welcome + countdown on a deep-blue band) +
+//   invitation — WinterFrostEnvelope (invitation card, mist-dissolve
+//                reveal + welcome + countdown on a deep-blue band) +
 //                StoryPreview (snow-globe carousel) + DetailsCard +
 //                RSVPSection (ice-blue ticket) + RSVP form + footer
 //   story      — WinterFrostStory (snow-globe carousel + paragraphs)
 //   details    — WinterFrostDetails (schedule, dress code, venue +
 //                travel, accommodations, registry, RSVP jump)
 //
-// Cinematic opening (Phases 3–4 in PanelsOverlay): frosted-glass
-// ice panels slide apart, then dissolve with a snowflake burst +
-// aurora shimmer. NO music on this template — SFX only, via Web
-// Audio created lazily on tap. The envelope's snowflake wax seal is
-// the interaction instead.
+// Cinematic opening (Phases 3–4 in PanelsOverlay): the full-screen
+// frost-mist veil thins, drifts upward and fades away to reveal
+// the invitation card, with a snowflake burst + aurora shimmer.
+// NO music on this template — SFX only, via Web Audio created
+// lazily on tap. The card's mist-dissolve reveal is the
+// interaction.
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -60,16 +64,17 @@ export default function WinterFrostRenderer({
   envelope?: boolean;
   preview?: boolean;
 }) {
-  // With no envelope (editor live preview) start on the invitation —
+  // With no cover (editor live preview) start on the invitation —
   // the cover would block editing there (same contract as the other
   // template renderers).
   const [currentView, setCurrentView] = useState<View>(envelope ? "cover" : "invitation");
   const savedScrollRef = useRef(0);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // Cinematic opening state (cover Phases 3–4). "hidden" = no panels;
-  // "closed" = panels covering the screen; "opening" = panels slide
-  // apart; "fading" = panels dissolve + snowflake burst + shimmer.
+  // Cinematic opening state (cover Phases 3–4). "hidden" = no veil;
+  // "closed" = mist veil covering the screen; "opening" = veil
+  // thinning + drifting up; "fading" = veil gone + snowflake burst
+  // + shimmer.
   const [panels, setPanels] = useState<"hidden" | PanelsPhase>("hidden");
   // Instant cover exit while the panels cover the screen, and a subtle
   // 1.04 → 1 reveal zoom on the invitation mounting underneath.
@@ -131,8 +136,8 @@ export default function WinterFrostRenderer({
   const openInvitation = (opts?: { cinematic?: boolean }) => {
     if (opts?.cinematic) {
       // Phase 3: cover exits instantly, invitation mounts underneath
-      // while the two frosted-glass ice panels cover the screen,
-      // then slide apart.
+      // while the frost-mist veil covers the screen, then thins and
+      // drifts upward.
       setInstantExit(true);
       setRevealZoom(true);
       setPanels("closed");
@@ -140,7 +145,7 @@ export default function WinterFrostRenderer({
       scrollToRendererTop();
       if (soundOnRef.current) playFrostSound();
       later(80, () => setPanels("opening"));
-      // Phase 4: panels dissolve, snowflake burst, aurora shimmer, chime.
+      // Phase 4: veil gone, snowflake burst, aurora shimmer, chime.
       later(2580, () => {
         setPanels("fading");
         if (soundOnRef.current) playIceChimeSound();
@@ -292,7 +297,7 @@ export default function WinterFrostRenderer({
         )}
       </AnimatePresence>
 
-      {/* Cinematic Phases 3–4: ice panels + snowflake burst, rendered
+      {/* Cinematic Phases 3–4: mist veil + snowflake burst, rendered
           outside AnimatePresence so they survive the cover unmount. */}
       {panels !== "hidden" && (
         <PanelsOverlay

@@ -1,26 +1,36 @@
-// Marble Luxe envelope — interactive white-and-gold envelope
-// photograph with a gold monogram seal and the sliding white
-// invitation card (tap the seal to break it and reveal / tuck the
-// card back). No music on this template — the seal is the
-// interaction.
+// Marble Luxe invitation card — NO envelope. The card itself is the
+// reveal: at rest you see its BACK as TWO white-marble panels
+// (DOUBLE-DOOR UNFOLD); tap swings the panels open outward on
+// hinges at the outer left and right edges (rotateY) to reveal the
+// FRONT (the existing invitation content, unchanged) beneath. Tap
+// again swings them closed. This is two panels on edge hinges —
+// NOT a single card flipping 180 degrees. Slow gold motes drift
+// behind the card; a gold particle burst + shimmer land the open.
+// prefers-reduced-motion: instant swap, no ambient animation, no
+// particles. No music on this template.
 "use client";
 
 import { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Transition } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { GoldDivider } from "./Decor";
-import {
-  ENVELOPE_IMAGE_URL,
-  formatCardDate,
-  initials,
-  locationLabel,
-} from "./tokens";
+import { formatCardDate, initials, locationLabel } from "./tokens";
+import { GoldDustCanvas, playGoldShimmer } from "./CinematicOpening";
 
 /* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding white invitation card                */
+/* InvitationCard — the white invitation card (front face, kept      */
+/* as-is: same markup, typography and colours as before).            */
 /* ------------------------------------------------------------------ */
 
-function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
+function InvitationCard({
+  site,
+  isOpen,
+  shimmerKey = 0,
+}: {
+  site: WeddingSite;
+  isOpen: boolean;
+  shimmerKey?: number;
+}) {
   return (
     <div
       className={`relative mx-auto w-full overflow-hidden bg-white px-4 py-3 text-center text-[#1F2937] transition-shadow duration-700 @min-[29.375rem]:px-6 @min-[29.375rem]:py-5 @max-[22rem]:py-2 ${
@@ -81,85 +91,154 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
           {locationLabel(site)}
         </p>
       </div>
+
+      {/* One-time gold shimmer sweep across the card on reveal.
+          Remounts (key) on every open so it replays; unmounted when
+          the doors close again. */}
+      {shimmerKey > 0 && (
+        <motion.div
+          key={shimmerKey}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 z-20 w-1/3"
+          style={{
+            background:
+              "linear-gradient(100deg, transparent 0%, rgba(212,175,105,0.45) 50%, transparent 100%)",
+          }}
+          initial={{ x: "-120%" }}
+          animate={{ x: "320%" }}
+          transition={{ duration: 0.9, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        />
+      )}
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* MonogramSeal — the gold monogram-seal open button. Tapping it    */
-/* "breaks" the seal (it tilts and fades) and the card slides up;  */
-/* tapping again reseals it. The monogram is live HTML text.        */
+/* Card back — two marble door panels. Each panel is one half of    */
+/* the card back: white marble with soft grey veining (the vein     */
+/* layer is blurred, the monogram stays crisp), a fine gold         */
+/* hairline, and half of the live gold monogram — the two halves    */
+/* read as one monogram across the centre seam while closed. The    */
+/* left panel hinges on its outer left edge, the right panel on     */
+/* its outer right edge; opening swings their free (centre) edges  */
+/* out toward the viewer.                                           */
 /* ------------------------------------------------------------------ */
 
-function MonogramSeal({
-  site,
+const MARBLE_VEIN =
+  "linear-gradient(160deg, transparent 0%, transparent 42%, rgba(120,120,125,0.18) 45%, rgba(120,120,125,0.05) 48%, transparent 52%, transparent 70%, rgba(120,120,125,0.14) 73%, rgba(120,120,125,0.04) 76%, transparent 80%), linear-gradient(200deg, transparent 0%, transparent 60%, rgba(120,120,125,0.12) 63%, transparent 66%)";
+
+function DoorPanel({
+  side,
+  monogram,
   isOpen,
-  onToggle,
+  transition,
 }: {
-  site: WeddingSite;
+  side: "left" | "right";
+  monogram: string;
   isOpen: boolean;
-  onToggle: () => void;
+  transition: Transition;
 }) {
+  const isLeft = side === "left";
+  // Hinge at the OUTER edge; the free edge (centre seam) swings out.
+  // rotateY past 90deg + backface hidden: the panel vanishes edge-on
+  // instead of showing a mirrored back.
+  const openAngle = isLeft ? -102 : 102;
   return (
-    <div className="relative flex flex-col items-center">
-      <motion.button
-        type="button"
-        onClick={onToggle}
-        aria-pressed={isOpen}
-        aria-label={
-          isOpen
-            ? "Reseal the marble envelope"
-            : "Break the gold monogram seal and open the envelope"
-        }
-        animate={isOpen ? { rotate: -8, scale: 0.94 } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="group relative flex h-24 w-24 items-center justify-center rounded-full shadow-[0_16px_30px_-8px_rgba(31,41,55,0.45),0_4px_10px_rgba(31,41,55,0.25)] ring-2 ring-[#B49A70]/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1F2937]"
+    <motion.div
+      aria-hidden="true"
+      initial={false}
+      animate={{ rotateY: isOpen ? openAngle : 0 }}
+      transition={transition}
+      style={{
+        transformOrigin: isLeft ? "left center" : "right center",
+        backfaceVisibility: "hidden",
+      }}
+      className={`absolute top-0 h-full w-1/2 overflow-hidden bg-[#FDFDFC] ${
+        isLeft ? "left-0" : "right-0"
+      }`}
+    >
+      {/* Blurred marble veining */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-70 blur-[2px]"
+        style={{ background: MARBLE_VEIN }}
+      />
+      {/* Soft light wash so the back reads calm, never stark */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(circle at 35% 30%, #E3D3B3 0%, #B49A70 55%, #8C7355 100%)",
+            "radial-gradient(ellipse 90% 80% at 50% 42%, rgba(255,255,255,0.55) 0%, rgba(247,247,245,0.15) 100%)",
         }}
-      >
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-[7px] rounded-full border border-white/50"
-        />
-        <span className="ml-font-display relative z-10 text-[1.35rem] font-medium tracking-[0.06em] text-white drop-shadow-[0_1px_2px_rgba(60,45,20,0.5)]">
-          {initials(site)}
-        </span>
-        {/* Crack line once broken */}
-        {isOpen && (
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-2 top-1/2 h-px rotate-[-14deg] bg-[#1F2937]/50"
-          />
-        )}
-      </motion.button>
+      />
 
-      <span className="ml-font-editorial mt-3 text-xs tracking-[0.18em] text-[#8C7355] uppercase">
-        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
-      </span>
-    </div>
+      {/* Fine gold hairline frame (the seam edge carries the gold
+          centre line where the two doors meet) */}
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-2.5 border border-[#B49A70]/60 @min-[29.375rem]:inset-3 @max-[22rem]:inset-1.5 ${
+          isLeft ? "border-r-0" : "border-l-0"
+        }`}
+      />
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-y-0 w-px bg-[#B49A70]/70 ${
+          isLeft ? "right-0" : "left-0"
+        }`}
+      />
+
+      {/* Half of the monogram, set tight against the seam so the two
+          halves read as one while the doors are closed */}
+      <div
+        className={`relative z-10 flex h-full items-center ${
+          isLeft ? "justify-end pr-2 @min-[29.375rem]:pr-3" : "justify-start pl-2 @min-[29.375rem]:pl-3"
+        }`}
+      >
+        <span className="ml-font-display text-[1.55rem] leading-none font-medium tracking-[0.04em] text-[#8C7355] @min-[29.375rem]:text-[1.9rem] @max-[22rem]:text-[1.3rem]">
+          {monogram}
+        </span>
+      </div>
+    </motion.div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
+/* MarbleLuxeEnvelope — card-only double-door reveal (file and      */
+/* export name kept so the Renderer import is unchanged).           */
 /* ------------------------------------------------------------------ */
 
 export default function MarbleLuxeEnvelope({ site }: { site: WeddingSite }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [shimmerKey, setShimmerKey] = useState(0);
+  const [burstKey, setBurstKey] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+  const toggleCard = () => {
+    const next = !isOpen;
+    setIsOpen(next);
+    if (next) {
+      // Reveal: gold burst + shimmer land the doors opening.
+      setBurstKey((k) => k + 1);
+      setShimmerKey((k) => k + 1);
+      playGoldShimmer();
+    }
   };
+
+  const doorTransition: Transition = instant
+    ? { duration: 0 }
+    : { duration: 1.05, ease: [0.22, 1, 0.36, 1] };
+
+  // Split the "A&B" monogram across the seam: first initial on the
+  // left door, "&B" on the right door.
+  const mono = initials(site);
+  const leftMono = mono.charAt(0);
+  const rightMono = mono.slice(1);
 
   return (
     <div className="relative px-4 pt-16 pb-10">
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Marble Envelope + Sliding White Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -170,131 +249,145 @@ export default function MarbleLuxeEnvelope({ site }: { site: WeddingSite }) {
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isOpen}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open marble envelope and slide up wedding invitation card"
+              isOpen
+                ? "Close the marble double doors to hide the invitation again"
+                : "Open the marble double doors to reveal the invitation"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
-            className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1F2937]"
+            className="group relative mx-auto w-full cursor-pointer text-center select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1F2937]"
           >
-            {/* Envelope Container preserving the 4:3 geometry of the marble envelope */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(31,41,55,0.22)]">
-              {/* Layer 1: Marble envelope artwork */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ENVELOPE_IMAGE_URL}
-                alt="White wedding envelope with a thin gold border on white marble"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-cover"
+            {/* Slow gold motes drifting behind the card. Skipped
+                under reduced motion (no animation at all). */}
+            {!instant && (
+              <GoldDustCanvas
+                moteCount={10}
+                burstKey={burstKey}
+                burstOrigin={{ x: 0.5, y: 0.45 }}
+                className="z-0"
+              />
+            )}
+
+            {/* Double-door scene — perspective on the wrapper so the
+                panels swing in 3D. The FRONT is in flow (it defines
+                the box height); the two BACK panels are absolute
+                inset-0 halves hinged at the outer edges. Rest =
+                panels closed, covering the front; open = panels
+                swung out past 90deg (backface-hidden, so they
+                vanish edge-on) and the front shows. The doors layer
+                is pointer-events-none: the outer button owns the
+                tap, so tapping the revealed front closes the doors
+                again. At 102deg a panel's on-screen x-extent is
+                ~cos(102deg) of its half-width, so nothing spills
+                past the card at 320px. */}
+            <div
+              className="relative z-10 mx-auto w-[92%] @min-[29.375rem]:w-[90%]"
+              style={{ perspective: 1400 }}
+            >
+              {/* Soft gold glow behind the card */}
+              <div
+                aria-hidden="true"
+                className="absolute -inset-4 rounded-[2rem] blur-2xl"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, rgba(212,175,105,0.45) 0%, rgba(180,154,112,0.3) 55%, transparent 75%)",
+                }}
               />
 
-              {/* Layer 2: Interactive Sliding White Invitation Card */}
-              <motion.div
-                initial={false}
-                animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -28 : -48) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[28%] @min-[29.375rem]:top-[25%]"
-              >
-                <InvitationCard site={site} isOpen={isCardLifted} />
-              </motion.div>
-
-              {/* Layer 3: REAL marble pocket — the envelope photo rendered
-                  a second time ABOVE the card, clipped to the pocket's
-                  shape, so the card is physically tucked inside at rest.
-                  Geometry (eye-measured from marble-luxe-detail.jpg,
-                  1920x1280, object-cover cropped 3:2 → 4:3): the
-                  envelope spans x ~23–78%, y ~24–76% of the container
-                  and its flap point sits at ~(50%, 57%). The clip
-                  reuses the Golden Hour ^-polygon shape but shifted
-                  to THIS envelope's edges (23%/77% instead of
-                  19%/81%): it sits ABOVE the true pocket edge across
-                  the card's span (65% flat band vs the flap's ~57%
-                  apex) so the names peek and the divider, date and
-                  location stay hidden behind the pocket at rest.
-                  The card is sized by CONTAINER width (@container on
-                  the outer wrapper — never viewport `sm:` — so the
-                  editor's Mobile (390px) preview gets the mobile card
-                  and desktop (490px container) gets the larger card),
-                  in THREE bands, because the card's content is fixed
-                  px while the 4:3 container shrinks with the viewport:
-                  - <352px: compact card (@max-[22rem]: 15px names,
-                    tight padding, divider mt-6) — 320px: Partner B
-                    bottom 58.8%, divider top 69.9%, card bottom 98%
-                    (behind the pocket, invisible). Verified by
-                    arithmetic against the polygon.
-                  - 352–383px: small card (17px names), top 25%,
-                    divider mt-10 — 390px: Partner B bottom 56.6%,
-                    divider top 71.5%.
-                  - 384–469px: small card, top 28%, divider mt-10 —
-                    the large card does NOT fit here (see below).
-                  - >=470px: large card (22px names, py-5), top 25%,
-                    divider mt-12 — desktop 490px container: Partner
-                    B bottom 54.9%, divider top 68.0%, card bottom
-                    91.7%.
-                  WHY the large card starts at 470px, not 384px: its
-                  content is ~245px tall and the names WRAP below
-                  ~443px container width (inner width < ~160px), so at
-                  430px viewport (398x299 container) it would span
-                  25%→131% — only PARTNER A peeked, Partner B sat
-                  behind the pocket, and when open the location line
-                  was clipped mid-glyph at the container's bottom
-                  edge. The large card only fits once Partner B bottom
-                  (25% + ~110px) clears the 65% pocket line with
-                  margin, i.e. container >=470px. In the 384–469 band
-                  the small card is used with top 28% + divider mt-10,
-                  which keeps Partner B bottom <=56.5% and divider top
-                  >=69.9% across the whole band. On tap the clip's top
-                  edge drops to ~97% (the pocket opens) while the card
-                  lifts 48px, so divider + date + location are fully
-                  revealed with no top clipping (lifted card bottom
-                  <=79% in every band). */}
-              <motion.div
-                aria-hidden="true"
-                initial={false}
-                animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(23% 96%, 34% 97.5%, 66% 97.5%, 77% 96%, 77% 100%, 23% 100%)"
-                    : "polygon(23% 52%, 34% 65%, 66% 65%, 77% 52%, 77% 100%, 23% 100%)",
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="pointer-events-none absolute inset-0 z-20 [filter:drop-shadow(0_-2px_3px_rgba(31,41,55,0.18))]"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
+              {/* FRONT — the invitation (unchanged content) */}
+              <div aria-hidden={!isOpen} className="relative w-full">
+                <InvitationCard
+                  site={site}
+                  isOpen={isOpen}
+                  shimmerKey={isOpen && !instant ? shimmerKey : 0}
                 />
-              </motion.div>
+              </div>
+
+              {/* BACK — the two marble doors + centre seam */}
+              <div
+                aria-hidden={isOpen}
+                className="pointer-events-none absolute inset-0 z-20"
+              >
+                <DoorPanel
+                  side="left"
+                  monogram={leftMono}
+                  isOpen={isOpen}
+                  transition={doorTransition}
+                />
+                <DoorPanel
+                  side="right"
+                  monogram={rightMono}
+                  isOpen={isOpen}
+                  transition={doorTransition}
+                />
+
+                {/* Centre seam — thin gold line + diamond where the
+                    doors meet; fades as they open. */}
+                <motion.div
+                  aria-hidden="true"
+                  initial={false}
+                  animate={{ opacity: isOpen ? 0 : 1 }}
+                  transition={{ duration: instant ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute top-0 bottom-0 left-1/2 z-30 w-px -translate-x-1/2 bg-[#B49A70]"
+                />
+                <motion.div
+                  aria-hidden="true"
+                  initial={false}
+                  animate={{ opacity: isOpen ? 0 : 1, scale: isOpen ? 0.6 : 1 }}
+                  transition={{ duration: instant ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute top-1/2 left-1/2 z-30 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-[#B49A70] shadow-[0_0_0_3px_rgba(253,253,252,0.9)]"
+                />
+
+                {/* "Tap to reveal" on the back itself, centred low
+                    across the seam; fades as the doors open. */}
+                <motion.p
+                  aria-hidden="true"
+                  initial={false}
+                  animate={{ opacity: isOpen ? 0 : 1 }}
+                  transition={{ duration: instant ? 0 : 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="ml-font-display absolute inset-x-0 bottom-[9%] z-30 text-center text-[9px] font-medium tracking-[0.3em] text-[#8C7355] uppercase @min-[29.375rem]:text-[10px]"
+                >
+                  Tap to Reveal
+                </motion.p>
+
+                {/* Slow sheen drifting across the closed doors. */}
+                {!instant && !isOpen && (
+                  <motion.div
+                    aria-hidden="true"
+                    className="absolute inset-y-0 z-20 w-1/4"
+                    animate={{ x: ["-120%", "480%"] }}
+                    transition={{ duration: 9, repeat: Infinity, ease: "linear" }}
+                  >
+                    <div
+                      className="h-full w-full"
+                      style={{
+                        transform: "skewX(-12deg)",
+                        background:
+                          "linear-gradient(100deg, transparent 0%, rgba(255,255,255,0.45) 50%, transparent 100%)",
+                      }}
+                    />
+                  </motion.div>
+                )}
+              </div>
             </div>
 
-            {/* Subtle interactive cue */}
-            <p className="ml-font-display mt-1 text-center text-[10px] font-medium tracking-[0.26em] text-[#8C7355]/80 uppercase transition-colors group-hover:text-[#1F2937]">
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
-          </div>
-
-          {/* Gold Monogram Seal */}
-          <div className="relative z-30 mt-4 flex justify-center">
-            <MonogramSeal site={site} isOpen={isCardLifted} onToggle={toggleEnvelope} />
+            {/* Cue — on a soft pill so it stays legible */}
+            <motion.p
+              key={isOpen ? "front" : "back"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="ml-font-display relative z-10 mt-4 inline-block rounded-full bg-white/80 px-4 py-1 text-center text-[10px] font-medium tracking-[0.26em] text-[#8C7355]/80 uppercase backdrop-blur-[2px] transition-colors group-hover:text-[#1F2937]"
+            >
+              {isOpen ? "Tap to Close the Doors" : "Tap Card to Reveal"}
+            </motion.p>
           </div>
         </motion.div>
       </div>

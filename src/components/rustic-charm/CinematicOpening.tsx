@@ -5,7 +5,8 @@
 // lantern, one gentle swing of the sign, a burst of golden firefly
 // particles, button fades.
 // Phase 3–4 (renderer): two barn doors on a rail slide apart,
-// revealing the invitation; a firefly glow blooms and a warm light
+// revealing the invitation card; a lantern glow blooms where the
+// card sits, echoing the card's own slow zoom-in, and a warm light
 // sweep crosses. Web Audio SFX only (low wooden thock + warm chime,
 // synthesised — no audio files, no autoplay). Everything is
 // transform/opacity (canvas excepted) and respects
@@ -366,11 +367,12 @@ export function SkipButton({ onSkip }: { onSkip: () => void }) {
 
 /* ------------------------------------------------------------------ */
 /* BarnDoorOverlay — Phase 3 + 4. Two wood-plank barn doors on a     */
-/* rail slide apart, revealing the invitation mounted underneath;    */
-/* fireflies drift around them; on "fading" the doors dissolve, a   */
-/* warm lantern glow blooms and a golden light sweep crosses. Fixed  */
-/* positioning, pointer-events-none except for the Skip / sound      */
-/* controls.                                                         */
+/* rail slide apart, revealing the invitation card mounted          */
+/* underneath; fireflies drift around them; on "fading" the doors   */
+/* dissolve, a warm lantern glow blooms where the card sits —       */
+/* starting small and growing, echoing the card's slow zoom-in —    */
+/* and a golden light sweep crosses. Fixed positioning,             */
+/* pointer-events-none except for the Skip / sound controls.        */
 /* ------------------------------------------------------------------ */
 
 export type PanelsPhase = "closed" | "opening" | "fading";
@@ -476,18 +478,21 @@ export function BarnDoorOverlay({
         <DustCanvas particleCount={12} burstKey={0} className="z-10" />
       </motion.div>
 
-      {/* Phase 4 — warm lantern glow bloom + golden light sweep */}
+      {/* Phase 4 — warm lantern glow bloom + golden light sweep.
+          The bloom sits where the invitation card mounts (upper
+          third) and grows from small, echoing the card's slow
+          zoom-in from far away. */}
       {phase === "fading" && (
         <>
           <motion.div
             aria-hidden="true"
-            className="absolute top-1/2 left-1/2 z-20 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-80 sm:w-80"
+            className="absolute top-[26%] left-1/2 z-20 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-80 sm:w-80"
             style={{
               background:
                 "radial-gradient(circle at 50% 50%, rgba(253, 230, 138, 0.55) 0%, rgba(253, 230, 138, 0.12) 55%, transparent 75%)",
             }}
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: [0.5, 1, 1.4], opacity: [0, 0.8, 0] }}
+            initial={{ scale: 0.45, opacity: 0 }}
+            animate={{ scale: [0.45, 1, 1.4], opacity: [0, 0.8, 0] }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
           />
           <motion.div

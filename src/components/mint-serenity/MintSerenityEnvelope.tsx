@@ -1,23 +1,32 @@
-// Mint Serenity envelope — interactive mint envelope with a sage
-// leaf seal and the sliding white invitation card (tap the seal to
-// break it and reveal / tuck the card back). No music on this
-// template — the seal is the interaction.
+// Mint Serenity invitation card — NO envelope. The card itself is
+// the reveal: at rest you see its BACK (blurred mint wash, slowly
+// floating translucent bubbles, soft mist, "TAP TO REVEAL"); on tap
+// the FRONT blooms from a single point at its centre — scale 0 → 1
+// with a soft ease (~0.9s), a thin bubble-ring ripple expanding
+// outward as it grows, and the mist clearing as it lands. The FRONT
+// is the existing invitation content, unchanged. Tap again shrinks
+// the card back to a point / back side. Ambient bubbles drift behind
+// the card; a bubble burst lands the reveal. prefers-reduced-motion:
+// instant swap, no ambient animation, no particles. No music on
+// this template — the card is the interaction.
 "use client";
 
 import { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Transition } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
-import { BubbleDivider, LeafSeal } from "./Decor";
+import { BubbleDivider } from "./Decor";
 import {
-  ENVELOPE_IMAGE_URL,
   FONT_DISPLAY,
   FONT_EDITORIAL,
   formatCardDate,
+  initials,
   locationLabel,
 } from "./tokens";
+import { BubbleCanvas, playPopSound } from "./CinematicOpening";
 
 /* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding white invitation card                */
+/* InvitationCard — the invitation card FRONT (existing content,    */
+/* unchanged: markup, typography, colours, borders).                */
 /* ------------------------------------------------------------------ */
 
 function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
@@ -90,7 +99,7 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
         </span>
         <h2
           style={FONT_DISPLAY}
-          className="text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#052E22] uppercase @min-[29.375rem]:text-[22px] @min-[29.375rem]:tracking-[0.12em] @max-[22rem]:text-[15px] @max-[22rem]:tracking-[0.08em]"
+          className="text-[17px] leading-none font-normal tracking-[0.1em] break-words text-[#052E22] uppercase @min-[29.375rem]:mt-3 @min-[29.375rem]:text-[22px] @min-[29.375rem]:tracking-[0.12em] @max-[22rem]:text-[15px] @max-[22rem]:tracking-[0.08em]"
         >
           {site.content.partnerB}
         </h2>
@@ -115,65 +124,218 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
 }
 
 /* ------------------------------------------------------------------ */
-/* LeafSealButton — the sage leaf-seal open button (pure SVG disc,  */
-/* never a photo). Tapping it "breaks" the seal (it splits and      */
-/* fades) and the card slides up; tapping again reseals it.          */
+/* CardBack — the card's BACK at rest: blurred mint wash, slowly     */
+/* floating translucent bubbles, soft mist, live monogram in a thin  */
+/* bubble ring, "TAP TO REVEAL". Same footprint as the front         */
+/* (absolute inset-0 of the bloom box), so the reveal never moves    */
+/* layout.                                                           */
 /* ------------------------------------------------------------------ */
 
-function LeafSealButton({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
-  return (
-    <div className="relative flex flex-col items-center">
-      <motion.button
-        type="button"
-        onClick={onToggle}
-        aria-pressed={isOpen}
-        aria-label={
-          isOpen
-            ? "Reseal the mint envelope"
-            : "Break the leaf seal and open the envelope"
-        }
-        animate={isOpen ? { rotate: -8, scale: 0.94 } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full shadow-[0_16px_30px_-8px_rgba(6,95,70,0.6),0_4px_10px_rgba(6,95,70,0.35)] ring-2 ring-[#A7F3D0]/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#065F46]"
-      >
-        <LeafSeal className="absolute inset-0 h-full w-full" />
-        {/* Crack line once broken */}
-        {isOpen && (
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-2 top-1/2 h-px rotate-[-14deg] bg-[#ECFDF5]/70"
-          />
-        )}
-      </motion.button>
+const BACK_BUBBLES = [
+  { left: "12%", size: 14, duration: 7, delay: 0 },
+  { left: "24%", size: 9, duration: 9, delay: 1.6 },
+  { left: "38%", size: 18, duration: 8, delay: 0.7 },
+  { left: "55%", size: 11, duration: 10, delay: 2.4 },
+  { left: "68%", size: 15, duration: 7.5, delay: 1.1 },
+  { left: "82%", size: 10, duration: 9.5, delay: 3.0 },
+] as const;
 
-      <span
-        style={FONT_EDITORIAL}
-        className="mt-3 text-xs tracking-[0.18em] text-[#047857]/90 uppercase"
-      >
-        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
-      </span>
+function CardBack({ site }: { site: WeddingSite }) {
+  return (
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#D1FAE5] px-4 py-8 text-center shadow-[0_10px_24px_-8px_rgba(6,95,70,0.45)] @min-[29.375rem]:px-6">
+      {/* Blurred mint wash */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 90% 80% at 50% 42%, rgba(255, 255, 255, 0.75) 0%, rgba(209, 250, 229, 0.7) 55%, rgba(167, 243, 208, 0.85) 100%)",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-10 -left-10 h-40 w-40 rounded-full bg-white/50 blur-2xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-8 -bottom-10 h-44 w-44 rounded-full bg-[#6EE7B7]/50 blur-2xl"
+      />
+
+      {/* Slowly floating translucent bubbles over the wash */}
+      {BACK_BUBBLES.map((b, i) => (
+        <motion.span
+          key={i}
+          aria-hidden="true"
+          className="pointer-events-none absolute rounded-full border border-white/80 bg-white/30"
+          style={{
+            left: b.left,
+            bottom: "12%",
+            width: b.size,
+            height: b.size,
+            boxShadow:
+              "inset -1px -1px 2px rgba(255,255,255,0.9), inset 1px 1px 2px rgba(6,95,70,0.2)",
+          }}
+          animate={{ y: [0, -46, 0], opacity: [0.55, 0.95, 0.55] }}
+          transition={{
+            duration: b.duration,
+            delay: b.delay,
+            repeat: Infinity,
+            ease: [0.37, 0, 0.63, 1],
+          }}
+        />
+      ))}
+
+      {/* Fine double mint & sage border, matching the front */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2.5 border border-[#065F46]/60 @min-[29.375rem]:inset-3"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[13px] border border-[#10B981]/30 @min-[29.375rem]:inset-[15px]"
+      />
+
+      <div className="relative z-10 flex flex-col items-center py-2">
+        <p
+          style={FONT_DISPLAY}
+          className="text-[9px] tracking-[0.34em] text-[#047857] uppercase @min-[29.375rem]:text-[10px]"
+        >
+          WITH LOVE
+        </p>
+
+        {/* Live monogram in a thin bubble ring */}
+        <div
+          aria-hidden="true"
+          className="relative mt-5 flex h-24 w-24 items-center justify-center rounded-full border border-[#065F46]/50 bg-white/50 @min-[29.375rem]:h-28 @min-[29.375rem]:w-28"
+          style={{
+            boxShadow:
+              "inset 0 2px 6px rgba(255,255,255,0.7), 0 10px 22px -6px rgba(6,95,70,0.35)",
+          }}
+        >
+          <div className="absolute inset-2 rounded-full border border-[#10B981]/40" />
+          <span
+            style={FONT_DISPLAY}
+            className="relative text-[1.6rem] leading-none font-medium tracking-[0.06em] text-[#065F46] @min-[29.375rem]:text-[1.8rem]"
+          >
+            {initials(site)}
+          </span>
+        </div>
+
+        <BubbleDivider className="mt-5 h-6 w-24 @min-[29.375rem]:h-8 @min-[29.375rem]:w-28" />
+
+        <p
+          style={FONT_DISPLAY}
+          className="mt-4 text-[9px] tracking-[0.3em] text-[#047857] uppercase @min-[29.375rem]:text-[10px]"
+        >
+          TAP TO REVEAL
+        </p>
+      </div>
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
+/* MintAmbience — slowly floating translucent bubbles + drifting     */
+/* mist blobs behind the card, looping. Transform + opacity only     */
+/* (GPU-friendly).                                                   */
+/* ------------------------------------------------------------------ */
+
+const AMBIENT_BUBBLES = [
+  { left: "5%", size: 10, duration: 9, delay: 0 },
+  { left: "14%", size: 16, duration: 11, delay: 1.4 },
+  { left: "23%", size: 8, duration: 8, delay: 2.6 },
+  { left: "33%", size: 13, duration: 10, delay: 0.8 },
+  { left: "44%", size: 9, duration: 12, delay: 3.4 },
+  { left: "55%", size: 17, duration: 9.5, delay: 2.0 },
+  { left: "66%", size: 11, duration: 10.5, delay: 0.4 },
+  { left: "76%", size: 15, duration: 8.5, delay: 4.2 },
+  { left: "86%", size: 9, duration: 11.5, delay: 1.8 },
+  { left: "93%", size: 12, duration: 9, delay: 5.0 },
+] as const;
+
+function MintAmbience() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
+      {/* Slow-drifting mist blobs — mint + white */}
+      <motion.div
+        className="absolute -left-10 top-8 h-44 w-44 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(167,243,208,0.6) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, 24, 0], y: [0, -18, 0] }}
+        transition={{ duration: 11, repeat: Infinity, repeatType: "mirror", ease: [0.37, 0, 0.63, 1] }}
+      />
+      <motion.div
+        className="absolute -right-8 bottom-10 h-52 w-52 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(255,255,255,0.7) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, -20, 0], y: [0, 16, 0] }}
+        transition={{ duration: 13, repeat: Infinity, repeatType: "mirror", ease: [0.37, 0, 0.63, 1] }}
+      />
+
+      {/* Rising bubbles */}
+      {AMBIENT_BUBBLES.map((b, i) => (
+        <motion.span
+          key={i}
+          className="absolute bottom-0 rounded-full border border-white/70 bg-white/25"
+          style={{
+            left: b.left,
+            width: b.size,
+            height: b.size,
+            boxShadow:
+              "inset -1px -1px 2px rgba(255,255,255,0.8), inset 1px 1px 2px rgba(6,95,70,0.25)",
+          }}
+          initial={{ y: 0, opacity: 0 }}
+          animate={{ y: -440, opacity: [0, 0.85, 0.85, 0] }}
+          transition={{
+            duration: b.duration,
+            delay: b.delay,
+            repeat: Infinity,
+            ease: "linear",
+            times: [0, 0.15, 0.8, 1],
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* CardBloom — the card-only bubble-bloom reveal                     */
 /* ------------------------------------------------------------------ */
 
 export default function MintSerenityEnvelope({ site }: { site: WeddingSite }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [bloomKey, setBloomKey] = useState(0);
+  const [burstKey, setBurstKey] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+  const toggleCard = () => {
+    const next = !isOpen;
+    setIsOpen(next);
+    if (next) {
+      // Reveal: bloom from a point + bubble burst + pop SFX.
+      setBloomKey((k) => k + 1);
+      setBurstKey((k) => k + 1);
+      playPopSound();
+    }
   };
+
+  // Soft bloom ease, ~0.9s; instant under reduced motion.
+  const bloomTransition: Transition = instant
+    ? { duration: 0 }
+    : { duration: 0.9, ease: [0.22, 1, 0.36, 1] };
 
   return (
     <div className="relative px-4 pt-16 pb-10">
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Mint Envelope + Sliding Invitation Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -184,143 +346,130 @@ export default function MintSerenityEnvelope({ site }: { site: WeddingSite }) {
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isOpen}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open mint envelope and slide up wedding invitation card"
+              isOpen
+                ? "Shrink the wedding invitation card back to its back side"
+                : "Reveal the wedding invitation card"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
-            className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#065F46]"
+            className="group relative mx-auto w-full cursor-pointer text-center select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#065F46]"
           >
-            {/* Envelope Container preserving the 4:3 geometry of the mint envelope */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(6,95,70,0.28)]">
-              {/* Layer 1: Mint envelope artwork */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ENVELOPE_IMAGE_URL}
-                alt="Mint-green wedding envelope with a sage leaf sprig along the top edge"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-cover"
+            {/* Ambient bubbles / drifting mist behind the card.
+                Skipped under reduced motion (no animation at all). */}
+            {!instant && <MintAmbience />}
+
+            {/* Bloom scene — the FRONT is in flow (it defines the
+                box height); the BACK is absolute inset-0. At rest
+                the front is scaled to a point at its centre
+                (invisible) and the back shows; on reveal the front
+                grows 0 → 1 from the centre while the back shrinks
+                to a point, so the reveal never moves layout. */}
+            <div className="relative z-10 mx-auto w-[92%] @min-[29.375rem]:w-[90%]">
+              {/* Soft mint glow behind the card */}
+              <div
+                aria-hidden="true"
+                className="absolute -inset-4 rounded-[2rem] blur-2xl"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, rgba(167,243,208,0.55) 0%, rgba(255,255,255,0.4) 55%, transparent 75%)",
+                }}
               />
 
-              {/* Layer 2: Interactive Sliding White Invitation Card */}
+              {/* FRONT — the invitation (unchanged content), blooming
+                  from a single point at its centre. */}
               <motion.div
                 initial={false}
-                animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -28 : -48) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[28%] @min-[29.375rem]:top-[25%]"
+                animate={{ scale: isOpen ? 1 : 0, opacity: isOpen ? 1 : 0 }}
+                transition={bloomTransition}
+                style={{ transformOrigin: "50% 50%" }}
+                aria-hidden={!isOpen}
+                className="relative w-full"
               >
-                <InvitationCard site={site} isOpen={isCardLifted} />
+                <InvitationCard site={site} isOpen={isOpen} />
               </motion.div>
 
-              {/* Layer 3: REAL mint pocket — the envelope photo rendered
-                  a second time ABOVE the card, clipped to the pocket's
-                  shape, so the card is physically tucked inside at rest.
-                  Geometry (MEASURED from mint-serenity-detail.jpg,
-                  1200x900, cropped tight to the envelope): a classic
-                  envelope — triangular flap with its point at centre
-                  ~(50%, 61.6%) (centre-column luminance scan + eye
-                  check), pocket diagonals running from the flap point
-                  down to the bottom corners, so the true pocket edge is
-                  ^-shaped (61.6% at centre, ~75.4% at x=32%/68%,
-                  ~79.6% at the card's edges).
-                  The clip reuses Golden Hour's proven single flat
-                  polygon (19% 52%, 32% 65%, 68% 65%, 81% 52%): it sits
-                  ABOVE the true pocket edge across the card's sides
-                  (65% vs 75.4% true at x=32%) and ~3.4% BELOW the flap
-                  point at centre (65% vs 61.6% true) — a ~12px sliver
-                  where the card peeks just past the fold point, which
-                  reads as the card emerging from behind the fold
-                  (the flap tip is rounded and soft, so the sliver is
-                  invisible as a seam).
-                  The card is sized by CONTAINER width (@container on
-                  the outer wrapper — never viewport `sm:` — so the
-                  editor's Mobile (390px) preview gets the mobile card
-                  and desktop (490px container) gets the larger card),
-                  in THREE bands, because the card's content is fixed
-                  px while the 4:3 container shrinks with the viewport
-                  (same bands + sizes as Golden Hour, whose card has
-                  the identical content structure — eyebrow, two names,
-                  &, divider, date, location — so its live-verified
-                  numbers transfer):
-                  - <352px: compact card (@max-[22rem]: 15px names,
-                    tight padding) — 320px: Partner B bottom 63.7%,
-                    divider top 71.1%, card bottom 107.6% (behind the
-                    pocket, invisible).
-                  - 352–383px: small card (17px names), top 25% —
-                    390px: Partner B bottom 62.1%, divider top 68%.
-                  - 384–469px: small card, top 28%, divider mt-10 —
-                    the large card does NOT fit here (see below).
-                  - >=470px: large card (22px names, py-5), top 25% —
-                    desktop 490px container: Partner B bottom 61.7%,
-                    divider top 65.5%, card bottom 95.8%.
-                  WHY the large card starts at 470px, not 384px: its
-                  content is ~260px tall and the names WRAP below
-                  ~443px container width (inner width < ~160px), so at
-                  430px viewport (398x299 container) it spanned
-                  25%→131.7% — only PARTNER A peeked (wrapped to two
-                  lines), Partner B sat at 85% behind the pocket, and
-                  when open the location line was clipped mid-glyph at
-                  the container's bottom edge. The large card only
-                  fits once Partner B bottom (25% + 135px) clears the
-                  65% pocket line with margin, i.e. container >=470px
-                  (63.3% there, 61.7% at 490px). In the 384–469 band
-                  the small card is used with top 28% + divider mt-10
-                  (divider offset 139.6px from card top), which keeps
-                  Partner B bottom <=62.7% and divider top >=67.6%
-                  across the whole band. On tap the clip's top edge
-                  drops to ~97% (the pocket opens) while the card
-                  lifts 48px, so divider + date + location are fully
-                  revealed with no top clipping. */}
+              {/* BACK — blurred mint wash + floating bubbles. Shrinks
+                  to a point as the front blooms. */}
+              <motion.div
+                initial={false}
+                animate={{ scale: isOpen ? 0 : 1, opacity: isOpen ? 0 : 1 }}
+                transition={bloomTransition}
+                style={{ transformOrigin: "50% 50%" }}
+                aria-hidden={isOpen}
+                className="absolute inset-0"
+              >
+                <CardBack site={site} />
+              </motion.div>
+
+              {/* Mist clearing — a soft mint mist over the card that
+                  thins away as the bloom lands, and settles back
+                  when the card shrinks. */}
               <motion.div
                 aria-hidden="true"
-                initial={false}
-                animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(19% 96%, 32% 97.5%, 68% 97.5%, 81% 96%, 81% 100%, 19% 100%)"
-                    : "polygon(19% 52%, 32% 65%, 68% 65%, 81% 52%, 81% 100%, 19% 100%)",
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
                 className="pointer-events-none absolute inset-0 z-20"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
+                style={{
+                  background:
+                    "radial-gradient(ellipse 90% 80% at 50% 50%, rgba(236,253,245,0.55) 0%, rgba(209,250,229,0.35) 60%, transparent 100%)",
+                }}
+                initial={false}
+                animate={{ opacity: isOpen ? 0 : 0.5 }}
+                transition={bloomTransition}
+              />
+
+              {/* Bubble-ring ripple — thin rings expanding outward
+                  from the card's centre as it grows. Remounts (key)
+                  on every reveal so they replay. */}
+              {!instant && isOpen && (
+                <span key={bloomKey} aria-hidden="true" className="pointer-events-none absolute inset-0 z-20">
+                  <motion.span
+                    className="absolute top-1/2 left-1/2 block h-48 w-48 rounded-full border-2 border-white/80 @min-[29.375rem]:h-64 @min-[29.375rem]:w-64"
+                    style={{
+                      boxShadow:
+                        "0 0 40px rgba(255,255,255,0.6), inset 0 0 30px rgba(167,243,208,0.5)",
+                    }}
+                    initial={{ scale: 0, opacity: 0, x: "-50%", y: "-50%" }}
+                    animate={{ scale: [0, 1, 1.7], opacity: [0, 0.9, 0], x: "-50%", y: "-50%" }}
+                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                  <motion.span
+                    className="absolute top-1/2 left-1/2 block h-24 w-24 rounded-full border border-[#065F46]/50 @min-[29.375rem]:h-32 @min-[29.375rem]:w-32"
+                    initial={{ scale: 0, opacity: 0, x: "-50%", y: "-50%" }}
+                    animate={{ scale: [0, 1, 1.6], opacity: [0, 0.7, 0], x: "-50%", y: "-50%" }}
+                    transition={{ duration: 0.9, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </span>
+              )}
+
+              {/* Bubble burst on the reveal landing. The canvas
+                  renders nothing under reduced motion. */}
+              {!instant && (
+                <BubbleCanvas
+                  particleCount={10}
+                  burstKey={burstKey}
+                  burstOrigin={{ x: 0.5, y: 0.5 }}
+                  className="z-20"
                 />
-              </motion.div>
+              )}
             </div>
 
-            {/* Subtle interactive cue */}
-            <p
+            {/* Cue — on a soft pill so it stays legible. */}
+            <motion.p
+              key={isOpen ? "front" : "back"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4 }}
               style={FONT_DISPLAY}
-              className="mt-1 text-center text-[10px] tracking-[0.26em] text-[#047857]/80 uppercase transition-colors group-hover:text-[#052E22]"
+              className="relative z-10 mt-4 inline-block rounded-full bg-[#ECFDF5]/80 px-4 py-1 text-center text-[10px] tracking-[0.26em] text-[#047857]/80 uppercase backdrop-blur-[2px] transition-colors group-hover:text-[#052E22]"
             >
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
-          </div>
-
-          {/* Sage Leaf Seal */}
-          <div className="relative z-30 mt-4 flex justify-center">
-            <LeafSealButton isOpen={isCardLifted} onToggle={toggleEnvelope} />
+              {isOpen ? "Tap Card to Shrink Back" : "Tap Card to Reveal"}
+            </motion.p>
           </div>
         </motion.div>
       </div>

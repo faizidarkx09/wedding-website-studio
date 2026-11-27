@@ -1,21 +1,25 @@
-// Coral Sunset envelope — interactive coral envelope with a coral
-// sun-disc seal and the sliding cream invitation card (tap the seal
-// to break it and reveal / tuck the card back). No music on this
-// template — the seal is the interaction.
+// Coral Sunset invitation card — NO envelope. The card itself is
+// the reveal: at rest you see its BACK (a soft-focus sunset sky,
+// plum → coral → peach, with a glowing sun disc straddling the
+// horizon line and the couple monogram inside it, "Tap to Reveal");
+// tap splits the back into TOP and BOTTOM halves that slide apart
+// vertically — like a sun rising over the horizon — to reveal the
+// FRONT (the existing invitation content, unchanged) beneath.
+// Tap again slides the halves back together. Rising embers drift
+// behind the card and a golden spark burst lands the reveal.
+// prefers-reduced-motion: instant swap, no ambient animation,
+// no particles. No music on this template.
 "use client";
 
 import { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, type Transition } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { SunsetDivider } from "./Decor";
-import {
-  ENVELOPE_IMAGE_URL,
-  formatCardDate,
-  locationLabel,
-} from "./tokens";
+import { formatCardDate, initials, locationLabel } from "./tokens";
+import { EmberCanvas } from "./CinematicOpening";
 
 /* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding cream invitation card                */
+/* InvitationCard — the invitation face (unchanged content)           */
 /* ------------------------------------------------------------------ */
 
 function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
@@ -95,88 +99,132 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
 }
 
 /* ------------------------------------------------------------------ */
-/* SunSeal — the coral sun-disc seal open button. Tapping it        */
-/* "breaks" the seal (it splits and fades) and the card slides up;  */
-/* tapping again reseals it. Drawn as SVG (the envelope photo has   */
-/* no baked seal), so it never hides behind the sliding card.       */
+/* CardBackHalf — one half of the card BACK. Each half holds a       */
+/* full-card-sized copy of the sunset back artwork, clipped by the   */
+/* half's own overflow-hidden box, so the two halves join seamlessly */
+/* at the horizon line (the sun disc + monogram sit centred on that  */
+/* line and split cleanly when the halves slide apart). The inner    */
+/* layer is h-[200%] of the half: the top half anchors it at top-0,  */
+/* the bottom half at bottom-0, so both copies share one geometry.   */
 /* ------------------------------------------------------------------ */
 
-function SunSeal({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
+function CardBackHalf({
+  site,
+  position,
+  isOpen,
+  instant,
+}: {
+  site: WeddingSite;
+  position: "top" | "bottom";
+  isOpen: boolean;
+  instant: boolean;
+}) {
+  const isTop = position === "top";
+  const splitTransition: Transition = instant
+    ? { duration: 0 }
+    : { duration: 0.95, ease: [0.22, 1, 0.36, 1] };
+
   return (
-    <div className="relative flex flex-col items-center">
-      <motion.button
-        type="button"
-        onClick={onToggle}
-        aria-pressed={isOpen}
-        aria-label={
-          isOpen
-            ? "Reseal the coral envelope"
-            : "Break the coral sun seal and open the envelope"
-        }
-        animate={isOpen ? { rotate: -8, scale: 0.94 } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full shadow-[0_16px_30px_-8px_rgba(46,20,32,0.6),0_4px_10px_rgba(46,20,32,0.35)] ring-2 ring-[#E85D3D]/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3D1F2B]"
+    <motion.div
+      aria-hidden="true"
+      className={`absolute inset-x-0 overflow-hidden ${isTop ? "top-0" : "bottom-0"} h-1/2`}
+      initial={false}
+      animate={{ y: isOpen ? (isTop ? "-102%" : "102%") : "0%" }}
+      transition={splitTransition}
+    >
+      {/* Full-card-sized back artwork (clipped to this half) */}
+      <div
+        className={`absolute inset-x-0 h-[200%] ${isTop ? "top-0" : "bottom-0"}`}
         style={{
           background:
-            "radial-gradient(circle at 50% 38%, #FFE8D6 0%, #FFB38A 42%, #FF7F50 72%, #E85D3D 100%)",
+            "linear-gradient(180deg, #2E1420 0%, #5C2E3E 26%, #C94A2E 52%, #FF7F50 74%, #FFDAB9 100%)",
         }}
       >
-        {/* Sun rays */}
-        <svg aria-hidden="true" viewBox="0 0 96 96" fill="none" className="absolute inset-0 h-full w-full">
-          {Array.from({ length: 12 }, (_, i) => {
-            const angle = (i * 360) / 12;
-            const rad = (angle * Math.PI) / 180;
-            return (
-              <line
-                key={i}
-                x1={48 + 30 * Math.cos(rad)}
-                y1={48 + 30 * Math.sin(rad)}
-                x2={48 + 42 * Math.cos(rad)}
-                y2={48 + 42 * Math.sin(rad)}
-                stroke="#FFF6EE"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                opacity="0.9"
-              />
-            );
-          })}
-          <circle cx="48" cy="48" r="24" fill="#FFF6EE" opacity="0.92" />
-          <circle cx="48" cy="48" r="24" stroke="#C94A2E" strokeWidth="1.4" />
-        </svg>
-        {/* Crack line once broken */}
-        {isOpen && (
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-2 top-1/2 h-px rotate-[-14deg] bg-[#3D1F2B]/50"
-          />
-        )}
-      </motion.button>
+        {/* Soft-focus sunset glow — blurred warm blobs */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-[8%] left-[12%] h-24 w-24 rounded-full bg-[#FFDAB9]/50 blur-2xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute right-[10%] bottom-[12%] h-28 w-28 rounded-full bg-[#FF7F50]/60 blur-2xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 left-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#FFB38A]/45 blur-3xl"
+        />
 
-      <span className="cs-font-editorial mt-3 text-xs tracking-[0.18em] text-[#C94A2E]/85 uppercase">
-        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
-      </span>
-    </div>
+        {/* Fine double peach hairline border, matching the front */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-2.5 border border-[#FFDAB9]/60 @min-[29.375rem]:inset-3 @max-[22rem]:inset-1"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-[13px] border border-[#FFF6EE]/30 @min-[29.375rem]:inset-[15px] @max-[22rem]:inset-[7px]"
+        />
+
+        {/* Eyebrow above the sun */}
+        <p className="cs-font-display absolute inset-x-0 top-[9%] text-center text-[9px] tracking-[0.34em] text-[#FFE8D6] uppercase drop-shadow-[0_2px_6px_rgba(46,20,32,0.8)] @min-[29.375rem]:text-[10px]">
+          AS THE SUN SETS
+        </p>
+
+        {/* Sun disc straddling the horizon, monogram at its centre */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <motion.div
+            aria-hidden="true"
+            className="relative flex h-24 w-24 items-center justify-center rounded-full shadow-[0_16px_30px_-8px_rgba(46,20,32,0.6),0_4px_10px_rgba(46,20,32,0.35)] ring-2 ring-[#FFDAB9]/60 @min-[29.375rem]:h-28 @min-[29.375rem]:w-28"
+            style={{
+              background:
+                "radial-gradient(circle at 50% 38%, #FFE8D6 0%, #FFB38A 42%, #FF7F50 72%, #E85D3D 100%)",
+            }}
+            animate={
+              instant
+                ? undefined
+                : { scale: [1, 1.04, 1] }
+            }
+            transition={{ duration: 5, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            <span className="cs-font-display relative text-[1.35rem] font-medium tracking-[0.06em] text-[#3D1F2B] @min-[29.375rem]:text-[1.5rem]">
+              {initials(site)}
+            </span>
+          </motion.div>
+        </div>
+
+        {/* Tap hint below the sun */}
+        <p className="cs-font-display absolute inset-x-0 bottom-[9%] text-center text-[9px] tracking-[0.3em] text-[#FFF6EE] uppercase drop-shadow-[0_2px_6px_rgba(46,20,32,0.8)] @min-[29.375rem]:text-[10px]">
+          TAP TO REVEAL
+        </p>
+      </div>
+    </motion.div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
+/* CoralSunsetEnvelope — card-only sunrise split reveal             */
+/* (file + default export kept so the Renderer import is unchanged)  */
 /* ------------------------------------------------------------------ */
 
 export default function CoralSunsetEnvelope({ site }: { site: WeddingSite }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const [shimmerKey, setShimmerKey] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+  const toggleCard = () => {
+    const next = !isRevealed;
+    setIsRevealed(next);
+    if (next) {
+      // Reveal: golden ember burst + warm shimmer land the split.
+      setBurstKey((k) => k + 1);
+      setShimmerKey((k) => k + 1);
+    }
   };
 
   return (
     <div className="relative px-4 pt-16 pb-10">
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Coral Envelope + Sliding Invitation Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -187,131 +235,99 @@ export default function CoralSunsetEnvelope({ site }: { site: WeddingSite }) {
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isRevealed}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open coral envelope and slide up wedding invitation card"
+              isRevealed
+                ? "Slide the invitation card back together again"
+                : "Split the sunset card open to reveal the invitation"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
-            className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3D1F2B]"
+            className="group relative mx-auto w-full cursor-pointer text-center select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#3D1F2B]"
           >
-            {/* Envelope Container preserving the 4:3 geometry of the coral envelope */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(46,20,32,0.28)]">
-              {/* Layer 1: Coral envelope artwork */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ENVELOPE_IMAGE_URL}
-                alt="Warm coral wedding envelope with a triangular flap"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-cover"
+            {/* Soft sunset glow behind the card */}
+            <div
+              aria-hidden="true"
+              className="absolute -inset-4 rounded-[2rem] blur-2xl"
+              style={{
+                background:
+                  "radial-gradient(ellipse at center, rgba(255,127,80,0.5) 0%, rgba(255,218,185,0.35) 55%, transparent 75%)",
+              }}
+            />
+
+            {/* Rising embers behind the card + golden burst on reveal.
+                Skipped under reduced motion (no animation at all). */}
+            {!instant && (
+              <EmberCanvas
+                emberCount={10}
+                burstKey={burstKey}
+                burstOrigin={{ x: 0.5, y: 0.45 }}
+                className="z-0"
               />
+            )}
 
-              {/* Layer 2: Interactive Sliding Cream Invitation Card */}
-              <motion.div
-                initial={false}
-                animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -28 : -48) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[28%] @min-[29.375rem]:top-[25%]"
-              >
-                <InvitationCard site={site} isOpen={isCardLifted} />
-              </motion.div>
+            {/* Card stack — the FRONT is in flow (it defines the box
+                height); the BACK halves are absolute inset-0 above
+                it and slide apart vertically on reveal. The stack
+                clips the halves so they vanish at the card edges
+                instead of overlapping the rest of the page. */}
+            <div className="relative z-10 mx-auto w-full overflow-hidden shadow-[0_24px_34px_rgba(46,20,32,0.28)]">
+              {/* FRONT — the invitation (unchanged content) */}
+              <div aria-hidden={!isRevealed} className="relative w-full">
+                <InvitationCard site={site} isOpen={isRevealed} />
+              </div>
 
-              {/* Layer 3: REAL coral pocket — the envelope photo rendered
-                  a second time ABOVE the card, clipped to the pocket's
-                  shape, so the card is physically tucked inside at rest.
-                  Geometry (eye-measured from coral-sunset-detail.jpg,
-                  1145x880, a tight crop of the coral flat-lay): a
-                  classic envelope — triangular flap with its point at
-                  centre ~(50%, 62%), pocket diagonals running from
-                  the flap point down to the bottom corners.
-                  The clip reuses Golden Hour's proven single flat
-                  polygon (19% 52%, 32% 65%, 68% 65%, 81% 52%): it sits
-                  ABOVE the true pocket edge across the card's sides
-                  and ~3% BELOW the flap point at centre (65% vs 62%
-                  true) — a ~7px sliver where the card peeks just past
-                  the fold point, which reads as the card emerging
-                  from behind the fold. The card is sized by CONTAINER
-                  width (@container on the outer wrapper — never
-                  viewport `sm:` — so the editor's Mobile (390px)
-                  preview gets the mobile card and desktop (490px
-                  container) gets the larger card), in THREE bands,
-                  because the card's content is fixed px while the
-                  4:3 container shrinks with the viewport:
-                  - <352px: compact card (@max-[22rem]: 15px names,
-                    tight padding) — 320px: Partner B bottom 63.7%,
-                    divider top 71.1%, card bottom 107.6% (behind the
-                    pocket, invisible). Verified pattern from Golden Hour.
-                  - 352–383px: small card (17px names), top 25% —
-                    390px: Partner B bottom 62.1%, divider top 68%.
-                  - 384–469px: small card, top 28%, divider mt-10 —
-                    the large card does NOT fit here (see below).
-                  - >=470px: large card (22px names, py-5), top 25% —
-                    desktop 490px container: Partner B bottom 61.7%,
-                    divider top 65.5%, card bottom 95.8%.
-                  WHY the large card starts at 470px, not 384px: its
-                  content is ~260px tall and the names WRAP below
-                  ~443px container width (inner width < ~160px), so at
-                  430px viewport (398x299 container) it spanned
-                  25%→131.7% — only PARTNER A peeked (wrapped to two
-                  lines), Partner B sat at 85% behind the pocket, and
-                  when open the location line was clipped mid-glyph at
-                  the container's bottom edge. The large card only
-                  fits once Partner B bottom (25% + 135px) clears the
-                  65% pocket line with margin, i.e. container >=470px
-                  (63.3% there, 61.7% at 490px). In the 384–469 band
-                  the small card is used with top 28% + divider mt-10
-                  (divider offset 139.6px from card top), which keeps
-                  Partner B bottom <=62.7% and divider top >=67.6%
-                  across the whole band. On tap the clip's top edge
-                  drops to ~97% (the pocket opens) while the card
-                  lifts 48px, so divider + date + location are fully
-                  revealed with no top clipping. */}
-              <motion.div
-                aria-hidden="true"
-                initial={false}
-                animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(19% 96%, 32% 97.5%, 68% 97.5%, 81% 96%, 81% 100%, 19% 100%)"
-                    : "polygon(19% 52%, 32% 65%, 68% 65%, 81% 52%, 81% 100%, 19% 100%)",
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
+              {/* One-time warm shimmer sweep across the front on
+                  reveal. Remounts (key) on every reveal so it
+                  replays; unmounted when covered again. */}
+              {shimmerKey > 0 && isRevealed && !instant && (
+                <motion.div
+                  key={shimmerKey}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-y-0 z-10 w-1/3"
+                  style={{
+                    background:
+                      "linear-gradient(100deg, transparent 0%, rgba(255,218,185,0.55) 50%, transparent 100%)",
+                  }}
+                  initial={{ x: "-120%" }}
+                  animate={{ x: "320%" }}
+                  transition={{ duration: 0.9, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                />
+              )}
+
+              {/* BACK — sunset sky split at the horizon line */}
+              <div
+                aria-hidden={isRevealed}
                 className="pointer-events-none absolute inset-0 z-20"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
+                <CardBackHalf site={site} position="top" isOpen={isRevealed} instant={instant} />
+                <CardBackHalf site={site} position="bottom" isOpen={isRevealed} instant={instant} />
+                {/* Horizon line — fades as the halves part */}
+                <motion.div
+                  aria-hidden="true"
+                  className="absolute inset-x-0 top-1/2 h-px bg-gradient-to-r from-transparent via-[#FFDAB9] to-transparent"
+                  initial={false}
+                  animate={{ opacity: isRevealed ? 0 : 1 }}
+                  transition={{ duration: instant ? 0 : 0.4, ease: [0.22, 1, 0.36, 1] }}
                 />
-              </motion.div>
+              </div>
             </div>
 
-            {/* Subtle interactive cue */}
-            <p className="cs-font-display mt-1 text-center text-[10px] tracking-[0.26em] text-[#C94A2E]/80 uppercase transition-colors group-hover:text-[#3D1F2B]">
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
-          </div>
-
-          {/* Coral Sun-Disc Seal */}
-          <div className="relative z-30 mt-4 flex justify-center">
-            <SunSeal isOpen={isCardLifted} onToggle={toggleEnvelope} />
+            {/* Cue — on a soft pill so it stays legible */}
+            <motion.p
+              key={isRevealed ? "front" : "back"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4 }}
+              className="cs-font-display relative z-10 mt-4 inline-block rounded-full bg-[#FFF6EE]/80 px-4 py-1 text-center text-[10px] tracking-[0.26em] text-[#C94A2E]/80 uppercase backdrop-blur-[2px] transition-colors group-hover:text-[#3D1F2B]"
+            >
+              {isRevealed ? "Tap to Cover Again" : "Tap Card to Reveal"}
+            </motion.p>
           </div>
         </motion.div>
       </div>

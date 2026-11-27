@@ -1,43 +1,39 @@
-// Vintage Lace envelope — interactive ivory envelope with a
-// crocheted-lace doily seal (drawn SVG) and the sliding ivory
-// letterpress card (tap the seal to break it and reveal / tuck the
-// card back). No music on this template — the seal is the
-// interaction.
-//
-// ENVELOPE GEOMETRY (the hard lesson, proven on Golden Hour): the
-// card MUST be tucked INSIDE at rest — names peeking above the
-// pocket, divider/date/location hidden — and slide out ONLY on tap.
-// The pocket is a second render of the envelope photo ABOVE the
-// card, clipped to the pocket's shape. The envelope photo
-// (vintage-lace-detail.jpg, 1200x854, cropped to the envelope
-// itself) has its flap point at ~(50%, 63%) with pocket diagonals
-// running from the flap point down to the bottom corners — the same
-// geometry as Golden Hour's envelope, so the same proven clip
-// polygon applies: rest "polygon(19% 52%, 32% 65%, 68% 65%, 81%
-// 52%, 81% 100%, 19% 100%)", open drops the top edge to ~97% while
-// the card lifts 48px. The card is sized by CONTAINER width
-// (@container on the outer wrapper — never viewport `sm:` — so the
-// editor's Mobile (390px) preview gets the mobile card), in three
-// bands, because the card's content is fixed px while the 4:3
-// container shrinks: <352px compact (15px names), 352–469px small
-// card (17px names, top 28% in the 384–469 band), >=470px large
-// card (22px names, py-5, top 25%). The large card starts at
-// 470px, not 384px: at 430px viewport (398x299 container) the
-// large card spanned 25%→131.7% and Partner B sat behind the
-// pocket — the proven 430px trap. DO NOT "simplify" these bands.
+// Vintage Lace invitation card — NO envelope. The card itself is
+// the reveal: at rest you see its BACK, a folded lace letter in the
+// vintage-lace palette (ivory linen, lace doily pattern, sepia/gold,
+// monogram medallion, "Tap to Reveal"); tap unfolds it in
+// horizontal ACCORDION folds — the top fold swings up, the middle
+// fold follows, the bottom fold swings down — to reveal the FRONT
+// (the existing invitation content, unchanged). Tap again refolds
+// the letter to its back. Golden dust motes drift behind the card;
+// a warm golden glow burst + gold shimmer land the unfold.
+// prefers-reduced-motion: instant swap, no ambient animation, no
+// particles. No music on this template — the tap plays only the
+// soft lace-rustle SFX (lazily created Web Audio, never autoplay).
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
-import { LaceDivider, LaceSeal } from "./Decor";
-import { ENVELOPE_IMAGE_URL, formatCardDate, locationLabel } from "./tokens";
+import { LaceDivider } from "./Decor";
+import { DustMoteCanvas, playLaceSound } from "./VintageCinematicOpening";
+import { formatCardDate, initials, locationLabel } from "./tokens";
 
 /* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding ivory letterpress card                */
+/* InvitationCard — the ivory letterpress card (FRONT, unchanged     */
+/* content: sepia script names, date, venue, lace borders).          */
 /* ------------------------------------------------------------------ */
 
-function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
+function InvitationCard({
+  site,
+  isOpen,
+  shimmerKey = 0,
+}: {
+  site: WeddingSite;
+  isOpen: boolean;
+  shimmerKey?: number;
+}) {
   return (
     <div
       className={`relative mx-auto w-full overflow-hidden bg-[#FFFDF8] px-4 py-3 text-center text-[#4A3A2E] transition-shadow duration-700 @min-[29.375rem]:px-6 @min-[29.375rem]:py-5 @max-[22rem]:py-2 ${
@@ -109,65 +105,124 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
           {locationLabel(site)}
         </p>
       </div>
+
+      {/* One-time warm gold shimmer sweep across the card on reveal.
+          Remounts (key) on every open so it replays; unmounted when
+          refolded. */}
+      {shimmerKey > 0 && (
+        <motion.div
+          key={shimmerKey}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 z-20 w-1/3"
+          style={{
+            background:
+              "linear-gradient(100deg, transparent 0%, rgba(212, 175, 105, 0.45) 50%, transparent 100%)",
+          }}
+          initial={{ x: "-120%" }}
+          animate={{ x: "320%" }}
+          transition={{ duration: 0.9, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        />
+      )}
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* LaceSealButton — the crocheted-lace doily seal open button.      */
-/* Tapping it "breaks" the seal (it tilts and fades) and the card   */
-/* slides up; tapping again reseals it.                               */
+/* Folded-letter BACK — shared lace-linen surface for one accordion  */
+/* fold: faint scalloped lace-dot tiling over ivory linen, a dashed  */
+/* fold line + soft inset seam shadow along its hinge edge, and a    */
+/* sepia hairline frame segment so the three folds read as one       */
+/* letter at rest.                                                   */
 /* ------------------------------------------------------------------ */
 
-function LaceSealButton({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
+const FOLD_BACKGROUND = [
+  "radial-gradient(circle 9px at 12px 12px, rgba(139, 115, 85, 0.10) 8px, transparent 9.5px)",
+  "radial-gradient(circle 9px at 34px 34px, rgba(192, 138, 142, 0.09) 8px, transparent 9.5px)",
+  "linear-gradient(180deg, rgba(253, 248, 240, 0.55) 0%, rgba(247, 235, 217, 0.55) 100%)",
+].join(", ");
+
+const FOLD_BACKGROUND_SIZE = "44px 44px, 44px 44px, cover";
+
+/* One accordion fold. At rest it lies flat (rotateX 0); on reveal it
+ * swings away around its hinge edge (top folds hinge at the top and
+ * swing up, the bottom fold hinges at the bottom and swings down)
+ * and fades, in sequence — top, middle, bottom. Refolding runs the
+ * sequence in reverse. Under reduced motion the transition is
+ * duration 0: an instant swap. */
+function FoldPanel({
+  isOpen,
+  instant,
+  openRotateX,
+  origin,
+  openDelay,
+  closeDelay,
+  seamShadow,
+  className = "",
+  children,
+}: {
+  isOpen: boolean;
+  instant: boolean;
+  openRotateX: number;
+  origin: string;
+  openDelay: number;
+  closeDelay: number;
+  seamShadow: string;
+  className?: string;
+  children: ReactNode;
+}) {
   return (
-    <div className="relative flex flex-col items-center">
-      <motion.button
-        type="button"
-        onClick={onToggle}
-        aria-pressed={isOpen}
-        aria-label={
-          isOpen ? "Reseal the lace envelope" : "Break the lace seal and open the envelope"
-        }
-        animate={isOpen ? { rotate: -8, scale: 0.94 } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="group relative flex h-24 w-24 items-center justify-center rounded-full shadow-[0_16px_30px_-8px_rgba(74,58,46,0.6),0_4px_10px_rgba(74,58,46,0.35)] ring-2 ring-[#8B7355]/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#4A3A2E]"
-      >
-        <LaceSeal className="absolute inset-0 h-full w-full" />
-        {/* Crack line once broken */}
-        {isOpen && (
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-2 top-1/2 h-px rotate-[-14deg] bg-[#4A3A2E]/50"
-          />
-        )}
-      </motion.button>
-
-      <span className="vl-font-editorial mt-3 text-xs tracking-[0.18em] text-[#6B563E] uppercase">
-        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
-      </span>
-    </div>
+    <motion.div
+      initial={false}
+      animate={{ rotateX: isOpen ? openRotateX : 0, opacity: isOpen ? 0 : 1 }}
+      transition={
+        instant
+          ? { duration: 0 }
+          : { duration: 0.55, delay: isOpen ? openDelay : closeDelay, ease: [0.22, 1, 0.36, 1] }
+      }
+      style={{
+        transformOrigin: origin,
+        backgroundImage: FOLD_BACKGROUND,
+        backgroundSize: FOLD_BACKGROUND_SIZE,
+        backgroundColor: "#F7EBD9",
+        boxShadow: seamShadow,
+      }}
+      className={`relative flex flex-1 flex-col items-center justify-center overflow-hidden border-[#8B7355]/50 px-3 ${className}`}
+    >
+      {children}
+    </motion.div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
+/* VintageLaceEnvelope — the card-only reveal (file + export names   */
+/* kept: the Renderer already imports this default export). The      */
+/* FRONT (InvitationCard) is in flow and defines the box height;     */
+/* the BACK is three accordion folds absolutely stacked over it.     */
 /* ------------------------------------------------------------------ */
 
 export default function VintageLaceEnvelope({ site }: { site: WeddingSite }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [shimmerKey, setShimmerKey] = useState(0);
+  const [glowKey, setGlowKey] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+  const toggleCard = () => {
+    const next = !isOpen;
+    setIsOpen(next);
+    // Lace rustle on the fold/unfold — SFX only, lazily created on
+    // this tap, never autoplay; no-ops when the sound toggle is off.
+    playLaceSound();
+    if (next) {
+      // Reveal: golden glow burst + shimmer land the unfold.
+      setGlowKey((k) => k + 1);
+      setShimmerKey((k) => k + 1);
+    }
   };
 
   return (
     <div className="relative px-4 pt-16 pb-10">
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Lace Envelope + Sliding Letterpress Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -178,101 +233,177 @@ export default function VintageLaceEnvelope({ site }: { site: WeddingSite }) {
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isOpen}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open lace envelope and slide up wedding invitation card"
+              isOpen
+                ? "Fold the wedding invitation card back into its folded lace letter"
+                : "Unfold the lace letter to reveal the wedding invitation card"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
-            className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#4A3A2E]"
+            className="group relative mx-auto w-full cursor-pointer text-center select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#4A3A2E]"
           >
-            {/* Envelope Container preserving the 4:3 geometry of the lace envelope */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(74,58,46,0.28)] ring-1 ring-[#8B7355]/40">
-              {/* Layer 1: Lace envelope artwork */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ENVELOPE_IMAGE_URL}
-                alt="Vintage ivory wedding envelope with a triangular flap"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-cover"
+            {/* Ambient golden dust motes + warm breathing glow behind
+                the card. Skipped under reduced motion. */}
+            {!instant && (
+              <>
+                <motion.div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -top-4 -left-6 h-40 w-40 rounded-full blur-3xl"
+                  style={{
+                    background:
+                      "radial-gradient(circle, rgba(212, 175, 105, 0.4) 0%, transparent 70%)",
+                  }}
+                  animate={{ x: [0, 20, 0], y: [0, -14, 0] }}
+                  transition={{
+                    duration: 11,
+                    repeat: Infinity,
+                    repeatType: "mirror",
+                    ease: [0.45, 0.05, 0.55, 0.95],
+                  }}
+                />
+                <motion.div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -right-6 -bottom-2 h-44 w-44 rounded-full blur-3xl"
+                  style={{
+                    background:
+                      "radial-gradient(circle, rgba(192, 138, 142, 0.35) 0%, transparent 70%)",
+                  }}
+                  animate={{ x: [0, -16, 0], y: [0, 12, 0] }}
+                  transition={{
+                    duration: 13,
+                    repeat: Infinity,
+                    repeatType: "mirror",
+                    ease: [0.45, 0.05, 0.55, 0.95],
+                  }}
+                />
+                <DustMoteCanvas moteCount={14} glowKey={glowKey} glowOrigin={{ x: 0.5, y: 0.45 }} />
+              </>
+            )}
+
+            {/* Card scene — the FRONT is in flow (it defines the box
+                height); the BACK folds are absolute inset-0 over it. */}
+            <div className="relative z-10 mx-auto w-full">
+              {/* Soft warm glow behind the card */}
+              <div
+                aria-hidden="true"
+                className="absolute -inset-3 rounded-[6px] blur-2xl"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, rgba(212, 175, 105, 0.4) 0%, rgba(192, 138, 142, 0.25) 55%, transparent 75%)",
+                }}
               />
 
-              {/* Layer 2: Interactive Sliding Ivory Letterpress Invitation Card */}
-              <motion.div
-                initial={false}
-                animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -28 : -48) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[28%] @min-[29.375rem]:top-[25%]"
-              >
-                <InvitationCard site={site} isOpen={isCardLifted} />
-              </motion.div>
-
-              {/* Layer 3: REAL ivory pocket — the envelope photo rendered
-                  a second time ABOVE the card, clipped to the pocket's
-                  shape, so the card is physically tucked inside at rest.
-                  Geometry (eye-measured from vintage-lace-detail.jpg,
-                  1200x854, cropped to the envelope itself): a classic
-                  envelope — triangular flap with its point at centre
-                  ~(50%, 63%), pocket diagonals running from the flap
-                  point down to the bottom corners, so the true pocket
-                  edge is ^-shaped (63% at centre, ~76% at x=32%/68%,
-                  ~80% at the card's edges). The clip reuses Golden
-                  Hour's proven single flat polygon (19% 52%, 32%
-                  65%, 68% 65%, 81% 52%): it sits ABOVE the true
-                  pocket edge across the card's sides (65% vs 76%
-                  true at x=32%) and ~2% BELOW the flap point at
-                  centre (65% vs 63% true) — a ~7px sliver where the
-                  card peeks just past the fold point, which reads as
-                  the card emerging from behind the fold. On tap the
-                  clip's top edge drops to ~97% (the pocket opens)
-                  while the card lifts 48px, so divider + date +
-                  location are fully revealed with no top clipping. */}
-              <motion.div
-                aria-hidden="true"
-                initial={false}
-                animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(19% 96%, 32% 97.5%, 68% 97.5%, 81% 96%, 81% 100%, 19% 100%)"
-                    : "polygon(19% 52%, 32% 65%, 68% 65%, 81% 52%, 81% 100%, 19% 100%)",
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="pointer-events-none absolute inset-0 z-20"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
+              {/* FRONT — the invitation (unchanged content) */}
+              <div aria-hidden={!isOpen} className="relative z-10 w-full">
+                <InvitationCard
+                  site={site}
+                  isOpen={isOpen}
+                  shimmerKey={isOpen && !instant ? shimmerKey : 0}
                 />
-              </motion.div>
+              </div>
+
+              {/* BACK — the folded lace letter: three horizontal
+                  accordion folds stacked over the front. Perspective
+                  lives on this overlay so each fold hinges in 3D. */}
+              <div
+                aria-hidden={isOpen}
+                style={{
+                  perspective: 1200,
+                  pointerEvents: isOpen ? "none" : "auto",
+                }}
+                className="absolute inset-0 z-20 flex flex-col"
+              >
+                {/* Top fold — hinges at the top, swings up. */}
+                <FoldPanel
+                  isOpen={isOpen}
+                  instant={instant}
+                  openRotateX={-102}
+                  origin="50% 0%"
+                  openDelay={0}
+                  closeDelay={0.3}
+                  seamShadow="inset 0 -10px 14px -8px rgba(74, 58, 46, 0.28)"
+                  className="rounded-t-[4px] border-t border-x py-1"
+                >
+                  <p className="vl-font-display text-[9px] font-semibold tracking-[0.34em] text-[#6B563E] uppercase @min-[29.375rem]:text-[10px]">
+                    With Love
+                  </p>
+                  <span
+                    aria-hidden="true"
+                    className="mt-1.5 h-px w-10 bg-[#8B7355]/50 @min-[29.375rem]:w-14"
+                  />
+                </FoldPanel>
+
+                {/* Middle fold — hinges at the top, follows the top
+                    fold; carries the monogram medallion. */}
+                <FoldPanel
+                  isOpen={isOpen}
+                  instant={instant}
+                  openRotateX={-102}
+                  origin="50% 0%"
+                  openDelay={0.14}
+                  closeDelay={0.16}
+                  seamShadow="inset 0 -10px 14px -8px rgba(74, 58, 46, 0.28), inset 0 10px 14px -8px rgba(74, 58, 46, 0.22)"
+                  className="border-x py-1"
+                >
+                  {/* Soft blurred gold halo behind the medallion —
+                      the back's blurred, glowing heart. */}
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute top-1/2 left-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#D4AF69]/35 blur-xl"
+                  />
+                  <motion.div
+                    aria-hidden="true"
+                    className="relative flex h-12 w-12 items-center justify-center rounded-full border border-[#8B7355]/70 bg-[#FFFDF8] shadow-[0_10px_22px_-8px_rgba(74,58,46,0.5)] @min-[29.375rem]:h-14 @min-[29.375rem]:w-14"
+                    animate={
+                      instant ? undefined : { scale: [1, 1.05, 1] }
+                    }
+                    transition={
+                      instant
+                        ? { duration: 0 }
+                        : { duration: 6, repeat: Infinity, ease: [0.45, 0.05, 0.55, 0.95] }
+                    }
+                  >
+                    <span className="vl-font-display text-[1rem] font-semibold tracking-[0.04em] text-[#6B563E] @min-[29.375rem]:text-[1.05rem]">
+                      {initials(site)}
+                    </span>
+                  </motion.div>
+                </FoldPanel>
+
+                {/* Bottom fold — hinges at the bottom, swings down. */}
+                <FoldPanel
+                  isOpen={isOpen}
+                  instant={instant}
+                  openRotateX={102}
+                  origin="50% 100%"
+                  openDelay={0.28}
+                  closeDelay={0}
+                  seamShadow="inset 0 10px 14px -8px rgba(74, 58, 46, 0.22)"
+                  className="rounded-b-[4px] border-b border-x py-1"
+                >
+                  <LaceDivider className="h-5 w-20 @min-[29.375rem]:h-6 @min-[29.375rem]:w-24" />
+                  <p className="vl-font-display mt-1.5 text-[9px] font-semibold tracking-[0.3em] text-[#6B563E] uppercase @min-[29.375rem]:text-[10px]">
+                    Tap to Reveal
+                  </p>
+                </FoldPanel>
+              </div>
             </div>
 
-            {/* Subtle interactive cue */}
-            <p className="vl-font-display mt-1 text-center text-[10px] font-semibold tracking-[0.26em] text-[#6B563E] uppercase transition-colors group-hover:text-[#4A3A2E]">
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
-          </div>
-
-          {/* Crocheted Lace Doily Seal */}
-          <div className="relative z-30 mt-4 flex justify-center">
-            <LaceSealButton isOpen={isCardLifted} onToggle={toggleEnvelope} />
+            {/* Cue — on a soft pill so it stays legible. */}
+            <motion.p
+              key={isOpen ? "front" : "back"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="vl-font-display relative z-10 mt-4 inline-block rounded-full bg-[#FFFDF8]/85 px-4 py-1 text-center text-[10px] font-semibold tracking-[0.26em] text-[#6B563E] uppercase backdrop-blur-[2px] transition-colors group-hover:text-[#4A3A2E]"
+            >
+              {isOpen ? "Tap to Fold Back" : "Tap Card to Reveal"}
+            </motion.p>
           </div>
         </motion.div>
       </div>

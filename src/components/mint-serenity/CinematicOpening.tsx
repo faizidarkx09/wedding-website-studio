@@ -4,10 +4,11 @@
 // Phase 2 (on tap, ~1.5s): the leaf wreath flares mint, a burst of
 // tiny bubbles rises from it, a soft mist sweep crosses, button fades.
 // Phase 3–4 (renderer): a mint mist curtain thins and dissolves to
-// reveal the invitation, bubbles rising through it, a bubble-pop
-// ring expanding and fading. Web Audio SFX only (bubble pops + soft
-// chime, synthesised — no audio files, no autoplay). Everything is
-// transform/opacity (canvas excepted) and respects
+// reveal the invitation CARD underneath — no envelope anywhere; the
+// mist ends on the card's own bubble bloom, a ring expanding from a
+// single point as the card grows. Web Audio SFX only (bubble pops +
+// soft chime, synthesised — no audio files, no autoplay). Everything
+// is transform/opacity (canvas excepted) and respects
 // prefers-reduced-motion.
 "use client";
 
@@ -368,7 +369,8 @@ export function SkipButton({ onSkip }: { onSkip: () => void }) {
 /* MistOverlay — Phase 3 + 4. A mint mist curtain covers the screen, */
 /* then thins and dissolves to reveal the invitation mounted        */
 /* underneath; bubbles rise through the mist; on "fading" a         */
-/* bubble-pop ring expands and fades with a soft mint sweep. Fixed   */
+/* bubble-bloom ring expands from a single point (the card blooming */
+/* from its centre) and fades with a soft mint sweep. Fixed   */
 /* positioning, pointer-events-none except for the Skip / sound      */
 /* controls.                                                         */
 /* ------------------------------------------------------------------ */
@@ -427,22 +429,31 @@ export function MistOverlay({
         <BubbleCanvas particleCount={14} burstKey={0} className="z-10" />
       </motion.div>
 
-      {/* Phase 4 — bubble-pop ring + soft mint sweep */}
+      {/* Phase 4 — bubble-bloom ring + soft mint sweep */}
       {phase === "fading" && (
         <>
+          {/* Central bloom glow — the card growing from a point */}
+          <motion.div
+            aria-hidden="true"
+            className="absolute top-1/2 left-1/2 z-20 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/70 sm:h-20 sm:w-20"
+            style={{ boxShadow: "0 0 60px rgba(167,243,208,0.9)" }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: [0, 1, 1.5], opacity: [0, 0.85, 0] }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          />
           <motion.div
             aria-hidden="true"
             className="absolute top-1/2 left-1/2 z-20 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/80 sm:h-64 sm:w-64"
             style={{ boxShadow: "0 0 40px rgba(255,255,255,0.6), inset 0 0 30px rgba(167,243,208,0.5)" }}
-            initial={{ scale: 0.4, opacity: 0 }}
-            animate={{ scale: [0.4, 1, 1.6], opacity: [0, 0.9, 0] }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: [0, 1, 1.6], opacity: [0, 0.9, 0] }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
           />
           <motion.div
             aria-hidden="true"
             className="absolute top-1/2 left-1/2 z-20 h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#065F46]/50 sm:h-32 sm:w-32"
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: [0.5, 1, 1.5], opacity: [0, 0.7, 0] }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: [0, 1, 1.5], opacity: [0, 0.7, 0] }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
           />
           <motion.div

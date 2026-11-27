@@ -1,28 +1,113 @@
-// Dolce Vita opening envelope — a 1:1 port of the standalone's
-// envelope intro (styles.css .envelope + script.js §1): cream
-// background with soft radial washes, four CSS flaps (top/right/
-// bottom/left clip-path polygons), the gold heart wax seal and
-// "Click to open" in dusty blue. Tap the seal (or the envelope)
-// flies the flaps out, scales + fades the seal, and starts the music
-// via the renderer's shared audio element; "Skip intro" reveals the
-// page without autoplay.
-//
-// DEVIATION from the standalone (kept from the Studio brief): the
-// standalone shows the envelope + music on mobile only (<981px);
-// the Studio version is a fixed overlay on ALL viewports, like
-// ÉTERNEL / Sacred Garden / Blossom & Oud — a template preview on
-// desktop would otherwise skip its own opening. The look, copy and
-// animation are otherwise unchanged. Mirrors the Studio envelope
-// accessibility contract (focus trap, inert siblings, Escape, scroll
-// lock, reduced motion → instant reveal).
+// Dolce Vita opening card — NO envelope. The first screen of every
+// Dolce Vita site is a full-viewport cream overlay: the invitation
+// card itself is the reveal. At rest you see the card's BACK (a
+// cream panel with soft dusty-blue radial washes, blurred floral
+// spray, a gold heart-seal medallion with the couple monogram,
+// "Click to reveal"); tap sweeps a soft coastal breeze across the
+// card, the back fades and lifts, and the FRONT (the invitation —
+// the couple names, the date) is revealed beneath, then the overlay
+// fades and the site opens (and the music starts, via the renderer's
+// shared audio element). Mirrors the Studio's opening accessibility
+// contract (focus trap, inert siblings, Escape, scroll lock,
+// reduced motion → instant reveal). No envelope shape, no flaps, no
+// pocket — only the card.
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
-import { DOLCE, coupleNames } from "./tokens";
-import { GoldHeartSeal } from "./Decor";
+import { DOLCE, coupleNames, formatLongDate, initials } from "./tokens";
+import { Divider, FloralSpray, GoldHeartSeal, IvyCorner } from "./Decor";
 
 type Phase = "closed" | "opening" | "gone";
+
+/* ------------------------------------------------------------------ */
+/* CardBack — cream panel, soft dusty-blue washes, blurred floral    */
+/* spray, gold heart-seal medallion with the couple monogram, tap   */
+/* hint.                                                              */
+/* ------------------------------------------------------------------ */
+
+function CardBack({ site }: { site: WeddingSite }) {
+  return (
+    <div
+      className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden px-5 py-6 text-center"
+      style={{ backgroundColor: DOLCE.cream, color: DOLCE.ink }}
+    >
+      {/* Soft dusty-blue radial washes */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 90% 70% at 50% 30%, rgba(155,201,225,0.35) 0%, transparent 70%), radial-gradient(ellipse 80% 60% at 50% 80%, rgba(100,160,189,0.22) 0%, transparent 70%)",
+        }}
+      />
+
+      {/* Blurred floral spray — softened into a backdrop */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 opacity-50"
+        style={{ filter: "blur(4px)" }}
+      >
+        <FloralSpray className="h-auto w-full text-[#8A9B7E]" />
+      </div>
+
+      {/* Ivy corners */}
+      <IvyCorner className="pointer-events-none absolute top-2 left-2 h-20 w-20 text-[#8A9B7E]/70" />
+      <IvyCorner className="pointer-events-none absolute right-2 bottom-2 h-20 w-20 rotate-180 text-[#8A9B7E]/70" />
+
+      <div className="relative z-10 flex flex-col items-center">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.35em]" style={{ color: DOLCE.blueDeep }}>
+          With love
+        </p>
+
+        {/* Gold heart-seal medallion with the couple monogram */}
+        <span className="relative mt-4 flex h-[68px] w-[68px] items-center justify-center">
+          <GoldHeartSeal className="absolute inset-0 h-full w-full" />
+          <span className="relative text-[15px] font-semibold tracking-[0.06em] text-white" style={{ textShadow: "0 1px 3px rgba(58,58,58,0.4)" }}>
+            {initials(site)}
+          </span>
+        </span>
+
+        <Divider className="mt-4 h-4 w-24 text-[#B89050]" />
+
+        <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: DOLCE.blueDeep }}>
+          Click to reveal
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* CardFront — the invitation (unchanged content): the couple names, */
+/* the date.                                                          */
+/* ------------------------------------------------------------------ */
+
+function CardFront({ site }: { site: WeddingSite }) {
+  const names = coupleNames(site);
+  const dateLine = formatLongDate(site.weddingDate, site.timezone);
+  return (
+    <div
+      className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden px-5 py-6 text-center"
+      style={{ backgroundColor: DOLCE.bg, color: DOLCE.ink }}
+    >
+      <IvyCorner className="pointer-events-none absolute top-2 left-2 h-20 w-20 text-[#8A9B7E]/60" />
+      <IvyCorner className="pointer-events-none absolute right-2 bottom-2 h-20 w-20 rotate-180 text-[#8A9B7E]/60" />
+
+      <div className="relative z-10 flex flex-col items-center gap-1">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.3em] opacity-60">
+          You are invited
+        </span>
+        <span className="text-[clamp(1.3rem,5.5vw,1.85rem)] leading-tight font-semibold">
+          {names}
+        </span>
+        {dateLine ? <span className="text-sm opacity-70">{dateLine}</span> : null}
+        <Divider className="mt-3 h-4 w-24 text-[#B89050]" />
+      </div>
+    </div>
+  );
+}
 
 export default function DolceVitaEnvelope({
   site,
@@ -134,7 +219,6 @@ export default function DolceVitaEnvelope({
       return;
     }
     setPhase("opening");
-    // Standalone script.js hides the envelope 2300ms after opening.
     timerRef.current = window.setTimeout(() => setPhase("gone"), 2300);
   }
 
@@ -150,12 +234,16 @@ export default function DolceVitaEnvelope({
       aria-label={`Invitation for ${names}`}
       onKeyDown={trapTab}
       onClick={() => open(true)}
-      className={`dolce-envelope${opening ? " open" : ""}`}
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-7 px-5"
+      style={{ backgroundColor: DOLCE.bg, color: DOLCE.ink }}
     >
-      <div aria-hidden="true" className="dolce-env-flap dolce-env-flap-top" />
-      <div aria-hidden="true" className="dolce-env-flap dolce-env-flap-right" />
-      <div aria-hidden="true" className="dolce-env-flap dolce-env-flap-bottom" />
-      <div aria-hidden="true" className="dolce-env-flap dolce-env-flap-left" />
+      <p
+        className="text-center text-[11px] font-semibold uppercase tracking-[0.35em]"
+        style={{ color: DOLCE.goldDeep }}
+      >
+        You are cordially invited
+      </p>
+
       <button
         ref={buttonRef}
         type="button"
@@ -165,22 +253,73 @@ export default function DolceVitaEnvelope({
           open(true);
         }}
         disabled={phase !== "closed"}
-        aria-label={`Open the invitation of ${names} — click to open`}
-        className="dolce-env-seal"
+        aria-label={`Open the invitation of ${names} — click to reveal`}
+        className="group block cursor-pointer rounded-lg bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-8"
+        style={{ outlineColor: DOLCE.goldDeep } as React.CSSProperties}
       >
-        <GoldHeartSeal />
+        {/* Invitation card — back at rest, front on open. A soft
+            coastal breeze sweeps across as the back dissolves. */}
+        <span
+          className="relative block w-[min(380px,86vw)] overflow-hidden rounded-[4px]"
+          style={{
+            aspectRatio: "4 / 5",
+            boxShadow: "0 18px 40px rgba(58, 58, 58, 0.14)",
+          }}
+        >
+          {/* FRONT — the invitation (revealed on open) */}
+          <motion.span
+            aria-hidden={!opening}
+            className="absolute inset-0"
+            initial={false}
+            animate={{ opacity: opening ? 1 : 0, y: opening ? 0 : 16 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <CardFront site={site} />
+          </motion.span>
+
+          {/* BACK — blurred florals + gold heart-seal medallion */}
+          <motion.span
+            aria-hidden={opening}
+            className="absolute inset-0"
+            initial={false}
+            animate={{ opacity: opening ? 0 : 1, y: opening ? -12 : 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <CardBack site={site} />
+          </motion.span>
+
+          {/* Coastal breeze sweep on open */}
+          {opening && !reduceMotion && (
+            <motion.span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 z-20 w-1/2"
+              style={{
+                background:
+                  "linear-gradient(100deg, transparent 0%, rgba(155,201,225,0.45) 50%, transparent 100%)",
+              }}
+              initial={{ x: "-120%" }}
+              animate={{ x: "320%" }}
+              transition={{ duration: 1.0, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            />
+          )}
+        </span>
+
+        <span
+          className="mt-6 block text-xs font-bold uppercase tracking-[0.3em]"
+          style={{ color: DOLCE.blueDeep }}
+        >
+          Click to open
+        </span>
       </button>
-      <p className="dolce-env-text" style={{ color: DOLCE.blueDeep }}>
-        Click to open
-      </p>
+
       <button
         type="button"
         onClick={(e) => {
           e.stopPropagation();
           dismiss(false);
         }}
-        className="dolce-env-skip"
-        style={{ color: DOLCE.blueMist }}
+        className="cursor-pointer bg-transparent px-3 py-2 text-sm font-semibold underline underline-offset-4 opacity-70 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-4"
+        style={{ outlineColor: DOLCE.goldDeep } as React.CSSProperties}
       >
         Skip intro
       </button>

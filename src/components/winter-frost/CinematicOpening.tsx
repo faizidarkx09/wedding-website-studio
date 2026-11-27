@@ -1,15 +1,21 @@
 // Cinematic opening helpers for Winter Frost — Phase 1 snowfall,
-// Phase 2 frost burst, Phase 3 frosted-glass ice panels, Phase 4
-// snowflake burst + aurora shimmer + Web Audio SFX (frost wind +
-// ice-bell chime, synthesised — no audio files). Music is
-// deliberately NOT included: no verified CC0 track is bundled, so
-// the toggle controls SFX only. Everything here is transform/
-// opacity (canvas excepted) and respects prefers-reduced-motion.
+// Phase 2 frost burst, Phase 3–4 the full-screen frost-mist veil:
+// the mist thins, drifts upward and fades away (the same "mist
+// dissolve" as the card reveal) to reveal the invitation card
+// mounted underneath; a snowflake burst + aurora shimmer land the
+// reveal. Web Audio SFX (frost wind + ice-bell chime, synthesised
+// — no audio files). Music is deliberately NOT included: no
+// verified CC0 track is bundled, so the toggle controls SFX only.
+// Everything here is transform / opacity (canvas excepted) and
+// respects prefers-reduced-motion. There is NO envelope anywhere
+// in this opening: the cinematic leads into the CARD, and the
+// mist veil IS the reveal.
 //
 // Deliberately DIFFERENT from Blush Royale's opening: snowflakes
-// (six-arm asterisks) instead of petals, ice panels that SLIDE
-// apart instead of paper panels rotating open, a snowflake burst
-// instead of a heart, and an aurora shimmer instead of rose-gold.
+// (six-arm asterisks) instead of petals, a frost-mist veil that
+// DISSOLVES upward instead of paper panels rotating open, a
+// snowflake burst instead of a heart, and an aurora shimmer
+// instead of rose-gold.
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -402,12 +408,17 @@ function FrostSnowflake({ className = "" }: { className?: string }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* PanelsOverlay — Phase 3 + 4. Two frosted-glass ice panels cover  */
-/* the screen, then SLIDE apart sideways (translateX) to reveal the  */
-/* invitation mounted underneath; snowflakes drift around them; on  */
-/* "fading" the panels dissolve, a snowflake bursts + fades, and a  */
-/* soft aurora shimmer sweeps across. Fixed positioning,            */
-/* pointer-events-none except for the Skip / sound controls.        */
+/* PanelsOverlay — Phase 3 + 4 (kept export name: the renderer     */
+/* imports it). A full-screen frost-mist veil covers the screen,    */
+/* then THINS, drifts upward and fades away — the same mist         */
+/* dissolve as the card reveal — to reveal the invitation card      */
+/* mounted underneath; snowflakes drift around it; on "fading"     */
+/* the veil is gone, a snowflake bursts + fades, and a soft aurora  */
+/* shimmer sweeps across. The cinematic IS the reveal: there is no  */
+/* panel, flap or shape that reads as an envelope. Fixed            */
+/* positioning, pointer-events-none except for the Skip / sound    */
+/* controls. Under prefers-reduced-motion the veil never mounts —  */
+/* the card is already underneath, so the reveal is instant.       */
 /* ------------------------------------------------------------------ */
 
 export type PanelsPhase = "closed" | "opening" | "fading";
@@ -423,70 +434,72 @@ export function PanelsOverlay({
   onToggleSound: () => void;
   onSkip: () => void;
 }) {
-  const opening = phase !== "closed";
-  const panelBase =
-    "absolute top-0 bottom-0 w-1/2 backdrop-blur-md border-[#BDE0F5]/30";
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (prefersReducedMotion) return null;
+
+  const thinning = phase !== "closed";
   return (
     <div data-wf-panels={phase} className="pointer-events-none fixed inset-0 z-[90] overflow-hidden">
+      {/* The mist veil — one full-screen layer, not two panels. */}
       <motion.div
-        className="absolute inset-0"
-        initial={{ opacity: 1 }}
-        animate={{ opacity: phase === "fading" ? 0 : 1 }}
-        transition={{ duration: 1.2, ease: [0.65, 0, 0.35, 1] }}
+        className="absolute inset-0 backdrop-blur-md"
+        style={{
+          background:
+            "linear-gradient(165deg, rgba(234, 244, 251, 0.94) 0%, rgba(189, 224, 245, 0.9) 52%, rgba(127, 179, 217, 0.92) 100%)",
+        }}
+        initial={false}
+        animate={
+          phase === "fading"
+            ? { opacity: 0, y: "-10%", filter: "blur(12px)" }
+            : thinning
+              ? { opacity: 0.55, y: "-4%", filter: "blur(6px)" }
+              : { opacity: 1, y: "0%", filter: "blur(0px)" }
+        }
+        transition={
+          phase === "fading"
+            ? { duration: 1.2, ease: [0.65, 0, 0.35, 1] }
+            : { duration: 2.2, ease: [0.22, 1, 0.36, 1] }
+        }
       >
-        {/* Left frosted-glass ice panel — slides left off-screen */}
-        <motion.div
-          className={`${panelBase} left-0 border-r`}
+        {/* Soft white glow at the centre, like light through mist */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(115deg, rgba(214, 235, 249, 0.82) 0%, rgba(189, 224, 245, 0.72) 55%, rgba(127, 179, 217, 0.78) 100%)",
+              "radial-gradient(ellipse 70% 55% at 50% 45%, rgba(255, 255, 255, 0.65) 0%, transparent 70%)",
           }}
-          initial={{ x: 0 }}
-          animate={{ x: opening ? "-102%" : 0 }}
-          transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div
-            aria-hidden="true"
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse 60% 50% at 30% 40%, rgba(255, 255, 255, 0.5) 0%, transparent 70%)",
-            }}
-          />
-          <div
-            aria-hidden="true"
-            className="absolute top-0 right-0 bottom-0 w-10"
-            style={{ background: "linear-gradient(90deg, transparent, rgba(11, 37, 64, 0.18))" }}
-          />
-        </motion.div>
+        />
 
-        {/* Right frosted-glass ice panel — slides right off-screen */}
+        {/* Slow-drifting mist blobs inside the veil */}
         <motion.div
-          className={`${panelBase} right-0 border-l`}
+          aria-hidden="true"
+          className="absolute -left-16 top-1/4 h-64 w-64 rounded-full blur-3xl"
           style={{
             background:
-              "linear-gradient(245deg, rgba(214, 235, 249, 0.82) 0%, rgba(189, 224, 245, 0.72) 55%, rgba(127, 179, 217, 0.78) 100%)",
+              "radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, transparent 70%)",
           }}
-          initial={{ x: 0 }}
-          animate={{ x: opening ? "102%" : 0 }}
-          transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div
-            aria-hidden="true"
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse 60% 50% at 70% 40%, rgba(255, 255, 255, 0.5) 0%, transparent 70%)",
-            }}
-          />
-          <div
-            aria-hidden="true"
-            className="absolute top-0 left-0 bottom-0 w-10"
-            style={{ background: "linear-gradient(270deg, transparent, rgba(11, 37, 64, 0.18))" }}
-          />
-        </motion.div>
+          animate={{ x: [0, 32, 0], y: [0, -24, 0] }}
+          transition={{ duration: 9, repeat: Infinity, repeatType: "mirror", ease: [0.45, 0, 0.55, 1] }}
+        />
+        <motion.div
+          aria-hidden="true"
+          className="absolute -right-16 bottom-1/4 h-72 w-72 rounded-full blur-3xl"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(214, 235, 249, 0.7) 0%, transparent 70%)",
+          }}
+          animate={{ x: [0, -28, 0], y: [0, 20, 0] }}
+          transition={{ duration: 11, repeat: Infinity, repeatType: "mirror", ease: [0.45, 0, 0.55, 1] }}
+        />
 
-        {/* Snowflakes drifting around the sliding panels */}
+        {/* Frost crystals — large faint snowflakes in the mist */}
+        <FrostSnowflake className="absolute -top-8 -left-8 h-40 w-40 opacity-25" />
+        <FrostSnowflake className="absolute -right-10 -bottom-10 h-52 w-52 opacity-20" />
+
+        {/* Snowflakes drifting through the thinning mist */}
         <SnowflakeCanvas flakeCount={12} burstKey={0} className="z-10" />
       </motion.div>
 

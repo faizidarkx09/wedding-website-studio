@@ -11,13 +11,14 @@
 // Cinematic opening (plays once per page session, never under
 // prefers-reduced-motion): Phase 1 anticipation — the lace veil
 // slowly unfurls (frame halo breathing, warm light glow pulsing,
-// golden dust motes rising in the light); Phase 2 lace-seal
+// golden dust motes rising in the light); Phase 2 medallion
 // activation on tap (~1.5s) — the medallion warms with a gentle
 // glow, a soft chime-worthy pulse, a golden glow bloom, button
 // fades out; Phase 3+4 live in the renderer (VeilPanelsOverlay):
-// the cover exits instantly, the invitation mounts underneath,
-// two lace-veil panels part sideways like curtains, then dissolve
-// with a lace-rosette transition + warm light sweep. A reload in
+// the cover exits instantly, the folded invitation card mounts
+// underneath, two lace-veil panels part sideways like curtains,
+// then dissolve with a lace-rosette transition + warm light sweep,
+// ending on the folded card (tap it to unfold). A reload in
 // the same session, or a reduced-motion tap, takes the plain 1.0s
 // ceremony instead. Skip jumps straight to the invitation.
 "use client";

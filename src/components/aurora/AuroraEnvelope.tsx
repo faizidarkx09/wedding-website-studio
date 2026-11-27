@@ -1,20 +1,35 @@
-// Aurora envelope — interactive deep-navy aurora envelope with a
-// teal-violet aurora seal orb and the sliding ice-white letter card
-// (tap the seal to break it and reveal / tuck the card back). No
-// music on this template — the seal is the interaction.
+// Aurora invitation card — NO envelope. The card itself is the
+// reveal: at rest you see its BACK (a blurred aurora wash in the
+// template's night-sky palette, slow-shimmering aurora ribbons,
+// glowing monogram orb, "Tap to Reveal"); tap opens a camera-iris
+// aperture from the centre of the card — the FRONT (the existing
+// invitation content, unchanged) is revealed through an expanding
+// clip-path circle, with aurora light spilling out as the iris
+// widens and a small star-sparkle burst at full open. Tap again
+// closes the iris back to the back side. prefers-reduced-motion:
+// instant swap, no ambient animation, no particles. No music on
+// this template — the iris is the interaction.
 "use client";
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
-import { AuroraDivider, AuroraSeal } from "./Decor";
-import { ENVELOPE_IMAGE_URL, formatCardDate, initials, locationLabel } from "./tokens";
+import { AuroraDivider } from "./Decor";
+import { formatCardDate, initials, locationLabel } from "./tokens";
 
 /* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding ice-white letter card                 */
+/* InvitationCard — the ice-white letter card (front, unchanged)     */
 /* ------------------------------------------------------------------ */
 
-function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
+function InvitationCard({
+  site,
+  isOpen,
+  shimmerKey = 0,
+}: {
+  site: WeddingSite;
+  isOpen: boolean;
+  shimmerKey?: number;
+}) {
   return (
     <div
       className={`relative mx-auto w-full overflow-hidden bg-[#F4F7FB] px-4 py-3 text-center text-[#0F172A] transition-shadow duration-700 @min-[29.375rem]:px-6 @min-[29.375rem]:py-5 @max-[22rem]:py-2 ${
@@ -73,7 +88,7 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
         <span className="au-font-editorial my-0.5 text-base italic text-[#0F766E] @min-[29.375rem]:text-lg @max-[22rem]:text-sm">
           &amp;
         </span>
-        <h2 className="au-font-display text-[17px] leading-none font-semibold tracking-[0.1em] break-words text-[#0F172A] uppercase @min-[29.375rem]:text-[22px] @min-[29.375rem]:tracking-[0.12em] @max-[22rem]:text-[15px] @max-[22rem]:tracking-[0.08em]">
+        <h2 className="au-font-display text-[17px] leading-none font-semibold tracking-[0.1em] break-words text-[#0F172A] uppercase @min-[29.375rem]:mt-3 @min-[29.375rem]:text-[22px] @min-[29.375rem]:tracking-[0.12em] @max-[22rem]:mt-1.5 @max-[22rem]:text-[15px] @max-[22rem]:tracking-[0.08em]">
           {site.content.partnerB}
         </h2>
 
@@ -86,26 +101,245 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
           {locationLabel(site)}
         </p>
       </div>
+
+      {/* One-time aurora light sweep across the card on reveal.
+          Remounts (key) on every open so it replays; unmounted when
+          the iris closes again. */}
+      {shimmerKey > 0 && (
+        <motion.div
+          key={shimmerKey}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 z-20 w-1/3"
+          style={{
+            background:
+              "linear-gradient(100deg, transparent 0%, rgba(94,234,212,0.4) 50%, transparent 100%)",
+          }}
+          initial={{ x: "-120%" }}
+          animate={{ x: "320%" }}
+          transition={{ duration: 0.9, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        />
+      )}
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
+/* CardBack — blurred aurora wash, night-sky palette. Same footprint */
+/* as the front (absolute inset-0 of the card scene), so the iris    */
+/* reveal never moves layout.                                       */
+/* ------------------------------------------------------------------ */
+
+function CardBack({ site, animate }: { site: WeddingSite; animate: boolean }) {
+  return (
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#020617] px-4 py-8 text-center shadow-[0_10px_24px_-8px_rgba(2,6,23,0.6)] @min-[29.375rem]:px-6">
+      {/* Blurred aurora wash — soft teal/violet night gradients */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 90% 70% at 20% 0%, rgba(20,184,166,0.35) 0%, transparent 60%), radial-gradient(ellipse 90% 70% at 85% 100%, rgba(139,92,246,0.4) 0%, transparent 60%), linear-gradient(165deg, #020617 0%, #0F172A 55%, #134E4A 100%)",
+        }}
+      />
+
+      {/* Slow-shimmering aurora ribbon gradients drifting across
+          the back. Transform + opacity only (GPU-friendly). */}
+      {animate && (
+        <>
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-[-20%] top-[12%] h-16 rounded-full blur-2xl"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(45,212,191,0.55) 40%, rgba(139,92,246,0.5) 65%, transparent 100%)",
+            }}
+            animate={{ x: [0, 28, 0], opacity: [0.7, 1, 0.7] }}
+            transition={{ duration: 11, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }}
+          />
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-[-20%] bottom-[16%] h-14 rounded-full blur-2xl"
+            style={{
+              background:
+                "linear-gradient(270deg, transparent 0%, rgba(139,92,246,0.5) 40%, rgba(94,234,212,0.45) 65%, transparent 100%)",
+            }}
+            animate={{ x: [0, -24, 0], opacity: [0.6, 0.95, 0.6] }}
+            transition={{ duration: 14, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }}
+          />
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse 60% 45% at 50% 50%, rgba(94,234,212,0.14) 0%, transparent 70%)",
+            }}
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 7, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }}
+          />
+        </>
+      )}
+
+      {/* Fine double teal & violet border, matching the front */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2.5 border border-[#5EEAD4]/50 @min-[29.375rem]:inset-3"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[13px] border border-[#8B5CF6]/40 @min-[29.375rem]:inset-[15px]"
+      />
+
+      <div className="relative z-10 flex flex-col items-center py-2">
+        <p className="au-font-display text-[9px] font-semibold tracking-[0.34em] text-[#CBD5E1] uppercase @min-[29.375rem]:text-[10px]">
+          TOGETHER UNDER THE NORTHERN LIGHTS
+        </p>
+
+        {/* Aurora orb — glowing teal-violet disc with the monogram */}
+        <div
+          aria-hidden="true"
+          className="relative mt-5 flex h-24 w-24 items-center justify-center rounded-full @min-[29.375rem]:h-28 @min-[29.375rem]:w-28"
+          style={{
+            background:
+              "radial-gradient(circle at 35% 30%, #5EEAD4 0%, #14B8A6 38%, #6D28D9 72%, #8B5CF6 100%)",
+            boxShadow:
+              "inset 0 2px 6px rgba(255,255,255,0.45), inset 0 -4px 10px rgba(2,6,23,0.45), 0 10px 22px -6px rgba(2,6,23,0.6), 0 0 32px rgba(20,184,166,0.35)",
+          }}
+        >
+          <div className="absolute inset-2 rounded-full border border-white/40" />
+          <span className="au-font-display relative text-[1.35rem] font-semibold tracking-[0.06em] text-white drop-shadow-[0_2px_6px_rgba(2,6,23,0.7)]">
+            {initials(site)}
+          </span>
+        </div>
+
+        <AuroraDivider className="mt-5 h-6 w-24 @min-[29.375rem]:h-8 @min-[29.375rem]:w-28" />
+
+        <p className="au-font-display mt-4 text-[9px] font-semibold tracking-[0.3em] text-[#5EEAD4] uppercase @min-[29.375rem]:text-[10px]">
+          TAP TO REVEAL
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* AuroraAmbience — slow aurora ribbon shimmer behind the card.     */
+/* ------------------------------------------------------------------ */
+
+function AuroraAmbience() {
+  return (
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+      <motion.div
+        className="absolute -top-8 -left-10 h-44 w-44 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(20,184,166,0.35) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, 24, 0], y: [0, -16, 0] }}
+        transition={{ duration: 12, repeat: Infinity, repeatType: "mirror", ease: [0.25, 0.1, 0.25, 1] }}
+      />
+      <motion.div
+        className="absolute -right-8 -bottom-10 h-52 w-52 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(139,92,246,0.35) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, -20, 0], y: [0, 14, 0] }}
+        transition={{ duration: 15, repeat: Infinity, repeatType: "mirror", ease: [0.25, 0.1, 0.25, 1] }}
+      />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* StarBurst — small star-sparkle burst at full iris open. Twelve    */
+/* four-point stars radiate from the card centre and fade. Keyed by */
+/* burstKey so it replays on every open.                            */
+/* ------------------------------------------------------------------ */
+
+const BURST_PARTICLES = [
+  { angle: 0, dist: 150, size: 14, teal: true },
+  { angle: 30, dist: 110, size: 9, teal: false },
+  { angle: 60, dist: 160, size: 11, teal: true },
+  { angle: 90, dist: 120, size: 16, teal: false },
+  { angle: 120, dist: 150, size: 9, teal: true },
+  { angle: 150, dist: 105, size: 12, teal: false },
+  { angle: 180, dist: 155, size: 10, teal: true },
+  { angle: 210, dist: 115, size: 15, teal: false },
+  { angle: 240, dist: 145, size: 9, teal: true },
+  { angle: 270, dist: 125, size: 12, teal: false },
+  { angle: 300, dist: 160, size: 10, teal: true },
+  { angle: 330, dist: 108, size: 13, teal: false },
+] as const;
+
+function StarBurst({ burstKey }: { burstKey: number }) {
+  if (burstKey === 0) return null;
+  return (
+    <div
+      key={burstKey}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center overflow-visible"
+    >
+      {BURST_PARTICLES.map((p, i) => {
+        const rad = (p.angle * Math.PI) / 180;
+        const dx = Math.cos(rad) * p.dist;
+        const dy = Math.sin(rad) * p.dist;
+        return (
+          <motion.svg
+            key={i}
+            viewBox="0 0 100 100"
+            className="absolute"
+            style={{ width: p.size, height: p.size }}
+            initial={{ x: 0, y: 0, opacity: 0, scale: 0, rotate: 0 }}
+            animate={{
+              x: dx,
+              y: dy,
+              opacity: [0, 1, 0],
+              scale: [0, 1, 0.5],
+              rotate: 90,
+            }}
+            transition={{
+              duration: 0.9,
+              delay: 0.85,
+              ease: [0.22, 1, 0.36, 1],
+              times: [0, 0.35, 1],
+            }}
+          >
+            <path
+              d="M50 0 L58 42 L100 50 L58 58 L50 100 L42 58 L0 50 L42 42 Z"
+              fill={p.teal ? "#5EEAD4" : "#C4B5FD"}
+            />
+          </motion.svg>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* AuroraEnvelope — card-only iris reveal (kept file/export name so  */
+/* AuroraRenderer needs no change).                                  */
 /* ------------------------------------------------------------------ */
 
 export default function AuroraEnvelope({ site }: { site: WeddingSite }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [shimmerKey, setShimmerKey] = useState(0);
+  const [burstKey, setBurstKey] = useState(0);
   const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+  const toggleCard = () => {
+    const next = !isOpen;
+    setIsOpen(next);
+    if (next) {
+      // Reveal: aurora light spill + star burst land the iris opening.
+      setBurstKey((k) => k + 1);
+      setShimmerKey((k) => k + 1);
+    }
   };
 
   return (
     <div className="relative px-4 pt-16 pb-10">
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Aurora Envelope + Sliding Ice Letter Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -116,134 +350,101 @@ export default function AuroraEnvelope({ site }: { site: WeddingSite }) {
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isOpen}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open aurora envelope and slide up wedding invitation card"
+              isOpen
+                ? "Close the iris and show the back of the wedding invitation card"
+                : "Open the iris to reveal the wedding invitation card"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
             className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#5EEAD4]"
           >
-            {/* Envelope Container preserving the 4:3 geometry of the aurora envelope */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(2,6,23,0.5)]">
-              {/* Layer 1: Aurora envelope artwork */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ENVELOPE_IMAGE_URL}
-                alt="Deep navy wedding envelope with teal and violet aurora light streaks"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-cover"
-              />
+            {/* Ambient aurora shimmer behind the card. Skipped under
+                reduced motion (no animation at all). */}
+            {!instant && <AuroraAmbience />}
 
-              {/* Layer 2: Interactive Sliding Ice Letter Card */}
-              <motion.div
-                initial={false}
-                animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -28 : -48) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[24rem]:top-[28%] @min-[29.375rem]:top-[25%]"
-              >
-                <InvitationCard site={site} isOpen={isCardLifted} />
-              </motion.div>
-
-              {/* Layer 3: REAL aurora pocket — the envelope photo rendered
-                  a second time ABOVE the card, clipped to the pocket's
-                  shape, so the card is physically tucked inside at rest.
-                  Geometry (eye-measured from aurora-envelope.jpg,
-                  1200x900, cropped to the envelope bounds): a classic
-                  envelope — triangular flap with its point at centre
-                  ~(50%, 66%), pocket diagonals running from the flap
-                  point down to the bottom corners, so the true pocket
-                  edge is ^-shaped (66% at centre, ~79% at x=32%/68%,
-                  ~84% at the card's edges).
-                  The clip reuses Golden Hour's proven single flat
-                  polygon (19% 52%, 32% 65%, 68% 65%, 81% 52%): it sits
-                  ABOVE the true pocket edge across the card's sides
-                  (65% vs 79% true at x=32%) and ~1% BELOW the flap
-                  point at centre (65% vs 66% true) — a ~4px sliver
-                  where the card peeks just past the fold point, which
-                  reads as the card emerging from behind the fold.
-                  The card is sized by CONTAINER width (@container on
-                  the outer wrapper — never viewport `sm:` — so the
-                  editor's Mobile (390px) preview gets the mobile card
-                  and desktop (490px container) gets the larger card),
-                  in THREE bands, because the card's content is fixed
-                  px while the 4:3 container shrinks with the viewport:
-                  - <352px: compact card (@max-[22rem]: 15px names,
-                    tight padding) — 320px: Partner B bottom 63.7%,
-                    divider top 71.1%, card bottom 107.6% (behind the
-                    pocket, invisible). Same bands as Golden Hour —
-                    coordinator must live-verify at 320/390/desktop.
-                  - 352–383px: small card (17px names), top 25% —
-                    390px: Partner B bottom 62.1%, divider top 68%.
-                  - 384–469px: small card, top 28%, divider mt-10 —
-                    the large card does NOT fit here (see below).
-                  - >=470px: large card (22px names, py-5), top 25% —
-                    desktop 490px container: Partner B bottom 61.7%,
-                    divider top 65.5%, card bottom 95.8%.
-                  WHY the large card starts at 470px, not 384px: its
-                  content is ~260px tall and the names WRAP below
-                  ~443px container width (inner width < ~160px), so at
-                  430px viewport (398x299 container) it spanned
-                  25%→131.7% — only PARTNER A peeked (wrapped to two
-                  lines), Partner B sat at 85% behind the pocket, and
-                  when open the location line was clipped mid-glyph at
-                  the container's bottom edge. The large card only
-                  fits once Partner B bottom (25% + 135px) clears the
-                  65% pocket line with margin, i.e. container >=470px
-                  (63.3% there, 61.7% at 490px). In the 384–469 band
-                  the small card is used with top 28% + divider mt-10
-                  (divider offset 139.6px from card top), which keeps
-                  Partner B bottom <=62.7% and divider top >=67.6%
-                  across the whole band. On tap the clip's top edge
-                  drops to ~97% (the pocket opens) while the card
-                  lifts 48px, so divider + date + location are fully
-                  revealed with no top clipping. */}
+            {/* Card scene — the FRONT is in flow (it defines the box
+                height); the BACK is absolute inset-0, so the iris
+                reveal never moves layout. */}
+            <div className="relative z-10 mx-auto w-full">
+              {/* Aurora light spill — glows out from behind the card
+                  as the iris widens, then settles to a soft halo. */}
               <motion.div
                 aria-hidden="true"
+                className="absolute -inset-5 rounded-[2rem] blur-2xl"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, rgba(94,234,212,0.55) 0%, rgba(139,92,246,0.4) 55%, transparent 75%)",
+                }}
+                initial={false}
+                animate={{ opacity: isOpen ? 0.9 : 0.3 }}
+                transition={{ duration: instant ? 0 : 1.1, ease: [0.22, 1, 0.36, 1] }}
+              />
+
+              {/* BACK — blurred aurora wash + monogram orb */}
+              <div aria-hidden={isOpen} className="absolute inset-0">
+                <CardBack site={site} animate={!instant} />
+              </div>
+
+              {/* FRONT — revealed through the expanding iris aperture:
+                  clip-path circle grows from 0% to 150% at centre. */}
+              <motion.div
+                aria-hidden={!isOpen}
                 initial={false}
                 animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(19% 96%, 32% 97.5%, 68% 97.5%, 81% 96%, 81% 100%, 19% 100%)"
-                    : "polygon(19% 52%, 32% 65%, 68% 65%, 81% 52%, 81% 100%, 19% 100%)",
+                  clipPath: isOpen
+                    ? "circle(150% at 50% 50%)"
+                    : "circle(0% at 50% 50%)",
                 }}
                 transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
+                  duration: instant ? 0 : 1.1,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="pointer-events-none absolute inset-0 z-20"
+                style={{ willChange: "clip-path" }}
+                className="relative w-full"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
+                <InvitationCard
+                  site={site}
+                  isOpen={isOpen}
+                  shimmerKey={isOpen && !instant ? shimmerKey : 0}
                 />
               </motion.div>
+
+              {/* Iris rim — a glowing ring that expands with the
+                  aperture and fades as it reaches full open. */}
+              {isOpen && !instant && (
+                <motion.div
+                  key={`rim-${burstKey}`}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute top-1/2 left-1/2 z-20 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[#5EEAD4]/70"
+                  style={{ boxShadow: "0 0 32px rgba(94,234,212,0.5)" }}
+                  initial={{ scale: 0.1, opacity: 0.9 }}
+                  animate={{ scale: 2.6, opacity: 0 }}
+                  transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+                />
+              )}
+
+              {/* Star-sparkle burst at full open. Renders nothing
+                  under reduced motion. */}
+              {!instant && <StarBurst burstKey={isOpen ? burstKey : 0} />}
             </div>
 
-            {/* Subtle interactive cue */}
-            <p className="au-font-display mt-1 text-center text-[10px] font-semibold tracking-[0.26em] text-[#5EEAD4]/85 uppercase transition-colors group-hover:text-[#F4F7FB]">
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
-          </div>
-
-          {/* Aurora Seal Orb */}
-          <div className="relative z-30 mt-4 flex justify-center">
-            <AuroraSeal monogram={initials(site)} isOpen={isCardLifted} onToggle={toggleEnvelope} />
+            {/* Cue */}
+            <motion.p
+              key={isOpen ? "front" : "back"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4 }}
+              className="au-font-display relative z-10 mt-4 text-center text-[10px] font-semibold tracking-[0.26em] text-[#5EEAD4]/85 uppercase transition-colors group-hover:text-[#F4F7FB]"
+            >
+              {isOpen ? "Tap Card to Close" : "Tap Card to Reveal"}
+            </motion.p>
           </div>
         </motion.div>
       </div>

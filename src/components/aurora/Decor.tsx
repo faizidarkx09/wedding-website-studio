@@ -266,11 +266,10 @@ export function AuroraDivider({ className = "" }: { className?: string }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* AuroraSeal — the teal-violet aurora seal orb. A CSS radial       */
-/* gradient with a glowing ring and the live monogram as HTML text   */
-/* in the centre (see Envelope). Tapping it "breaks" the seal (it   */
-/* dims and shows a crack) and the card slides up; tapping again    */
-/* reseals it.                                                       */
+/* AuroraSeal — the teal-violet aurora orb. A CSS radial gradient
+ * with a glowing ring and the live monogram as HTML text in the
+ * centre. Kept for reuse; the invitation card no longer uses an
+ * envelope — tapping the orb toggles the card reveal.              */
 /* ------------------------------------------------------------------ */
 
 export function AuroraSeal({
@@ -289,7 +288,7 @@ export function AuroraSeal({
         onClick={onToggle}
         aria-pressed={isOpen}
         aria-label={
-          isOpen ? "Reseal the aurora envelope" : "Break the aurora seal and open the envelope"
+          isOpen ? "Close the invitation card" : "Reveal the invitation card"
         }
         className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full shadow-[0_16px_30px_-8px_rgba(2,6,23,0.8),0_0_32px_rgba(20,184,166,0.35)] ring-2 ring-[#5EEAD4]/60 transition-transform duration-300 hover:scale-[1.04] active:scale-[0.96] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#5EEAD4]"
         style={{
@@ -320,7 +319,7 @@ export function AuroraSeal({
       </button>
 
       <span className="au-font-editorial mt-3 text-xs tracking-[0.18em] text-[#5EEAD4]/90 uppercase">
-        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
+        {isOpen ? "Tap to Close" : "Tap to Reveal"}
       </span>
     </div>
   );

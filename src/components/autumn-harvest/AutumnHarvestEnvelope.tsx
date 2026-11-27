@@ -1,27 +1,48 @@
-// Autumn Harvest envelope — interactive burnt-orange envelope with
-// a live SVG maple-leaf wax seal and the sliding cream harvest card
-// (tap the seal to break it and reveal / tuck the card back). No
-// music on this template — the seal is the interaction.
+// Autumn Harvest invitation card — NO envelope. The card itself is
+// the reveal: at rest you see its BACK (burnt-orange ember glow over
+// a blurred leaf-pattern wash, leaf-wreath crest with the live
+// monogram, "TAP TO REVEAL"); tap fades it into the FRONT (the
+// existing cream harvest invitation, unchanged).
+// Reveal concept — "ember fade" (distinct from Blush's 3D flip):
+// the back glows warm (burnt orange, amber, harvest gold); on tap
+// the embers rise and fade, the warm glow dims and cools, and the
+// front emerges through the fading glow while a few autumn leaves
+// drift down. No 3D flip, no flap, no pocket. Tap again returns to
+// the back. prefers-reduced-motion: instant swap, no ambient
+// animation, no particles. No music on this template.
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
-import { LeafDivider, LeafSeal } from "./Decor";
+import { LeafDivider, LeafWreath } from "./Decor";
 import {
-  ENVELOPE_IMAGE_URL,
+  COVER_IMAGE_URL,
   formatCardDate,
+  initials,
   locationLabel,
 } from "./tokens";
+import { LeafCanvas } from "./CinematicOpening";
 
 /* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding cream harvest card                    */
+/* InvitationCard — the cream harvest card (FRONT). Unchanged       */
+/* content: names, date, venue, harvest borders and typography.     */
+/* It is in flow (it defines the card box height); the back sits    */
+/* absolute over it and fades away on reveal.                       */
 /* ------------------------------------------------------------------ */
 
-function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
+function InvitationCard({
+  site,
+  isOpen,
+  shimmerKey = 0,
+}: {
+  site: WeddingSite;
+  isOpen: boolean;
+  shimmerKey?: number;
+}) {
   return (
     <div
-      className={`relative mx-auto w-full overflow-hidden bg-[#FFFDF6] px-4 py-3 text-center text-[#5C3A21] transition-shadow duration-700 @min-[29.375rem]:px-6 @min-[29.375rem]:py-5 @max-[22rem]:py-2 ${
+      className={`relative mx-auto w-full overflow-hidden rounded-[6px] bg-[#FFFDF6] px-4 py-3 text-center text-[#5C3A21] transition-shadow duration-700 @min-[29.375rem]:px-6 @min-[29.375rem]:py-5 @max-[22rem]:py-2 ${
         isOpen
           ? "shadow-[0_22px_42px_-12px_rgba(58,36,18,0.52),0_4px_12px_rgba(58,36,18,0.22)]"
           : "shadow-[0_10px_24px_-8px_rgba(58,36,18,0.45)]"
@@ -81,7 +102,7 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
           {site.content.partnerB}
         </h2>
 
-        <LeafDivider className="mt-4 mb-2 h-6 w-24 @min-[24rem]:mt-10 @min-[29.375rem]:my-3.5 @min-[29.375rem]:h-8 @min-[29.375rem]:w-28 @max-[22rem]:mb-1.5 @max-[22rem]:h-5" />
+        <LeafDivider className="mt-4 mb-2 h-6 w-24 @min-[29.375rem]:my-3.5 @min-[29.375rem]:h-8 @min-[29.375rem]:w-28 @max-[22rem]:mb-1.5 @max-[22rem]:h-5" />
 
         <p className="ah-font-display text-[9px] font-medium tracking-[0.24em] text-[#5C3A21] uppercase @min-[29.375rem]:text-[10px]">
           {formatCardDate(site.weddingDate, site.timezone)}
@@ -90,68 +111,211 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
           {locationLabel(site)}
         </p>
       </div>
+
+      {/* One-time warm amber shimmer sweep across the card on reveal.
+          Remounts (key) on every reveal so it replays; unmounted
+          when flipped back. */}
+      {shimmerKey > 0 && (
+        <motion.div
+          key={shimmerKey}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 z-20 w-1/3"
+          style={{
+            background:
+              "linear-gradient(100deg, transparent 0%, rgba(217,142,50,0.45) 50%, transparent 100%)",
+          }}
+          initial={{ x: "-120%" }}
+          animate={{ x: "320%" }}
+          transition={{ duration: 0.9, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        />
+      )}
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* LeafSealButton — the burnt-orange maple-leaf wax-seal open       */
-/* button. Tapping it "breaks" the seal (it splits and fades) and   */
-/* the card slides up; tapping again reseals it. The seal is live   */
-/* SVG (see Decor.tsx) — no seal image.                             */
+/* CardBack — the card's back side at rest: burnt-orange ember glow */
+/* over a blurred leaf-pattern wash, leaf-wreath crest with the     */
+/* live monogram, tap hint. Same footprint as the front (absolute   */
+/* inset-0 of the card box), so the fade never changes the layout.  */
 /* ------------------------------------------------------------------ */
 
-function LeafSealButton({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
+function CardBack({ site }: { site: WeddingSite }) {
   return (
-    <div className="relative flex flex-col items-center">
-      <motion.button
-        type="button"
-        onClick={onToggle}
-        aria-pressed={isOpen}
-        aria-label={
-          isOpen
-            ? "Reseal the autumn envelope"
-            : "Break the maple-leaf wax seal and open the envelope"
-        }
-        animate={isOpen ? { rotate: -8, scale: 0.94 } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full shadow-[0_16px_30px_-8px_rgba(58,36,18,0.6),0_4px_10px_rgba(58,36,18,0.35)] ring-2 ring-[#C05621]/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#5C3A21]"
-      >
-        <LeafSeal className="absolute inset-0 h-full w-full" />
-        {/* Crack line once broken */}
-        {isOpen && (
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-2 top-1/2 h-px rotate-[-14deg] bg-[#3A2412]/50"
-          />
-        )}
-      </motion.button>
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-[6px] bg-[#9C3D12] px-4 py-8 text-center shadow-[0_10px_24px_-8px_rgba(58,36,18,0.45)] sm:px-6">
+      {/* Blurred leaf-pattern wash — the cover photograph, softened
+          so the back reads as glowing ember light, not a photo. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={COVER_IMAGE_URL}
+        alt=""
+        referrerPolicy="no-referrer"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-35 blur-md"
+      />
 
-      <span className="ah-font-editorial mt-3 text-xs tracking-[0.18em] text-[#9C3D12]/85 uppercase">
-        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
-      </span>
+      {/* Warm ember gradient over the wash */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 90% 80% at 50% 42%, rgba(232,160,92,0.55) 0%, rgba(192,86,33,0.55) 55%, rgba(58,36,18,0.55) 100%)",
+        }}
+      />
+
+      {/* Fine double cream border, matching the front's double border */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2.5 rounded-[4px] border border-[#FFF7E8]/50 sm:inset-3"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[13px] rounded-[3px] border border-[#FFF7E8]/25 sm:inset-[15px]"
+      />
+
+      <div className="relative z-10 flex flex-col items-center py-2">
+        <p className="ah-font-display text-[9px] font-semibold tracking-[0.34em] text-[#FFF7E8]/90 uppercase sm:text-[10px]">
+          WITH LOVE
+        </p>
+
+        {/* Leaf-wreath crest with the live monogram — the same crest
+            as the cover, in cream on ember. */}
+        <div className="relative mt-5 h-28 w-28 sm:h-32 sm:w-32">
+          <LeafWreath className="absolute inset-0 h-full w-full drop-shadow-[0_8px_20px_rgba(58,36,18,0.5)]" />
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <span className="ah-font-display text-[1.35rem] font-semibold tracking-[0.06em] text-[#FFF7E8] sm:text-[1.5rem]">
+              {initials(site)}
+            </span>
+          </div>
+        </div>
+
+        <div
+          aria-hidden="true"
+          className="mt-5 h-px w-24 bg-gradient-to-r from-transparent via-[#FFF7E8]/70 to-transparent sm:w-28"
+        />
+
+        <p className="ah-font-display mt-4 text-[9px] font-semibold tracking-[0.3em] text-[#FFF7E8]/90 uppercase sm:text-[10px]">
+          TAP TO REVEAL
+        </p>
+      </div>
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
+/* EmberAmbience — tiny glowing embers rising behind the card at    */
+/* rest, looping. Transform + opacity only (GPU-friendly). Skipped   */
+/* entirely under reduced motion.                                   */
+/* ------------------------------------------------------------------ */
+
+const EMBERS = [
+  { left: "6%", size: 5, duration: 7, delay: 0 },
+  { left: "15%", size: 8, duration: 9, delay: 1.2 },
+  { left: "26%", size: 4, duration: 6.5, delay: 2.4 },
+  { left: "38%", size: 7, duration: 8, delay: 0.6 },
+  { left: "50%", size: 5, duration: 9.5, delay: 3.0 },
+  { left: "62%", size: 8, duration: 7.5, delay: 1.8 },
+  { left: "74%", size: 4, duration: 8.5, delay: 0.3 },
+  { left: "85%", size: 6, duration: 9, delay: 2.0 },
+  { left: "94%", size: 5, duration: 7, delay: 4.0 },
+] as const;
+
+function EmberAmbience() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden"
+    >
+      {/* Slow-drifting ember glow blobs — amber + harvest gold */}
+      <motion.div
+        className="absolute -left-10 top-8 h-44 w-44 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(217,142,50,0.55) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, 24, 0], y: [0, -18, 0] }}
+        transition={{ duration: 11, repeat: Infinity, repeatType: "mirror", ease: [0.25, 0.1, 0.25, 1] }}
+      />
+      <motion.div
+        className="absolute -right-8 bottom-10 h-52 w-52 rounded-full blur-3xl"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(232,160,92,0.45) 0%, transparent 70%)",
+        }}
+        animate={{ x: [0, -20, 0], y: [0, 16, 0] }}
+        transition={{ duration: 13, repeat: Infinity, repeatType: "mirror", ease: [0.25, 0.1, 0.25, 1] }}
+      />
+
+      {/* Rising embers — small glowing dots drifting up */}
+      {EMBERS.map((b, i) => (
+        <motion.span
+          key={i}
+          className="absolute bottom-0 rounded-full bg-[#FFD98A]"
+          style={{
+            left: b.left,
+            width: b.size,
+            height: b.size,
+            boxShadow:
+              "0 0 6px 2px rgba(217,142,50,0.7), 0 0 12px 4px rgba(192,86,33,0.35)",
+          }}
+          initial={{ y: 0, opacity: 0 }}
+          animate={{ y: -440, opacity: [0, 0.9, 0.9, 0] }}
+          transition={{
+            duration: b.duration,
+            delay: b.delay,
+            repeat: Infinity,
+            ease: "linear",
+            times: [0, 0.15, 0.8, 1],
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* AutumnHarvestEnvelope — the card-only reveal (file/component name */
+/* kept so the existing Cover/Renderer import still resolves).      */
 /* ------------------------------------------------------------------ */
 
 export default function AutumnHarvestEnvelope({ site }: { site: WeddingSite }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const [shimmerKey, setShimmerKey] = useState(0);
+  const [leavesActive, setLeavesActive] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
+  const leavesTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+  useEffect(
+    () => () => {
+      if (leavesTimerRef.current) clearTimeout(leavesTimerRef.current);
+    },
+    []
+  );
+
+  const toggleCard = () => {
+    const next = !isRevealed;
+    setIsRevealed(next);
+    if (next) {
+      // Reveal: embers burst up, leaves drift down, amber shimmer
+      // lands the fade. The leaf canvas mounts now (so the burst
+      // fires from a fresh loop) and unmounts once the fade is done.
+      setBurstKey((k) => k + 1);
+      setShimmerKey((k) => k + 1);
+      if (!instant) {
+        setLeavesActive(true);
+        if (leavesTimerRef.current) clearTimeout(leavesTimerRef.current);
+        leavesTimerRef.current = setTimeout(() => setLeavesActive(false), 3200);
+      }
+    }
   };
 
   return (
-    <div className="relative px-4 pt-16 pb-10">
+    <div className="relative px-4 pt-16 pb-10 sm:px-6 sm:pt-24 sm:pb-14">
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Autumn Envelope + Sliding Harvest Card */}
+        {/* Interactive Autumn Harvest invitation card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -162,138 +326,100 @@ export default function AutumnHarvestEnvelope({ site }: { site: WeddingSite }) {
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isRevealed}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open autumn envelope and slide up wedding invitation card"
+              isRevealed
+                ? "Show the back of the wedding invitation card"
+                : "Reveal the wedding invitation card"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
-            className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#5C3A21]"
+            className="group relative mx-auto w-full cursor-pointer text-center select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#5C3A21]"
           >
-            {/* Envelope Container preserving the 4:3 geometry of the autumn envelope */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(58,36,18,0.28)]">
-              {/* Layer 1: Autumn envelope artwork */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ENVELOPE_IMAGE_URL}
-                alt="Burnt-orange autumn wedding envelope with a leaf-patterned lining along the flap"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-cover"
-              />
+            {/* Ambient embers behind the card at rest. Skipped under
+                reduced motion (no animation at all). */}
+            {!instant && !isRevealed && <EmberAmbience />}
 
-              {/* Layer 2: Interactive Sliding Cream Harvest Invitation Card */}
-              <motion.div
-                initial={false}
-                animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -28 : -44) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="absolute top-[25%] left-1/2 z-10 w-[47%] -translate-x-1/2 @max-[22rem]:top-[23%] @min-[24rem]:top-[27%] @min-[29.375rem]:top-[24%]"
-              >
-                <InvitationCard site={site} isOpen={isCardLifted} />
-              </motion.div>
-
-              {/* Layer 3: REAL burnt-orange pocket — the envelope photo
-                  rendered a second time ABOVE the card, clipped to the
-                  pocket's shape, so the card is physically tucked
-                  inside at rest. Geometry (eye-measured from the
-                  shipped 4:3 autumn-harvest-detail.jpg, 1200x900 —
-                  the master was centre-cropped to 4:3 in the
-                  optimizer, so image coordinates ARE container
-                  coordinates): a classic envelope — triangular flap
-                  with its point at centre ~(50%, 59%), pocket
-                  diagonals running from the flap point down to the
-                  bottom corners, pocket side edges at x ~12% / ~88%.
-                  The clip reuses Golden Hour's proven flattened-V
-                  polygon, re-measured for this flap: the flat
-                  section sits at 64% (5% below the 59% flap point —
-                  a ~15px sliver at desktop where the card peeks just
-                  past the fold point, which reads as the card
-                  emerging from behind the fold) and rises to 50% at
-                  the pocket's outer edges.
-                  The card is sized by CONTAINER width (@container on
-                  the outer wrapper — never viewport `sm:` — so the
-                  editor's Mobile (390px) preview gets the mobile card
-                  and desktop (490px container) gets the larger card),
-                  in THREE bands, because the card's content is fixed
-                  px while the 4:3 container shrinks with the viewport:
-                  - <352px: compact card (@max-[22rem]: 15px names),
-                    top 23% — 320px: Partner B bottom ~61.7%
-                    (vs 64% pocket line), divider top ~69% (hidden).
-                  - 352–383px: small card (17px names), top 25% —
-                    390px: Partner B bottom ~62.1%, divider top ~68%.
-                  - 384–469px: small card, top 27%, divider mt-10 —
-                    the large card does NOT fit here (see below).
-                  - >=470px: large card (22px names, py-5), top 24% —
-                    desktop 490px container: Partner B bottom ~60.7%,
-                    divider top ~64.5% (just below the 64% line,
-                    hidden at rest).
-                  WHY the large card starts at 470px, not 384px: its
-                  content is ~260px tall and the names WRAP below
-                  ~443px container width (inner width < ~160px), so at
-                  430px viewport (398x299 container) it would span
-                  24%→~131% — only PARTNER A peeked (wrapped to two
-                  lines), Partner B sat behind the pocket, and when
-                  open the location line was clipped mid-glyph at the
-                  container's bottom edge (the proven 430px trap).
-                  The large card only fits once Partner B bottom
-                  (24% + ~135px) clears the 64% pocket line with
-                  margin, i.e. container >=470px. In the 384–469 band
-                  the small card is used with top 27% + divider mt-10,
-                  which keeps Partner B bottom <=62.7% and divider top
-                  >=67.6% across the whole band. On tap the clip's top
-                  edge drops to ~97% (the pocket opens) while the card
-                  lifts 44px, so divider + date + location are fully
-                  revealed with no top clipping (lifted card top stays
-                  >=7px even at 320px). These numbers are computed
-                  from the image measurement, not live-measured —
-                  the QA lane must live-verify at 390px / 320px /
-                  desktop before calling this done (the Emerald RSVP
-                  needed three live rounds for exactly this). */}
+            {/* Card box — the FRONT is in flow (it defines the box
+                height); the BACK is absolute inset-0 over it. At
+                rest the back is opaque and the front is transparent;
+                on reveal the back fades out (embers rise, glow dims
+                and cools) and the front fades in through it. */}
+            <div className="relative z-10 mx-auto w-full">
+              {/* Warm ember glow behind the card — dims and cools on
+                  reveal (opacity drops once the front emerges). */}
               <motion.div
                 aria-hidden="true"
-                initial={false}
-                animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(12% 96%, 30% 97.5%, 70% 97.5%, 88% 96%, 88% 100%, 12% 100%)"
-                    : "polygon(12% 50%, 30% 64%, 70% 64%, 88% 50%, 88% 100%, 12% 100%)",
+                className="absolute -inset-4 rounded-[2rem] blur-2xl"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, rgba(217,142,50,0.65) 0%, rgba(192,86,33,0.4) 55%, transparent 75%)",
                 }}
+                initial={false}
+                animate={{ opacity: isRevealed ? 0.18 : 1 }}
+                transition={{ duration: instant ? 0 : 1.2, ease: [0.22, 1, 0.36, 1] }}
+              />
+
+              {/* FRONT — the invitation (unchanged content) */}
+              <motion.div
+                aria-hidden={!isRevealed}
+                className="relative w-full"
+                initial={false}
+                animate={{ opacity: isRevealed ? 1 : 0 }}
                 transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
+                  duration: instant ? 0 : 0.9,
+                  delay: isRevealed && !instant ? 0.45 : 0,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="pointer-events-none absolute inset-0 z-20"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
+                <InvitationCard
+                  site={site}
+                  isOpen={isRevealed}
+                  shimmerKey={isRevealed && !instant ? shimmerKey : 0}
                 />
               </motion.div>
+
+              {/* BACK — ember glow + leaf-wreath crest + tap hint */}
+              <motion.div
+                aria-hidden={isRevealed}
+                className="absolute inset-0"
+                initial={false}
+                animate={{ opacity: isRevealed ? 0 : 1 }}
+                transition={{ duration: instant ? 0 : 1.1, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <CardBack site={site} />
+              </motion.div>
+
+              {/* Embers burst up + leaves drift down as the glow
+                  fades. The canvas renders nothing under reduced
+                  motion. Mounting it on reveal fires the burst
+                  (burstKey already incremented); it unmounts after
+                  ~3.2s so no loop keeps running over the front. */}
+              {!instant && leavesActive && (
+                <LeafCanvas
+                  leafCount={8}
+                  burstKey={burstKey}
+                  burstOrigin={{ x: 0.5, y: 0.6 }}
+                  className="z-20"
+                />
+              )}
             </div>
 
-            {/* Subtle interactive cue */}
-            <p className="ah-font-display mt-1 text-center text-[10px] font-medium tracking-[0.26em] text-[#9C3D12]/80 uppercase transition-colors group-hover:text-[#5C3A21]">
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
-          </div>
-
-          {/* Maple-Leaf Wax Seal */}
-          <div className="relative z-30 mt-4 flex justify-center">
-            <LeafSealButton isOpen={isCardLifted} onToggle={toggleEnvelope} />
+            {/* Cue — on a soft pill so it stays legible */}
+            <motion.p
+              key={isRevealed ? "front" : "back"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4 }}
+              className="ah-font-display relative z-10 mt-4 inline-block rounded-full bg-[#FFF7E8]/80 px-4 py-1 text-center text-[10px] font-medium tracking-[0.26em] text-[#9C3D12]/80 uppercase backdrop-blur-[2px] transition-colors group-hover:text-[#5C3A21]"
+            >
+              {isRevealed ? "Tap to Show Back" : "Tap Card to Reveal"}
+            </motion.p>
           </div>
         </motion.div>
       </div>

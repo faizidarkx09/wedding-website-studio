@@ -1,21 +1,152 @@
-// BLOSSOM & OUD opening envelope — the first screen of every BLOSSOM & OUD site.
-//
-// A full-viewport ivory overlay: the envelope scales in 0.92 → 1, the
-// wax seal fades in, "YOU ARE CORDIALLY INVITED" appears, and an
-// explicit OPEN INVITATION click (keyboard, touch, or Skip) rotates the
-// flap open in 3D, slides the invitation card upward, and transitions
-// into the hero. Mirrors the Studio's EnvelopeIntro accessibility
-// contract (focus trap, inert siblings, Escape, scroll lock, reduced
-// motion → instant reveal), rebuilt with Framer Motion for the 3D flap.
+// BLOSSOM & OUD opening card — NO envelope. The first screen of every
+// BLOSSOM & OUD site is a full-viewport ivory overlay: the invitation
+// card itself is the reveal. At rest you see the card's BACK (a soft
+// blush panel with blurred orange-blossom florals, a burgundy wax-seal
+// medallion with the couple monogram, "Touchez pour révéler"); tap
+// drifts the petals away, the back fades and lifts, and the FRONT
+// (the invitation — "Vous êtes invités", the couple names, the date)
+// is revealed beneath, then the overlay fades and the site opens.
+// Mirrors the Studio's opening accessibility contract (focus trap,
+// inert siblings, Escape, scroll lock, reduced motion → instant
+// reveal). No envelope shape, no flap, no pocket — only the card.
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
 import { BLOSSOM, formatShortDate, initials } from "./tokens";
-import { WaxSeal } from "./Decor";
+import { BlossomSprig, Divider, FloralCorner, FloralDrift, Flower, WaxSeal } from "./Decor";
 
 type Phase = "closed" | "opening" | "gone";
+
+/* ------------------------------------------------------------------ */
+/* PetalDrift — on open, six blossoms drift outward from the card   */
+/* and fade, like petals carried off by a warm breeze. Renders      */
+/* nothing under reduced motion.                                      */
+/* ------------------------------------------------------------------ */
+
+const DRIFT_PETALS = [
+  { angle: -90, dist: 120, size: 30, delay: 0.02 },
+  { angle: -45, dist: 100, size: 24, delay: 0.08 },
+  { angle: 0, dist: 120, size: 30, delay: 0.02 },
+  { angle: 45, dist: 100, size: 24, delay: 0.08 },
+  { angle: 90, dist: 120, size: 30, delay: 0.02 },
+  { angle: 135, dist: 100, size: 24, delay: 0.08 },
+  { angle: 180, dist: 120, size: 30, delay: 0.02 },
+  { angle: -135, dist: 100, size: 24, delay: 0.08 },
+];
+
+function PetalDrift() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
+    >
+      {DRIFT_PETALS.map((p, i) => {
+        const rad = (p.angle * Math.PI) / 180;
+        const x = Math.cos(rad) * p.dist;
+        const y = Math.sin(rad) * p.dist;
+        return (
+          <motion.span
+            key={i}
+            className="absolute text-[#C08A7E]"
+            style={{ width: p.size, height: p.size }}
+            initial={{ x: 0, y: 0, scale: 0.4, opacity: 0.95, rotate: p.angle }}
+            animate={{ x, y, scale: 1, opacity: 0, rotate: p.angle + 50 }}
+            transition={{ duration: 1.05, delay: p.delay, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <Flower variant={1} className="h-full w-full" />
+          </motion.span>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* CardBack — soft blush panel, blurred orange-blossom florals,     */
+/* burgundy wax-seal medallion with the couple monogram, tap hint.  */
+/* ------------------------------------------------------------------ */
+
+function CardBack({ site }: { site: WeddingSite }) {
+  return (
+    <div
+      className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden px-5 py-6 text-center"
+      style={{ backgroundColor: BLOSSOM.blush, color: BLOSSOM.oud }}
+    >
+      {/* Blurred orange-blossom florals — softened into a backdrop */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 flex items-center justify-between px-2"
+        style={{ filter: "blur(5px)", opacity: 0.5 }}
+      >
+        <BlossomSprig className="h-3/4 w-auto text-[#C08A7E]" />
+        <BlossomSprig className="h-3/4 w-auto -scale-x-100 text-[#C08A7E]" />
+      </div>
+
+      {/* Soft blush wash so the monogram stays legible */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 90% 80% at 50% 42%, rgba(250,246,239,0.25) 0%, rgba(239,220,210,0.55) 100%)",
+        }}
+      />
+
+      {/* Floral corners */}
+      <FloralCorner className="pointer-events-none absolute top-2 left-2 h-20 w-20 text-[#C08A7E]/70" />
+      <FloralCorner flip className="pointer-events-none absolute right-2 bottom-2 h-20 w-20 text-[#C08A7E]/70" />
+
+      <div className="relative z-10 flex flex-col items-center">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.35em]" style={{ color: BLOSSOM.gold }}>
+          Avec amour
+        </p>
+
+        {/* Burgundy wax-seal medallion with the couple monogram */}
+        <span className="mt-4 block h-[64px] w-[64px]" style={{ color: BLOSSOM.burgundy }}>
+          <WaxSeal className="h-full w-full">{initials(site)}</WaxSeal>
+        </span>
+
+        <Divider variant={3} className="mt-4 h-4 w-24" />
+
+        <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: BLOSSOM.gold }}>
+          Touchez pour révéler
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* CardFront — the invitation (unchanged content): "Vous êtes       */
+/* invités", the couple names, the date.                              */
+/* ------------------------------------------------------------------ */
+
+function CardFront({ site }: { site: WeddingSite }) {
+  const names = `${site.content.partnerA} & ${site.content.partnerB}`;
+  const dateLine = formatShortDate(site.weddingDate, site.timezone);
+  return (
+    <div
+      className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden px-5 py-6 text-center"
+      style={{ backgroundColor: BLOSSOM.white, color: BLOSSOM.oud }}
+    >
+      <FloralCorner className="pointer-events-none absolute top-2 left-2 h-20 w-20 text-[#C08A7E]/60" />
+      <FloralCorner flip className="pointer-events-none absolute right-2 bottom-2 h-20 w-20 text-[#C08A7E]/60" />
+
+      <div className="relative z-10 flex flex-col items-center gap-1">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.3em] opacity-60">
+          Vous êtes invités
+        </span>
+        <span className="font-blossom text-[clamp(1.3rem,5.5vw,1.85rem)] leading-tight font-semibold">
+          {names}
+        </span>
+        {dateLine ? <span className="text-sm opacity-70">{dateLine}</span> : null}
+        <Divider variant={3} className="mt-3 h-4 w-24" />
+      </div>
+    </div>
+  );
+}
 
 export default function BlossomEnvelope({
   site,
@@ -31,7 +162,6 @@ export default function BlossomEnvelope({
   const timerRef = useRef<number | null>(null);
 
   const names = `${site.content.partnerA} & ${site.content.partnerB}`;
-  const dateLine = formatShortDate(site.weddingDate, site.timezone);
 
   useEffect(() => {
     if (autoFocus) buttonRef.current?.focus();
@@ -152,82 +282,50 @@ export default function BlossomEnvelope({
           type="button"
           onClick={open}
           disabled={phase !== "closed"}
-          aria-label={`Open the invitation of ${names} — click to open`}
-          className="group flex cursor-pointer flex-col items-center gap-6 rounded-lg bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-8"
+          aria-label={`Open the invitation of ${names} — click to reveal`}
+          className="group block cursor-pointer rounded-lg bg-transparent p-0 focus-visible:outline-2 focus-visible:outline-offset-8"
           style={{ outlineColor: BLOSSOM.gold } as React.CSSProperties}
         >
-          {/* Envelope scene — 3D flap + sliding letter, all CSS shapes. */}
+          {/* Invitation card — back at rest, front on open. Petals
+              drift away as the back dissolves. */}
           <span
-            className="relative block w-[min(420px,86vw)]"
-            style={{ aspectRatio: "8 / 5", transformStyle: "preserve-3d" }}
+            className="relative block w-[min(380px,86vw)] overflow-hidden rounded-[4px]"
+            style={{
+              aspectRatio: "4 / 5",
+              boxShadow: "0 18px 40px rgba(48, 40, 33, 0.16)",
+              transformStyle: "preserve-3d",
+            }}
           >
-            {/* Letter: slides up out of the envelope on open. */}
+            {/* FRONT — the invitation (revealed on open) */}
             <motion.span
-              aria-hidden="true"
-              className="absolute inset-x-[5%] top-[4%] bottom-[10%] z-[1] flex flex-col items-center justify-center gap-1 rounded-[3px] px-3 text-center"
-              style={{
-                backgroundColor: BLOSSOM.white,
-                color: BLOSSOM.oud,
-                boxShadow: "0 2px 12px rgba(48, 40, 33, 0.14)",
-              }}
+              aria-hidden={!opening}
+              className="absolute inset-0"
               initial={false}
-              animate={opening ? { y: "-62%", opacity: 1 } : { y: 0, opacity: 1 }}
-              transition={{ duration: 0.55, delay: 0.15, ease: [0.4, 0, 0.2, 1] }}
+              animate={{ opacity: opening ? 1 : 0, y: opening ? 0 : 16 }}
+              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              <span className="text-[10px] font-semibold uppercase tracking-[0.3em] opacity-60">
-                Vous êtes invités
-              </span>
-              <span className="font-blossom text-[clamp(1.3rem,5.5vw,1.85rem)] leading-tight font-semibold">
-                {names}
-              </span>
-              {dateLine ? <span className="text-sm opacity-70">{dateLine}</span> : null}
+              <CardFront site={site} />
             </motion.span>
 
-            {/* Front pocket: V-cut panel the letter slides out from behind. */}
-            <span
-              aria-hidden="true"
-              className="absolute inset-0 z-[2] rounded-md"
-              style={{
-                backgroundColor: BLOSSOM.blush,
-                clipPath: "polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%)",
-                boxShadow: "0 18px 40px rgba(48, 40, 33, 0.16)",
-              }}
-            />
-
-            {/* Flap: triangle rotating open around its top edge (3D). */}
+            {/* BACK — blurred florals + wax-seal medallion */}
             <motion.span
-              aria-hidden="true"
-              className="absolute top-0 right-0 left-0 z-[3] h-[56%]"
-              style={{
-                backgroundColor: BLOSSOM.rose,
-                clipPath: "polygon(0 0, 100% 0, 50% 100%)",
-                transformOrigin: "top center",
-                backfaceVisibility: "hidden",
-              }}
+              aria-hidden={opening}
+              className="absolute inset-0"
               initial={false}
-              animate={opening ? { rotateX: 180 } : { rotateX: 0 }}
-              transition={{ duration: 0.55, ease: [0.4, 0, 0.2, 1] }}
-            />
-
-            {/* Wax seal at the flap tip — fades/scales in, breaks on open. */}
-            <motion.span
-              aria-hidden="true"
-              className="absolute top-[52%] left-1/2 z-[4] block h-[54px] w-[54px]"
-              style={{ x: "-50%", y: "-50%", color: BLOSSOM.burgundy }}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={
-                opening
-                  ? { opacity: 0, scale: 0.55 }
-                  : { opacity: 1, scale: 1 }
-              }
-              transition={{ duration: opening ? 0.25 : 0.6, delay: opening ? 0 : 0.35 }}
+              animate={{ opacity: opening ? 0 : 1, y: opening ? -12 : 0 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
-              <WaxSeal className="h-full w-full">{initials(site)}</WaxSeal>
+              <FloralDrift>
+                <CardBack site={site} />
+              </FloralDrift>
             </motion.span>
+
+            {/* Petals drifting away on open */}
+            {opening && !reduceMotion && <PetalDrift />}
           </span>
 
           <motion.span
-            className="text-xs font-bold uppercase tracking-[0.3em]"
+            className="mt-6 block text-xs font-bold uppercase tracking-[0.3em]"
             style={{ color: BLOSSOM.gold }}
             animate={{ opacity: [0.6, 1, 0.6] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}

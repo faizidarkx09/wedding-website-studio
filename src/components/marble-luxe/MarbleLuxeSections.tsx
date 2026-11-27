@@ -39,7 +39,7 @@ import {
 } from "./tokens";
 
 /* ------------------------------------------------------------------ */
-/* WeddingDetailsCard — framed envelope photo + line-divided list    */
+/* WeddingDetailsCard — framed detail photo + line-divided list    */
 /* ------------------------------------------------------------------ */
 
 export function MarbleLuxeDetailsCard({
@@ -94,7 +94,7 @@ export function MarbleLuxeDetailsCard({
           unforgettable moments.
         </motion.p>
 
-        {/* Framed envelope photograph */}
+        {/* Framed detail photograph */}
         <motion.figure
           initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -105,7 +105,7 @@ export function MarbleLuxeDetailsCard({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={DETAIL_IMAGE_URL}
-            alt="White wedding envelope with a thin gold border on white marble"
+            alt="White marble with a thin gold border"
             loading="lazy"
             decoding="async"
             referrerPolicy="no-referrer"

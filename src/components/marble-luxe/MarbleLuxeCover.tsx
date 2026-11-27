@@ -35,10 +35,10 @@ export default function MarbleLuxeCover({
   // plays once per session; reduced-motion or a repeat visit opens
   // the invitation directly. Double-taps are guarded by startedRef.
   const SESSION_FLAG = "ml-cinematic-played";
-  const [sealing, setSealing] = useState(false);
+  const [activating, setActivating] = useState(false);
   const [burstKey, setBurstKey] = useState(0);
   const startedRef = useRef(false);
-  const sealTimerRef = useRef<number | null>(null);
+  const activationTimerRef = useRef<number | null>(null);
 
   const alreadyPlayed = () => {
     try {
@@ -57,7 +57,7 @@ export default function MarbleLuxeCover({
 
   useEffect(
     () => () => {
-      if (sealTimerRef.current !== null) window.clearTimeout(sealTimerRef.current);
+      if (activationTimerRef.current !== null) window.clearTimeout(activationTimerRef.current);
     },
     [],
   );
@@ -66,10 +66,10 @@ export default function MarbleLuxeCover({
     if (startedRef.current) return;
     startedRef.current = true;
     markPlayed();
-    setSealing(true);
+    setActivating(true);
     setBurstKey((k) => k + 1);
     playGoldShimmer();
-    sealTimerRef.current = window.setTimeout(() => {
+    activationTimerRef.current = window.setTimeout(() => {
       onOpen({ cinematic: true });
     }, 1500);
   };
@@ -85,7 +85,7 @@ export default function MarbleLuxeCover({
   };
 
   const handleSkip = () => {
-    if (sealTimerRef.current !== null) window.clearTimeout(sealTimerRef.current);
+    if (activationTimerRef.current !== null) window.clearTimeout(activationTimerRef.current);
     startedRef.current = true;
     onOpen();
   };
@@ -126,9 +126,9 @@ export default function MarbleLuxeCover({
       {/* Cinematic layer — drifting gold dust + the Phase 2 burst */}
       {!prefersReducedMotion && <GoldDustCanvas burstKey={burstKey} burstOrigin={{ x: 0.5, y: 0.45 }} />}
 
-      {/* Sound toggle — always visible; Skip appears while sealing */}
+      {/* Sound toggle — always visible; Skip appears while activating */}
       {onToggleSound && <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />}
-      {sealing && <SkipButton onSkip={handleSkip} />}
+      {activating && <SkipButton onSkip={handleSkip} />}
 
       {/* Thin gold hairline inner border framing the slab */}
       <div
@@ -191,14 +191,14 @@ export default function MarbleLuxeCover({
       >
         <motion.div
           animate={
-            sealing
+            activating
               ? { y: 0, scale: [1, 1.04, 1] }
               : prefersReducedMotion
                 ? undefined
                 : { y: [0, -5, 0] }
           }
           transition={
-            sealing
+            activating
               ? { duration: 1.5, ease: [0.22, 1, 0.36, 1] }
               : { duration: 6.5, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }
           }
@@ -215,10 +215,10 @@ export default function MarbleLuxeCover({
                 "radial-gradient(circle, rgba(212,175,105,0.55) 0%, rgba(196,162,98,0.3) 45%, rgba(196,162,98,0) 72%)",
             }}
             initial={{ opacity: 0 }}
-            animate={sealing ? { opacity: [0, 0.9, 0.4] } : { opacity: 0 }}
+            animate={activating ? { opacity: [0, 0.9, 0.4] } : { opacity: 0 }}
             transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
           />
-          {sealing && (
+          {activating && (
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
               <motion.div
                 className="absolute inset-y-0 w-1/4"
@@ -250,13 +250,13 @@ export default function MarbleLuxeCover({
       {/* Bottom Invitation Open Action */}
       <motion.div
         initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: sealing ? 0 : 1, y: 0 }}
+        animate={{ opacity: activating ? 0 : 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative z-10 pb-2 text-center"
       >
         <button
           type="button"
-          disabled={sealing}
+          disabled={activating}
           onClick={(e) => {
             e.stopPropagation();
             handleOpen();

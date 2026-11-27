@@ -1,29 +1,46 @@
-// Starlight Noir envelope — interactive black envelope with a
-// gold star wax seal and the sliding black invitation card (tap the
-// seal to break it and reveal / tuck the card back). No music on
-// this template — the seal is the interaction.
+// Starlight Noir invitation card — NO envelope. The card itself is
+// the reveal: at rest you see its BACK (blurred night-sky photo,
+// twinkling gold stars, constellation crest with the couple
+// monogram, "Tap to Reveal"); tap splits the back into LEFT and
+// RIGHT halves that slide apart horizontally like curtains parting
+// to reveal the FRONT (the existing invitation content, unchanged).
+// A gold starlight burst + gold shimmer sweep land the reveal. Tap
+// again slides the halves back together. prefers-reduced-motion:
+// instant swap, no ambient animation, no particles. No music on
+// this template — a soft star twinkle SFX on reveal only.
 "use client";
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { WeddingSite } from "@/lib/types";
-import { ConstellationDivider, StarSeal } from "./Decor";
+import { ConstellationDivider, StarCrest, Starfield } from "./Decor";
 import {
-  ENVELOPE_IMAGE_URL,
+  COVER_IMAGE_URL,
   FONT_DISPLAY,
-  FONT_EDITORIAL,
   FONT_SCRIPT,
   formatCardDate,
+  initials,
   locationLabel,
 } from "./tokens";
+import { playStarTwinkleSound, StarlightCanvas } from "./StarlightCinematicOpening";
 
 /* ------------------------------------------------------------------ */
-/* InvitationCard — the sliding black invitation card with gold type */
+/* InvitationCard — the black invitation card with gold type        */
+/* (the FRONT — unchanged content).                                 */
 /* ------------------------------------------------------------------ */
 
-function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }) {
+function InvitationCard({
+  site,
+  isOpen,
+  shimmerKey = 0,
+}: {
+  site: WeddingSite;
+  isOpen: boolean;
+  shimmerKey?: number;
+}) {
   return (
     <div
+      aria-hidden={!isOpen}
       className={`relative mx-auto w-full overflow-hidden border border-[#D4AF37]/70 bg-[#0A0A0A] px-4 py-2 text-center text-[#F5EFE0] transition-shadow duration-700 @min-[29.375rem]:px-6 @min-[29.375rem]:py-5 @max-[22rem]:py-2 ${
         isOpen
           ? "shadow-[0_22px_42px_-12px_rgba(0,0,0,0.8),0_4px_12px_rgba(0,0,0,0.5)]"
@@ -93,70 +110,177 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
           {locationLabel(site)}
         </p>
       </div>
+
+      {/* One-time gold shimmer sweep across the card on reveal.
+          Remounts (key) on every reveal so it replays; unmounted
+          when the halves close again. */}
+      {shimmerKey > 0 && (
+        <motion.div
+          key={shimmerKey}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 z-20 w-1/3"
+          style={{
+            background:
+              "linear-gradient(100deg, transparent 0%, rgba(242,217,140,0.45) 50%, transparent 100%)",
+          }}
+          initial={{ x: "-120%" }}
+          animate={{ x: "320%" }}
+          transition={{ duration: 0.9, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        />
+      )}
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* StarSealButton — the gold star wax-seal open button. Tapping it  */
-/* "breaks" the seal (it tilts and shows a crack) and the card      */
-/* slides up; tapping again reseals it.                              */
+/* CardBackHalf — ONE half of the card BACK. Each half renders the  */
+/* FULL back design at 200% width, clipped to its own side, so the  */
+/* two halves join seamlessly at the centre seam when closed and    */
+/* the crest / monogram / type split down the middle as they part.  */
+/* The back is a blurred night-sky photo under twinkling gold      */
+/* stars, with the constellation crest + live monogram.            */
 /* ------------------------------------------------------------------ */
 
-function StarSealButton({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) {
-  return (
-    <div className="relative flex flex-col items-center">
-      <motion.button
-        type="button"
-        onClick={onToggle}
-        aria-pressed={isOpen}
-        aria-label={
-          isOpen
-            ? "Reseal the black envelope"
-            : "Break the gold star seal and open the envelope"
-        }
-        animate={isOpen ? { rotate: -8, scale: 0.94 } : { rotate: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.96 }}
-        className="group relative flex h-24 w-24 items-center justify-center overflow-hidden rounded-full shadow-[0_16px_30px_-8px_rgba(0,0,0,0.8),0_4px_10px_rgba(0,0,0,0.5)] ring-2 ring-[#D4AF37]/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D4AF37]"
-      >
-        <StarSeal className="absolute inset-0 h-full w-full" />
-        {/* Crack line once broken */}
-        {isOpen && (
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-2 top-1/2 h-px rotate-[-14deg] bg-[#0A0A0A]/60"
-          />
-        )}
-      </motion.button>
-
-      <span
-        style={{ fontFamily: FONT_EDITORIAL }}
-        className="mt-3 text-xs tracking-[0.18em] text-[#F2D98C]/85 uppercase"
-      >
-        {isOpen ? "Tap to Reseal" : "Tap the Seal to Open"}
-      </span>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* EnvelopeInvitation                                                */
-/* ------------------------------------------------------------------ */
-
-export default function StarlightNoirEnvelope({ site }: { site: WeddingSite }) {
-  const [isCardLifted, setIsCardLifted] = useState(false);
+function CardBackHalf({ site, side }: { site: WeddingSite; side: "left" | "right" }) {
   const prefersReducedMotion = useReducedMotion();
 
-  const toggleEnvelope = () => {
-    setIsCardLifted((prev) => !prev);
+  return (
+    <div
+      className={`absolute inset-y-0 w-[200%] ${side === "left" ? "left-0" : "right-0"}`}
+    >
+      {/* Blurred night-sky photo — the back side is deliberately
+          out of focus, so the crisp front reads as the reveal. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={COVER_IMAGE_URL}
+        alt=""
+        referrerPolicy="no-referrer"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+        style={{ filter: "blur(8px) brightness(0.5)", transform: "scale(1.15)" }}
+      />
+
+      {/* Dark veil so the gold type stays legible over the photo */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(to bottom, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.25) 45%, rgba(10,10,10,0.6) 100%)",
+        }}
+      />
+
+      {/* Twinkling gold stars over the blurred sky */}
+      <Starfield density={26} />
+
+      {/* Slow-breathing gold glow at the crest's heart. Static
+          under reduced motion. */}
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 45% 55% at 50% 46%, rgba(212,175,55,0.28) 0%, transparent 70%)",
+        }}
+        animate={
+          prefersReducedMotion ? undefined : { opacity: [0.55, 0.95, 0.55] }
+        }
+        transition={{ duration: 5, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }}
+      />
+
+      {/* Fine double gold hairline border, matching the front */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-2.5 border border-[#D4AF37]/60 @min-[29.375rem]:inset-3"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-[13px] border border-[#D4AF37]/25 @min-[29.375rem]:inset-[15px]"
+      />
+
+      {/* Centred back content — crest + monogram + tap hint.
+          Kept compact so it fits inside the front card's height
+          at every width (front min height ~147px at 320px; this
+          stack is ~124px there). */}
+      <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 py-2 text-center">
+        <p
+          style={{ fontFamily: FONT_DISPLAY }}
+          className="text-[8px] tracking-[0.3em] text-[#F2D98C] uppercase @min-[29.375rem]:text-[9px]"
+        >
+          Written in the Stars
+        </p>
+
+        <div className="relative mt-1.5 h-14 w-14 @min-[22rem]:h-20 @min-[22rem]:w-20 @min-[29.375rem]:mt-3 @min-[29.375rem]:h-24 @min-[29.375rem]:w-24">
+          <StarCrest className="absolute inset-0 h-full w-full" />
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <span
+              style={{ fontFamily: FONT_DISPLAY }}
+              className="text-base font-medium tracking-[0.08em] text-[#F2D98C] @min-[22rem]:text-lg @min-[29.375rem]:text-xl"
+            >
+              {initials(site)}
+            </span>
+          </div>
+        </div>
+
+        <ConstellationDivider className="mt-1.5 h-3.5 w-16 @min-[29.375rem]:mt-3 @min-[29.375rem]:h-5 @min-[29.375rem]:w-20" />
+
+        <p
+          style={{ fontFamily: FONT_DISPLAY }}
+          className="mt-1.5 text-[8px] tracking-[0.3em] text-[#F5EFE0]/90 uppercase @min-[29.375rem]:text-[10px]"
+        >
+          Tap to Reveal
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* StarlightNoirEnvelope — card-only vertical-split reveal. The     */
+/* FRONT (InvitationCard) is in flow and defines the box height;    */
+/* the BACK is two absolute halves over it that slide apart         */
+/* horizontally on tap. No 3D flip, no envelope anywhere.           */
+/* ------------------------------------------------------------------ */
+
+export default function StarlightNoirEnvelope({
+  site,
+  soundEnabled = true,
+}: {
+  site: WeddingSite;
+  soundEnabled?: boolean;
+}) {
+  const [isRevealed, setIsRevealed] = useState(false);
+  const [shimmerKey, setShimmerKey] = useState(0);
+  const [burstKey, setBurstKey] = useState(0);
+  const prefersReducedMotion = useReducedMotion();
+  const instant = Boolean(prefersReducedMotion);
+
+  const toggleCard = () => {
+    const next = !isRevealed;
+    setIsRevealed(next);
+    if (next) {
+      // Reveal: gold starlight burst + shimmer + soft twinkle SFX.
+      setBurstKey((k) => k + 1);
+      setShimmerKey((k) => k + 1);
+      if (soundEnabled) playStarTwinkleSound();
+    }
+  };
+
+  // Halves slide apart fully visible, then fade at the end of the
+  // slide; on close they fade back in immediately as they slide
+  // together. Reduced motion: instant swap, no slide, no fade.
+  const halfTransition = {
+    x: { duration: instant ? 0 : 0.9, ease: [0.22, 1, 0.36, 1] as const },
+    opacity: {
+      duration: instant ? 0 : 0.35,
+      delay: instant ? 0 : isRevealed ? 0.55 : 0,
+      ease: [0.22, 1, 0.36, 1] as const,
+    },
   };
 
   return (
     <div className="relative px-4 pt-16 pb-10">
       <div className="relative z-10 mx-auto flex max-w-[540px] flex-col items-center">
-        {/* Interactive Black Envelope + Sliding Gold-Type Card */}
         <motion.div
           initial={prefersReducedMotion ? false : { opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -167,131 +291,109 @@ export default function StarlightNoirEnvelope({ site }: { site: WeddingSite }) {
           <div
             role="button"
             tabIndex={0}
-            aria-expanded={isCardLifted}
+            aria-expanded={isRevealed}
             aria-label={
-              isCardLifted
-                ? "Tuck wedding invitation card back into the envelope"
-                : "Open black envelope and slide up wedding invitation card"
+              isRevealed
+                ? "Close the invitation card back over the invitation"
+                : "Reveal the wedding invitation card"
             }
-            onClick={toggleEnvelope}
+            onClick={toggleCard}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                toggleEnvelope();
+                toggleCard();
               }
             }}
-            className="group relative mx-auto w-full cursor-pointer select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D4AF37]"
+            className="group relative mx-auto w-full cursor-pointer text-center select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D4AF37]"
           >
-            {/* Envelope Container preserving the 4:3 geometry of the black envelope */}
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] shadow-[0_24px_34px_rgba(0,0,0,0.6)]">
-              {/* Layer 1: Black envelope artwork */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={ENVELOPE_IMAGE_URL}
-                alt="Black wedding envelope with gold constellation lines and a gold star wax seal"
-                referrerPolicy="no-referrer"
-                className="pointer-events-none block h-full w-full object-cover"
+            {/* Card — sized by CONTAINER width (@container on the
+                outer wrapper — never viewport `sm:` — so the
+                editor's Mobile (390px) preview gets the mobile card
+                and desktop (490px container) gets the larger card). */}
+            <div className="relative mx-auto w-[92%] @min-[29.375rem]:w-[90%]">
+              {/* Soft gold glow behind the card */}
+              <div
+                aria-hidden="true"
+                className="absolute -inset-4 rounded-[2rem] blur-2xl"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center, rgba(212,175,55,0.35) 0%, rgba(212,175,55,0.12) 55%, transparent 75%)",
+                }}
               />
 
-              {/* Layer 2: Interactive Sliding Black Invitation Card */}
-              <motion.div
-                initial={false}
-                animate={{
-                  y: isCardLifted ? (prefersReducedMotion ? -24 : -40) : 0,
-                  scale: isCardLifted ? 1.03 : 1,
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="absolute top-[22%] left-1/2 z-10 w-[47%] -translate-x-1/2 @min-[22rem]:top-[24%] @min-[29.375rem]:top-[25%]"
-              >
-                <InvitationCard site={site} isOpen={isCardLifted} />
-              </motion.div>
-
-              {/* Layer 3: REAL black pocket — the envelope photo rendered
-                  a second time ABOVE the card, clipped to the pocket's
-                  shape, so the card is physically tucked inside at rest.
-                  Geometry (eye-measured from starlight-noir-detail.jpg,
-                  1200x900, cropped 4:3): the envelope spans x 11–89%,
-                  y 15–83%; the triangular flap's point is the gold star
-                  seal at centre ~(50%, 52%); pocket diagonals run from
-                  the flap point down to the bottom corners (11%, 83%)
-                  and (89%, 83%), slope 0.795 %y per %x. The true pocket
-                  edge is ^-shaped: 52% at centre, ~58% at x=42%/58%,
-                  ~66% at x=32%/68%, ~71% at the card's edges
-                  (x=26.5%/73.5%). The clip below hugs that edge ~2%
-                  ABOVE it across the card (64% at x=32%, 56.5% at
-                  x=42%, 68.5% at the card's edges) and sits ~2% BELOW
-                  the flap point at centre (54% vs 52% true) — the same
-                  2% margin Golden Hour uses — so at rest only the
-                  names peek above the pocket and the divider, date
-                  and location stay hidden behind it.
-                  The card is sized by CONTAINER width (@container on
-                  the outer wrapper — never viewport `sm:` — so the
-                  editor's Mobile (390px) preview gets the mobile card
-                  and desktop (490px container) gets the larger card),
-                  in THREE bands, because the card's content is fixed
-                  px while the 4:3 container shrinks with the viewport:
-                  - <352px: compact card (15px names, tight padding),
-                    top 22% — 320px: Partner B bottom ~52.6%, divider
-                    top ~58%.
-                  - 352–469px: small card (17px names), top 24% —
-                    390px: Partner B bottom ~52.6%, divider top ~58%.
-                  - >=470px: large card (22px names, py-5), top 25% —
-                    desktop 490px container: Partner B bottom ~53.5%,
-                    divider top ~58%.
-                  WHY the large card starts at 470px, not 384px: the
-                  same 430px trap Golden Hour hit — at 430px viewport
-                  (398x299 container) the large card's content is
-                  ~208px tall and the names WRAP below ~443px container
-                  width, so it would span 25%→~95% with Partner B
-                  buried behind the pocket and the location clipped
-                  when open. The large card only fits once Partner B
-                  bottom (25% + ~105px) clears the 54% pocket line
-                  with margin, i.e. container >=470px. In the
-                  384–469 band the small card is used with top 24%,
-                  which keeps Partner B bottom <=53% and divider top
-                  >=58% across the whole band. On tap the clip's top
-                  edge drops to ~97% (the pocket opens) while the card
-                  lifts 40px, so divider + date + location are fully
-                  revealed with no top clipping. */}
-              <motion.div
-                aria-hidden="true"
-                initial={false}
-                animate={{
-                  clipPath: isCardLifted
-                    ? "polygon(19% 96%, 32% 97.5%, 68% 97.5%, 81% 96%, 81% 100%, 19% 100%)"
-                    : "polygon(19% 74%, 26.5% 68.5%, 32% 64%, 42% 56.5%, 50% 54%, 58% 56.5%, 68% 64%, 73.5% 68.5%, 81% 74%, 81% 100%, 19% 100%)",
-                }}
-                transition={{
-                  duration: prefersReducedMotion ? 0.2 : 0.9,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="pointer-events-none absolute inset-0 z-20"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ENVELOPE_IMAGE_URL}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="block h-full w-full object-cover"
+              {/* Clip box — the front defines the height; the back
+                  halves slide apart inside it and are clipped at
+                  the card's edges. */}
+              <div className="relative overflow-hidden shadow-[0_24px_34px_rgba(0,0,0,0.6)]">
+                {/* FRONT — the invitation (unchanged content) */}
+                <InvitationCard
+                  site={site}
+                  isOpen={isRevealed}
+                  shimmerKey={isRevealed && !instant ? shimmerKey : 0}
                 />
-              </motion.div>
+
+                {/* BACK — two halves joined at the centre seam */}
+                <div
+                  aria-hidden={isRevealed}
+                  className="absolute inset-0 z-20"
+                >
+                  <motion.div
+                    className="absolute top-0 left-0 h-full w-1/2 overflow-hidden"
+                    initial={false}
+                    animate={{ x: isRevealed ? "-102%" : "0%", opacity: isRevealed ? 0 : 1 }}
+                    transition={halfTransition}
+                  >
+                    <CardBackHalf site={site} side="left" />
+                  </motion.div>
+
+                  <motion.div
+                    className="absolute top-0 right-0 h-full w-1/2 overflow-hidden"
+                    initial={false}
+                    animate={{ x: isRevealed ? "102%" : "0%", opacity: isRevealed ? 0 : 1 }}
+                    transition={halfTransition}
+                  >
+                    <CardBackHalf site={site} side="right" />
+                  </motion.div>
+
+                  {/* Centre seam — a hairline gold split line that
+                      fades as the halves part. */}
+                  <motion.div
+                    aria-hidden="true"
+                    className="absolute top-0 bottom-0 left-1/2 z-10 w-px -translate-x-1/2"
+                    style={{
+                      background:
+                        "linear-gradient(to bottom, transparent, rgba(212,175,55,0.8) 20%, rgba(212,175,55,0.8) 80%, transparent)",
+                    }}
+                    initial={false}
+                    animate={{ opacity: isRevealed ? 0 : 1 }}
+                    transition={{ duration: instant ? 0 : 0.3 }}
+                  />
+                </div>
+
+                {/* Gold starlight burst on the reveal landing.
+                    The canvas renders nothing under reduced motion. */}
+                {!instant && (
+                  <StarlightCanvas
+                    ambientStars={0}
+                    burstKey={burstKey}
+                    burstOrigin={{ x: 0.5, y: 0.45 }}
+                    className="z-30"
+                  />
+                )}
+              </div>
             </div>
 
             {/* Subtle interactive cue */}
-            <p
+            <motion.p
+              key={isRevealed ? "front" : "back"}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: instant ? 0 : 0.4 }}
               style={{ fontFamily: FONT_DISPLAY }}
-              className="mt-1 text-center text-[10px] tracking-[0.26em] text-[#F2D98C]/80 uppercase transition-colors group-hover:text-[#F5EFE0]"
+              className="mt-3 text-center text-[10px] tracking-[0.26em] text-[#F2D98C]/80 uppercase transition-colors group-hover:text-[#F5EFE0]"
             >
-              {isCardLifted ? "Tap Envelope to Tuck Card" : "Tap Envelope to Reveal Card"}
-            </p>
-          </div>
-
-          {/* Gold Star Wax Seal */}
-          <div className="relative z-30 mt-4 flex justify-center">
-            <StarSealButton isOpen={isCardLifted} onToggle={toggleEnvelope} />
+              {isRevealed ? "Tap to Close" : "Tap Card to Reveal"}
+            </motion.p>
           </div>
         </motion.div>
       </div>

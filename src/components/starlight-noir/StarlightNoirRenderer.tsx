@@ -6,8 +6,9 @@
 //   cover      — StarlightNoirCover (full-bleed night-sky photo,
 //                gold constellation lines, live monogram in a star
 //                crest, twinkling stars)
-//   invitation — StarlightNoirEnvelope (black envelope + gold star
-//                wax seal + sliding black card) + welcome +
+//   invitation — StarlightNoirEnvelope (black invitation card,
+//                back halves slide apart to reveal the gold-on-black
+//                front) + welcome +
 //                countdown on black + constellation-card story
 //                preview + ledger details card + gold-foil ticket
 //                RSVP section + RSVP form + footer
@@ -15,8 +16,8 @@
 //   details    — StarlightNoirDetails (full ledger + map)
 //
 // NO music on this template — there is no ambientMusic engine and
-// no music toggle anywhere. The envelope's gold star wax seal is
-// the interaction instead. The cinematic opening (cover Phases 1–2,
+// no music toggle anywhere. The card itself is the interaction
+// instead. The cinematic opening (cover Phases 1–2,
 // renderer Phases 3–4) is SFX-only: a star twinkle on tap, a gold
 // chime as the midnight panels part, never autoplay.
 "use client";
@@ -60,7 +61,7 @@ export default function StarlightNoirRenderer({
   envelope?: boolean;
   preview?: boolean;
 }) {
-  // With no envelope (editor live preview) start on the invitation —
+  // With no cover (editor live preview) start on the invitation —
   // the cover would block editing there (same contract as the other
   // template renderers).
   const [currentView, setCurrentView] = useState<View>(envelope ? "cover" : "invitation");

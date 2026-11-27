@@ -6,8 +6,9 @@
 //   cover      — AmethystRoyaleCover (lavender photograph seen
 //                through a crystal-CLUSTER of facets, hexagonal
 //                crystal crest with live monogram, crystal sparkles)
-//   invitation — AmethystRoyaleEnvelope (faceted crystal seal +
-//                welcome + countdown on a deep-amethyst band) +
+//   invitation — AmethystRoyaleEnvelope (the invitation CARD only:
+//                diagonal-split crystal cleave reveal, no envelope)
+//                + welcome + countdown on a deep-amethyst band +
 //                StoryPreview (faceted hexagon gem cards) +
 //                DetailsCard (staggered crystal panels) +
 //                RsvpSection (gem-shaped hexagon card) + RSVP form
@@ -19,7 +20,7 @@
 //                registry, RSVP jump)
 //
 // NO music on this template — there is no ambientMusic engine and
-// no music toggle anywhere. The envelope's faceted crystal seal is
+// no music toggle anywhere. The card's diagonal crystal cleave is
 // the interaction instead.
 "use client";
 
