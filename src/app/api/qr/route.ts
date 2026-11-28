@@ -1,5 +1,9 @@
-// GET /api/qr?slug=…&format=svg|png — QR code for a site's PUBLIC guest
-// URL only. Never encodes editor, activation or admin URLs.
+// GET /api/qr?slug=…&format=svg|png[&theme=<templateId>] — QR code for a
+// site's PUBLIC guest URL only. Never encodes editor, activation or admin
+// URLs. With &theme=<templateId> the modules are rendered in the template's
+// accent colour (errorCorrectionLevel "H"); the template is looked up
+// server-side from the registry — arbitrary colours from the query string
+// are never accepted, and an unknown templateId is a 400.
 //
 // Access: published sites are public (anyone may fetch their QR code).
 // Draft / unpublished / suspended sites only disclose a QR code to their
@@ -10,7 +14,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getSiteBySlug } from "@/lib/store";
 import { verifySession } from "@/lib/auth";
-import { qrPng, qrSvg } from "@/lib/qr";
+import { qrPng, qrSvg, themedQrStyle, type QrStyle } from "@/lib/qr";
+import { getTemplate } from "@/lib/templates";
 
 export async function GET(req: NextRequest) {
   const slug = req.nextUrl.searchParams.get("slug") || "";
@@ -20,6 +25,22 @@ export async function GET(req: NextRequest) {
   }
   if (format !== "svg" && format !== "png") {
     return NextResponse.json({ error: "format must be svg or png" }, { status: 400 });
+  }
+
+  // Theme lookup is server-side only: the templateId is resolved against
+  // the registry, never trusted as a colour. Unknown templateId is a 400
+  // (no silent fallback, no hex colours from the query string).
+  const theme = req.nextUrl.searchParams.get("theme") || "";
+  let style: QrStyle | undefined;
+  if (theme) {
+    const template = getTemplate(theme);
+    if (!template) {
+      return NextResponse.json(
+        { error: `Unknown template: ${theme}` },
+        { status: 400 },
+      );
+    }
+    style = themedQrStyle(template.palette);
   }
 
   const site = await getSiteBySlug(slug);
@@ -50,7 +71,7 @@ export async function GET(req: NextRequest) {
   const publicUrl = `${base}/w/${site.slug}`;
 
   if (format === "png") {
-    const png = await qrPng(publicUrl);
+    const png = await qrPng(publicUrl, style);
     return new NextResponse(new Uint8Array(png), {
       headers: {
         "Content-Type": "image/png",
@@ -60,7 +81,7 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const svg = await qrSvg(publicUrl);
+  const svg = await qrSvg(publicUrl, style);
   return new NextResponse(svg, {
     headers: {
       "Content-Type": "image/svg+xml",

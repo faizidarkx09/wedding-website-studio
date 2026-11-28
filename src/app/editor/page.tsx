@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import SiteRenderer from "@/components/SiteRenderer";
+import PublishSuccessModal from "@/components/PublishSuccessModal";
 import type { DetailBlock, DetailKind, FaqItem, GalleryImage, RsvpQuestion, SiteEvent, StoryMilestone, WeddingSite } from "@/lib/types";
 
 type Tab = "details" | "events" | "gallery" | "invitation" | "details-blocks" | "faq" | "design" | "settings";
@@ -212,6 +213,7 @@ export default function EditorPage() {
   const [pwBusy, setPwBusy] = useState(false);
   const [pwMessage, setPwMessage] = useState("");
   const [publishBusy, setPublishBusy] = useState(false);
+  const [showPublishSuccess, setShowPublishSuccess] = useState(false);
   const [tzError, setTzError] = useState("");
   const [galleryUrlError, setGalleryUrlError] = useState("");
   const [heroUploadBusy, setHeroUploadBusy] = useState(false);
@@ -321,6 +323,7 @@ export default function EditorPage() {
       updateDraft((d) => ({ ...d, status: next }));
       setSite((s) => (s ? { ...s, status: next } : s));
       setNotice(next === "published" ? "Your website is now published." : "Your website is now unpublished.");
+      if (next === "published") setShowPublishSuccess(true);
     } catch (e) {
       setNotice(e instanceof Error ? e.message : "Could not change publishing status");
     } finally {
@@ -506,6 +509,8 @@ export default function EditorPage() {
           {notice}
         </p>
       ) : null}
+
+      <PublishSuccessModal open={showPublishSuccess} site={draft} onClose={() => setShowPublishSuccess(false)} />
 
       <div className="mt-6 flex flex-col gap-6 lg:flex-row">
         {/* Settings panel */}
