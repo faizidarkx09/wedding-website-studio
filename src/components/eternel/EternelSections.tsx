@@ -265,6 +265,7 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
       >
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
+            suppressHydrationWarning
             key={display}
             initial={{ y: reduceMotion ? 0 : "-100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -277,7 +278,7 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
           </motion.div>
         </AnimatePresence>
       </div>
-      <p className="mt-2.5 text-[11px] font-bold uppercase tracking-[0.25em]" style={{ color: ETERNEL.gold }}>
+      <p className="mt-2.5 text-[11px] font-bold uppercase tracking-[0.25em]" style={{ color: ETERNEL.goldDeep }}>
         {label}
       </p>
     </div>
@@ -350,15 +351,20 @@ export function EternelEvents({ site }: { site: WeddingSite }) {
                   style={{ backgroundColor: ETERNEL.white, borderColor: ETERNEL.champagne }}
                 >
                   {event.photo ? (
-                    <motion.div
-                      initial={{ opacity: 0, clipPath: "inset(0 0 100% 0)" }}
-                      whileInView={{ opacity: 1, clipPath: "inset(0 0 0% 0)" }}
-                      viewport={{ once: true, margin: "-60px" }}
-                      transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1] }}
-                    >
+                    // Plain wrapper, NOT a motion.div wipe (E1 fix): the
+                    // photo used to sit inside a motion.div whose initial
+                    // clip-path inset(0 0 100%) made its IntersectionObserver
+                    // ratio 0 — so framer-motion's whileInView AND Chrome's
+                    // native lazy-loader could never fire, and the photo
+                    // stayed a blank white card on mobile forever (proven:
+                    // raw IO reported ratio 0 in-viewport; removing the
+                    // clip-path made both images load within 5s). With no
+                    // clip-path the lazy image intersects normally when
+                    // scrolled into view.
+                    <div>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={event.photo} alt={event.name} loading="lazy" decoding="async" className="aspect-[16/9] w-full object-cover" />
-                    </motion.div>
+                    </div>
                   ) : null}
                   <div className="flex flex-1 flex-col p-6 sm:p-7">
                     <p className="text-[11px] font-bold uppercase tracking-[0.3em]" style={{ color: ETERNEL.gold }}>

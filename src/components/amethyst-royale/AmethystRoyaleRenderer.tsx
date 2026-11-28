@@ -208,7 +208,7 @@ export default function AmethystRoyaleRenderer({
       <link rel="preload" as="image" href={heroSrc} fetchPriority="high" />
 
       {preview ? (
-        <div className="relative z-50 bg-[#4C1D95] px-4 py-2.5 text-center text-xs font-semibold tracking-wide text-white">
+        <div className="relative z-30 bg-[#4C1D95] px-4 py-2.5 text-center text-xs font-semibold tracking-wide text-white">
           Preview — this is how the Amethyst Royale template looks with placeholder content. Your
           couple&rsquo;s details will appear here once the website is customised.
         </div>

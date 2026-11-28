@@ -240,7 +240,7 @@ export default function SapphireRoyaleRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="sr-rsvp-email" className="sr-font-display block text-[11px] tracking-[0.22em] text-[#0A1F44] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="sr-rsvp-email"
@@ -251,7 +251,7 @@ export default function SapphireRoyaleRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#C0C0C8]/70 bg-[#FFFFFF] px-4 py-3 sr-font-editorial text-[1rem] text-[#12294D] placeholder:text-[#12294D]/40 focus:border-[#0A1F44] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#8B1E2E]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

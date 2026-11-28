@@ -240,7 +240,7 @@ export function WinterFrostCountdown({ site }: { site: WeddingSite }) {
                   </g>
                 </svg>
                 <span className="text-[1.45rem] leading-none font-normal @min-[40rem]:text-[1.8rem]">
-                  {String(unit.value).padStart(2, "0")}
+                  <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
                 </span>
               </div>
             </div>

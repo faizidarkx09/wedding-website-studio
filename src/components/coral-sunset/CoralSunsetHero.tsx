@@ -205,7 +205,7 @@ export function CoralSunsetCountdown({ site }: { site: WeddingSite }) {
             >
               <div className="flex w-[4.4rem] flex-col items-center rounded-2xl border border-[#FF7F50]/50 bg-gradient-to-b from-[#FFDAB9] to-[#FF9E7A] px-1 py-3 shadow-[0_8px_20px_-6px_rgba(46,20,32,0.5)] @min-[40rem]:w-[5rem] @min-[40rem]:py-3.5">
                 <span className="cs-font-display text-[1.55rem] leading-none font-normal text-[#2E1420] tabular-nums @min-[40rem]:text-[1.85rem]">
-                  {String(unit.value).padStart(2, "0")}
+                  <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
                 </span>
                 <span className="cs-font-display mt-2 text-[9px] tracking-[0.24em] text-[#2E1420] uppercase">
                   {unit.label}

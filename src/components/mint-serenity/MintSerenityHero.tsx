@@ -241,7 +241,7 @@ export function MintSerenityCountdown({ site }: { site: WeddingSite }) {
                   aria-hidden="true"
                   className="absolute top-[18%] left-[22%] h-2.5 w-2.5 rounded-full bg-white/80"
                 />
-                {String(unit.value).padStart(2, "0")}
+                <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
               </motion.span>
               <span style={FONT_DISPLAY} className="mt-2.5 text-[9px] tracking-[0.3em] text-[#FFFFFF] uppercase">
                 {unit.label}

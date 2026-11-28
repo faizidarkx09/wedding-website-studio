@@ -241,7 +241,7 @@ export default function RoyalBurgundyRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="rb-rsvp-email" className="rb-font-display block text-[11px] tracking-[0.22em] text-[#570F20] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="rb-rsvp-email"
@@ -252,7 +252,7 @@ export default function RoyalBurgundyRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#B58A72]/60 bg-[#FFFDF9] px-4 py-3 rb-font-editorial text-[1rem] text-[#481C26] placeholder:text-[#481C26]/40 focus:border-[#570F20] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#923C4B]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

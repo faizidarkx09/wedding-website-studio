@@ -204,7 +204,7 @@ export function TropicalPalmCountdown({ site }: { site: WeddingSite }) {
             <div className="relative flex w-[4.4rem] flex-col items-center overflow-hidden rounded-xl border border-[#D9C98A]/70 bg-[#FEF3C7] px-1 pt-3 pb-3 shadow-[0_8px_20px_-6px_rgba(10,46,25,0.45)] @min-[40rem]:w-[5rem] @min-[40rem]:pb-3.5">
               <span aria-hidden="true" className="absolute inset-x-0 top-0 h-[3px] bg-[#06B6D4]" />
               <span className="tp-font-display text-[1.55rem] leading-none font-normal text-[#14301C] tabular-nums @min-[40rem]:text-[1.85rem]">
-                {String(unit.value).padStart(2, "0")}
+                <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
               </span>
               <span className="tp-font-display mt-2 text-[9px] tracking-[0.24em] text-[#14301C] uppercase">
                 {unit.label}

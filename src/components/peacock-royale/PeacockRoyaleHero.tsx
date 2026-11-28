@@ -237,7 +237,7 @@ export function PeacockRoyaleCountdown({ site }: { site: WeddingSite }) {
               {/* Feather-eye crest crowning the jewel */}
               <FeatherEye className="absolute -top-2.5 left-1/2 h-5 w-4 -translate-x-1/2 drop-shadow-[0_1px_3px_rgba(4,33,31,0.8)]" />
               <span className="er-font-display absolute inset-0 flex items-center justify-center pt-1 text-[1.55rem] font-normal text-[#FFFFFF] tabular-nums sm:text-[1.85rem]">
-                {String(unit.value).padStart(2, "0")}
+                <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
               </span>
             </span>
             <span className="er-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#F6E27A] uppercase sm:text-[10px]">

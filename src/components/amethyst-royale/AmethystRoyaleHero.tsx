@@ -212,9 +212,9 @@ export function AmethystRoyaleCountdown({ site }: { site: WeddingSite }) {
                 }}
               />
               <span className="ar-font-display mt-1.5 text-[1.55rem] leading-none font-normal text-white tabular-nums @min-[40rem]:text-[1.85rem]">
-                {String(unit.value).padStart(2, "0")}
+                <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
               </span>
-              <span className="ar-font-display mt-2 text-[9px] tracking-[0.2em] text-[#DDD6FE] uppercase">
+              <span className="ar-font-display mt-2 text-[8.5px] tracking-[0.12em] text-[#DDD6FE] uppercase">
                 {unit.label}
               </span>
             </div>

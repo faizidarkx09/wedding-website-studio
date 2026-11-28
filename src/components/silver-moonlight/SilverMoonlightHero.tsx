@@ -220,7 +220,7 @@ export function SilverMoonlightCountdown({ site }: { site: WeddingSite }) {
               style={{ left: pos.left, top: pos.top }}
             >
               <span className="er-font-display flex h-14 w-14 items-center justify-center rounded-full border border-[#C9CDD6]/65 bg-[#0E1620]/80 text-[1.25rem] font-normal text-[#FFFFFF] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(14,22,32,0.4)] tabular-nums @min-[28rem]:h-16 @min-[28rem]:w-16 @min-[28rem]:text-[1.45rem]">
-                {String(unit.value).padStart(2, "0")}
+                <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
               </span>
               <span className="er-font-display mt-1.5 text-[8px] tracking-[0.28em] text-[#FFFFFF] uppercase @min-[28rem]:text-[9px]">
                 {unit.label}

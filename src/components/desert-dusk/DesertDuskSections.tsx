@@ -31,7 +31,7 @@ import {
 import type { WeddingSite } from "@/lib/types";
 import { DuneDivider } from "./Decor";
 import {
-  DETAIL_IMAGE_URL,
+  COVER_IMAGE_URL,
   RSVP_POSTCARD_URL,
   accommodations,
   footerLocation,
@@ -131,12 +131,14 @@ export function DesertDuskDetailsCard({
               />
 
               <div className="relative z-10 flex flex-col items-center">
-                {/* Oasis arch photo — the invitation artwork in an arch frame */}
+                {/* Oasis arch photo — desert dunes at dusk in an arch
+                    frame. (The old photo here was a terracotta
+                    envelope — removed: no envelope imagery anywhere.) */}
                 <div className="relative mb-7 h-40 w-32 overflow-hidden rounded-t-full bg-[#F5E6D3] shadow-[0_16px_30px_-10px_rgba(58,42,32,0.55)] ring-2 ring-[#C2703D]/50 @min-[40rem]:mb-9 @min-[40rem]:h-48 @min-[40rem]:w-40">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={DETAIL_IMAGE_URL}
-                    alt="Terracotta wedding invitation on desert sand"
+                    src={COVER_IMAGE_URL}
+                    alt="Desert dunes at dusk"
                     loading="lazy"
                     decoding="async"
                     referrerPolicy="no-referrer"

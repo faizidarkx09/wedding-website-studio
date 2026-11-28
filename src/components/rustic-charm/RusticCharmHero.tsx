@@ -294,7 +294,7 @@ export function RusticCharmCountdown({ site }: { site: WeddingSite }) {
                   aria-hidden="true"
                   className="absolute top-1.5 left-1/2 h-2 w-2 -translate-x-1/2 rounded-full bg-[#2D1F14]/20 ring-1 ring-[#451A03]/40"
                 />
-                {String(unit.value).padStart(2, "0")}
+                <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
               </motion.span>
               <span className="rc-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#FEF3C7] uppercase">
                 {unit.label}

@@ -121,7 +121,7 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
 
 function CardBack({ site }: { site: WeddingSite }) {
   return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#2D1F14] px-4 py-8 text-center shadow-[0_10px_24px_-8px_rgba(45,26,3,0.45)] sm:px-6">
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#2D1F14] px-4 py-2 text-center shadow-[0_10px_24px_-8px_rgba(45,26,3,0.45)] @min-[29.375rem]:px-6 @min-[29.375rem]:py-4">
       {/* Blurred barn-wood texture (the template's barn detail
           photo, blurred + scaled past its edges so no sharp rim
           shows through the blur) */}
@@ -164,7 +164,17 @@ function CardBack({ site }: { site: WeddingSite }) {
         className="pointer-events-none absolute inset-[13px] border border-[#FDE68A]/30 @min-[29.375rem]:inset-[15px]"
       />
 
-      <div className="relative z-10 flex flex-col items-center py-2">
+      {/* Back content — sized to FIT the front-defined card height.
+          The old py-8 + 96px lantern disc + loose margins made the
+          content ~110px taller than the compact front (~160px at
+          390), so in the editor's Mobile preview the back was
+          vertically squashed — WITH LOVE / TAP TO REVEAL entirely
+          clipped, only the disc visible. Compact at narrow widths,
+          roomier at >=470px containers (container queries, not
+          viewport `sm:` — the editor preview is a 390px div on a
+          desktop viewport, so `sm:` misfires there; the old
+          `sm:px-6` is replaced by @min-[29.375rem]:px-6 below). */}
+      <div className="relative z-10 flex flex-col items-center">
         <p className="rc-font-display text-[9px] tracking-[0.34em] text-[#FDE68A] uppercase @min-[29.375rem]:text-[10px]">
           WITH LOVE
         </p>
@@ -172,7 +182,7 @@ function CardBack({ site }: { site: WeddingSite }) {
         {/* Lantern disc — warm glowing wood disc with the monogram */}
         <div
           aria-hidden="true"
-          className="relative mt-5 flex h-24 w-24 items-center justify-center rounded-full border-2 border-[#451A03] @min-[29.375rem]:h-28 @min-[29.375rem]:w-28"
+          className="relative mt-2 flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#451A03] @min-[29.375rem]:mt-3 @min-[29.375rem]:h-20 @min-[29.375rem]:w-20"
           style={{
             background:
               "radial-gradient(circle at 35% 30%, rgba(254,243,199,0.35) 0%, transparent 55%), linear-gradient(160deg, #92400E 0%, #78350F 55%, #5C2A08 100%)",
@@ -180,14 +190,14 @@ function CardBack({ site }: { site: WeddingSite }) {
               "inset 0 2px 6px rgba(254,243,199,0.35), inset 0 -4px 10px rgba(45,26,3,0.5), 0 0 32px 6px rgba(253,230,138,0.45), 0 10px 22px -6px rgba(45,26,3,0.6)",
           }}
         >
-          <span className="rc-font-display text-[1.35rem] font-medium tracking-[0.06em] text-[#FEF3C7]">
+          <span className="rc-font-display text-[1.05rem] font-medium tracking-[0.06em] text-[#FEF3C7] @min-[29.375rem]:text-[1.35rem]">
             {initials(site)}
           </span>
         </div>
 
-        <TwineDivider className="mt-5 h-5 w-24 @min-[29.375rem]:h-7 @min-[29.375rem]:w-28" />
+        <TwineDivider className="mt-1.5 h-4 w-20 @min-[29.375rem]:mt-2 @min-[29.375rem]:h-5 @min-[29.375rem]:w-24" />
 
-        <p className="rc-font-display mt-4 text-[9px] tracking-[0.3em] text-[#FEF3C7] uppercase @min-[29.375rem]:text-[10px]">
+        <p className="rc-font-display mt-2 text-[9px] tracking-[0.3em] text-[#FEF3C7] uppercase @min-[29.375rem]:mt-3 @min-[29.375rem]:text-[10px]">
           TAP TO REVEAL
         </p>
       </div>

@@ -6,7 +6,7 @@
 // to a palette panel with the monogram — never a broken image.
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ChevronDown } from "lucide-react";
@@ -28,27 +28,42 @@ function useDesktopParallax(): boolean {
   return enabled;
 }
 
-/** Letter-by-letter staggered text (names). */
+/** Letter-by-letter staggered text (names). Each WORD is wrapped in a
+ * `whitespace-nowrap` unit: the letters are inline-block spans, so
+ * without the word wrapper the browser may break BETWEEN any two
+ * letters — at 390px that split "Partner" into "Par / tner". With
+ * word units the heading can only break between whole words. */
 function StaggeredText({ text, delay = 0 }: { text: string; delay?: number }) {
   const reduceMotion = useReducedMotion();
-  const letters = Array.from(text);
+  const words = text.split(" ");
+  let letterIndex = 0;
   return (
     <span aria-label={text} role="text">
-      {letters.map((ch, i) => (
-        <motion.span
-          key={`${i}-${ch}`}
-          aria-hidden="true"
-          className="inline-block"
-          initial={{ opacity: 0, y: reduceMotion ? 0 : 26 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: reduceMotion ? 0 : 0.7,
-            delay: reduceMotion ? 0 : delay + i * 0.035,
-            ease: [0.2, 0.7, 0.2, 1],
-          }}
-        >
-          {ch === " " ? "\u00A0" : ch}
-        </motion.span>
+      {words.map((word, wi) => (
+        <Fragment key={`${wi}-${word}`}>
+          <span className="inline-block whitespace-nowrap">
+            {Array.from(word).map((ch) => {
+              const i = letterIndex++;
+              return (
+                <motion.span
+                  key={`${i}-${ch}`}
+                  aria-hidden="true"
+                  className="inline-block"
+                  initial={{ opacity: 0, y: reduceMotion ? 0 : 26 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: reduceMotion ? 0 : 0.7,
+                    delay: reduceMotion ? 0 : delay + i * 0.035,
+                    ease: [0.2, 0.7, 0.2, 1],
+                  }}
+                >
+                  {ch}
+                </motion.span>
+              );
+            })}
+          </span>
+          {wi < words.length - 1 ? " " : null}
+        </Fragment>
       ))}
     </span>
   );

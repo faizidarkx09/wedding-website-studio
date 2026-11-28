@@ -16,8 +16,8 @@ export default function SiteNav() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-stone-200 bg-[#fdfbf7]/95 backdrop-blur">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5">
-        <Link href="/" className="text-lg font-bold tracking-tight text-stone-900">
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-5">
+        <Link href="/" className="shrink-0 whitespace-nowrap text-base font-bold tracking-tight text-stone-900 sm:text-lg">
           Wedding Website <span className="text-amber-700">Studio</span>
         </Link>
         <nav className="hidden items-center gap-7 md:flex" aria-label="Main">
@@ -39,7 +39,7 @@ export default function SiteNav() {
         </nav>
         <button
           type="button"
-          className="rounded-lg border border-stone-300 px-3 py-2 text-sm font-semibold text-stone-800 md:hidden"
+          className="shrink-0 whitespace-nowrap rounded-lg border border-stone-300 px-2.5 py-2 text-sm font-semibold text-stone-800 sm:px-3 md:hidden"
           aria-expanded={open}
           aria-controls="mobile-menu"
           aria-label={open ? "Close menu" : "Open menu"}

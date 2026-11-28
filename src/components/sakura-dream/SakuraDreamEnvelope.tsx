@@ -109,7 +109,7 @@ function InvitationCard({ site, isOpen }: { site: WeddingSite; isOpen: boolean }
 
 function CardBack({ site, animateWash }: { site: WeddingSite; animateWash: boolean }) {
   return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#FDE7F1] px-4 py-8 text-center shadow-[0_10px_24px_-8px_rgba(46,10,61,0.45)] @min-[29.375rem]:py-10">
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#FDE7F1] px-4 py-2 text-center shadow-[0_10px_24px_-8px_rgba(46,10,61,0.45)] @min-[29.375rem]:py-4">
       {/* Watercolor wash — layered pink / blush / cream pigment */}
       <div
         aria-hidden="true"
@@ -165,22 +165,30 @@ function CardBack({ site, animateWash }: { site: WeddingSite; animateWash: boole
         className="pointer-events-none absolute inset-[13px] border border-[#5B2A6E]/30 @min-[29.375rem]:inset-[15px]"
       />
 
-      <div className="relative z-10 flex flex-col items-center py-2">
+      {/* Back content — sized to FIT the front-defined card height
+          (D-05: the old py-8 + 80px disc + loose margins made the
+          content 41–64px taller than the card at every width, so
+          WITH LOVE / TAP TO REVEAL were sliced mid-glyph by the
+          frame. Compact at narrow widths, roomier at >=470px
+          containers; the front is ~166px tall at 320, ~194px at
+          390 and ~260px at 768/1280, and this content now measures
+          ~146px / ~220px in those bands. */}
+      <div className="relative z-10 flex flex-col items-center">
         <p className="sd-font-display text-[9px] tracking-[0.34em] text-[#6B21A8] uppercase @min-[29.375rem]:text-[10px]">
           WITH LOVE
         </p>
 
         {/* Plum monogram disc ringed by a blossom */}
-        <div className="relative mt-5 flex h-20 w-20 items-center justify-center rounded-full bg-[#6B21A8] shadow-[0_12px_24px_-6px_rgba(46,10,61,0.55)] ring-4 ring-white/80 @min-[29.375rem]:h-24 @min-[29.375rem]:w-24">
-          <span className="sd-font-display relative z-10 text-lg font-medium tracking-[0.06em] text-white @min-[29.375rem]:text-xl">
+        <div className="relative mt-2 flex h-12 w-12 items-center justify-center rounded-full bg-[#6B21A8] shadow-[0_12px_24px_-6px_rgba(46,10,61,0.55)] ring-4 ring-white/80 @min-[29.375rem]:mt-3 @min-[29.375rem]:h-20 @min-[29.375rem]:w-20">
+          <span className="sd-font-display relative z-10 text-base font-medium tracking-[0.06em] text-white @min-[29.375rem]:text-xl">
             {initials(site)}
           </span>
         </div>
-        <Blossom className="mt-3 h-6 w-6 @min-[29.375rem]:h-7 @min-[29.375rem]:w-7" />
+        <Blossom className="mt-1.5 h-4 w-4 @min-[29.375rem]:mt-2 @min-[29.375rem]:h-5 @min-[29.375rem]:w-5" />
 
-        <PetalDivider className="mt-3 h-6 w-24 @min-[29.375rem]:h-8 @min-[29.375rem]:w-28" />
+        <PetalDivider className="mt-1.5 h-4 w-20 @min-[29.375rem]:mt-2 @min-[29.375rem]:h-6 @min-[29.375rem]:w-24" />
 
-        <p className="sd-font-display mt-4 text-[9px] tracking-[0.3em] text-[#6B21A8] uppercase @min-[29.375rem]:text-[10px]">
+        <p className="sd-font-display mt-2 text-[9px] tracking-[0.3em] text-[#6B21A8] uppercase @min-[29.375rem]:mt-3 @min-[29.375rem]:text-[10px]">
           TAP TO REVEAL
         </p>
       </div>

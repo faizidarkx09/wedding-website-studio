@@ -208,7 +208,7 @@ export function MarbleLuxeCountdown({ site }: { site: WeddingSite }) {
           >
             <span aria-hidden="true" className="mb-2 block h-1.5 w-1.5 rotate-45 bg-[#B49A70]" />
             <span className="ml-font-display text-[2rem] leading-none font-medium text-[#1F2937] tabular-nums @min-[40rem]:text-[2.4rem]">
-              {String(unit.value).padStart(2, "0")}
+              <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
             </span>
             <span className="ml-font-display mt-2.5 text-[9px] font-medium tracking-[0.3em] text-[#6B5B3E] uppercase">
               {unit.label}

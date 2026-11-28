@@ -234,7 +234,7 @@ export function SakuraDreamCountdown({ site }: { site: WeddingSite }) {
                     "inset 0 0 0 2px #FBCFE8, 0 0 0 4px rgba(249, 168, 212, 0.35), 0 8px 20px rgba(46, 10, 61, 0.45)",
                 }}
               >
-                {String(unit.value).padStart(2, "0")}
+                <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
                 <span aria-hidden="true" className="absolute -top-2.5 left-1/2 -translate-x-1/2">
                   <Blossom className="h-5 w-5 drop-shadow-[0_2px_6px_rgba(46,10,61,0.35)]" />
                 </span>

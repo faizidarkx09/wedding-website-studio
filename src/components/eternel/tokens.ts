@@ -12,6 +12,10 @@ export const ETERNEL = {
   sage: "#929987",
   taupe: "#B9AA98",
   gold: "#B49A70",
+  // Deep bronze-gold for small text on ivory/white: #B49A70 is only
+  // 2.48:1 on ivory (fails WCAG AA); this is 5.54:1 on ivory and
+  // 6.02:1 on white. Used for countdown unit labels (E2 fix).
+  goldDeep: "#7A5E38",
   secondaryBg: "#F0ECE4",
   white: "#FFFFFF",
 } as const;

@@ -263,7 +263,7 @@ export function DesertDuskCountdown({ site }: { site: WeddingSite }) {
               {/* Sandstone arch tablet — cream, gold rim, deep-dusk value */}
               <span className="dd-font-display flex h-[6.4rem] w-[4.5rem] flex-col items-center justify-center rounded-t-full rounded-b-lg border border-[#D9A05B]/80 bg-[#FFF8EC] pt-3 shadow-[0_10px_24px_-8px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.9)] @min-[40rem]:h-[7.2rem] @min-[40rem]:w-[5.2rem]">
                 <span className="text-[1.55rem] leading-none font-normal text-[#3D2133] tabular-nums @min-[40rem]:text-[1.85rem]">
-                  {String(unit.value).padStart(2, "0")}
+                  <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
                 </span>
                 <span aria-hidden="true" className="mt-2 h-px w-8 bg-gradient-to-r from-transparent via-[#C2703D] to-transparent" />
                 <span className="mt-2 text-[9px] tracking-[0.28em] text-[#8A4A22] uppercase">

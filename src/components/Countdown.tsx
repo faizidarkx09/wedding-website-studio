@@ -86,7 +86,7 @@ export default function Countdown({ date, timezone = "UTC", style = "classic", p
   if (style === "minimal") {
     return (
       <div className="text-center" role="timer" aria-label="Countdown to the wedding">
-        <p className={`${compact ? "text-lg" : "text-2xl sm:text-3xl"} font-light tracking-wide tabular-nums`} aria-live="off">
+        <p className={`${compact ? "text-lg" : "text-2xl sm:text-3xl"} font-light tracking-wide tabular-nums`} aria-live="off" suppressHydrationWarning>
           {parts.days}d : {pad(parts.hours)}h : {pad(parts.minutes)}m : {pad(parts.seconds)}s
         </p>
         <p className={`mt-2 opacity-70 ${compact ? "text-xs" : "text-sm"}`}>{formattedDate}</p>
@@ -103,7 +103,7 @@ export default function Countdown({ date, timezone = "UTC", style = "classic", p
               key={u.label}
               className={`rounded-none border-2 border-current ${compact ? "min-w-12 px-2 py-2" : "min-w-16 px-3 py-3 sm:min-w-24 sm:px-4"}`}
             >
-              <div className={`${compact ? "text-2xl" : "text-4xl sm:text-6xl"} font-black tabular-nums`}>
+              <div className={`${compact ? "text-2xl" : "text-4xl sm:text-6xl"} font-black tabular-nums`} suppressHydrationWarning>
                 {u.label === "Days" ? u.value : pad(u.value)}
               </div>
               <div className={`mt-1 font-bold uppercase tracking-[0.25em] ${compact ? "text-[10px]" : "text-[11px] sm:text-xs"}`}>
@@ -122,10 +122,10 @@ export default function Countdown({ date, timezone = "UTC", style = "classic", p
   // classic
   return (
     <div className="text-center" role="timer" aria-label="Countdown to the wedding">
-      <div className={`flex flex-wrap items-start justify-center ${compact ? "gap-1.5" : "gap-3 sm:gap-6"}`}>
+      <div className={`flex flex-wrap items-start justify-center ${compact ? "gap-1.5" : "gap-2 sm:gap-6"}`}>
         {units.map((u) => (
-          <div key={u.label} className={compact ? "min-w-11" : "min-w-16 sm:min-w-20"}>
-            <div className={`rounded-lg border tabular-nums ${compact ? "px-1 py-2 text-xl" : "px-2 py-3 text-3xl sm:text-5xl"}`}>
+          <div key={u.label} className={compact ? "min-w-11" : "w-[calc(50%-0.25rem)] sm:w-auto sm:min-w-20"}>
+            <div className={`rounded-lg border tabular-nums ${compact ? "px-1 py-2 text-xl" : "px-2 py-3 text-3xl sm:text-5xl"}`} suppressHydrationWarning>
               {u.label === "Days" ? u.value : pad(u.value)}
             </div>
             <div className={`mt-2 uppercase tracking-[0.2em] opacity-70 ${compact ? "text-[10px]" : "text-[11px] sm:text-xs"}`}>

@@ -131,7 +131,7 @@ function InvitationCard({
 
 function CardBack({ site, animate }: { site: WeddingSite; animate: boolean }) {
   return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#020617] px-4 py-8 text-center shadow-[0_10px_24px_-8px_rgba(2,6,23,0.6)] @min-[29.375rem]:px-6">
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#020617] px-4 py-2 text-center shadow-[0_10px_24px_-8px_rgba(2,6,23,0.6)] @min-[29.375rem]:px-6 @min-[29.375rem]:py-8 @max-[22rem]:py-1.5">
       {/* Blurred aurora wash — soft teal/violet night gradients */}
       <div
         aria-hidden="true"
@@ -189,15 +189,25 @@ function CardBack({ site, animate }: { site: WeddingSite; animate: boolean }) {
         className="pointer-events-none absolute inset-[13px] border border-[#8B5CF6]/40 @min-[29.375rem]:inset-[15px]"
       />
 
-      <div className="relative z-10 flex flex-col items-center py-2">
+      {/* Back content — NO z-index here on purpose. The back wrapper is
+          absolute (z-auto) and the front paints later in DOM order, so a
+          z-10 on this content would lift the orb + eyebrow + cue ABOVE
+          the revealed front (the seal-disc-over-names bug + ghosting).
+          DOM order already keeps this content above its own back's wash
+          and ribbons, which come earlier in the tree. */}
+      <div className="relative flex flex-col items-center py-0 @min-[29.375rem]:py-2">
         <p className="au-font-display text-[9px] font-semibold tracking-[0.34em] text-[#CBD5E1] uppercase @min-[29.375rem]:text-[10px]">
           TOGETHER UNDER THE NORTHERN LIGHTS
         </p>
 
-        {/* Aurora orb — glowing teal-violet disc with the monogram */}
+        {/* Aurora orb — glowing teal-violet disc with the monogram.
+            Compact at small widths: the front (which defines the card
+            height) is ~180px at 390 / ~155px at 320, so the back's
+            content must fit inside that budget or the eyebrow / cue
+            get clipped by the card's overflow-hidden. */}
         <div
           aria-hidden="true"
-          className="relative mt-5 flex h-24 w-24 items-center justify-center rounded-full @min-[29.375rem]:h-28 @min-[29.375rem]:w-28"
+          className="relative mt-2 flex h-14 w-14 items-center justify-center rounded-full @min-[29.375rem]:mt-5 @min-[29.375rem]:h-28 @min-[29.375rem]:w-28 @max-[22rem]:mt-1.5 @max-[22rem]:h-12 @max-[22rem]:w-12"
           style={{
             background:
               "radial-gradient(circle at 35% 30%, #5EEAD4 0%, #14B8A6 38%, #6D28D9 72%, #8B5CF6 100%)",
@@ -206,14 +216,14 @@ function CardBack({ site, animate }: { site: WeddingSite; animate: boolean }) {
           }}
         >
           <div className="absolute inset-2 rounded-full border border-white/40" />
-          <span className="au-font-display relative text-[1.35rem] font-semibold tracking-[0.06em] text-white drop-shadow-[0_2px_6px_rgba(2,6,23,0.7)]">
+          <span className="au-font-display relative text-[1.05rem] font-semibold tracking-[0.06em] text-white drop-shadow-[0_2px_6px_rgba(2,6,23,0.7)] @min-[29.375rem]:text-[1.35rem]">
             {initials(site)}
           </span>
         </div>
 
-        <AuroraDivider className="mt-5 h-6 w-24 @min-[29.375rem]:h-8 @min-[29.375rem]:w-28" />
+        <AuroraDivider className="mt-2 h-5 w-20 @min-[29.375rem]:mt-5 @min-[29.375rem]:h-8 @min-[29.375rem]:w-28" />
 
-        <p className="au-font-display mt-4 text-[9px] font-semibold tracking-[0.3em] text-[#5EEAD4] uppercase @min-[29.375rem]:text-[10px]">
+        <p className="au-font-display mt-2 text-[9px] font-semibold tracking-[0.3em] text-[#5EEAD4] uppercase @min-[29.375rem]:mt-4 @min-[29.375rem]:text-[10px]">
           TAP TO REVEAL
         </p>
       </div>

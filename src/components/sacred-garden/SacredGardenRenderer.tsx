@@ -179,7 +179,7 @@ export default function SacredGardenRenderer({
     >
       {preview ? (
         <div
-          className="relative z-50 px-4 py-2.5 text-center text-xs font-semibold tracking-wide text-white"
+          className="relative z-30 px-4 py-2.5 text-center text-xs font-semibold tracking-wide text-white"
           style={{ backgroundColor: SACRED.burgundy }}
         >
           Preview — this is how The Sacred Garden template looks with placeholder content. Your

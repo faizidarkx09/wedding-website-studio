@@ -241,7 +241,7 @@ export default function EmeraldRoyaleRsvpForm({
           {/* Email */}
           <div>
             <label htmlFor="er-rsvp-email" className="er-font-display block text-[11px] tracking-[0.22em] text-[#0B3D2E] uppercase">
-              Email Address
+              Email Address <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="er-rsvp-email"
@@ -252,7 +252,7 @@ export default function EmeraldRoyaleRsvpForm({
               autoComplete="email"
               className="mt-2 w-full border border-[#C9A227]/60 bg-[#FFFDF9] px-4 py-3 er-font-editorial text-[1rem] text-[#06231B] placeholder:text-[#06231B]/40 focus:border-[#0B3D2E] focus:outline-none"
             />
-            {errors.email && <p role="alert" className="mt-1.5 text-sm text-[#14543D]">{errors.email}</p>}
+            {errors.email && <p role="alert" className="mt-1.5 text-sm text-red-700">{errors.email}</p>}
           </div>
 
           {/* Attending */}

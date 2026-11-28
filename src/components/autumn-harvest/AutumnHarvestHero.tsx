@@ -227,7 +227,7 @@ export function AutumnHarvestCountdown({ site }: { site: WeddingSite }) {
                 <div className="flex flex-col items-center rounded-[6px] bg-[#FFF7E8] px-1 pt-2.5 pb-2 shadow-[0_10px_24px_-8px_rgba(58,36,18,0.55)] ring-1 ring-[#7A2E0D]/20">
                   <Leaf aria-hidden="true" className="h-3.5 w-3.5 text-[#9C3D12]" />
                   <span className="ah-font-display mt-1 text-[1.5rem] leading-none font-bold text-[#3A2412] tabular-nums @min-[40rem]:text-[1.8rem]">
-                    {String(unit.value).padStart(2, "0")}
+                    <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
                   </span>
                   {/* Tear line between the number and the label */}
                   <span

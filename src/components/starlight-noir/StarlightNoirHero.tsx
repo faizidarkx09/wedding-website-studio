@@ -275,7 +275,7 @@ export function StarlightNoirCountdown({ site }: { site: WeddingSite }) {
                 style={{ fontFamily: FONT_DISPLAY }}
                 className="mt-2 text-[2rem] leading-none font-normal text-[#F2D98C] tabular-nums @min-[40rem]:text-[2.4rem]"
               >
-                {String(unit.value).padStart(2, "0")}
+                <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
               </span>
               <span
                 style={{ fontFamily: FONT_DISPLAY }}

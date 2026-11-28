@@ -94,7 +94,7 @@ export default function EternelNav({ site }: { site: WeddingSite }) {
               <a
                 key={item.key}
                 href={item.href}
-                className={`rounded-full px-3.5 py-2.5 text-[13px] font-semibold tracking-[0.12em] uppercase transition hover:opacity-70 ${
+                className={`shrink-0 rounded-full px-3.5 py-2.5 text-[13px] font-semibold tracking-[0.12em] whitespace-nowrap uppercase transition hover:opacity-70 ${
                   dark ? "text-white" : ""
                 }`}
                 style={dark ? undefined : { color: ETERNEL.espresso }}

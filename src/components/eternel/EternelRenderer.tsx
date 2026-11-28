@@ -81,7 +81,7 @@ export default function EternelRenderer({
       ) : null}
       {preview ? (
         <div
-          className="relative z-50 px-4 py-2.5 text-center text-xs font-semibold tracking-wide text-white"
+          className="relative z-30 px-4 py-2.5 text-center text-xs font-semibold tracking-wide text-white"
           style={{ backgroundColor: ETERNEL.espresso }}
         >
           Preview — this is how the ÉTERNEL template looks with placeholder content. Your couple&rsquo;s

@@ -199,7 +199,7 @@ export function GoldenHourCountdown({ site }: { site: WeddingSite }) {
             className="flex items-baseline justify-between gap-4 border-b border-[#E8A93D]/25 py-3.5 first:border-t"
           >
             <span className="gh-font-display text-[2.1rem] leading-none font-normal text-[#F6D68A] tabular-nums @min-[40rem]:text-[2.5rem]">
-              {String(unit.value).padStart(2, "0")}
+              <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
             </span>
             <span className="gh-font-display text-[11px] tracking-[0.34em] text-[#FFF8EC] uppercase @min-[40rem]:text-xs">
               {unit.label}

@@ -206,7 +206,7 @@ export default function GoldenHourRenderer({
       <link rel="preload" as="image" href={heroSrc} fetchPriority="high" />
 
       {preview ? (
-        <div className="relative z-50 bg-[#3B2A12] px-4 py-2.5 text-center text-xs font-semibold tracking-wide text-white">
+        <div className="relative z-30 bg-[#3B2A12] px-4 py-2.5 text-center text-xs font-semibold tracking-wide text-white">
           Preview — this is how the Golden Hour template looks with placeholder content. Your
           couple&rsquo;s details will appear here once the website is customised.
         </div>

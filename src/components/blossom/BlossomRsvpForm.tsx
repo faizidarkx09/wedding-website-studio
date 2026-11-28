@@ -1,6 +1,6 @@
 // BLOSSOM & OUD RSVP form — posts to the EXISTING Neon-backed POST /api/rsvp
 // (no new backend, no localStorage demo). Fields per the PRD: guest
-// name, email (optional), attendance (Joyfully Accept / Regretfully
+// name, email (required), attendance (Joyfully Accept / Regretfully
 // Decline), guest count with the configured max, meal preference (stored
 // in the RSVP answers map, so it shows in the admin list and CSV
 // export), dietary requirements, message, plus the site's custom
@@ -120,8 +120,11 @@ export default function BlossomRsvpForm({ site, token }: { site: WeddingSite; to
     if (form.attending === true && (!Number.isInteger(count) || count < 1 || count > max)) {
       next.guestCount = `Guest count must be between 1 and ${max}.`;
     }
-    if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-      next.email = "That email address does not look right.";
+    // Email is REQUIRED — an empty address blocks submit (same pattern
+    // as the 20 series templates).
+    if (!form.email.trim()) next.email = "Please share your email so we can confirm your RSVP.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      next.email = "That email does not look quite right.";
     }
     for (const q of site.customQuestions) {
       if (q.required && !(form.answers[q.id] ?? "").trim()) {
@@ -364,7 +367,7 @@ export default function BlossomRsvpForm({ site, token }: { site: WeddingSite; to
 
           <div className="mt-6">
             <label htmlFor="blossom-email" className={labelCls} style={{ color: BLOSSOM.oud }}>
-              Email <span className="font-normal opacity-60">(optional)</span>
+              Email <span aria-hidden="true" className="text-red-700">*</span>
             </label>
             <input
               id="blossom-email"

@@ -362,14 +362,21 @@ export function StarlightNoirRsvpSection({
             className="pointer-events-none absolute inset-[15px] z-20 border border-[#D4AF37]/25"
           />
 
-          {/* Perforation notches — ticket punches at mid-height */}
+          {/* Perforation notches — ticket punches at mid-height.
+              Shaped as 10px half-discs fully INSIDE the card edge (rounded
+              outer side only): the old w-5 circles used translate-x-1/2 to
+              straddle the edge, which put 10px of their box outside the card
+              and made scrollWidth 366 vs clientWidth 356 (audit D-03).
+              overflow:clip does NOT fix that metric in Chrome — the box
+              itself must stay inside. Visible result is identical: the same
+              dark semicircle bite with a gold arc on the card edge. */}
           <span
             aria-hidden="true"
-            className="absolute top-1/2 left-0 z-20 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#0A0A0A] ring-1 ring-[#D4AF37]/60"
+            className="pointer-events-none absolute top-1/2 left-0 z-20 h-5 w-[10px] -translate-y-1/2 rounded-r-full border-y border-r border-[#D4AF37]/60 bg-[#0A0A0A]"
           />
           <span
             aria-hidden="true"
-            className="absolute top-1/2 right-0 z-20 h-5 w-5 translate-x-1/2 -translate-y-1/2 rounded-full bg-[#0A0A0A] ring-1 ring-[#D4AF37]/60"
+            className="pointer-events-none absolute top-1/2 right-0 z-20 h-5 w-[10px] -translate-y-1/2 rounded-l-full border-y border-l border-[#D4AF37]/60 bg-[#0A0A0A]"
           />
 
           {/* Text column — inside the ticket, always on black */}

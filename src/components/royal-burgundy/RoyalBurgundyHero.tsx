@@ -241,7 +241,7 @@ export function RoyalBurgundyCountdown({ site }: { site: WeddingSite }) {
             }`}
           >
             <span className="rb-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#B58A72]/65 bg-[#570F20]/70 text-[1.55rem] font-normal text-[#FFFDF9] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(20,3,8,0.4)] tabular-nums sm:h-[4.6rem] sm:w-[4.6rem] sm:text-[1.85rem]">
-              {String(unit.value).padStart(2, "0")}
+              <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
             </span>
             <span className="rb-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#B58A72] uppercase sm:text-[10px]">
               {unit.label}

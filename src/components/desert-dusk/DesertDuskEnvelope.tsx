@@ -140,7 +140,7 @@ function InvitationCard({
 
 function CardBackSurface({ site }: { site: WeddingSite }) {
   return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#E8D3B3] px-4 py-8 text-center shadow-[0_10px_24px_-8px_rgba(61,33,51,0.45)] @min-[29.375rem]:px-6">
+    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-[#E8D3B3] px-4 py-2 text-center shadow-[0_10px_24px_-8px_rgba(61,33,51,0.45)] @min-[29.375rem]:px-6 @min-[29.375rem]:py-4">
       {/* Blurred dune photograph — the desert itself, out of focus */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -180,7 +180,15 @@ function CardBackSurface({ site }: { site: WeddingSite }) {
         className="pointer-events-none absolute inset-[13px] border border-[#6B3A5C]/30 @min-[29.375rem]:inset-[15px]"
       />
 
-      <div className="relative z-10 flex flex-col items-center py-2">
+      {/* Back content — sized to FIT the front-defined card height
+          (D-08: the old py-8 + 96px sun disc + loose margins made
+          the content 44–58px taller than the card at 320/390, so
+          UNDER A DESERT SKY / TAP TO REVEAL were sliced mid-glyph
+          or missing entirely. Compact at narrow widths, roomier at
+          >=470px containers; the front is ~166px tall at 320,
+          ~194px at 390 and ~260px at 768/1280, and this content now
+          measures ~124px / ~192px in those bands. */}
+      <div className="relative z-10 flex flex-col items-center">
         <p className="dd-font-display text-[9px] tracking-[0.34em] text-[#5C4030] uppercase @min-[29.375rem]:text-[10px]">
           UNDER A DESERT SKY
         </p>
@@ -189,7 +197,7 @@ function CardBackSurface({ site }: { site: WeddingSite }) {
             couple monogram. Not a wax seal: a flat sun disc. */}
         <div
           aria-hidden="true"
-          className="relative mt-5 flex h-24 w-24 items-center justify-center rounded-full @min-[29.375rem]:h-28 @min-[29.375rem]:w-28"
+          className="relative mt-2 flex h-12 w-12 items-center justify-center rounded-full @min-[29.375rem]:mt-3 @min-[29.375rem]:h-20 @min-[29.375rem]:w-20"
           style={{
             background:
               "radial-gradient(circle at 35% 30%, #FFE9BE 0%, #D9A05B 42%, #C2703D 72%, #8A4A22 100%)",
@@ -198,14 +206,14 @@ function CardBackSurface({ site }: { site: WeddingSite }) {
           }}
         >
           <div className="absolute inset-2 rounded-full border border-[#FFF8EC]/60" />
-          <span className="dd-font-display relative text-[1.6rem] leading-none font-medium tracking-[0.06em] text-[#FFF8EC] drop-shadow-[0_2px_4px_rgba(61,33,51,0.5)] @min-[29.375rem]:text-[1.8rem]">
+          <span className="dd-font-display relative text-[1.15rem] leading-none font-medium tracking-[0.06em] text-[#FFF8EC] drop-shadow-[0_2px_4px_rgba(61,33,51,0.5)] @min-[29.375rem]:text-[1.5rem]">
             {initials(site)}
           </span>
         </div>
 
-        <DuneDivider className="mt-5 h-6 w-24 @min-[29.375rem]:h-8 @min-[29.375rem]:w-28" />
+        <DuneDivider className="mt-1.5 h-4 w-20 @min-[29.375rem]:mt-2 @min-[29.375rem]:h-6 @min-[29.375rem]:w-24" />
 
-        <p className="dd-font-display mt-4 text-[9px] tracking-[0.3em] text-[#5C4030] uppercase @min-[29.375rem]:text-[10px]">
+        <p className="dd-font-display mt-2 text-[9px] tracking-[0.3em] text-[#5C4030] uppercase @min-[29.375rem]:mt-3 @min-[29.375rem]:text-[10px]">
           TAP TO REVEAL
         </p>
       </div>

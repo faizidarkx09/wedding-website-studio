@@ -219,7 +219,7 @@ export function VintageLaceCountdown({ site }: { site: WeddingSite }) {
                 className="absolute -top-[5px] left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border border-[#8B7355]/60 bg-[#C08A8E]"
               />
               <span className="vl-font-display relative text-[1.6rem] leading-none font-semibold text-[#4A3A2E] tabular-nums @min-[40rem]:text-[1.9rem]">
-                {String(unit.value).padStart(2, "0")}
+                <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
               </span>
               <span className="vl-font-display relative mt-2 text-[9px] font-semibold tracking-[0.24em] text-[#6B563E] uppercase @min-[40rem]:text-[10px]">
                 {unit.label}

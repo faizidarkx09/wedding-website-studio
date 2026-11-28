@@ -218,7 +218,7 @@ export function OceanPearlCountdown({ site }: { site: WeddingSite }) {
                 transition={{ duration: 3.2, delay: idx * 0.45, repeat: Infinity, ease: [0.25, 0.1, 0.25, 1] }}
                 className={`op-font-display relative flex items-center justify-center rounded-full border border-[#7FC4CE]/70 bg-[#0E3A45]/60 font-bold text-white shadow-[inset_0_1px_4px_rgba(255,255,255,0.12),0_6px_16px_rgba(14,58,69,0.4)] tabular-nums ${size.bubble} ${size.text}`}
               >
-                {String(unit.value).padStart(2, "0")}
+                <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
                 <span
                   aria-hidden="true"
                   className="absolute top-[18%] left-[22%] h-[18%] w-[18%] rounded-full bg-white/70"

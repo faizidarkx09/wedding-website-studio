@@ -100,6 +100,7 @@ export const metadata: Metadata = {
   title: "Wedding Website Studio — Beautiful wedding websites, sold on Etsy",
   description:
     "Wedding Website Studio lets couples publish a beautiful wedding website with RSVP, countdown, gallery and QR code — from a template bought on Etsy.",
+  icons: { icon: "/favicon.ico" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

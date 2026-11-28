@@ -90,7 +90,11 @@ export default function BlossomNav({ site }: { site: WeddingSite }) {
             <span className="hidden sm:inline">Blossom & Oud</span>
           </a>
 
-          <div className="hidden items-center gap-1 md:flex">
+          {/* Desktop links only from lg up: at 768 (md) the wordmark +
+              six links + music toggle + RSVP button need ~950px in a
+              736px bar, so the links wrapped into the logo. The
+              hamburger (which 390 already uses) covers md cleanly. */}
+          <div className="hidden items-center gap-1 lg:flex">
             {items.map((item) => (
               <a
                 key={item.key}
@@ -121,7 +125,7 @@ export default function BlossomNav({ site }: { site: WeddingSite }) {
               onClick={() => setMenuOpen(true)}
               aria-label="Open menu"
               aria-expanded={menuOpen}
-              className={`flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border transition hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 md:hidden ${
+              className={`flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border transition hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 lg:hidden ${
                 dark ? "border-white/50 text-white" : ""
               }`}
               style={

@@ -325,10 +325,17 @@ export default function AmethystRoyaleEnvelope({ site }: { site: WeddingSite }) 
 
                 {/* BACK — two diagonal halves + cleave line + centre
                     content. overflow-hidden clips the halves as they
-                    slide off the card edge. */}
+                    slide off the card edge. z-10: the back overlay must
+                    paint ABOVE the front's z-10 typography — without it
+                    the front text (relative z-10 inside the front card)
+                    paints over the purple halves and ghosts through
+                    (D-06). The overlay creates its own stacking
+                    context, so its halves/centre keep their internal
+                    order; the front shimmer (z-20) and sparkle canvas
+                    (z-20, later in DOM) still paint above it. */}
                 <div
                   aria-hidden={isRevealed}
-                  className="absolute inset-0 overflow-hidden"
+                  className="absolute inset-0 z-10 overflow-hidden"
                   style={{
                     boxShadow: isRevealed
                       ? undefined

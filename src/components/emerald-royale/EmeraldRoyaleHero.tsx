@@ -239,7 +239,7 @@ export function EmeraldRoyaleCountdown({ site }: { site: WeddingSite }) {
             }`}
           >
             <span className="er-font-display flex h-16 w-16 items-center justify-center rounded-full border border-[#C9A227]/65 bg-[#06231B]/70 text-[1.55rem] font-normal text-[#FFFDF9] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(4,26,19,0.4)] tabular-nums sm:h-[4.6rem] sm:w-[4.6rem] sm:text-[1.85rem]">
-              {String(unit.value).padStart(2, "0")}
+              <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
             </span>
             <span className="er-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#C9A227] uppercase sm:text-[10px]">
               {unit.label}

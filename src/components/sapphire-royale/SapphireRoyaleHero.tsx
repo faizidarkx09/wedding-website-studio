@@ -196,7 +196,7 @@ export function SapphireRoyaleCountdown({ site }: { site: WeddingSite }) {
             }`}
           >
             <span className="sr-font-display flex h-16 w-16 rotate-45 items-center justify-center border border-[#C0C0C8]/70 bg-[#12294D]/80 text-[1.55rem] font-normal text-[#FFFFFF] shadow-[inset_0_1px_4px_rgba(255,255,255,0.08),0_6px_16px_rgba(6,18,43,0.5)] tabular-nums sm:h-[4.6rem] sm:w-[4.6rem] sm:text-[1.85rem]">
-              <span className="-rotate-45">{String(unit.value).padStart(2, "0")}</span>
+              <span className="-rotate-45"><span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span></span>
             </span>
             <span className="sr-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#C0C0C8] uppercase sm:text-[10px]">
               {unit.label}

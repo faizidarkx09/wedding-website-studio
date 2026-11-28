@@ -218,7 +218,7 @@ export function ForestWhisperCountdown({ site }: { site: WeddingSite }) {
             </svg>
             {/* Stepping stone — moss-green oval with a leaf ring */}
             <span className="fw-font-display relative flex h-[4.4rem] w-[4.4rem] items-center justify-center rounded-[46%] border-2 border-[#A7C957] bg-[#2D6A4F] text-[1.55rem] font-normal text-[#FBF9F1] shadow-[inset_0_2px_6px_rgba(255,255,255,0.12),0_8px_18px_rgba(20,48,31,0.5)] tabular-nums ring-4 ring-[#A7C957]/15 @min-[40rem]:h-[5rem] @min-[40rem]:w-[5rem] @min-[40rem]:text-[1.85rem]">
-              {String(unit.value).padStart(2, "0")}
+              <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
             </span>
             <span className="fw-font-display mt-2.5 text-[9px] tracking-[0.3em] text-[#E7EAD9] uppercase">
               {unit.label}

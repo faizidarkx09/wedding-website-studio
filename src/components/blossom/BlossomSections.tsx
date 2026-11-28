@@ -274,6 +274,7 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
       >
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
+            suppressHydrationWarning
             key={display}
             initial={{ y: reduceMotion ? 0 : "-100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -294,15 +295,25 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
 }
 
 export function BlossomCountdown({ site }: { site: WeddingSite }) {
-  const [now, setNow] = useState<number>(() => Date.now());
+  // `now` starts null and is set after mount: the initial value used to
+  // be `Date.now()` evaluated during render, so the server rendered
+  // time T0 and hydration rendered time T1 — the seconds digit almost
+  // always differed, producing a React #418 hydration error. With
+  // null, server and hydration both render zeros (identical markup);
+  // the effect then starts the live tick.
+  const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
+    setNow(Date.now());
     const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
   }, []);
 
   if (!site.settings.showCountdown || !site.settings.countdownEnabled) return null;
 
-  const parts = diffParts(Date.parse(site.weddingDate), now);
+  const parts: CountdownParts =
+    now === null
+      ? { days: 0, hours: 0, minutes: 0, seconds: 0, done: false }
+      : diffParts(Date.parse(site.weddingDate), now);
   const dateLine = formatLongDate(site.weddingDate, site.timezone);
 
   if (parts.done) {

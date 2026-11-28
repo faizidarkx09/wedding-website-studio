@@ -256,7 +256,7 @@ export function AuroraCountdown({ site }: { site: WeddingSite }) {
                     transition={{ duration: 1.6, repeat: Infinity, ease: [0.45, 0.05, 0.55, 0.95] }}
                   />
                 )}
-                {String(unit.value).padStart(2, "0")}
+                <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
               </span>
               <span className="au-font-display mt-2.5 text-[9px] font-semibold tracking-[0.3em] text-[#FFFFFF] uppercase">
                 {unit.label}

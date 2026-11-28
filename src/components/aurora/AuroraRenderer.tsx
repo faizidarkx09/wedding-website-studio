@@ -222,7 +222,7 @@ export default function AuroraRenderer({
       <link rel="preload" as="image" href={heroSrc} fetchPriority="high" />
 
       {preview ? (
-        <div className="relative z-50 bg-[#020617] px-4 py-2.5 text-center text-xs font-semibold tracking-wide text-white">
+        <div className="relative z-30 bg-[#020617] px-4 py-2.5 text-center text-xs font-semibold tracking-wide text-white">
           Preview — this is how the Aurora template looks with placeholder content. Your
           couple&rsquo;s details will appear here once the website is customised.
         </div>

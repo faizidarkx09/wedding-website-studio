@@ -221,7 +221,7 @@ export function RoseGardenCountdown({ site }: { site: WeddingSite }) {
                   />
                   <span className="flex w-[60px] flex-col items-center rounded-md border border-[#B3124F]/30 bg-[#FFF7F2] px-1 py-2.5 shadow-[0_8px_18px_-6px_rgba(20,40,20,0.5)] @min-[40rem]:w-[74px] @min-[40rem]:py-3">
                     <span className="rg-font-display text-[1.3rem] leading-none font-normal text-[#7E0C37] tabular-nums @min-[40rem]:text-[1.55rem]">
-                      {String(unit.value).padStart(2, "0")}
+                      <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
                     </span>
                     <span className="rg-font-display mt-1.5 text-[8px] tracking-[0.22em] text-[#7E0C37] uppercase @min-[40rem]:text-[9px]">
                       {unit.label}

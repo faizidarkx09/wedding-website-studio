@@ -240,7 +240,7 @@ export function SunflowerFieldsCountdown({ site }: { site: WeddingSite }) {
                     style={{ fontFamily: FONT_DISPLAY }}
                     className="relative flex h-11 w-11 items-center justify-center rounded-full bg-[#451A03] text-[1.35rem] font-semibold text-[#FFFBEB] tabular-nums @min-[40rem]:h-[3.3rem] @min-[40rem]:w-[3.3rem] @min-[40rem]:text-[1.6rem]"
                   >
-                    {String(unit.value).padStart(2, "0")}
+                    <span suppressHydrationWarning>{String(unit.value).padStart(2, "0")}</span>
                   </span>
                 </motion.span>
                 {/* Stem */}
