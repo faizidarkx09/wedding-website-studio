@@ -6,7 +6,7 @@
 // Preview sites are never saved to the store (slug "preview-<template>").
 
 import type { TemplateMeta, WeddingSite } from "./types";
-import { amethystRoyaleSeed, auroraSeed, autumnHarvestSeed, blushRoyaleSeed, coralSunsetSeed, desertDuskSeed, emeraldRoyaleSeed, forestWhisperSeed, goldenHourSeed, marbleLuxeSeed, mintSerenitySeed, oceanPearlSeed, peacockRoyaleSeed, roseGardenSeed, royalBurgundySeed, rusticCharmSeedFor, sacredGardenSeed, sakuraDreamSeed, sapphireRoyaleSeed, silverMoonlightSeed, starlightNoirSeed, sunflowerFieldsSeed, tropicalPalmSeed, vintageLaceSeed, winterFrostSeed } from "./template-seeds";
+import { amethystRoyaleSeed, auroraSeed, autumnHarvestSeed, blushRoyaleSeed, coralSunsetSeed, desertDuskSeed, emeraldRoyaleSeed, eternalMomentSeed, forestWhisperSeed, goldenHourSeed, marbleLuxeSeed, mintSerenitySeed, oceanPearlSeed, peacockRoyaleSeed, roseGardenSeed, royalBurgundySeed, rusticCharmSeedFor, sacredGardenSeed, sakuraDreamSeed, sapphireRoyaleSeed, silverMoonlightSeed, starlightNoirSeed, sunflowerFieldsSeed, tropicalPalmSeed, vintageLaceSeed, winterFrostSeed } from "./template-seeds";
 
 // ÉTERNEL template photography (public/images/themes/eternel/*) — the full
 // 30-image masonry gallery for the template preview: the detail close-up
@@ -140,6 +140,7 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
   const rusticSeed = rusticCharmSeedFor(weddingDay);
   const sunflowerSeed = sunflowerFieldsSeed(weddingDay);
   const mintSeed = mintSerenitySeed(weddingDay);
+  const eternalSeed = eternalMomentSeed(weddingDay);
 
   // The template's own AI-generated artwork (original, made for this
   // theme). Templates without one fall back to the old placeholder seeds.
@@ -278,6 +279,43 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
             ],
           }
         : {}),
+      // AN ETERNAL MOMENT only: the same four placeholder milestones,
+      // matching the seed's four story chapters, with the template's
+      // own story photos.
+      ...(template.composition === "eternal-moment"
+        ? {
+            storyMilestones: [
+              {
+                id: "m-sample-1",
+                date: "Spring 2018",
+                title: "The first hello",
+                text: "Sample milestone — replace this with your own first meeting, in your own words.",
+                image: "/images/themes/eternal-moment/story-met.jpg",
+              },
+              {
+                id: "m-sample-2",
+                date: "Summer 2019",
+                title: "The first trip",
+                text: "Sample milestone — replace this with your own favourite trip together.",
+                image: "/images/themes/eternal-moment/story-adventure.jpg",
+              },
+              {
+                id: "m-sample-3",
+                date: "Winter 2022",
+                title: "The proposal",
+                text: "Sample milestone — replace this with the day the question was asked.",
+                image: "/images/themes/eternal-moment/story-proposal.jpg",
+              },
+              {
+                id: "m-sample-4",
+                date: "Autumn 2024",
+                title: "Forever",
+                text: "Sample milestone — replace this with the promise you made each other.",
+                image: "/images/themes/eternal-moment/story-forever.jpg",
+              },
+            ],
+          }
+        : {}),
       // THE SACRED GARDEN only: tagline + gift text + venue photo +
       // venue + dress code from the shared seed (src/lib/
       // template-seeds.ts) — the same values activation seeds into
@@ -313,6 +351,7 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
       ...(template.composition === "rustic-charm" ? rusticSeed.content : {}),
       ...(template.composition === "sunflower-fields" ? sunflowerSeed.content : {}),
       ...(template.composition === "mint-serenity" ? mintSeed.content : {}),
+      ...(template.composition === "eternal-moment" ? eternalSeed.content : {}),
       dressCode: "Your dress code goes here — for example, semi-formal.",
       // DOLCE VITA only: the standalone's own letter + dress-code
       // copy as the template defaults (template copy, not couple
@@ -510,6 +549,13 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
             dressCode: mintSeed.content.dressCode,
           }
         : {}),
+      ...(template.composition === "eternal-moment"
+        ? {
+            venueName: eternalSeed.content.venueName,
+            venueAddress: eternalSeed.content.venueAddress,
+            dressCode: eternalSeed.content.dressCode,
+          }
+        : {}),
       mapLink: "",
       postWeddingMessage: "Just married! Thank you for celebrating with us.",
       // ROYAL BURGUNDY: the seed's own detail blocks (2 accommodations,
@@ -562,6 +608,8 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
         ? sunflowerSeed.details
       : template.composition === "mint-serenity"
         ? mintSeed.details
+      : template.composition === "eternal-moment"
+        ? eternalSeed.details
       : template.composition === "royal-burgundy"
         ? royalSeed.details
         : [
@@ -684,6 +732,8 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
           ? sunflowerSeed.events
         : template.composition === "mint-serenity"
           ? mintSeed.events
+        : template.composition === "eternal-moment"
+          ? eternalSeed.events
         : template.composition === "royal-burgundy"
           ? royalSeed.events
         : [
@@ -779,6 +829,8 @@ export function previewSiteForTemplate(template: TemplateMeta): WeddingSite {
             ? sunflowerSeed.gallery
           : template.composition === "mint-serenity"
             ? mintSeed.gallery
+          : template.composition === "eternal-moment"
+            ? eternalSeed.gallery
           : template.composition === "royal-burgundy"
             ? royalSeed.gallery
           : template.composition === "dolce-vita"

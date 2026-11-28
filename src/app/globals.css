@@ -57,6 +57,13 @@ body {
 .font-dolce {
   font-family: var(--font-rufina), Georgia, "Times New Roman", serif;
 }
+/* AN ETERNAL MOMENT — Cormorant Garamond display serif (already
+   loaded by layout.tsx). Manrope body (--font-manrope) and DM Mono
+   mono (--font-dm-mono) are also set on <html> by layout.tsx for
+   the renderer's em-font-* classes. */
+.font-eternal-moment {
+  font-family: var(--font-cormorant), Georgia, "Times New Roman", serif;
+}
 .font-royal-burgundy {
   font-family: var(--font-cormorant-garamond), Georgia, "Times New Roman", serif;
 }

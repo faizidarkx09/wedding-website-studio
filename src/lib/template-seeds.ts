@@ -701,3 +701,5 @@ export { sunflowerFieldsSeed } from "./seeds/sunflower-fields";
 export type { SunflowerFieldsSeed } from "./seeds/sunflower-fields";
 export { mintSerenitySeed } from "./seeds/mint-serenity";
 export type { MintSerenitySeed } from "./seeds/mint-serenity";
+export { eternalMomentSeed } from "./seeds/eternal-moment";
+export type { EternalMomentSeed } from "./seeds/eternal-moment";

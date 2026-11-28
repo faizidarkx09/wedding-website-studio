@@ -1009,6 +1009,38 @@ export const TEMPLATES: TemplateMeta[] = [
       "rsvp",
     ],
   },
+  {
+    id: "eternal-moment",
+    name: "An Eternal Moment",
+    tagline: "Editorial serif · ivory & gold",
+    description:
+      "Ivory, ink and thin gold rules with Cormorant Garamond names — a port of The Wedding Experience design. Hero-direct opening with no envelope, live countdown, numbered story chapters, Rehearsal Dinner / Welcome Dinner / Ceremony / Cocktail Hour / Reception / Farewell Brunch events, venue with map, dress-code swatches, gallery with lightbox and a full RSVP form.",
+    // PRICE — $7.99 set by the user's 2026-11-28 12:43 PKT decision
+    // (access code unchanged, see below). Still inactive until the
+    // approval gate, so it can never be bought before then.
+    priceUsd: 7.99,
+    etsyListingId: null,
+    active: false,
+    // ACCESS CODE TBD — fixed code is set at the approval gate, before
+    // the delivery PDF is issued. Never activate with this placeholder.
+    accessCode: "WWS-ETERNAL-MOMENT-TBD",
+    heroImage: "/images/themes/eternal-moment.jpg",
+    palette: { bg: "#F8F5EF", ink: "#24221F", accent: "#B69A70", accentSoft: "#EFE9DE" },
+    fontClass: "font-eternal-moment",
+    layout:
+      "Editorial single column (390px): hero-direct opening, live countdown, numbered story chapters, six-event schedule, venue with photo and map, dress-code swatches, gallery with lightbox, full RSVP form, signature footer",
+    composition: "eternal-moment",
+    sections: [
+      "hero",
+      "countdown",
+      "story",
+      "events",
+      "venue",
+      "dress-code",
+      "gallery",
+      "rsvp",
+    ],
+  },
 ];
 
 export function getTemplate(id: string): TemplateMeta | undefined {

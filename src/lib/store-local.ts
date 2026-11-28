@@ -23,7 +23,7 @@ import type {
   WeddingSite,
 } from "./types";
 import { TEMPLATES } from "./templates";
-import { amethystRoyaleSeed, auroraSeed, autumnHarvestSeed, blushRoyaleSeed, coralSunsetSeed, desertDuskSeed, emeraldRoyaleSeed, forestWhisperSeed, goldenHourSeed, marbleLuxeSeed, mintSerenitySeed, oceanPearlSeed, peacockRoyaleSeed, roseGardenSeed, royalBurgundySeed, rusticCharmSeedFor, sacredGardenSeed, sakuraDreamSeed, sapphireRoyaleSeed, silverMoonlightSeed, starlightNoirSeed, sunflowerFieldsSeed, tropicalPalmSeed, vintageLaceSeed, winterFrostSeed } from "./template-seeds";
+import { amethystRoyaleSeed, auroraSeed, autumnHarvestSeed, blushRoyaleSeed, coralSunsetSeed, desertDuskSeed, emeraldRoyaleSeed, eternalMomentSeed, forestWhisperSeed, goldenHourSeed, marbleLuxeSeed, mintSerenitySeed, oceanPearlSeed, peacockRoyaleSeed, roseGardenSeed, royalBurgundySeed, rusticCharmSeedFor, sacredGardenSeed, sakuraDreamSeed, sapphireRoyaleSeed, silverMoonlightSeed, starlightNoirSeed, sunflowerFieldsSeed, tropicalPalmSeed, vintageLaceSeed, winterFrostSeed } from "./template-seeds";
 import { sha256 } from "./auth";
 
 interface Db {
@@ -397,6 +397,18 @@ export async function createSiteFromTemplate(
   }
   if (template.composition === "mint-serenity") {
     const seed = mintSerenitySeed(site.weddingDate.slice(0, 10));
+    site.content = { ...site.content, ...seed.content };
+    site.events = seed.events;
+    site.content.details = seed.details;
+  }
+  // ETERNAL MOMENT: same pattern — seed the activation from the
+  // shared template seed (the 4-event schedule, welcome + 4-chapter
+  // story, dress code, meal menu, venue + the 2 accommodations,
+  // travel + registry notes). The gallery is deliberately NOT seeded
+  // (preview-only, same rule as the other templates — demo photos
+  // must never land on a real buyer's site).
+  if (template.composition === "eternal-moment") {
+    const seed = eternalMomentSeed(site.weddingDate.slice(0, 10));
     site.content = { ...site.content, ...seed.content };
     site.events = seed.events;
     site.content.details = seed.details;

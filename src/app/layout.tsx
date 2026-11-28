@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Allura, Beau_Rivage, Cinzel, Cormorant_Garamond, EB_Garamond, Great_Vibes, Imperial_Script, Inter, Lora, Manrope, Ovo, Playfair_Display, Rufina } from "next/font/google";
+import { Allura, Beau_Rivage, Cinzel, Cormorant_Garamond, DM_Mono, EB_Garamond, Great_Vibes, Imperial_Script, Inter, Lora, Manrope, Ovo, Playfair_Display, Rufina } from "next/font/google";
 import "./globals.css";
 
 // Display serifs per theme (see globals.css .font-* classes). Every
@@ -43,6 +43,14 @@ const allura = Allura({
   subsets: ["latin"],
   weight: ["400"],
   variable: "--font-allura",
+  display: "swap",
+});
+// AN ETERNAL MOMENT: DM Mono (mono labels — Cormorant Garamond
+// display + Manrope body are already imported above).
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-dm-mono",
   display: "swap",
 });
 // THE SACRED GARDEN: Beau Rivage (couple names) + Imperial Script
@@ -107,7 +115,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${playfair.variable} ${ebGaramond.variable} ${inter.variable} ${manrope.variable} ${allura.variable} ${beauRivage.variable} ${imperialScript.variable} ${cinzel.variable} ${ovo.variable} ${rufina.variable} ${greatVibes.variable} ${lora.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${playfair.variable} ${ebGaramond.variable} ${inter.variable} ${manrope.variable} ${allura.variable} ${beauRivage.variable} ${imperialScript.variable} ${cinzel.variable} ${ovo.variable} ${rufina.variable} ${greatVibes.variable} ${lora.variable} ${dmMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

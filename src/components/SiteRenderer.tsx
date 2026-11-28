@@ -34,6 +34,7 @@ import SunflowerFieldsRenderer from "./sunflower-fields/SunflowerFieldsRenderer"
 import MintSerenityRenderer from "./mint-serenity/MintSerenityRenderer";
 import SacredGardenRenderer from "./sacred-garden/SacredGardenRenderer";
 import DolceVitaRenderer from "./dolce-vita/DolceVitaRenderer";
+import EternalMomentRenderer from "./eternal-moment/EternalMomentRenderer";
 
 interface SiteRendererProps {
   site: WeddingSite;
@@ -1743,6 +1744,15 @@ export default function SiteRenderer({ site, preview = false, envelope = false }
   // scratch-reveal date, photo slider). Same gate as ÉTERNEL above.
   if (comp === "dolce-vita") {
     return <DolceVitaRenderer site={effective} envelope={envelope} preview={preview} />;
+  }
+
+  // AN ETERNAL MOMENT renders through its own renderer — a port of
+  // The Wedding Experience design (hero-direct opening, no envelope;
+  // editorial serif, thin gold rules, numbered story chapters, live
+  // countdown, events, venue with map, dress-code swatches, gallery
+  // with lightbox, full RSVP form). Same gate as ÉTERNEL above.
+  if (comp === "eternal-moment") {
+    return <EternalMomentRenderer site={effective} envelope={envelope} preview={preview} />;
   }
 
   const sections = effective.templateSnapshot.sections;

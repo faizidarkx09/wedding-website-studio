@@ -18,8 +18,8 @@ const HEX = /^#[0-9a-fA-F]{6}$/;
 
 /** Composition keys the renderer knows (SiteRenderer composition()):
  * champagne, blue, midnight, sage, mediterranean, lavender, eternel,
- * blossom, sacred-garden, dolce-vita, royal-burgundy, plus the generic "classic"
- * fallback for unknown keys. */
+ * blossom, sacred-garden, dolce-vita, royal-burgundy, eternal-moment,
+ * plus the generic "classic" fallback for unknown keys. */
 const KNOWN_COMPOSITIONS = new Set([
   "champagne",
   "blue",
@@ -32,6 +32,7 @@ const KNOWN_COMPOSITIONS = new Set([
   "sacred-garden",
   "dolce-vita",
   "royal-burgundy",
+  "eternal-moment",
   "classic",
 ]);
 

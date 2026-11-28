@@ -552,11 +552,12 @@ export default function EditorPage() {
                   <label htmlFor="story" className={labelCls}>Our story</label>
                   <textarea id="story" rows={5} value={draft.content.story} onChange={(e) => updateDraft((d) => ({ ...d, content: { ...d.content, story: e.target.value } }))} className={inputCls} />
                 </div>
-                {/* ÉTERNEL / BLOSSOM & OUD / DOLCE VITA only: story
+                {/* ÉTERNEL / BLOSSOM & OUD / DOLCE VITA / ETERNAL MOMENT only: story
                     milestones for the animated timeline. Other templates
                     use the single "Our story" text above. */}
                 {(draft.templateSnapshot.composition === "eternel" ||
                   draft.templateSnapshot.composition === "blossom" ||
+                  draft.templateSnapshot.composition === "eternal-moment" ||
                   draft.templateSnapshot.composition === "dolce-vita") ? (
                   <div className="rounded-lg border border-stone-200 p-3">
                     <h3 className="text-sm font-medium">Story milestones</h3>
@@ -688,10 +689,11 @@ export default function EditorPage() {
                     <p className="mt-1 text-xs text-stone-500">Shown in the Venue section, above the map.</p>
                   </div>
                 ) : null}
-                {/* ROYAL BURGUNDY only: the RSVP entrée menu (one option
+                {/* ROYAL BURGUNDY / ETERNAL MOMENT only: the RSVP entrée menu (one option
                     per line). The form falls back to the template's own
                     5-course menu when this is empty. */}
-                {draft.templateSnapshot.composition === "royal-burgundy" ? (
+                {(draft.templateSnapshot.composition === "royal-burgundy" ||
+                  draft.templateSnapshot.composition === "eternal-moment") ? (
                   <div>
                     <label htmlFor="royal-meal-options" className={labelCls}>Entrée menu <span className="font-normal text-stone-500">(one per line)</span></label>
                     <textarea
